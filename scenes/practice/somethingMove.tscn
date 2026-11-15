@@ -1,0 +1,86 @@
+[gd_scene format=3 uid="uid://dpb2k1evlus57"]
+
+[ext_resource type="Script" uid="uid://cgxuf8qhb8g0l" path="res://scenes/practice/something_move.gd" id="1_b3mng"]
+[ext_resource type="Texture2D" uid="uid://cx8g5lgmid43w" path="res://assets/textures/characters/FreeAnimalPack/BirdFly.png" id="2_eq1oi"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ohrhu"]
+radius = 1.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l3px0"]
+atlas = ExtResource("2_eq1oi")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8adr0"]
+atlas = ExtResource("2_eq1oi")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k2d1v"]
+atlas = ExtResource("2_eq1oi")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_np3h5"]
+atlas = ExtResource("2_eq1oi")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hwd4m"]
+atlas = ExtResource("2_eq1oi")
+region = Rect2(64, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fx1cb"]
+atlas = ExtResource("2_eq1oi")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5u476"]
+atlas = ExtResource("2_eq1oi")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6nyjv"]
+atlas = ExtResource("2_eq1oi")
+region = Rect2(112, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ohrhu"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l3px0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8adr0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k2d1v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_np3h5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hwd4m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fx1cb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5u476")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6nyjv")
+}],
+"loop": 1,
+"name": &"bird_fly",
+"speed": 10.0
+}]
+
+[node name="SomethingMove" type="CharacterBody2D" unique_id=422632962]
+script = ExtResource("1_b3mng")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=53713708]
+shape = SubResource("CircleShape2D_ohrhu")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=992035882]
+position = Vector2(-4.7683716e-07, -4.7683716e-07)
+scale = Vector2(0.3125, 0.3125)
+sprite_frames = SubResource("SpriteFrames_ohrhu")
+animation = &"bird_fly"
+autoplay = "bird_fly"
+frame_progress = 0.21610774
+speed_scale = 5.0
