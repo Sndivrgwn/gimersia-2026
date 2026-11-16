@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://c3g7f5yup8cvu"]
+
+[ext_resource type="Script" uid="uid://cdetpps4uel0i" path="res://src/core/managers/day_night_manager.gd" id="1_manager"]
+[ext_resource type="Resource" uid="uid://el5d287ge4ot" path="res://src/data/configs/environment/day_night_debug_fast.tres" id="3_debug_config"]
+
+[node name="DayNightManager" type="Node" unique_id=424905832]
+process_mode = 1
+script = ExtResource("1_manager")
+debug_config = ExtResource("3_debug_config")

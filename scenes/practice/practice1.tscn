@@ -7,6 +7,8 @@
 [ext_resource type="Script" uid="uid://bhexx6mj1xv3q" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_2d.gd" id="5_lp57q"]
 [ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="6_nu6o2"]
 [ext_resource type="Script" uid="uid://dk8r7t2xb8jlq" path="res://scenes/practice/safe_zone.gd" id="7_lp57q"]
+[ext_resource type="PackedScene" path="res://src/levels/components/environment/day_night_visual.tscn" id="8_daynight"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/time/time_hud.tscn" id="9_timehud"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ddd1a"]
 texture = ExtResource("1_ur0jx")
@@ -1654,3 +1656,7 @@ safe_zone_zoom = 6.0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SafeZone" unique_id=1662514621]
 position = Vector2(29, -19.5)
 shape = SubResource("RectangleShape2D_ohrhu")
+
+[node name="DayNightVisual" parent="." unique_id=2130633859 instance=ExtResource("8_daynight")]
+
+[node name="TimeHUD" parent="." unique_id=2049610334 instance=ExtResource("9_timehud")]
