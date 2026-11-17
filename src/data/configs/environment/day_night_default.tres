@@ -20,5 +20,4 @@ day_ratio = 0.3
 
 [resource]
 script = ExtResource("1_config")
-cycle_duration = 55.0
 periods = Array[ExtResource("2_period")]([SubResource("Resource_period_1_3"), SubResource("Resource_period_4_5"), SubResource("Resource_period_6_7")])

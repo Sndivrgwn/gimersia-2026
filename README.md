@@ -36,4 +36,10 @@ gimersia-2026/
 └── docs/                         # Game design documentation and architecture guides
 ```
 
-For detailed architectural guidelines and naming conventions, see [docs/architecture.md](docs/architecture.md).
+## 📚 Documentation
+
+- [Architecture & conventions](docs/architecture.md)
+- [Module usage guide](docs/PANDUAN_MODUL.md)
+- [MVP checklist](docs/MVP_CHECKLIST.md)
+- [Gameplay specification](docs/spesifikasi_teknis_mekanisme_gameplay_V8.md)
+- [MVP scope & division work list](docs/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md)

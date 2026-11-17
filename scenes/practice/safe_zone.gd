@@ -1,6 +1,10 @@
 
 extends Area2D
 
+## Semua efek zona aman memakai source_id ini agar bisa dilepas tanpa
+## mengganggu modifier dari modul lain.
+const SAFE_ZONE_SOURCE := &"safe_zone"
+
 @export var phantom_camera: PhantomCamera2D
 
 @export_group("Camera Zoom")
@@ -14,7 +18,6 @@ extends Area2D
 var zoom_tween: Tween
 
 var current_player: Node2D
-var original_speed: float = -1.0
 
 
 func _ready() -> void:
@@ -40,7 +43,6 @@ func _on_body_exited(body: Node2D) -> void:
 		change_player_speed(1.0)
 
 		current_player = null
-		original_speed = -1.0
 
 
 func change_zoom(target_zoom: float) -> void:
@@ -68,20 +70,17 @@ func change_player_speed(multiplier: float) -> void:
 		print("Player tidak valid!")
 		return
 
-	print("Player ditemukan: ", current_player.name)
-
-	# Ambil script movement langsung dari Player
-	var movement = current_player
-
-	if not "speed" in movement:
-		print("Variabel speed tidak ditemukan!")
+	var player := current_player as Player
+	if player == null or player.stats == null:
 		return
 
-	print("Speed sebelum: ", movement.speed)
-
-	if original_speed < 0:
-		original_speed = movement.speed
-
-	movement.speed = original_speed * multiplier
-
-	print("Speed sesudah: ", movement.speed)
+	# Perlambatan memakai modifier supaya nilai dasar di PlayerBaseStats
+	# tidak pernah ditimpa langsung.
+	player.stats.remove_modifier(SAFE_ZONE_SOURCE)
+	if not is_equal_approx(multiplier, 1.0):
+		player.stats.add_modifier(
+			SAFE_ZONE_SOURCE,
+			&"move_speed",
+			StatModifier.Kind.PERCENT,
+			multiplier - 1.0
+		)
