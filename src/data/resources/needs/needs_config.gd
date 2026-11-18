@@ -31,6 +31,10 @@ extends Resource
 @export var thirst_night_drain: float = 0.18
 ## Fatigue per detik nyata saat sprint (dikali faktor sprint drain).
 @export var fatigue_sprint_drain: float = 2.5
+## Fatigue per detik nyata saat jalan biasa (tidak sprint). Sengaja kecil:
+## jalan lama-lama melelahkan, tapi jauh lebih lambat daripada sprint.
+## 0.0 = hanya sprint yang menguras Fatigue.
+@export var fatigue_walk_drain: float = 0.08
 
 @export_group("Zero Tier HP Loss Per Second")
 ## HP hilang per detik game saat Hunger ZERO.

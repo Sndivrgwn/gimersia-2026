@@ -151,7 +151,7 @@ needs.tier_changed.connect(func(need, tier): print(need, " tier ", tier))
 - Efek tier dipasang otomatis ke `StatsComponent` dengan `source_id` `&"lapar"`, `&"haus"`, `&"lelah"` (satu id per need, boleh banyak stat).
 - Angka tuning ada di `src/data/resources/needs/needs_config.gd`; instance `src/data/configs/needs_config.tres` tidak menimpa apa pun.
 - Drain memakai `get_time_scale()` dan `is_night()`, jadi tidak perlu timer sendiri.
-- **Fatigue tidak turun sendiri.** Hunger/Thirst yang turun pasif; Fatigue hanya berkurang saat **sprint** (Shift + gerak, −2.5/s × faktor stat) atau lewat `spend_fatigue()`. Diam di tempat = Fatigue penuh terus. Itu sesuai spesifikasi, bukan bug.
+- **Fatigue turun paling cepat saat sprint.** Hunger/Thirst turun pasif; Fatigue berkurang saat **sprint** (Shift + gerak, −2.5/s × faktor stat) dan **sedikit saat jalan biasa** (−0.08/s). Diam di tempat = Fatigue tidak turun. Semua angka ada di `needs_config.gd`; set `fatigue_walk_drain = 0.0` kalau mau sprint-only lagi.
 - `time_skipped` (tidur) menguras Hunger/Thirst tapi tidak pernah di bawah 1.0.
 - Sprint dikunci dengan menulis `player.can_sprint`; `velocity` dan base stats tidak disentuh.
 
@@ -301,7 +301,7 @@ world (Node2D)
 | HUD Needs tidak muncul / bar diam | Player belum masuk grup `player`, atau node komponennya bukan bernama `NeedsComponent`. |
 | Needs tidak turun | `DayNightManager` tidak ada di `/root`, atau `time_scale` sedang 0 (final dawn). |
 | Sprint tidak bisa | Fatigue ≤ 25 (memang dikunci Needs). |
-| Fatigue tidak turun | Bukan bug: Fatigue hanya turun saat sprint (Shift + gerak) atau `spend_fatigue()`. Hunger/Thirst yang turun sendiri. |
+| Fatigue turunnya lambat | Normal: jalan −0.08/s, sprint −2.5/s. Diam di tempat tidak menurunkan Fatigue. Naikkan `fatigue_walk_drain` / `fatigue_sprint_drain` di `needs_config.gd` kalau kurang cepat. |
 | `Could not find type "..."` setelah menambah script baru | Cache kelas belum diperbarui — jalankan `Godot_v4.7.2-stable_win64_console.exe --headless --import` sekali. |
 | Tes gagal karena autoload | Jangan andalkan autoload di unit test: `preload` script dan buat instance sendiri. |
 

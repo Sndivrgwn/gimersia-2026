@@ -126,13 +126,15 @@ func tick(delta: float) -> void:
 		_apply_value(Need.THIRST, _values[Need.THIRST] - thirst_rate * game_delta)
 		_apply_zero_tier_hp_loss(game_delta)
 
-	# Fatigue hanya terkuras saat sprint, memakai waktu nyata dan faktor dari
-	# StatsComponent (proficiency Speed / debuff).
+	# Fatigue: sprint menguras cepat (dikali faktor StatsComponent), jalan
+	# menguras pelan. Keduanya memakai waktu nyata, bukan time_scale hari/malam.
 	if _is_sprinting:
 		var factor := 1.0
 		if stats != null:
 			factor = stats.get_sprint_fatigue_drain_factor()
 		_apply_value(Need.FATIGUE, _values[Need.FATIGUE] - config.fatigue_sprint_drain * factor * delta)
+	elif _is_moving() and config.fatigue_walk_drain > 0.0:
+		_apply_value(Need.FATIGUE, _values[Need.FATIGUE] - config.fatigue_walk_drain * delta)
 
 
 # --- Internal ---------------------------------------------------------------
@@ -311,6 +313,15 @@ func _refresh_sprint_lock() -> void:
 	if _values.is_empty():
 		return
 	player.can_sprint = _values[Need.FATIGUE] > config.low_threshold
+
+
+## Player tidak punya sinyal gerak, jadi velocity dibaca langsung bila tersedia.
+## Stub/entity tanpa velocity dianggap diam.
+func _is_moving() -> bool:
+	if player == null or not ("velocity" in player):
+		return false
+	var velocity: Vector2 = player.velocity
+	return velocity.length_squared() > 1.0
 
 
 func _time_scale() -> float:

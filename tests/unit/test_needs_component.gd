@@ -267,6 +267,48 @@ func test_can_sprint_locks_at_25() -> void:
 	assert_true(player.can_sprint, "di atas 25 terbuka lagi")
 
 
+# --- Jalan ------------------------------------------------------------------
+
+func test_walking_drains_fatigue_slowly() -> void:
+	var mover := CharacterBody2D.new()
+	add_child_autofree(mover)
+	needs.setup(clock, stats, mover)
+
+	mover.velocity = Vector2(120.0, 0.0)
+	needs.tick(10.0)
+	assert_almost_eq(
+		needs.get_value(NeedsComponentScript.Need.FATIGUE), 100.0 - 0.08 * 10.0, 0.01,
+		"jalan 10 detik hanya mengurangi 0.8"
+	)
+
+	mover.velocity = Vector2.ZERO
+	needs.tick(10.0)
+	assert_almost_eq(
+		needs.get_value(NeedsComponentScript.Need.FATIGUE), 99.2, 0.01,
+		"diam di tempat tidak mengurangi Fatigue"
+	)
+
+
+func test_walk_drain_is_much_slower_than_sprint() -> void:
+	var config := needs.get_config()
+
+	assert_almost_eq(config.fatigue_walk_drain, 0.08, 0.0001)
+	assert_almost_eq(config.fatigue_sprint_drain, 2.5, 0.0001)
+	assert_gt(
+		config.fatigue_sprint_drain, config.fatigue_walk_drain * 20.0,
+		"sprint minimal 20x lebih cepat daripada jalan"
+	)
+
+	# Jalan semenit hanya menghabiskan beberapa poin.
+	var mover := CharacterBody2D.new()
+	add_child_autofree(mover)
+	needs.setup(clock, stats, mover)
+
+	mover.velocity = Vector2(120.0, 0.0)
+	needs.tick(60.0)
+	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.FATIGUE), 95.2, 0.01)
+
+
 # --- Sinyal -----------------------------------------------------------------
 
 func test_signals_emit_once_per_change() -> void:

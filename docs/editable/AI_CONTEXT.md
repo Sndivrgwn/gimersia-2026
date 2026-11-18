@@ -4,7 +4,7 @@
 > repository. Read this file first, then the linked docs. **Code is the source of
 > truth** when a doc disagrees with it.
 
-Last verified: 2026-11-18, Godot 4.7.2, GUT 9.7.1, 50/50 tests passing.
+Last verified: 2026-11-18, Godot 4.7.2, GUT 9.7.1, 52/52 tests passing.
 Spec cross-check: 2026-11-18 against spec V8. Gaps found are listed in §4
 (missing systems), §7.1-7.8 (spec details), §8 (revised build order) and §13
 (open design questions).
@@ -46,7 +46,7 @@ in `docs/editable/` is maintained by the project.
 |---|---|---|
 | Engine | — | `D:\Programming\Gamedev\Godot_v4.7.2-stable_win64.exe` (console variant exists) |
 | GUT | — | **9.7.1 installed** in `addons/gut` (docs saying otherwise are stale) |
-| Unit tests | see §9 | **50/50 passing**, 243 asserts, ~1.2 s |
+| Unit tests | see §9 | **52/52 passing**, 249 asserts, ~1.2 s |
 | Main scene boot | see §9 | `practice1.tscn` runs headless for 120 frames with **no errors** |
 | Default clock config | — | `cycle_duration` **600 s** (script default; `.tres` no longer overrides it) |
 | Dusk warning | — | 15 s before night |
@@ -218,7 +218,7 @@ Total 1 cycle = 600 s, full run = 4200 s. Dusk tint + warning in the last 15 s.
 |---|---:|---:|---|---|
 | Hunger | -0.16/s | -0.20/s | move -15%, damage -15% | -1.5 HP/s |
 | Thirst | -0.24/s | -0.18/s | fatigue drain +30%, attack speed -20% | -2.0 HP/s |
-| Fatigue | sprint -2.5/s, attack -1.2/hit, gather -2.0/action | same | sprint locked, move -20%, gather +30% time | move -45%, attack speed -50% |
+| Fatigue | walk -0.08/s, sprint -2.5/s, attack -1.2/hit, gather -2.0/action | same | sprint locked, move -20%, gather +30% time | move -45%, attack speed -50% |
 
 - Fatigue recover: idle within 120 px of lit Campfire +5/s; sleep in Tent
   (day only, >60 s remaining, 60 s cooldown) restores 100% and `skip_time(45)`;
