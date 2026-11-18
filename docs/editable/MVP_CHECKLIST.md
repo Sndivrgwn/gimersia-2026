@@ -2,16 +2,16 @@
 
 Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 
-- [`docs/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md`](MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md)
-- [`docs/spesifikasi_teknis_mekanisme_gameplay_V8.md`](spesifikasi_teknis_mekanisme_gameplay_V8.md)
-- [`docs/architecture.md`](architecture.md)
-- [`docs/PANDUAN_MODUL.md`](PANDUAN_MODUL.md)
+- [`docs/noneditable/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md`](../noneditable/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md)
+- [`docs/noneditable/spesifikasi_teknis_mekanisme_gameplay_V8.md`](../noneditable/spesifikasi_teknis_mekanisme_gameplay_V8.md)
+- [`docs/editable/architecture.md`](architecture.md)
+- [`docs/editable/PANDUAN_MODUL.md`](PANDUAN_MODUL.md)
 
 ## Legenda
 
 - `[x]` — implementasi kode sudah ada dan sudah ditinjau secara statis.
 - `[ ]` — belum ada, belum lengkap, atau belum diverifikasi end-to-end.
-- `[x]` **bukan** berarti sudah lulus playtest atau build final. Godot/GUT belum tersedia di workspace ini, jadi semua status runtime masih belum diverifikasi.
+- `[x]` **bukan** berarti sudah lulus playtest atau build final. Godot 4.7.2 dan GUT 9.7.1 tersedia; unit test lulus dan `practice1.tscn` smoke test headless bersih, tetapi playtest dan build final belum diverifikasi.
 
 > **Status saat ini:** fondasi teknis (waktu, stats, movement, HUD siang-malam) sudah ada, tetapi loop survival inti belum. Game **belum dapat dimainkan dari awal sampai akhir**.
 
@@ -53,8 +53,9 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] `SafeZone` practice sebagai contoh modifier dan zoom kamera.
 - [x] Tes GUT ditulis: `tests/unit/test_stats_component.gd`, `tests/unit/test_game_clock.gd`.
 - [x] Sandbox manual stats: `tests/sandbox/stats_sandbox.tscn`.
-- [ ] GUT 9.x terpasang di `addons/gut` dan tes benar-benar dijalankan.
-- [ ] Smoke test runtime `practice1.tscn` setelah semua perubahan clock.
+- [x] GUT 9.7.1 terpasang di `addons/gut` dan tes benar-benar dijalankan.
+- [x] Smoke test runtime `practice1.tscn` setelah semua perubahan clock.
+  - Headless `--quit-after 120` selesai tanpa error (exit 0).
 - [ ] Build/export Windows yang bisa dijalankan tanpa error penghambat.
 
 ---
@@ -64,13 +65,13 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] `DayNightConfig` menyimpan `cycle_duration`, `max_days`, `time_scale`, dan daftar periode.
 - [x] `DayNightPeriod` menyimpan rentang hari dan rasio siang.
 - [x] Rasio periode: Hari 1–3 `0.5`, Hari 4–5 `0.4`, Hari 6–7 `0.3`.
-- [ ] Config default memakai 600 detik sesuai spesifikasi 1.D.
-  - Saat ini `day_night_default.tres` = **55 detik**; total live 385 detik, bukan 4200.
+- [x] Config default memakai 600 detik sesuai spesifikasi 1.D.
+  - `cycle_duration` bawaan script = **600 detik**; `day_night_default.tres` tidak lagi menimpanya, jadi total live 4200 detik.
 - [x] Mulai di Hari 1 pagi; `start()` mereset hari/fase.
 - [x] `advance(delta)` dan `skip_time(seconds)` tersedia untuk pengujian dan tidur Tenda.
 - [x] Carry-over satu fase dan multi-fase benar pada `advance()`/`skip_time()`.
-- [ ] `_process` juga mempertahankan overflow multi-fase.
-  - Saat ini jalur `_process` masih memotong overflow; hanya jalur manual yang benar.
+- [x] `_process` juga mempertahankan overflow multi-fase.
+  - `_process` memakai carry-over loop (`while`), sama seperti jalur `_advance_game_seconds()`.
 - [x] `dusk_started(day)` muncul pada 15 detik terakhir siang, sekali per hari.
 - [x] Dusk tetap muncul saat lompatan besar melewati batas siang.
 - [x] Night Watch hanya aktif saat malam dan mengalikan waktu 2×.
@@ -354,11 +355,11 @@ Jalankan setelah modul inti tersedia. Centang hanya jika seluruh langkah berhasi
 
 ## 18. Blocker dan Keputusan yang Harus Diselesaikan
 
-1. **Config default 55 detik vs 600 detik.** Ubah `day_night_default.tres` atau jelaskan bahwa 55 detik adalah debug default. Tanpa ini, acceptance “rasio 5:5/4:6/3:7 dengan durasi 300/300” tidak terpenuhi di game live.
-2. **`_process` kehilangan overflow multi-fase.** Jalur `advance()`/`skip_time()` sudah benar; `_process` belum.
-3. **`set_time_scale(-1)` tidak reset.** Komentar mengatakan reset, kode menghasilkan 0.
+1. **[Selesai] Config default 600 detik.** `cycle_duration` bawaan script = 600 detik dan `day_night_default.tres` tidak lagi menimpanya; acceptance “rasio 5:5/4:6/3:7 dengan durasi 300/300” kini terpenuhi di game live.
+2. **[Selesai] `_process` mempertahankan overflow multi-fase.** `_process` memakai carry-over loop; jalur `advance()`/`skip_time()` tetap memakai `_advance_game_seconds()`.
+3. **[Selesai] `set_time_scale(-1)` reset ke config.** Nilai negatif mengembalikan `DayNightConfig.time_scale`; `0.0` tetap override nyata untuk freeze final dawn.
 4. **`phase_changed` tidak membawa `day`.** Jangan ubah sinyal lama; tambahkan sinyal baru bila perlu.
-5. **GUT belum terpasang.** Tes clock/stats belum dijalankan.
+5. **[Selesai] GUT 9.7.1 terpasang.** Tes clock/stats sudah dijalankan lewat GUT command line.
 6. **Modul inti belum ada.** Needs, inventory, gather, craft, combat, enemy, death, menu, audio, victory.
 7. **`get_time_scale()` berubah saat final dawn.** Modul survival harus memakai getter ini agar ikut berhenti.
 8. **`SafeZone` masih practice-only.** Jangan anggap ini sistem camp produksi.
@@ -367,7 +368,7 @@ Jalankan setelah modul inti tersedia. Centang hanya jika seluruh langkah berhasi
 
 ## 19. Urutan Prioritas yang Disarankan
 
-1. **P0 — Fondasi yang menghambat verifikasi:** pasang GUT, jalankan tes, perbaiki config 600, putuskan `_process` overflow, smoke test `practice1`.
+1. **[Selesai] P0 — Fondasi yang menghambat verifikasi:** GUT 9.7.1 terpasang, tes dijalankan, config 600, `_process` carry-over, smoke test `practice1` headless bersih.
 2. **P1 — Loop survival minimum:** needs + HUD, inventory + gathering, crafting/camp dasar, combat + satu hewan, night survival.
 3. **P2 — Kematian dan akhir permainan:** death/respawn, item drop, debuff, Hari 7, flare, Victory.
 4. **P3 — Polish:** menu, audio, animasi, balancing, playtest, build final.
@@ -378,5 +379,5 @@ Jalankan setelah modul inti tersedia. Centang hanya jika seluruh langkah berhasi
 
 - Centang item hanya setelah kode **dan** verifikasi runtime/tes yang relevan selesai.
 - Jika sebuah item hanya sebagian, biarkan `[ ]` dan tulis catatan “sebagian” di bawahnya.
-- Setiap perubahan arsitektur/modul baru: perbarui `docs/architecture.md` dan `docs/PANDUAN_MODUL.md`.
+- Setiap perubahan arsitektur/modul baru: perbarui `docs/editable/architecture.md` dan `docs/editable/PANDUAN_MODUL.md`.
 - Setiap keputusan angka final: perbarui `.tres` dan checklist ini, jangan hanya mengubah kode.

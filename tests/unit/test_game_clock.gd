@@ -258,6 +258,29 @@ func test_time_scale_change_signal() -> void:
 	assert_almost_eq(_last_time_scale, 1.0, 0.001)
 
 
+func test_time_scale_negative_resets_to_config() -> void:
+	# Nilai config sengaja bukan 1.0 supaya fallback keras akan gagal di sini.
+	config.time_scale = 3.0
+
+	watch_signals(clock)
+	clock.set_time_scale(2.0)
+	assert_almost_eq(clock.get_time_scale(), 2.0, 0.001)
+
+	clock.set_time_scale(-1.0)
+	assert_almost_eq(clock.get_time_scale(), 3.0, 0.001)
+	assert_almost_eq(_last_time_scale, 3.0, 0.001)
+	assert_signal_emitted(clock, "time_scale_changed")
+
+	# 0.0 tetap override nyata: dipakai untuk freeze final dawn.
+	clock.set_time_scale(0.0)
+	assert_almost_eq(clock.get_time_scale(), 0.0, 0.001)
+	assert_almost_eq(_last_time_scale, 0.0, 0.001)
+
+	clock.set_time_scale(1.5)
+	assert_almost_eq(clock.get_time_scale(), 1.5, 0.001)
+	assert_almost_eq(_last_time_scale, 1.5, 0.001)
+
+
 # --- E. Skip time -----------------------------------------------------------
 
 func test_skip_time_ignores_night_watch() -> void:

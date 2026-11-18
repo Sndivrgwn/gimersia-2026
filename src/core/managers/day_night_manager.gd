@@ -221,9 +221,10 @@ func get_time_scale() -> float:
 
 
 ## Runtime-only clock speed override (debug/testing). Negative resets to config.
+## `0.0` is a real override (used by the final-dawn freeze); only negatives clear it.
 func set_time_scale(value: float) -> void:
 	var previous_scale := get_time_scale()
-	_time_scale_override = maxf(value, 0.0)
+	_time_scale_override = value if value >= 0.0 else -1.0
 	_emit_time_scale_changed(previous_scale)
 
 

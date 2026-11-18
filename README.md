@@ -38,8 +38,8 @@ gimersia-2026/
 
 ## 📚 Documentation
 
-- [Architecture & conventions](docs/architecture.md)
-- [Module usage guide](docs/PANDUAN_MODUL.md)
-- [MVP checklist](docs/MVP_CHECKLIST.md)
-- [Gameplay specification](docs/spesifikasi_teknis_mekanisme_gameplay_V8.md)
-- [MVP scope & division work list](docs/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md)
+- [Architecture & conventions](docs/editable/architecture.md)
+- [Module usage guide](docs/editable/PANDUAN_MODUL.md)
+- [MVP checklist](docs/editable/MVP_CHECKLIST.md)
+- [Gameplay specification](docs/noneditable/spesifikasi_teknis_mekanisme_gameplay_V8.md)
+- [MVP scope & division work list](docs/noneditable/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md)

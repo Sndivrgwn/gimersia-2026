@@ -13,7 +13,7 @@ This document describes the code that exists **today**. Planned systems are mark
 | Main scene | `res://scenes/practice/practice1.tscn` | Practice map used to wire the current modules together |
 | `DayNightManager` autoload | `res://src/core/managers/day_night_manager.tscn` | Game clock, day/phase state, dusk, Night Watch, final dawn |
 | `PhantomCameraManager` autoload | Phantom Camera addon (UID in `project.godot`) | Third-party camera manager |
-| GUT | not installed yet | Unit tests are written for GUT 9.x but cannot run until the addon is added |
+| GUT | `addons/gut` (9.7.1) | Unit test runner; see §8 for the command line |
 
 Not present yet: `EventBus`, `GameManager`, `AudioManager`, `SaveManager`, main menu, or a production level loader. Do not design new modules around them as if they already exist.
 
@@ -82,7 +82,7 @@ Empty placeholder folders such as `src/entities/enemies`, `src/entities/props`, 
 | **Player** | `src/entities/player/player.gd/.tscn` | Top-down movement and sprint using StatsComponent | `can_sprint`, `facing_direction`, `sprint_state_changed`, `stats` | Implemented; no combat/interaction yet |
 | **InputSetup** | `src/utils/input_setup.gd` | Idempotent runtime registration of movement/sprint actions | `InputSetup.ensure_actions()` | Implemented |
 | **SafeZone** | `scenes/practice/safe_zone.gd`, inside `practice1.tscn` | Practice-only camera zoom and movement slow modifier | `phantom_camera`, zoom/slow exports | Practice only; not production camp logic |
-| **Tests / sandbox** | `tests/unit/`, `tests/sandbox/` | Unit tests and manual stats sandbox | GUT tests; sandbox scene | Written; GUT not installed |
+| **Tests / sandbox** | `tests/unit/`, `tests/sandbox/` | Unit tests and manual stats sandbox | GUT tests; sandbox scene | Written; run with GUT 9.7.1 |
 
 ---
 
@@ -237,9 +237,9 @@ Guidelines:
 - `tests/unit/test_game_clock.gd` covers durations, carry-over, dusk, Night Watch, `skip_time()`, final dawn, signal order, and remaining-time text.
 - The clock test creates its own `DayNightConfig` with `cycle_duration = 600.0`, `auto_start = false`, disables `_process`, and calls `start()`/`advance()` explicitly. It does not depend on the autoload’s current `.tres`.
 - `tests/sandbox/stats_sandbox.tscn` is a manual scene for stat debugging; it is not an automated test.
-- **GUT is not installed in `addons/` yet** (only Phantom Camera is present). The tests are written but have not been executed.
+- **GUT 9.7.1 is installed in `addons/gut`** (`plugin.cfg` reports the version). The suite runs through the GUT command line and passes; the clock test count is tracked in the handoff doc (`docs/editable/AI_CONTEXT.md` §3).
 
-Static review is not a substitute for running Godot/GUT. See `docs/PANDUAN_MODUL.md` for commands and the current verification limits.
+Static review is not a substitute for running Godot/GUT. See `docs/editable/PANDUAN_MODUL.md` for commands and the current verification limits.
 
 ---
 
@@ -247,16 +247,16 @@ Static review is not a substitute for running Godot/GUT. See `docs/PANDUAN_MODUL
 
 These are deliberate notes so future modules do not build on incorrect assumptions.
 
-1. **Default cycle is 55 s, not 600 s.** `day_night_default.tres` does not match the 1.D spec. The manager and tests can use 600 s, but the live autoload currently runs the 55 s config. Decide whether 55 s is an intentional debug default or change the `.tres` to 600 s.
-2. **`_process` loses multi-phase overflow.** The old `_process` loop passes overflow into `_begin_night()`/`_begin_day()`, which clamp it to the new phase duration. `advance()`/`skip_time()` use `_advance_game_seconds()` and handle multiple phases correctly; `_process` still needs a decision/fix.
-3. **`set_time_scale(-1)` does not reset.** The comment says negative resets to config, but `maxf(value, 0.0)` turns it into 0. This is a pre-existing logic bug, not fixed.
+1. **Default cycle is 600 s (resolved).** `day_night_config.gd` defaults `cycle_duration` to `600.0` and `day_night_default.tres` no longer overrides it, so the live autoload matches the 1.D spec (300/300, 240/360, 180/420; 4200 s total). The accelerated 60 s config remains available through `debug_config`.
+2. **`_process` keeps multi-phase overflow (resolved).** `_process` uses a carry-over `while` loop: overflow past a phase boundary is passed on until it fits, so a long frame or a high `time_scale` still lands on the correct phase. `advance()`/`skip_time()` keep the equivalent guarantee in `_advance_game_seconds()`.
+3. **`set_time_scale(-1)` resets to config (resolved).** Only negatives clear the override and fall back to `DayNightConfig.time_scale`; `0.0` stays a real override and is what the final-dawn freeze uses.
 4. **`phase_changed(phase)` has no `day` argument.** Adding one would break the existing one-argument listener in `day_night_visual.gd`. Use `day_started`/`night_started`/`day_changed`, or add a separate signal if the day is required.
 5. **`get_time_scale()` changed at final dawn.** It now returns 0 while `rescue_triggered`; this is required for the final-dawn freeze but is a semantic change to an existing getter. No other module currently calls it, but future survival systems must use it consistently.
 6. **No needs, combat, enemies, items, camp, crafting, death/respawn, menus, or audio yet.** Do not assume those APIs exist. The MVP checklist tracks them.
 7. **Progression is data-only.** `StatsComponent` accepts proficiency levels, but there is no XP gain, level-up flow, or death debuff implementation.
 8. **`SafeZone` is practice-only.** It is a useful reference for modifier-based effects, not a production camp system.
 9. **No `EventBus`.** The generic “decouple with EventBus” advice remains a future option, not current architecture.
-10. **No runtime verification.** Godot/GUT are unavailable in this workspace; all current checks are static review.
+10. **Runtime verification is limited.** Godot 4.7.2 and GUT 9.7.1 are available: the unit suite passes and `practice1.tscn` boots headless for 120 frames without errors. Playtest, balancing and export are still unverified.
 
 ---
 
@@ -279,7 +279,7 @@ Additional project rules:
 - Do not rename or reshape existing public functions/signals just for style.
 - Prefer adding new signals/getters over changing existing signal signatures.
 - Keep tuning numbers in resources; keep formulas in components.
-- New gameplay modules should be co-located under `src/<domain>/` and documented in `docs/PANDUAN_MODUL.md`.
+- New gameplay modules should be co-located under `src/<domain>/` and documented in `docs/editable/PANDUAN_MODUL.md`.
 
 ---
 
@@ -287,9 +287,9 @@ Additional project rules:
 
 | Document | Purpose |
 |---|---|
-| [`README.md`](../README.md) | Project entry point and quick structure |
-| [`docs/spesifikasi_teknis_mekanisme_gameplay_V8.md`](spesifikasi_teknis_mekanisme_gameplay_V8.md) | Gameplay specification |
-| [`docs/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md`](MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md) | MVP scope and division work list |
-| [`docs/MVP_CHECKLIST.md`](MVP_CHECKLIST.md) | Actionable MVP checklist and current status |
-| [`docs/PANDUAN_MODUL.md`](PANDUAN_MODUL.md) | How to use every implemented module |
-| `docs/architecture.md` (this file) | Structure, ownership, dependency rules, and technical debt |
+| [`README.md`](../../README.md) | Project entry point and quick structure |
+| [`docs/noneditable/spesifikasi_teknis_mekanisme_gameplay_V8.md`](../noneditable/spesifikasi_teknis_mekanisme_gameplay_V8.md) | Gameplay specification |
+| [`docs/noneditable/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md`](../noneditable/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md) | MVP scope and division work list |
+| [`docs/editable/MVP_CHECKLIST.md`](MVP_CHECKLIST.md) | Actionable MVP checklist and current status |
+| [`docs/editable/PANDUAN_MODUL.md`](PANDUAN_MODUL.md) | How to use every implemented module |
+| `docs/editable/architecture.md` (this file) | Structure, ownership, dependency rules, and technical debt |

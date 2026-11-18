@@ -15,7 +15,7 @@ Dokumen ini menjelaskan **cara memakai modul yang sudah ada di repo**, bukan mer
 | `Player` | `src/entities/player/` | Ada; belum dijalankan | `practice1.tscn`, sandbox |
 | `InputSetup` | `src/utils/input_setup.gd` | Ada | `Player`, sandbox |
 | `SafeZone` | `scenes/practice/safe_zone.gd` | Ada; practice-only | `practice1.tscn` |
-| Tes GUT | `tests/unit/` | Ditulis; GUT belum terpasang | — |
+| Tes GUT | `tests/unit/` | GUT 9.7.1 terpasang; suite lulus | — |
 | Sandbox stats | `tests/sandbox/` | Ada; manual | — |
 
 Modul yang **belum ada** dan tidak punya panduan karena belum ada kodenya: Hunger/Thirst/Fatigue, inventory/item, resource gathering, crafting, camp, combat, enemy AI, death/respawn, menu, audio, victory/FLARE. Jangan menganggap API-nya sudah tersedia.
@@ -67,7 +67,7 @@ Di unit test, jangan bergantung pada autoload. Preload script-nya dan buat insta
 
 - `config` default: `src/data/configs/environment/day_night_default.tres`.
 - `debug_config` default di scene: `day_night_debug_fast.tres` (60 detik), tetapi **`use_debug_config = false`**, jadi config default yang dipakai.
-- **Penting:** `day_night_default.tres` saat ini `cycle_duration = 55.0`, bukan 600.0. Artinya game live berjalan 385 detik total, bukan 4200. Lihat `docs/MVP_CHECKLIST.md` bagian blocker.
+- **Penting:** `cycle_duration` bawaan `day_night_config.gd` = 600.0 dan `day_night_default.tres` tidak lagi menimpanya. Artinya game live berjalan 4200 detik total. Lihat `docs/editable/MVP_CHECKLIST.md` bagian blocker.
 
 ### 1.4 Kontrol
 
@@ -77,7 +77,7 @@ Di unit test, jangan bergantung pada autoload. Preload script-nya dan buat insta
 | `advance(delta)` | Tick manual memakai pengali waktu | Untuk tes/debug; bukan timer kedua |
 | `skip_time(seconds)` | Maju waktu game mentah tanpa pengali | Untuk tidur Tenda; memancarkan `time_skipped` |
 | `set_night_watch(active)` | Nyalakan/matikan Night Watch | Hanya berhasil saat malam |
-| `set_time_scale(value)` | Override skala runtime | **Nilai negatif saat ini menjadi 0, bukan reset** (bug lama) |
+| `set_time_scale(value)` | Override skala runtime | Negatif = reset ke `DayNightConfig.time_scale`; `0.0` = override nyata (freeze final dawn) |
 
 Contoh Night Watch:
 
@@ -161,8 +161,8 @@ night_ended -> time_updated(force) -> time_scale_changed(0) -> rescue_started
 ### 1.7 Jebakan yang harus diketahui
 
 - `phase_changed` **tidak** membawa `day`. Jangan menghubungkan callback dua argumen ke sinyal ini; `DayNightVisual` memakai satu argumen.
-- `_process` lama masih kehilangan overflow jika satu frame melewati lebih dari satu fase. `advance()`/`skip_time()` sudah benar; jangan menganggap `_process` setara untuk delta besar.
-- `set_time_scale(-1)` tidak mereset ke config; saat ini menjadi 0.
+- `_process` memakai carry-over loop, jadi satu frame yang melewati beberapa fase tetap mendarat di fase yang benar. `advance()`/`skip_time()` memakai `_advance_game_seconds()` dengan jaminan yang sama.
+- `set_time_scale(-1)` (nilai negatif apa pun) mereset ke `DayNightConfig.time_scale`; `0.0` tetap berarti beku dan dipakai final dawn.
 - `get_time_scale()` mengembalikan 0 saat final dawn. Modul Hunger/Thirst harus memakai getter ini agar ikut berhenti.
 - `start()` dari fase malam juga memancarkan `night_ended` untuk malam yang ditinggalkan. Jika listener tidak menginginkan event saat reset, perlu penanganan khusus.
 
@@ -540,10 +540,10 @@ Tes memakai **GUT 9.x**, `extends GutTest`.
 | `tests/unit/test_stats_component.gd` | Base stats, proficiency, modifier, HP clamp, dodge cap |
 | `tests/unit/test_game_clock.gd` | Durasi, carry-over, dusk, Night Watch, skip, final dawn, sinyal, teks waktu |
 
-GUT **belum terpasang** di `addons/`. Setelah dipasang:
+GUT **9.7.1 terpasang** di `addons/gut`. Perintah yang dipakai:
 
 ```bash
-"C:\Path\To\Godot_v4.7.2-stable_win64.exe" --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests/unit -ginclude_subdirs -gexit
+D:\Programming\Gamedev\Godot_v4.7.2-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests/unit -gexit
 ```
 
 Atau jalankan lewat panel GUT di editor. Tes clock membuat config 600 sendiri, mematikan `auto_start`, memanggil `set_process(false)`, lalu `start()`.
@@ -602,16 +602,16 @@ Saat menambahkan Hunger/Thirst/Fatigue, inventory, combat, atau camp:
 4. **Jangan menambah sinyal dengan mengubah sinyal lama.** Tambahkan sinyal baru; `phase_changed` satu argumen sudah dipakai.
 5. **Jangan mengandalkan autoload di unit test.** Preload script dan buat instance.
 6. **Letakkan angka tuning di `.tres`/Resource**, bukan di konstanta tersebar.
-7. **Dokumentasikan modul baru di file ini** dan perbarui `docs/architecture.md` bila dependency berubah.
+7. **Dokumentasikan modul baru di file ini** dan perbarui `docs/editable/architecture.md` bila dependency berubah.
 
 ---
 
 ## 12. Verifikasi yang Belum Dilakukan
 
-- Godot/GUT tidak tersedia di workspace ini; semua modul dan tes baru ditinjau statis, belum dijalankan.
-- `practice1.tscn` belum diuji runtime setelah perubahan modul clock.
-- Tes GUT belum dieksekusi karena addon belum terpasang.
-- Config default masih 55 detik; gameplay live belum memakai 600 detik.
-- `_process` overflow dan `set_time_scale(-1)` adalah bug yang diketahui dan belum diperbaiki.
+- Godot 4.7.2 dan GUT 9.7.1 tersedia; unit test sudah dijalankan lewat GUT command line dan lulus.
+- `practice1.tscn` sudah diuji runtime headless 120 frame tanpa error.
+- Config default 600 detik; gameplay live memakai 4200 detik total.
+- `_process` memakai carry-over loop dan `set_time_scale(-1)` sudah mereset ke config.
+- Playtest manual, balancing, dan build/export final belum dilakukan.
 
-Lihat `docs/MVP_CHECKLIST.md` untuk status kesiapan MVP dan `docs/architecture.md` untuk keputusan arsitektur.
+Lihat `docs/editable/MVP_CHECKLIST.md` untuk status kesiapan MVP dan `docs/editable/architecture.md` untuk keputusan arsitektur.
