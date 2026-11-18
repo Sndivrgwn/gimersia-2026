@@ -25,7 +25,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 | Kontrol & movement | Ada | Top-down, sprint, collision dasar |
 | Stats & proficiency | Ada | Komponen + tes tertulis; belum ada XP/level-up |
 | Siklus waktu | Ada | Manager, config, HUD, visual; config default 600 dtk |
-| Survival needs | Sebagian | Komponen + HUD + 19 tes; konsumsi item, Campfire, dan Tenda belum |
+| Survival needs | Sebagian | Komponen + HUD + 20 tes; konsumsi item, Campfire, dan Tenda belum |
 | Inventory & gathering | Belum | Belum ada item, pickup, atau resource node |
 | Crafting & camp | Belum | Belum ada resep, workbench, campfire, tenda |
 | Combat & enemy | Belum | Belum ada attack, AI, spawn, scaling malam |
@@ -363,7 +363,7 @@ Jalankan setelah modul inti tersedia. Centang hanya jika seluruh langkah berhasi
 3. **[Selesai] `set_time_scale(-1)` reset ke config.** Nilai negatif mengembalikan `DayNightConfig.time_scale`; `0.0` tetap override nyata untuk freeze final dawn.
 4. **`phase_changed` tidak membawa `day`.** Jangan ubah sinyal lama; tambahkan sinyal baru bila perlu.
 5. **[Selesai] GUT 9.7.1 terpasang.** Tes clock/stats sudah dijalankan lewat GUT command line.
-6. **[Sebagian] Modul inti belum lengkap.** Needs sudah ada (komponen + HUD + 19 tes); inventory, gather, craft, combat, enemy, death, menu, audio, victory belum.
+6. **[Sebagian] Modul inti belum lengkap.** Needs sudah ada (komponen + HUD + 20 tes); inventory, gather, craft, combat, enemy, death, menu, audio, victory belum.
 7. **`get_time_scale()` berubah saat final dawn.** Modul survival harus memakai getter ini agar ikut berhenti.
 8. **`SafeZone` masih practice-only.** Jangan anggap ini sistem camp produksi.
 

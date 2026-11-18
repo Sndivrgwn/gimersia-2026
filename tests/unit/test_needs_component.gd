@@ -9,6 +9,8 @@ extends GutTest
 const NeedsComponentScript = preload("res://src/components/needs/needs_component.gd")
 const StatsComponentScript = preload("res://src/components/stats/stats_component.gd")
 const PLAYER_SCENE: PackedScene = preload("res://src/entities/player/player.tscn")
+const NEEDS_DEBUG_SCRIPT = preload("res://scenes/practice/needs_debug.gd")
+const STATS_HUD_SCENE: PackedScene = preload("res://src/ui/hud/stats/stats_hud.tscn")
 
 
 class StubClock extends Node:
@@ -322,6 +324,78 @@ func test_real_player_sprint_emits_and_drains_fatigue() -> void:
 
 	Input.action_release(&"sprint")
 	Input.action_release(&"move_right")
+
+
+# --- Debug keys practice + StatsHUD -----------------------------------------
+
+func test_debug_keys_cycle_needs_and_stats_hud_follows() -> void:
+	var real_player := PLAYER_SCENE.instantiate() as Player
+	real_player.add_to_group(&"player")
+	add_child_autofree(real_player)
+
+	var needs := real_player.get_node_or_null("NeedsComponent") as NeedsComponentScript
+	assert_not_null(needs, "player.tscn harus punya NeedsComponent")
+	if needs == null:
+		return
+	needs.set_process(false)
+
+	var debug_node := NEEDS_DEBUG_SCRIPT.new()
+	add_child_autofree(debug_node)
+
+	var hud := STATS_HUD_SCENE.instantiate()
+	add_child_autofree(hud)
+	var stats_label := hud.get_node("Root/Panel/Margin/VBox/StatsLabel") as Label
+	var tier_label := hud.get_node("Root/Panel/Margin/VBox/TierLabel") as Label
+
+	# Default mati: tombol tidak boleh mengubah apa pun.
+	_press_key(debug_node, KEY_X)
+	assert_almost_eq(
+		needs.get_value(NeedsComponentScript.Need.HUNGER), 100.0, 0.001,
+		"debug off: X harus diabaikan"
+	)
+
+	_press_key(debug_node, KEY_F1)
+	_press_key(debug_node, KEY_X)
+	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.HUNGER), 25.0, 0.001)
+	assert_string_contains(tier_label.text, "HUNGER LOW")
+	assert_string_contains(stats_label.text, "Attack dmg   6.8")
+	assert_string_contains(stats_label.text, "Move speed   136")
+
+	_press_key(debug_node, KEY_X)
+	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.HUNGER), 0.0, 0.001)
+	assert_string_contains(tier_label.text, "HUNGER ZERO")
+	assert_string_contains(stats_label.text, "Attack dmg   6.8", "efek LOW tetap saat ZERO")
+
+	_press_key(debug_node, KEY_C)
+	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.THIRST), 25.0, 0.001)
+	assert_string_contains(tier_label.text, "THIRST LOW")
+	assert_string_contains(stats_label.text, "Attack speed 0.96/s")
+	assert_string_contains(stats_label.text, "Sprint drain x1.30")
+
+	_press_key(debug_node, KEY_V)
+	_press_key(debug_node, KEY_V)
+	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.FATIGUE), 0.0, 0.001)
+	assert_string_contains(tier_label.text, "FATIGUE ZERO")
+	assert_string_contains(stats_label.text, "Move speed   64", "hunger -15% + fatigue -45%")
+	assert_string_contains(stats_label.text, "Attack speed 0.36/s")
+	assert_string_contains(stats_label.text, "Gather time  x1.30")
+	assert_false(real_player.can_sprint, "Fatigue ZERO mengunci sprint")
+
+	_press_key(debug_node, KEY_B)
+	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.HUNGER), 100.0, 0.001)
+	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.THIRST), 100.0, 0.001)
+	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.FATIGUE), 100.0, 0.001)
+	assert_string_contains(tier_label.text, "HUNGER NORMAL")
+	assert_string_contains(stats_label.text, "Move speed   160")
+	assert_true(real_player.can_sprint, "refill membuka kembali sprint")
+
+
+## Kirim event tombol langsung ke _unhandled_input (tanpa OS input).
+func _press_key(target: Node, keycode: Key) -> void:
+	var event := InputEventKey.new()
+	event.physical_keycode = keycode
+	event.pressed = true
+	target._unhandled_input(event)
 
 
 func test_spend_fatigue_only_drains_fatigue() -> void:
