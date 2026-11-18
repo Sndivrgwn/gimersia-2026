@@ -37,23 +37,29 @@ gimersia-2026/
 │       └── somethingMove.tscn
 ├── src/
 │   ├── components/
+│   │   ├── needs/                       # Hunger/Thirst/Fatigue component
 │   │   └── stats/                       # Reusable stat component + modifier value object
 │   ├── core/
 │   │   └── managers/                    # DayNightManager autoload scene + script
 │   ├── data/
 │   │   ├── configs/environment/         # Day/night tuning resources (.tres)
+│   │   ├── configs/                     # needs_config.tres (Needs tuning instance)
 │   │   ├── resources/environment/       # Day/night Resource definitions
+│   │   ├── resources/needs/             # NeedsConfig Resource definition
 │   │   └── stats/                       # PlayerBaseStats definition
 │   ├── entities/
 │   │   └── player/                      # Player scene + controller
 │   ├── levels/
 │   │   └── components/environment/      # Reusable level components (day/night visual)
 │   ├── ui/
-│   │   └── hud/time/                    # Day/night HUD
+│   │   └── hud/
+│   │       ├── needs/                   # Needs HUD
+│   │       ├── stats/                   # Player stat readout HUD
+│   │       └── time/                    # Day/night HUD
 │   └── utils/                           # Static helpers (InputSetup)
 └── tests/
     ├── sandbox/                         # Manual stats sandbox
-    └── unit/                            # GUT tests for stats and clock
+    └── unit/                            # GUT tests for stats, clock, needs
 ```
 
 Empty placeholder folders such as `src/entities/enemies`, `src/entities/props`, `src/ui/menus`, and `src/ui/theme` indicate intended future areas, not implemented modules.
@@ -77,7 +83,10 @@ Empty placeholder folders such as `src/entities/enemies`, `src/entities/props`, 
 | **DayNightConfig / DayNightPeriod** | `src/data/resources/environment/day_night_config.gd`, `day_night_period.gd`; `.tres` in `src/data/configs/environment/` | Single source of cycle length, day ratios, max days | `cycle_duration`, `time_scale`, `max_days`, `periods`; duration/ratio getters | Implemented |
 | **DayNightVisual / Config** | `src/levels/components/environment/day_night_visual.gd/.tscn`; `src/data/resources/environment/day_night_visual_config.gd`; visual `.tres` | World tint, dawn/dusk color transition, particles | `atmosphere_changed(atmosphere)`, `get_atmosphere()`, `get_atmosphere_name()`, `visual_config` | Implemented; depends on `DayNightManager` |
 | **TimeHUD** | `src/ui/hud/time/time_hud.gd/.tscn` | Displays day, phase, remaining time, progress, night Survival label | No public API; listens to `time_updated` and `rescue_started` | Implemented; read-only |
-| **StatsComponent / StatModifier** | `src/components/stats/stats_component.gd`, `stat_modifier.gd` | Derived stats, HP, modifier stacking | `add_modifier()`, `remove_modifier()`, stat getters, `heal()`, `set_hp()`, `hp_changed`, `stats_changed` | Implemented; tests written, not run |
+| **NeedsHUD** | `src/ui/hud/needs/needs_hud.gd/.tscn` | Displays Hunger/Thirst/Fatigue bars with a warning color at tier <= LOW | No public API; listens to `value_changed` and `tier_changed`, finds `NeedsComponent` via the `player` group | Implemented; read-only, not visually verified |
+| **StatsHUD** | `src/ui/hud/stats/stats_hud.gd/.tscn` | Readout of HP, move/sprint speed, attack, gather time, sprint drain and the three need tiers | No public API; listens to `stats_changed`, `hp_changed`, `tier_changed`; finds the player via the `player` group | Implemented; read-only, not visually verified |
+| **StatsComponent / StatModifier** | `src/components/stats/stats_component.gd`, `stat_modifier.gd` | Derived stats, HP, modifier stacking | `add_modifier()`, `remove_modifier()`, stat getters, `heal()`, `set_hp()`, `hp_changed`, `stats_changed` | Implemented; tests passing |
+| **NeedsComponent / NeedsConfig** | `src/components/needs/needs_component.gd`; `src/data/resources/needs/needs_config.gd`; `src/data/configs/needs_config.tres` | Owns Hunger/Thirst/Fatigue (0..100), clock-scaled drain, sleep-skip drain, sprint Fatigue, tier effects, ZERO HP loss | `get_value()`, `set_value()`, `add()`, `spend_fatigue()`, `get_tier()`, `tick(delta)`, `setup(clock, stats, player)`, `get_config()`; `value_changed(need, value)`, `tier_changed(need, tier)` | Implemented; 19 tests passing |
 | **PlayerBaseStats** | `src/data/stats/player_base_stats.gd` | Base stat numbers as a Resource | Exported base values | Implemented; no `.tres` instance yet |
 | **Player** | `src/entities/player/player.gd/.tscn` | Top-down movement and sprint using StatsComponent | `can_sprint`, `facing_direction`, `sprint_state_changed`, `stats` | Implemented; no combat/interaction yet |
 | **InputSetup** | `src/utils/input_setup.gd` | Idempotent runtime registration of movement/sprint actions | `InputSetup.ensure_actions()` | Implemented |
@@ -91,6 +100,11 @@ Empty placeholder folders such as `src/entities/enemies`, `src/entities/props`, 
 ```text
 InputSetup ──> Player ──> StatsComponent ──> PlayerBaseStats
                                       └──> StatModifier
+
+NeedsComponent ──> NeedsConfig
+       ├── add_modifier()/remove_modifier() ──> StatsComponent
+       ├── get_time_scale()/is_night() ───────> DayNightManager
+       └── time_skipped(seconds) ─────────────> DayNightManager
 
 DayNightManager ──> DayNightConfig ──> DayNightPeriod
         ▲
@@ -130,6 +144,8 @@ Rules:
 6. No node owns a second timer. All time comes from `DayNightManager`.
 
 Ordering caveat: `SafeZone` relies on the player being in the `player` group; the group is set on the `Player` instance in `practice1.tscn`, not inside the base `player.tscn`.
+
+**Needs:** `NeedsComponent` is a child of `Player` inside `player.tscn`, next to `StatsComponent`; it resolves its stats node and the `/root/DayNightManager` autoload itself. `NeedsHUD` is a second `CanvasLayer` in `practice1.tscn` that finds the component through the `player` group and never writes need values.
 
 ---
 
@@ -216,7 +232,8 @@ At 00:00 on the final night:
 
 | Resource | Path | Current values / purpose |
 |---|---|---|
-| `DayNightConfig` | `src/data/configs/environment/day_night_default.tres` | **`cycle_duration = 55.0`**, 7 days, periods 1–3 (0.5), 4–5 (0.4), 6–7 (0.3) |
+| `DayNightConfig` | `src/data/configs/environment/day_night_default.tres` | **`cycle_duration = 600.0`** (script default; the `.tres` no longer overrides it), 7 days, periods 1–3 (0.5), 4–5 (0.4), 6–7 (0.3) |
+| `NeedsConfig` | `src/data/configs/needs_config.tres`, numbers in `src/data/resources/needs/needs_config.gd` | Drain rates, thresholds, tier modifiers, ZERO HP loss, sleep clamp; the `.tres` overrides nothing |
 | Debug fast config | `src/data/configs/environment/day_night_debug_fast.tres` | `cycle_duration = 60.0`; attached to the autoload scene as `debug_config`, but `use_debug_config = false` |
 | `DayNightVisualConfig` | `src/data/configs/environment/day_night_visual_default.tres` | Default colors, light intensity, 30 s transition, particles |
 | `PlayerBaseStats` | `src/data/stats/player_base_stats.gd` | Base HP/speed/combat/survival numbers; no `.tres` instance yet |
@@ -235,6 +252,7 @@ Guidelines:
 - Unit tests use **GUT 9.x** and live in `tests/unit/`.
 - `tests/unit/test_stats_component.gd` covers base stats, proficiency bonuses, modifiers, HP clamps, and dodge caps.
 - `tests/unit/test_game_clock.gd` covers durations, carry-over, dusk, Night Watch, `skip_time()`, final dawn, signal order, and remaining-time text.
+- `tests/unit/test_needs_component.gd` covers day/night drain, `time_scale` 0 and 2, `time_skipped` plus the 1.0 sleep clamp, 0..100 clamping, tier changes at exactly 25 and 0 (asserted through `StatsComponent` getters), ZERO HP loss stacking, sprint drain through `get_sprint_fatigue_drain_factor()`, `can_sprint` locking, and one signal per change. It drives `tick()` with a stub clock and stub player.
 - The clock test creates its own `DayNightConfig` with `cycle_duration = 600.0`, `auto_start = false`, disables `_process`, and calls `start()`/`advance()` explicitly. It does not depend on the autoload’s current `.tres`.
 - `tests/sandbox/stats_sandbox.tscn` is a manual scene for stat debugging; it is not an automated test.
 - **GUT 9.7.1 is installed in `addons/gut`** (`plugin.cfg` reports the version). The suite runs through the GUT command line and passes; the clock test count is tracked in the handoff doc (`docs/editable/AI_CONTEXT.md` §3).
@@ -252,7 +270,7 @@ These are deliberate notes so future modules do not build on incorrect assumptio
 3. **`set_time_scale(-1)` resets to config (resolved).** Only negatives clear the override and fall back to `DayNightConfig.time_scale`; `0.0` stays a real override and is what the final-dawn freeze uses.
 4. **`phase_changed(phase)` has no `day` argument.** Adding one would break the existing one-argument listener in `day_night_visual.gd`. Use `day_started`/`night_started`/`day_changed`, or add a separate signal if the day is required.
 5. **`get_time_scale()` changed at final dawn.** It now returns 0 while `rescue_triggered`; this is required for the final-dawn freeze but is a semantic change to an existing getter. No other module currently calls it, but future survival systems must use it consistently.
-6. **No needs, combat, enemies, items, camp, crafting, death/respawn, menus, or audio yet.** Do not assume those APIs exist. The MVP checklist tracks them.
+6. **No combat, enemies, items, camp, crafting, death/respawn, menus, or audio yet.** Do not assume those APIs exist. (`NeedsComponent`/`NeedsHUD` now exist — see §3 — but item consumption, Campfire rest and Tent sleep do not.) The MVP checklist tracks them.
 7. **Progression is data-only.** `StatsComponent` accepts proficiency levels, but there is no XP gain, level-up flow, or death debuff implementation.
 8. **`SafeZone` is practice-only.** It is a useful reference for modifier-based effects, not a production camp system.
 9. **No `EventBus`.** The generic “decouple with EventBus” advice remains a future option, not current architecture.

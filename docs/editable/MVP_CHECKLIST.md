@@ -24,8 +24,8 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 | Fondasi project & struktur | Sebagian besar ada | Godot 4.7.2, folder, scene practice, autoload |
 | Kontrol & movement | Ada | Top-down, sprint, collision dasar |
 | Stats & proficiency | Ada | Komponen + tes tertulis; belum ada XP/level-up |
-| Siklus waktu | Ada | Manager, config, HUD, visual; config default masih 55 dtk |
-| Survival needs | Belum | Hunger/Thirst/Fatigue belum ada |
+| Siklus waktu | Ada | Manager, config, HUD, visual; config default 600 dtk |
+| Survival needs | Sebagian | Komponen + HUD + 19 tes; konsumsi item, Campfire, dan Tenda belum |
 | Inventory & gathering | Belum | Belum ada item, pickup, atau resource node |
 | Crafting & camp | Belum | Belum ada resep, workbench, campfire, tenda |
 | Combat & enemy | Belum | Belum ada attack, AI, spawn, scaling malam |
@@ -80,7 +80,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] Final dawn membekukan clock, skala 0, hari tetap 7, `advance`/`skip_time` tidak berefek.
 - [x] `rescue_started` tersedia sebagai penanda final dawn.
 - [ ] Audio peringatan senja.
-- [ ] Integrasi waktu dengan Hunger/Thirst/fuel (belum ada modulnya).
+- [ ] Integrasi waktu dengan Hunger/Thirst/fuel (Hunger/Thirst selesai; fuel menunggu Campfire).
 - [ ] Survival Timer malam yang terhubung ke gelombang musuh (HUD saja belum cukup).
 
 ---
@@ -120,16 +120,18 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 
 ## 5. Hunger, Thirst, dan Fatigue
 
-- [ ] Data hunger/thirst/fatigue dan nilai awal.
-- [ ] Laju pengurangan sesuai spesifikasi 3.A–3.C.
+- [x] Data hunger/thirst/fatigue dan nilai awal.
+- [x] Laju pengurangan sesuai spesifikasi 3.A–3.C.
 - [ ] HUD bar/ikon untuk ketiganya.
-- [ ] Efek status saat nilai rendah.
-- [ ] Sprint terkunci saat Fatigue <= 25.
+  - Bar, angka, dan warna peringatan ada di `src/ui/hud/needs/`, tetapi belum diverifikasi visual; ikon menyusul.
+- [x] Efek status saat nilai rendah.
+- [x] Sprint terkunci saat Fatigue <= 25.
 - [ ] Rest di dekat Campfire menyala.
 - [ ] Tidur di Tenda Daun: pulihkan Fatigue, `skip_time(45)`, cooldown, syarat sisa siang > 60 detik.
+  - `time_skipped` dan clamp 1.0 sudah siap dan teruji; scene Tenda belum ada.
 - [ ] Konsumsi makanan/minuman memulihkan nilai.
-- [ ] Integrasi `get_time_scale()` agar drain ikut 2× saat Night Watch dan 0 saat final dawn.
-- [ ] Clamp agar tidur tidak membunuh pemain (minimal 1.0).
+- [x] Integrasi `get_time_scale()` agar drain ikut 2× saat Night Watch dan 0 saat final dawn.
+- [x] Clamp agar tidur tidak membunuh pemain (minimal 1.0).
 
 ---
 
@@ -224,6 +226,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] HUD hari/fase/sisa waktu/progress.
 - [x] Label Survival malam (mencerminkan sisa malam).
 - [ ] HUD Hunger/Thirst/Fatigue.
+  - Scene dan skrip ada; tampilan belum dicek secara visual.
 - [ ] HUD inventory.
 - [ ] HUD debuff setelah respawn.
 - [ ] Indikator status siang/malam yang lebih lengkap.
@@ -242,7 +245,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 
 - [ ] Banner pagi Hari 7.
 - [ ] Gelombang maksimal malam Hari 7.
-- [ ] Final dawn membekukan waktu dan menghentikan Hunger/Thirst.
+- [x] Final dawn membekukan waktu dan menghentikan Hunger/Thirst.
 - [ ] Musuh malam ekstra kabur/despawn.
 - [ ] Arrow pointer ke Tiang Suar.
 - [ ] Item Suar Darurat di inventory.
@@ -360,7 +363,7 @@ Jalankan setelah modul inti tersedia. Centang hanya jika seluruh langkah berhasi
 3. **[Selesai] `set_time_scale(-1)` reset ke config.** Nilai negatif mengembalikan `DayNightConfig.time_scale`; `0.0` tetap override nyata untuk freeze final dawn.
 4. **`phase_changed` tidak membawa `day`.** Jangan ubah sinyal lama; tambahkan sinyal baru bila perlu.
 5. **[Selesai] GUT 9.7.1 terpasang.** Tes clock/stats sudah dijalankan lewat GUT command line.
-6. **Modul inti belum ada.** Needs, inventory, gather, craft, combat, enemy, death, menu, audio, victory.
+6. **[Sebagian] Modul inti belum lengkap.** Needs sudah ada (komponen + HUD + 19 tes); inventory, gather, craft, combat, enemy, death, menu, audio, victory belum.
 7. **`get_time_scale()` berubah saat final dawn.** Modul survival harus memakai getter ini agar ikut berhenti.
 8. **`SafeZone` masih practice-only.** Jangan anggap ini sistem camp produksi.
 
@@ -369,7 +372,7 @@ Jalankan setelah modul inti tersedia. Centang hanya jika seluruh langkah berhasi
 ## 19. Urutan Prioritas yang Disarankan
 
 1. **[Selesai] P0 — Fondasi yang menghambat verifikasi:** GUT 9.7.1 terpasang, tes dijalankan, config 600, `_process` carry-over, smoke test `practice1` headless bersih.
-2. **P1 — Loop survival minimum:** needs + HUD, inventory + gathering, crafting/camp dasar, combat + satu hewan, night survival.
+2. **[Sebagian] P1 — Loop survival minimum:** needs + HUD selesai; inventory + gathering, crafting/camp dasar, combat + satu hewan, night survival belum.
 3. **P2 — Kematian dan akhir permainan:** death/respawn, item drop, debuff, Hari 7, flare, Victory.
 4. **P3 — Polish:** menu, audio, animasi, balancing, playtest, build final.
 

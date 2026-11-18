@@ -4,7 +4,7 @@
 > repository. Read this file first, then the linked docs. **Code is the source of
 > truth** when a doc disagrees with it.
 
-Last verified: 2026-11-18, Godot 4.7.2, GUT 9.7.1, 30/30 tests passing.
+Last verified: 2026-11-18, Godot 4.7.2, GUT 9.7.1, 49/49 tests passing.
 Spec cross-check: 2026-11-18 against spec V8. Gaps found are listed in §4
 (missing systems), §7.1-7.8 (spec details), §8 (revised build order) and §13
 (open design questions).
@@ -46,7 +46,7 @@ in `docs/editable/` is maintained by the project.
 |---|---|---|
 | Engine | — | `D:\Programming\Gamedev\Godot_v4.7.2-stable_win64.exe` (console variant exists) |
 | GUT | — | **9.7.1 installed** in `addons/gut` (docs saying otherwise are stale) |
-| Unit tests | see §9 | **30/30 passing**, 145 asserts, ~0.8 s |
+| Unit tests | see §9 | **49/49 passing**, 218 asserts, ~1.2 s |
 | Main scene boot | see §9 | `practice1.tscn` runs headless for 120 frames with **no errors** |
 | Default clock config | — | `cycle_duration` **600 s** (script default; `.tres` no longer overrides it) |
 | Dusk warning | — | 15 s before night |
@@ -66,6 +66,9 @@ Known bugs still present:
 | `DayNightVisual` / `DayNightVisualConfig` | `src/levels/components/environment/`, `src/data/resources/environment/` | World tint via one `CanvasModulate`, dawn/dusk transitions, particles |
 | `TimeHUD` | `src/ui/hud/time/` | Read-only day/phase/remaining/progress/night-survival label |
 | `StatsComponent` / `StatModifier` | `src/components/stats/` | Derived stats, proficiency, modifier stacking, HP, `hp_changed`, `stats_changed` |
+| `NeedsComponent` / `NeedsConfig` | `src/components/needs/`, `src/data/resources/needs/` | Owns Hunger/Thirst/Fatigue (0..100). `get_value()`, `set_value()`, `add()`, `spend_fatigue()`, `tick(delta)`, `get_tier()`; signals `value_changed(need, value)`, `tier_changed(need, tier)`. Tiers NORMAL/LOW/ZERO apply stats via `&"lapar"`/`&"haus"`/`&"lelah"`. Drains via `get_time_scale()`; no own clock |
+| `NeedsHUD` | `src/ui/hud/needs/` | Read-only Hunger/Thirst/Fatigue bars, warning color at tier <= LOW |
+| `StatsHUD` | `src/ui/hud/stats/` | Read-only readout of HP, speeds, attack, gather time, sprint drain and the three need tiers; makes ZERO-tier effects visible |
 | `PlayerBaseStats` | `src/data/stats/player_base_stats.gd` | Base numbers (no `.tres` instance yet; script defaults are used) |
 | `Player` | `src/entities/player/` | Top-down movement + sprint from `StatsComponent`; `can_sprint`, `facing_direction`, `sprint_state_changed` |
 | `InputSetup` | `src/utils/input_setup.gd` | Idempotent Input Map registration (`move_*`, `sprint`) |
@@ -74,7 +77,7 @@ Known bugs still present:
 
 ### What does NOT exist yet
 
-Hunger/Thirst/Fatigue, inventory/items/equipment/hotbar, resource nodes &
+Inventory/items/equipment/hotbar, resource nodes &
 gathering, crafting recipes/stations, camp structures + blueprint slots + repair
 (hold R), Emergency Suitcase, combat (auto-attack + manual provocation trigger,
 dodge), enemy AI (Wild Boar **and Island Deer**), daytime fauna quota, night

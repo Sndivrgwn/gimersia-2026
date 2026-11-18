@@ -9,6 +9,9 @@
 [ext_resource type="Script" uid="uid://dk8r7t2xb8jlq" path="res://scenes/practice/safe_zone.gd" id="7_lp57q"]
 [ext_resource type="PackedScene" path="res://src/levels/components/environment/day_night_visual.tscn" id="8_daynight"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/time/time_hud.tscn" id="9_timehud"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/needs/needs_hud.tscn" id="10_needshud"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/stats/stats_hud.tscn" id="11_statshud"]
+[ext_resource type="Script" path="res://scenes/practice/needs_debug.gd" id="12_needsdebug"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ddd1a"]
 texture = ExtResource("1_ur0jx")
@@ -1659,3 +1662,10 @@ shape = SubResource("RectangleShape2D_ohrhu")
 [node name="DayNightVisual" parent="." unique_id=2130633859 instance=ExtResource("8_daynight")]
 
 [node name="TimeHUD" parent="." unique_id=2049610334 instance=ExtResource("9_timehud")]
+
+[node name="NeedsHUD" parent="." instance=ExtResource("10_needshud")]
+
+[node name="StatsHUD" parent="." instance=ExtResource("11_statshud")]
+
+[node name="NeedsDebug" type="Node" parent="."]
+script = ExtResource("12_needsdebug")

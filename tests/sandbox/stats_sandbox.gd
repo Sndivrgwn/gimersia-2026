@@ -1,9 +1,14 @@
 extends Node2D
 
-## Sandbox manual untuk StatsComponent + Player.
+## Sandbox manual untuk StatsComponent + NeedsComponent + Player.
 ## Isi scene dibangun lewat kode agar stats_sandbox.tscn tetap minimal.
+##
+## Needs memakai NeedsComponent asli (bukan modifier tiruan), jadi tier Hunger/
+## Thirst/Fatigue di sini berperilaku sama seperti di practice1. Drain tetap
+## berjalan dari autoload DayNightManager; tombol debug hanya melompatkan nilai.
 
 const PLAYER_SCENE: PackedScene = preload("res://src/entities/player/player.tscn")
+const NEEDS_HUD_SCENE: PackedScene = preload("res://src/ui/hud/needs/needs_hud.tscn")
 
 const FLOOR_SIZE := 2000.0
 const FLOOR_GRID_STEP := 64.0
@@ -11,27 +16,31 @@ const FLOOR_COLOR := Color(0.13, 0.16, 0.14)
 const GRID_COLOR := Color(1.0, 1.0, 1.0, 0.06)
 
 const SOURCE_ZIRAH := &"debug_zirah_kulit"
-const SOURCE_LAPAR := &"debug_lapar"
-const SOURCE_KELELAHAN := &"debug_kelelahan_ekstrem"
 
 const CONTROLS_TEXT := """DEBUG KEYS
 1 / 2 / 3 / 4        : +1 STR / SPD / MAS / AGI
 Ctrl + 1 / 2 / 3 / 4 : -1 STR / SPD / MAS / AGI
 Z : toggle Zirah Kulit (+15 max HP, +20% damage reduction)
-X : toggle Lapar (-15% move speed, -15% attack damage)
-C : toggle Kelelahan Ekstrem (-45% move speed, -50% attack speed)
+X : Hunger  -> 100 / 25 (LOW) / 0 (ZERO)  [cycle]
+C : Thirst  -> 100 / 25 (LOW) / 0 (ZERO)  [cycle]
+V : Fatigue -> 100 / 25 (LOW) / 0 (ZERO)  [cycle]
+B : refill semua needs ke 100
+Hold Shift + gerak : sprint (Fatigue -2.5/s, terkunci saat <= 25)
 H : heal +20          J : set HP to 50
-T : toggle can_sprint
-R : reset (level 1, modifier uji mati, HP penuh)"""
+T : toggle can_sprint (Needs mengunci ulang saat Fatigue <= 25)
+R : reset (level 1, Zirah mati, needs penuh, HP penuh)"""
+
+const TIER_LOW_VALUE := 25.0
+const TIER_FULL_VALUE := 100.0
 
 var _player: Player
+var _needs: NeedsComponent
 var _camera: Camera2D
 var _debug_label: Label
 var _controls_label: Label
 
 var _zirah_active: bool = false
-var _lapar_active: bool = false
-var _kelelahan_active: bool = false
+var _sprinting: bool = false
 
 
 func _ready() -> void:
@@ -39,7 +48,7 @@ func _ready() -> void:
 	_create_player()
 	_create_camera()
 	_create_debug_ui()
-	_connect_stats()
+	_connect_signals()
 	_refresh_debug_label()
 
 
@@ -57,7 +66,11 @@ func _draw() -> void:
 
 func _create_player() -> void:
 	_player = PLAYER_SCENE.instantiate() as Player
+	# Grup "player" dipasang oleh scene pemakai (sama seperti practice1.tscn);
+	# NeedsHUD memakainya untuk menemukan komponen.
+	_player.add_to_group(&"player")
 	add_child(_player)
+	_needs = _player.get_node_or_null("NeedsComponent") as NeedsComponent
 
 
 func _create_camera() -> void:
@@ -87,12 +100,24 @@ func _create_debug_ui() -> void:
 	_controls_label.text = CONTROLS_TEXT
 	layer.add_child(_controls_label)
 
+	# HUD Needs yang sama dengan practice1; komponen dioper eksplisit supaya
+	# tidak bergantung pada urutan _ready.
+	var needs_hud := NEEDS_HUD_SCENE.instantiate()
+	needs_hud.set(&"needs_component", _needs)
+	add_child(needs_hud)
 
-func _connect_stats() -> void:
+
+func _connect_signals() -> void:
 	if _player == null or _player.stats == null:
 		return
 	_player.stats.stats_changed.connect(_on_stats_changed)
 	_player.stats.hp_changed.connect(_on_hp_changed)
+
+	_player.sprint_state_changed.connect(_on_sprint_state_changed)
+
+	if _needs != null:
+		_needs.value_changed.connect(_on_needs_changed)
+		_needs.tier_changed.connect(_on_needs_tier_changed)
 
 
 func _on_stats_changed() -> void:
@@ -103,13 +128,26 @@ func _on_hp_changed(_current: float, _max_value: float) -> void:
 	_refresh_debug_label()
 
 
+func _on_sprint_state_changed(is_sprinting: bool) -> void:
+	_sprinting = is_sprinting
+	_refresh_debug_label()
+
+
+func _on_needs_changed(_need: int, _value: float) -> void:
+	_refresh_debug_label()
+
+
+func _on_needs_tier_changed(_need: int, _tier: int) -> void:
+	_refresh_debug_label()
+
+
 func _refresh_debug_label() -> void:
 	if _debug_label == null or _player == null or _player.stats == null:
 		return
 
 	var stats := _player.stats
 	var lines := PackedStringArray()
-	lines.append("=== STATS SANDBOX ===")
+	lines.append("=== STATS + NEEDS SANDBOX ===")
 	lines.append("Proficiency  STR %d | SPD %d | MAS %d | AGI %d" % [
 		stats.strength_level, stats.speed_level, stats.mastery_level, stats.agility_level
 	])
@@ -120,11 +158,35 @@ func _refresh_debug_label() -> void:
 	lines.append("Attack speed %.2f/s (cooldown %.2fs)" % [
 		stats.get_attack_speed(), stats.get_attack_cooldown()
 	])
+	lines.append("Gather time  x%.2f  |  Craft time x%.2f" % [
+		stats.get_gather_time_factor(), stats.get_craft_time_factor()
+	])
+	lines.append("Sprint drain x%.2f" % stats.get_sprint_fatigue_drain_factor())
 	lines.append("Dodge        %.1f%%" % (stats.get_dodge_chance() * 100.0))
 	lines.append("Dmg reduce   %.1f%%" % (stats.get_damage_reduction() * 100.0))
-	lines.append("Craft time   x%.2f" % stats.get_craft_time_factor())
 	lines.append("can_sprint   %s" % ("true" if _player.can_sprint else "false"))
+	lines.append("Sprinting    %s" % ("true" if _sprinting else "false"))
+
+	if _needs != null:
+		lines.append("")
+		lines.append("--- NEEDS ---")
+		lines.append("Hunger   %5.1f  %s" % [_needs.get_value(NeedsComponent.Need.HUNGER), _tier_name(NeedsComponent.Need.HUNGER)])
+		lines.append("Thirst   %5.1f  %s" % [_needs.get_value(NeedsComponent.Need.THIRST), _tier_name(NeedsComponent.Need.THIRST)])
+		lines.append("Fatigue  %5.1f  %s" % [_needs.get_value(NeedsComponent.Need.FATIGUE), _tier_name(NeedsComponent.Need.FATIGUE)])
+
 	_debug_label.text = "\n".join(lines)
+
+
+func _tier_name(need: int) -> String:
+	if _needs == null:
+		return "-"
+	match _needs.get_tier(need):
+		NeedsComponent.Tier.LOW:
+			return "LOW"
+		NeedsComponent.Tier.ZERO:
+			return "ZERO"
+		_:
+			return "NORMAL"
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -161,9 +223,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_Z:
 			_toggle_zirah()
 		KEY_X:
-			_toggle_lapar()
+			_cycle_need(NeedsComponent.Need.HUNGER)
 		KEY_C:
-			_toggle_kelelahan()
+			_cycle_need(NeedsComponent.Need.THIRST)
+		KEY_V:
+			_cycle_need(NeedsComponent.Need.FATIGUE)
+		KEY_B:
+			_refill_needs()
 		KEY_H:
 			stats.heal(20.0)
 		KEY_J:
@@ -180,6 +246,29 @@ func _adjust_level(stats: StatsComponent, property: StringName, amount: int) -> 
 	stats.set(property, int(stats.get(property)) + amount)
 
 
+## Siklus nilai: penuh -> LOW -> ZERO -> penuh. Efek tier dipasang oleh
+## NeedsComponent, bukan oleh sandbox.
+func _cycle_need(need: int) -> void:
+	if _needs == null:
+		return
+	var value := _needs.get_value(need)
+	if value > TIER_LOW_VALUE:
+		_needs.set_value(need, TIER_LOW_VALUE)
+	elif value > 0.0:
+		_needs.set_value(need, 0.0)
+	else:
+		_needs.set_value(need, TIER_FULL_VALUE)
+	_refresh_debug_label()
+
+
+func _refill_needs() -> void:
+	if _needs == null:
+		return
+	for need in [NeedsComponent.Need.HUNGER, NeedsComponent.Need.THIRST, NeedsComponent.Need.FATIGUE]:
+		_needs.set_value(need, TIER_FULL_VALUE)
+	_refresh_debug_label()
+
+
 func _toggle_zirah() -> void:
 	_zirah_active = not _zirah_active
 	if _zirah_active:
@@ -187,24 +276,6 @@ func _toggle_zirah() -> void:
 		_player.stats.add_modifier(SOURCE_ZIRAH, &"damage_reduction", StatModifier.Kind.PERCENT, 0.20)
 	else:
 		_player.stats.remove_modifier(SOURCE_ZIRAH)
-
-
-func _toggle_lapar() -> void:
-	_lapar_active = not _lapar_active
-	if _lapar_active:
-		_player.stats.add_modifier(SOURCE_LAPAR, &"move_speed", StatModifier.Kind.PERCENT, -0.15)
-		_player.stats.add_modifier(SOURCE_LAPAR, &"attack_damage", StatModifier.Kind.PERCENT, -0.15)
-	else:
-		_player.stats.remove_modifier(SOURCE_LAPAR)
-
-
-func _toggle_kelelahan() -> void:
-	_kelelahan_active = not _kelelahan_active
-	if _kelelahan_active:
-		_player.stats.add_modifier(SOURCE_KELELAHAN, &"move_speed", StatModifier.Kind.PERCENT, -0.45)
-		_player.stats.add_modifier(SOURCE_KELELAHAN, &"attack_speed", StatModifier.Kind.PERCENT, -0.50)
-	else:
-		_player.stats.remove_modifier(SOURCE_KELELAHAN)
 
 
 func _reset_all() -> void:
@@ -215,11 +286,11 @@ func _reset_all() -> void:
 	stats.agility_level = 1
 
 	stats.remove_modifier(SOURCE_ZIRAH)
-	stats.remove_modifier(SOURCE_LAPAR)
-	stats.remove_modifier(SOURCE_KELELAHAN)
 	_zirah_active = false
-	_lapar_active = false
-	_kelelahan_active = false
+
+	if _needs != null:
+		for need in [NeedsComponent.Need.HUNGER, NeedsComponent.Need.THIRST, NeedsComponent.Need.FATIGUE]:
+			_needs.set_value(need, TIER_FULL_VALUE)
 
 	stats.set_hp(stats.get_max_hp())
 	_player.can_sprint = true
