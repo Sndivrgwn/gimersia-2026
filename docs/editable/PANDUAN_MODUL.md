@@ -352,10 +352,13 @@ HUD mencari Player lewat grup `player`; isi `@export player` kalau mau eksplisit
 
 ## 15. Input Map — `project.godot`
 
-**Sumber kebenaran:** semua action ada di `project.godot` bagian `[input]`, jadi
-terlihat dan bisa diubah di **Project Settings → Input Map**. Kode gameplay
-tidak memakai `_unhandled_input` dan tidak mencocokkan `physical_keycode`
-sendiri; cukup polling `Input.is_action_just_pressed()` / `Input.get_vector()`.
+**Sumber kebenaran:** sebagian besar action ada di `project.godot` bagian `[input]`,
+jadi terlihat dan bisa diubah di **Project Settings → Input Map**. Action yang
+ditambahkan setelah itu (`interact`, `debug_island_*`) didaftarkan
+`InputSetup.ensure_actions()` saat runtime supaya `project.godot` tidak berubah;
+idempotent, jadi tidak menimpa Project Settings. Kode gameplay tidak memakai
+`_unhandled_input` dan tidak mencocokkan `physical_keycode` sendiri; cukup
+polling `Input.is_action_just_pressed()` / `Input.get_vector()`.
 
 | Action | Tombol | Dipakai |
 |---|---|---|
@@ -363,6 +366,8 @@ sendiri; cukup polling `Input.is_action_just_pressed()` / `Input.get_vector()`.
 | `sprint` | Shift | `Player` |
 | `hotbar_1` … `hotbar_5` | 1–5 | `InventoryComponent` |
 | `inventory_toggle` | Tab / I | `BagPanel` (`_unhandled_input`) |
+| `interact` | E (tahan) | `InteractorComponent` — didaftarkan `InputSetup` |
+| `debug_island_toggle` / `debug_island_zone` / `debug_island_morning` | F2 / F3 / F4 | `GatherDebug` (island only) — didaftarkan `InputSetup` |
 | `ui_cancel` (bawaan) | Esc | `BagPanel` — hanya menutup saat terbuka |
 | `debug_needs_toggle` | F1 | `NeedsDebug` (practice only) |
 | `debug_cycle_hunger` / `debug_cycle_thirst` / `debug_cycle_fatigue` | X / C / V | `NeedsDebug`, sandbox |
@@ -394,7 +399,7 @@ Export: `phantom_camera`, `normal_zoom`, `safe_zone_zoom`, `zoom_duration`, `slo
 D:\Programming\Gamedev\Godot_v4.7.2-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests/unit -gexit
 ```
 
-Tes ada di `tests/unit/`: clock, stats, needs, inventory/item, bag panel. Saat ini **106/106 tes lulus** (861 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
+Tes ada di `tests/unit/`: clock, stats, needs, inventory/item, bag panel, interaction, resource node, island. Saat ini **156/156 tes lulus** (1160 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
 
 **Sandbox manual** (`tests/sandbox/stats_sandbox.tscn`) untuk mencoba stat dan needs tanpa main game:
 
@@ -433,7 +438,8 @@ world (Node2D)
 ├── Player (instance player.tscn, group "player")
 │   ├── StatsComponent
 │   ├── NeedsComponent
-│   └── InventoryComponent (12 slot; node 1-5 = hotbar)
+│   ├── InventoryComponent (12 slot; node 1-5 = hotbar)
+│   └── InteractorComponent (hold E; range dari interaction_config.tres)
 ├── TileMapLayer
 ├── Camera2D
 │   └── PhantomCameraHost
@@ -444,6 +450,7 @@ world (Node2D)
 ├── NeedsHUD (CanvasLayer)
 ├── StatsHUD (CanvasLayer)
 ├── HotbarHUD (CanvasLayer)
+├── InteractionHUD (CanvasLayer: prompt + progress bar + alasan blokir)
 ├── BagPanel (CanvasLayer layer 20, tersembunyi; toggle Tab/I)
 ├── Pickups (Node2D)
 │   ├── BerryPickup (ItemPickup, item = berry.tres, amount 2)
@@ -453,6 +460,7 @@ world (Node2D)
 │   ├── BoneBrothPickup (ItemPickup)
 │   ├── BoiledWaterPickup (ItemPickup)
 │   └── HerbalBandagePickup (ItemPickup)
+├── GatherDemo (Node2D: 4 ResourceNode contoh — twig, small rock, fiber bush, berry bush)
 └── NeedsDebug (Node, practice-only: F1 + X/C/V/B/M)
 ```
 
@@ -484,6 +492,109 @@ world (Node2D)
 | Tab/I tidak membuka tas | `BagPanel` belum di-instance di scene, atau `InventoryComponent` tidak ada di bawah node grup `player`. Cek juga action `inventory_toggle` ada di Project Settings → Input Map. |
 | `Could not find type "..."` setelah menambah script baru | Cache kelas belum diperbarui — jalankan `Godot_v4.7.2-stable_win64_console.exe --headless --import` sekali. |
 | Tes gagal karena autoload | Jangan andalkan autoload di unit test: `preload` script dan buat instance sendiri. |
+
+---
+
+## 21. `Interactable` + `InteractorComponent` + `InteractionHUD` — hold E
+
+**Gunanya:** satu kerangka interaksi untuk gather, loot, bangun, dan beacon.
+
+`Interactable` (`src/components/interaction/interactable.gd`) adalah Node2D yang
+otomatis masuk grup `interactable`. API yang di-override turunan:
+
+| Method | Arti |
+|---|---|
+| `get_prompt(interactor) -> String` | teks prompt, mis. "Tahan E: Ranting" |
+| `get_hold_time(interactor) -> float` | lama hold dalam detik nyata |
+| `can_interact(interactor) -> bool` | boleh dimulai atau tidak (default true) |
+| `get_block_reason(interactor) -> String` | alasan saat `can_interact` false |
+| `interact(interactor) -> void` | dipanggil sekali saat progres penuh |
+
+`InteractorComponent` dipasang sebagai anak Player (di **instance scene**, bukan
+`player.tscn`). Ia memindai grup `interactable` tiap 0.1 s (`InteractionConfig`),
+memilih target terdekat dalam `interaction_range` (default 64 px), menambah
+progres dengan delta nyata (bukan time scale), dan memanggil `interact()` saat
+`hold_time` tercapai. Lepas E, target hilang, atau keluar jangkauan → progres 0;
+setelah selesai harus lepas lalu tekan lagi (tidak auto-chain). Sinyal:
+`target_changed(target)`, `progress_changed(ratio)`,
+`interaction_completed(target)`, `interaction_blocked(target, reason)`,
+`interaction_cancelled(target)`. Helper: `cancel()`, `get_stats()`,
+`get_inventory()`, `get_needs()`.
+
+`InteractionHUD` hanya membaca sinyal itu: prompt, ProgressBar, dan pesan alasan
+blokir. Tidak menyimpan state gameplay.
+
+---
+
+## 22. `ResourceNodeDefinition` + `ResourceNode` — gathering
+
+Definisi ada di `src/data/gathering/*.tres` (8 file); angka tidak ditanam di
+kode. Field: `id`, `display_name`, `item`, `yield_min`/`yield_max`,
+`required_tool` {NONE, AXE, PICKAXE}, `gather_time`, `fatigue_cost`,
+`respawn_rule` {DAILY, EVERY_OTHER_DAY, NEVER}.
+
+| File | Item | Yield | Tool | Hold | Respawn |
+|---|---|---|---|---|---|
+| `twig` | wood | 1 | tangan | 1.0 s | DAILY |
+| `tree` | wood | 3 | Stone Axe | 2.5 s | DAILY |
+| `small_rock` | stone | 1 | tangan | 1.5 s | DAILY |
+| `big_rock` | stone | 3 | Stone Pickaxe | 3.0 s | DAILY |
+| `fiber_bush` | fiber | 2 | tangan | 1.0 s | DAILY |
+| `berry_bush` | berry | 2 | tangan | 0.8 s | DAILY |
+| `coconut_palm` | coconut | 1–2 | tangan | 1.2 s | EVERY_OTHER_DAY (ganjil, hari >= 3) |
+| `bamboo_clump` | bamboo | 2 | tangan | 1.5 s | DAILY |
+
+Semua memakai `fatigue_cost` 2.0 dibayar sekali lewat
+`NeedsComponent.spend_fatigue()` (cap tidak disentuh) dan `add_or_drop()` ke tas.
+`get_hold_time()` = `gather_time` x `StatsComponent.get_gather_time_factor()`.
+Saat habis: node disembunyikan, keluar dari grup `interactable`, lalu mendengarkan
+`DayNightManager.day_started(day)` (`clock` bisa di-inject untuk tes).
+`last_respawn_day` > 0 mematikan node permanen setelah hari itu (starter Zone 1
+memakai 4 → hilang pada hari 5). Sinyal `gathered(definition, amount, interactor)`
+belum dipakai apa pun; hook untuk Proficiency nanti.
+
+---
+
+## 23. `IslandZones` + `IslandLayoutConfig` + `IslandBuilder` — pulau minimum
+
+- `IslandZones.zone_at(pos)` → `CAMP` (jarak <= 800 dari 0,0), `SOUTH_BEACH`
+  (y > 1400), `EAST_BEACH` (x > 1400, |y| <= 1400), `WEST_CLIFFS`
+  (x < -1400, y <= 1400), `RIVER` (-1050..-850, |y| <= 1400), `FOREST`, atau
+  `OUTSIDE` di luar kotak ±2400. Urutan ini bagian dari perilaku.
+- `IslandLayoutConfig` (`src/data/configs/island_layout.tres`): `seed`, ukuran,
+  `min_spacing` 70, `keep_out_radius` 140, `beacon_keep_out` 150, cincin camp
+  220–700, jumlah node per zona, dan 16 marker malam.
+- `IslandBuilder` mengisi zona dengan rejection sampling ber-seed (posisi harus
+  di zona target, di luar keep-out spawn/wreckage/koper/beacon, dan berjarak
+  >= `min_spacing`). `plan()` mengembalikan daftar entri tanpa SceneTree;
+  `build()` men-spawn `ResourceNode` dan `Marker2D` (grup `night_spawn_point`).
+  Marker hanya penanda — belum ada spawner.
+
+---
+
+## 24. Wiring `island.tscn`
+
+```text
+Island (Node2D, island.gd: pemain menghadap utara)
+├── Ground (Polygon2D per zona: forest, south/east beach, west cliffs, river, camp)
+├── Coastline (StaticBody2D: 4 CollisionShape2D di ±2450)
+├── Wreckage (StaticBody2D di (0,-185))
+├── Suitcase (EmergencySuitcase di (-48,40))
+├── Beacon (Node2D placeholder di (0,2100), tanpa logika)
+├── RiverEdges (9 RiverEdge, x=-950, y -1400..1400 tiap 350)
+├── Player (group "player", (0,64))
+│   ├── InventoryComponent
+│   └── InteractorComponent
+├── Camera2D + PhantomCameraHost + PhantomCamera2D (follow Player, zoom 3)
+├── IslandBuilder (layout = island_layout.tres)
+├── DayNightVisual
+├── TimeHUD / NeedsHUD / StatsHUD / HotbarHUD / InteractionHUD / BagPanel
+└── GatherDebug (F2 tools, F3 zona berikutnya, F4 pagi berikutnya)
+```
+
+`island.tscn` **bukan** main scene; `run/main_scene` tetap `practice1.tscn`.
+Clock tidak diurus scene ini — `DayNightManager` autoload sudah `auto_start`,
+sama seperti `practice1.tscn`.
 
 ---
 

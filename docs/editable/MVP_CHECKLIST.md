@@ -26,7 +26,8 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 | Stats & proficiency | Ada | Komponen + tes tertulis; belum ada XP/level-up |
 | Siklus waktu | Ada | Manager, config, HUD, visual; config default 600 dtk |
 | Survival needs | Sebagian | Komponen + HUD + 27 tes (termasuk plafon Fatigue, regen diam); konsumsi item, Campfire, dan Tenda belum |
-| Inventory & gathering | Sebagian | Inventory 12 slot + hotbar 1-5, definisi item, pickup, efek makan/minum, dan bag UI (Tab/I, drag-drop, klik kanan, tooltip) ada (23 tes inventory + 17 tes bag panel); resource node, crafting, dan drop saat mati belum |
+| Inventory & gathering | Sebagian | Inventory 12 slot + hotbar 1-5, definisi item, pickup, efek makan/minum, bag UI (Tab/I, drag-drop, klik kanan, tooltip), hold-E interaction, dan 8 resource node + respawn/tool gate ada (23 tes inventory, 17 bag panel, 13 interaction, 14 resource node); crafting dan drop saat mati belum |
+| Peta pulau | Minimum | `src/levels/island/island.tscn` (placeholder): zona sesuai spec §7.7, 139 node resource, 16 marker night spawn (tanpa spawner), wreckage, koper darurat, beacon placeholder, 9 river edge. Art produksi dan level loader belum |
 | Crafting & camp | Belum | Belum ada resep, workbench, campfire, tenda |
 | Combat & enemy | Belum | Belum ada attack, AI, spawn, scaling malam |
 | Night survival loop | Belum | Timer malam ada di HUD, tetapi belum ada gelombang ancaman |
@@ -165,13 +166,20 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 
 ## 7. Resource Gathering
 
-- [ ] Node resource yang bisa diinteraksi.
-- [ ] Waktu gathering dan animasi/feedback.
-- [ ] Respawn resource.
-- [ ] Tool requirement (jika ada).
-- [ ] Integrasi `get_gather_time_factor()`.
-- [ ] Integrasi fatigue per aksi gathering.
-- [ ] Resource masuk inventory.
+- [x] Node resource yang bisa diinteraksi.
+  - `Interactable` + `InteractorComponent` (hold E, range 64, progres real-time) dan 8 `ResourceNodeDefinition` (`twig`, `tree`, `small_rock`, `big_rock`, `fiber_bush`, `berry_bush`, `coconut_palm`, `bamboo_clump`). `tests/unit/test_interaction.gd`, `test_resource_node.gd`.
+- [x] Waktu gathering dan animasi/feedback.
+  - Lama hold per resource (0.8–3.0 s) + progress bar `InteractionHUD`. Animasi sprite belum ada (placeholder polygon).
+- [x] Respawn resource.
+  - `DAILY` (hari >= 2) dan `EVERY_OTHER_DAY` (hari ganjil >= 3) lewat `day_started(day)`; node `last_respawn_day` hilang permanen setelah hari itu. Tes stub clock di `test_resource_node.gd`.
+- [x] Tool requirement (jika ada).
+  - `tree` butuh `stone_axe`, `big_rock` butuh `stone_pickaxe`; alasan blokir "Butuh Kapak Batu" / "Butuh Beliung Batu".
+- [x] Integrasi `get_gather_time_factor()`.
+  - `ResourceNode.get_hold_time()` mengalikan `gather_time` dengan faktor dari `StatsComponent`; tes dengan modifier PERCENT +0.5.
+- [x] Integrasi fatigue per aksi gathering.
+  - `NeedsComponent.spend_fatigue(2.0)` sekali per panen; cap Fatigue tidak disentuh (tes).
+- [x] Resource masuk inventory.
+  - `InventoryComponent.add_or_drop()`; sisa yang tidak muat menjadi `ItemPickup` (tes overflow).
 
 ---
 

@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="IslandLayoutConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/island/island_layout_config.gd" id="1_layout"]
+
+[resource]
+script = ExtResource("1_layout")
+seed = 20260101
+half_size = 2400.0
+coast_margin = 150.0
+min_spacing = 70.0
+keep_out_radius = 140.0
+beacon_keep_out = 150.0
+camp_ring_min = 220.0
+camp_ring_max = 700.0
+max_attempts = 2000
+markers_min_distance = 1100.0
+camp_starters_last_respawn_day = 4
+camp_twig = 6
+camp_small_rock = 4
+camp_fiber_bush = 5
+camp_berry_bush = 4
+south_coconut_palm = 12
+west_small_rock = 14
+west_big_rock = 8
+river_bamboo = 14
+forest_tree = 30
+forest_fiber_bush = 24
+forest_berry_bush = 18
+night_spawn_markers = 16

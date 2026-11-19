@@ -22,6 +22,8 @@ const BONE_BROTH: ItemDefinition = preload("res://src/data/items/bone_broth.tres
 const BOILED_WATER: ItemDefinition = preload("res://src/data/items/boiled_water.tres")
 const HERBAL_BANDAGE: ItemDefinition = preload("res://src/data/items/herbal_bandage.tres")
 
+const COCKPIT_NOTES: ItemDefinition = preload("res://src/data/items/cockpit_notes.tres")
+
 const WATERSKIN: ItemDefinition = preload("res://src/data/items/waterskin.tres")
 const SIGNAL_FLARE: ItemDefinition = preload("res://src/data/items/signal_flare.tres")
 const TORCH: ItemDefinition = preload("res://src/data/items/torch.tres")
@@ -49,6 +51,7 @@ const ALL: Array[ItemDefinition] = [
 	BONE_BROTH,
 	BOILED_WATER,
 	HERBAL_BANDAGE,
+	COCKPIT_NOTES,
 	WATERSKIN,
 	SIGNAL_FLARE,
 	TORCH,

@@ -22,8 +22,8 @@ func before_all() -> void:
 
 
 func test_every_item_file_loads() -> void:
-	assert_eq(_definitions.size(), 22, "semua item di src/data/items harus termuat")
-	assert_eq(ItemCatalog.ALL.size(), 22, "ItemCatalog harus mendaftar semua item")
+	assert_eq(_definitions.size(), 23, "semua item di src/data/items harus termuat")
+	assert_eq(ItemCatalog.ALL.size(), 23, "ItemCatalog harus mendaftar semua item")
 
 
 func test_ids_are_unique_and_stack_is_at_least_one() -> void:

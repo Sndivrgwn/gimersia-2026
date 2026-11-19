@@ -1,0 +1,191 @@
+[gd_scene load_steps=24 format=3]
+
+[ext_resource type="Script" path="res://src/levels/island/island.gd" id="1_island"]
+[ext_resource type="PackedScene" path="res://src/entities/player/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://src/components/inventory/inventory_component.gd" id="3_inventory"]
+[ext_resource type="Script" path="res://src/components/interaction/interactor_component.gd" id="4_interactor"]
+[ext_resource type="Script" path="res://src/levels/island/island_builder.gd" id="5_builder"]
+[ext_resource type="Resource" path="res://src/data/configs/island_layout.tres" id="6_layout"]
+[ext_resource type="PackedScene" path="res://src/entities/props/suitcase/emergency_suitcase.tscn" id="7_suitcase"]
+[ext_resource type="PackedScene" path="res://src/entities/props/river_edge/river_edge.tscn" id="8_riveredge"]
+[ext_resource type="PackedScene" path="res://src/levels/components/environment/day_night_visual.tscn" id="9_daynight"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/time/time_hud.tscn" id="10_timehud"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/needs/needs_hud.tscn" id="11_needshud"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/stats/stats_hud.tscn" id="12_statshud"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/inventory/hotbar_hud.tscn" id="13_hotbarhud"]
+[ext_resource type="PackedScene" path="res://src/ui/panels/inventory/bag_panel.tscn" id="14_bagpanel"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/interaction/interaction_hud.tscn" id="15_interactionhud"]
+[ext_resource type="Script" path="res://src/levels/island/gather_debug.gd" id="16_gatherdebug"]
+[ext_resource type="Script" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="17_pchost"]
+[ext_resource type="Script" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_2d.gd" id="18_pc2d"]
+[ext_resource type="Script" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="19_tween"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
+size = Vector2(5000, 100)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v"]
+size = Vector2(100, 5000)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wreck"]
+size = Vector2(140, 70)
+
+[sub_resource type="Resource" id="Resource_tween"]
+script = ExtResource("19_tween")
+duration = 0.5
+
+[node name="Island" type="Node2D"]
+script = ExtResource("1_island")
+
+[node name="Ground" type="Node2D" parent="."]
+
+[node name="Forest" type="Polygon2D" parent="Ground"]
+color = Color(0.22, 0.32, 0.2, 1)
+polygon = PackedVector2Array(-2400, -2400, 2400, -2400, 2400, 2400, -2400, 2400)
+
+[node name="SouthBeach" type="Polygon2D" parent="Ground"]
+color = Color(0.78, 0.72, 0.5, 1)
+polygon = PackedVector2Array(-2400, 1400, 2400, 1400, 2400, 2400, -2400, 2400)
+
+[node name="EastBeach" type="Polygon2D" parent="Ground"]
+color = Color(0.76, 0.7, 0.48, 1)
+polygon = PackedVector2Array(1400, -1400, 2400, -1400, 2400, 1400, 1400, 1400)
+
+[node name="WestCliffs" type="Polygon2D" parent="Ground"]
+color = Color(0.4, 0.4, 0.45, 1)
+polygon = PackedVector2Array(-2400, -2400, -1400, -2400, -1400, 1400, -2400, 1400)
+
+[node name="River" type="Polygon2D" parent="Ground"]
+color = Color(0.25, 0.45, 0.6, 1)
+polygon = PackedVector2Array(-1050, -1400, -850, -1400, -850, 1400, -1050, 1400)
+
+[node name="Camp" type="Polygon2D" parent="Ground"]
+color = Color(0.35, 0.4, 0.25, 1)
+polygon = PackedVector2Array(800, 0, 739, 306, 566, 566, 306, 739, 0, 800, -306, 739, -566, 566, -739, 306, -800, 0, -739, -306, -566, -566, -306, -739, 0, -800, 306, -739, 566, -566, 739, -306)
+
+[node name="Coastline" type="StaticBody2D" parent="."]
+
+[node name="NorthWall" type="CollisionShape2D" parent="Coastline"]
+position = Vector2(0, -2450)
+shape = SubResource("RectangleShape2D_h")
+
+[node name="SouthWall" type="CollisionShape2D" parent="Coastline"]
+position = Vector2(0, 2450)
+shape = SubResource("RectangleShape2D_h")
+
+[node name="WestWall" type="CollisionShape2D" parent="Coastline"]
+position = Vector2(-2450, 0)
+shape = SubResource("RectangleShape2D_v")
+
+[node name="EastWall" type="CollisionShape2D" parent="Coastline"]
+position = Vector2(2450, 0)
+shape = SubResource("RectangleShape2D_v")
+
+[node name="Wreckage" type="StaticBody2D" parent="."]
+position = Vector2(0, -185)
+
+[node name="Visual" type="Polygon2D" parent="Wreckage"]
+color = Color(0.35, 0.3, 0.28, 1)
+polygon = PackedVector2Array(-70, -35, 70, -35, 70, 35, -70, 35)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wreckage"]
+shape = SubResource("RectangleShape2D_wreck")
+
+[node name="Suitcase" parent="." instance=ExtResource("7_suitcase")]
+position = Vector2(-48, 40)
+
+[node name="Beacon" type="Node2D" parent="."]
+position = Vector2(0, 2100)
+
+[node name="Visual" type="Polygon2D" parent="Beacon"]
+color = Color(0.9, 0.75, 0.3, 1)
+polygon = PackedVector2Array(-18, 10, 18, 10, 0, -30)
+
+[node name="Label" type="Label" parent="Beacon"]
+offset_left = -60.0
+offset_top = 12.0
+offset_right = 60.0
+offset_bottom = 32.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.95, 0.9, 0.7, 1)
+theme_override_font_sizes/font_size = 11
+text = "Signal Beacon"
+horizontal_alignment = 1
+
+[node name="RiverEdges" type="Node2D" parent="."]
+
+[node name="RiverEdge1" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+position = Vector2(-950, -1400)
+
+[node name="RiverEdge2" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+position = Vector2(-950, -1050)
+
+[node name="RiverEdge3" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+position = Vector2(-950, -700)
+
+[node name="RiverEdge4" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+position = Vector2(-950, -350)
+
+[node name="RiverEdge5" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+position = Vector2(-950, 0)
+
+[node name="RiverEdge6" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+position = Vector2(-950, 350)
+
+[node name="RiverEdge7" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+position = Vector2(-950, 700)
+
+[node name="RiverEdge8" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+position = Vector2(-950, 1050)
+
+[node name="RiverEdge9" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+position = Vector2(-950, 1400)
+
+[node name="Player" parent="." groups=["player"] instance=ExtResource("2_player")]
+position = Vector2(0, 64)
+
+[node name="InventoryComponent" type="Node" parent="Player"]
+script = ExtResource("3_inventory")
+
+[node name="InteractorComponent" type="Node" parent="Player"]
+script = ExtResource("4_interactor")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+physics_interpolation_mode = 1
+top_level = true
+position = Vector2(0, 64)
+zoom = Vector2(3, 3)
+
+[node name="PhantomCameraHost" type="Node" parent="Camera2D"]
+process_priority = 300
+process_physics_priority = 300
+script = ExtResource("17_pchost")
+
+[node name="PhantomCamera2D" type="Node2D" parent="Camera2D/PhantomCameraHost" node_paths=PackedStringArray("follow_target")]
+top_level = true
+position = Vector2(0, 64)
+script = ExtResource("18_pc2d")
+follow_mode = 2
+follow_target = NodePath("../../../Player")
+zoom = Vector2(3, 3)
+tween_resource = SubResource("Resource_tween")
+
+[node name="IslandBuilder" type="Node2D" parent="."]
+script = ExtResource("5_builder")
+layout = ExtResource("6_layout")
+
+[node name="DayNightVisual" parent="." instance=ExtResource("9_daynight")]
+
+[node name="TimeHUD" parent="." instance=ExtResource("10_timehud")]
+
+[node name="NeedsHUD" parent="." instance=ExtResource("11_needshud")]
+
+[node name="StatsHUD" parent="." instance=ExtResource("12_statshud")]
+
+[node name="HotbarHUD" parent="." instance=ExtResource("13_hotbarhud")]
+
+[node name="InteractionHUD" parent="." instance=ExtResource("15_interactionhud")]
+
+[node name="BagPanel" parent="." instance=ExtResource("14_bagpanel")]
+
+[node name="GatherDebug" type="Node" parent="."]
+script = ExtResource("16_gatherdebug")

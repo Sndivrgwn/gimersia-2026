@@ -4,7 +4,7 @@
 > repository. Read this file first, then the linked docs. **Code is the source of
 > truth** when a doc disagrees with it.
 
-Last verified: 2026-11-19, Godot 4.7.2, GUT 9.7.1, 106/106 tests passing.
+Last verified: 2026-11-19, Godot 4.7.2, GUT 9.7.1, 156/156 tests passing.
 Spec cross-check: 2026-11-18 against spec V8. Gaps found are listed in §4
 (missing systems), §7.1-7.8 (spec details), §8 (revised build order) and §13
 (open design questions).
@@ -46,8 +46,9 @@ in `docs/editable/` is maintained by the project.
 |---|---|---|
 | Engine | — | `D:\Programming\Gamedev\Godot_v4.7.2-stable_win64.exe` (console variant exists) |
 | GUT | — | **9.7.1 installed** in `addons/gut` (docs saying otherwise are stale) |
-| Unit tests | see §9 | **106/106 passing**, 861 asserts, ~1.2 s |
+| Unit tests | see §9 | **156/156 passing**, 1160 asserts, ~1.5 s |
 | Main scene boot | see §9 | `practice1.tscn` runs headless for 120 frames with **no errors** |
+| Island boot | see §9 | `src/levels/island/island.tscn` runs headless for 120 frames with **no errors** |
 | Default clock config | — | `cycle_duration` **600 s** (script default; `.tres` no longer overrides it) |
 | Dusk warning | — | 15 s before night |
 
@@ -74,22 +75,29 @@ Known bugs still present:
 | `ItemPickup` | `src/entities/props/item_pickup.gd/.tscn` | Area2D pickup: a body in the `player` group adds `item` x `count` through `InventoryComponent.add_item()`; leftover stays in the world, frees itself at 0. Ignores overlaps during `InventoryConfig.pickup_delay` and sizes its shape from `pickup_radius` |
 | `HotbarHUD` | `src/ui/hud/inventory/` | Read-only 5-slot hotbar (key number, display_name or icon, count); binds to `slot_changed(index)` and finds `InventoryComponent` via the `player` group or `@export inventory` |
 | `BagPanel` / `BagSlot` | `src/ui/panels/inventory/` | Interactive bag UI on its own `CanvasLayer` (layer 20): 12-slot grid with hotbar markers 1-5, a read-only equipment column (Weapon / Tool ownership / Armor) and a `Crafting` placeholder tab. Toggled by the `inventory_toggle` action (Tab or I) in `_unhandled_input`; Esc (`ui_cancel`) closes it but never opens it; it never pauses the game. Slots use `_get_drag_data`/`_can_drop_data`/`_drop_data` → `move_slot()`, right-click → `use_slot()`, hover tooltip from `ItemDefinition`/`ItemEffect`. Refreshes only from `slot_changed`, `equipment_changed`, `inventory_changed` |
+| `Interactable` / `InteractorComponent` / `InteractionHUD` | `src/components/interaction/`, `src/ui/hud/interaction/`, `src/data/configs/interaction_config.tres` | Hold-E framework reused by gather/loot/build/beacon: `Interactable` (group `interactable`, virtual `get_prompt(interactor)`, `get_hold_time(interactor)`, `can_interact()`, `get_block_reason()`, `interact()`), `InteractorComponent` (scan 0.1 s, range 64 from config, progress uses real delta, release/lost target/out of range resets, must re-press after completion; signals `target_changed`, `progress_changed`, `interaction_completed`, `interaction_blocked`, `interaction_cancelled`; `cancel()`, `get_stats()/get_inventory()/get_needs()`), read-only prompt + progress bar + blocked-reason HUD | Implemented; 13 tests |
+| `ResourceNodeDefinition` / `ResourceNode` | `src/data/resources/gathering/`, `src/data/gathering/*.tres`, `src/entities/props/resource_node/` | Eight definitions (twig, tree, small/big rock, fiber/berry bush, coconut palm, bamboo clump) with tool gates (`stone_axe`/`stone_pickaxe`), hold time = `gather_time` x `StatsComponent.get_gather_time_factor()`, seeded yield, `spend_fatigue()` once, DAILY / EVERY_OTHER_DAY / NEVER respawn through `DayNightManager.day_started(day)`, permanent removal after `last_respawn_day`; signal `gathered(definition, amount, interactor)` | Implemented; 14 tests |
+| `EmergencySuitcase` / `RiverEdge` | `src/entities/props/suitcase/`, `src/entities/props/river_edge/` | Suitcase: hold 1.0 s, grants 1 herbal bandage + 1 boiled water + 1 cockpit notes once, then blocks forever. River edge: hold 1.5 s, +25 Thirst, -8 Hunger, 15 real-second cooldown per player | Implemented; tested |
+| `cockpit_notes` item | `src/data/items/cockpit_notes.tres` | SPECIAL item "Catatan Kokpit", `max_stack` 1, registered in `ItemCatalog` | Implemented; tested |
+| `IslandZones` / `IslandLayoutConfig` / `IslandBuilder` | `src/levels/island/island_zones.gd`, `island_builder.gd`, `src/data/resources/island/`, `src/data/configs/island_layout.tres` | Zone lookup in the order CAMP, SOUTH_BEACH, EAST_BEACH, WEST_CLIFFS, RIVER, FOREST, OUTSIDE; deterministic seeded rejection-sampled layout with spacing/keep-out rules; 139 resource nodes and 16 `night_spawn_point` markers | Implemented; 17 tests |
+| `island.tscn` / `GatherDebug` | `src/levels/island/island.tscn`, `island.gd`, `gather_debug.gd` | Minimum map: tinted ground per zone, coastline static walls at ±2400, PlaneWreckage, suitcase, beacon placeholder (no logic), 9 river edges, full player/HUD wiring, builder node. `GatherDebug` (island only, off by default): F2 grants both tools, F3 teleports to the next zone, F4 skips to the next morning | Implemented; boots headless clean |
 | `PlayerBaseStats` | `src/data/stats/player_base_stats.gd` | Base numbers (no `.tres` instance yet; script defaults are used) |
 | `Player` | `src/entities/player/` | Top-down movement + sprint from `StatsComponent`; `can_sprint`, `facing_direction`, `sprint_state_changed` |
-| `InputSetup` | `src/utils/input_setup.gd` | Input Map helper: every action (`move_*`, `sprint`, `hotbar_1..5`, `debug_*`) is declared in `project.godot` `[input]`; `ensure_actions()` only fills gaps idempotently. Gameplay code polls `Input.is_action_just_pressed()`/`Input.get_vector()`, never `_unhandled_input` or raw keycodes |
+| `InputSetup` | `src/utils/input_setup.gd` | Input Map helper: most actions (`move_*`, `sprint`, `hotbar_1..5`, `debug_*`) are declared in `project.godot` `[input]`; `interact` (E) and `debug_island_*` (F2/F3/F4) are registered by `ensure_actions()`, which only fills gaps idempotently. Gameplay code polls `Input.is_action_just_pressed()`/`Input.get_vector()`, never `_unhandled_input` or raw keycodes |
 | `SafeZone` | `scenes/practice/safe_zone.gd` | **Practice-only** camera zoom + speed modifier example |
 | Tests / sandbox | `tests/unit/`, `tests/sandbox/` | GUT tests and a manual stats sandbox |
 
 ### What does NOT exist yet
 
-Drop-on-death loot, resource nodes & gathering, crafting recipes/stations (the
-bag panel's Crafting tab is a placeholder), camp structures + blueprint slots +
-repair (hold R), Emergency Suitcase, combat (auto-attack + manual provocation trigger,
-dodge), enemy AI (Wild Boar **and Island Deer**), daytime fauna quota, night
-spawner + camp-aggro logic, Proficiency XP / passives / death debuff,
-death/respawn/loot bag, main/pause/death/victory UI, audio, save system,
-`EventBus`, `GameManager`, `AudioManager`, the real island map (only
-`practice1.tscn` exists), production level loader. Do not assume these APIs exist.
+Drop-on-death loot, crafting recipes/stations (the bag panel's Crafting tab is a
+placeholder), camp structures + blueprint slots + repair (hold R), combat
+(auto-attack + manual provocation trigger, dodge), enemy AI (Wild Boar **and
+Island Deer**), daytime fauna quota, night spawner + camp-aggro logic (the 16
+`night_spawn_point` markers exist, but nothing reads them yet), Proficiency XP /
+passives / death debuff, death/respawn/loot bag, main/pause/death/victory UI,
+audio, save system, `EventBus`, `GameManager`, `AudioManager`, the production
+island map (only `practice1.tscn` and the placeholder `island.tscn` exist — no
+production art, no level loader). Do not assume these APIs exist.
 
 Note: `StatsComponent` has proficiency **levels** only (§6.2). XP,
 `max_reached_level` and passive abilities are not implemented (see §7.6).
@@ -498,10 +506,14 @@ Supersedes the order in `MVP_CHECKLIST` §19 (update that file to match).
    2. Inventory: 12 bag slots, hotbar 1-5, 3 equipment slots, `ItemDefinition`,
       pickup/drop, consumable effects (§7.1, §7.5).
    3. Resource nodes + hold-E gathering, tool gates, Fatigue cost, Zone 1 respawn
-      limits (§7.5).
+      limits (§7.5). **— DONE** (`Interactable`/`InteractorComponent` + 8
+      `ResourceNodeDefinition` .tres, 14 tests).
    4. Minimum production map: Zone 1 plus enough of Zones 2/4/5/6 to reach every
       resource, wreckage, Emergency Suitcase, Beacon (§7.4, §7.7). Grow it
-      incrementally; keep `practice1.tscn` working.
+      incrementally; keep `practice1.tscn` working. **— MINIMUM DONE**
+      (`src/levels/island/island.tscn`: zones, 139 nodes, 16 night markers,
+      wreckage, suitcase, beacon placeholder, river edges; art and level loader
+      still open).
    5. Crafting (hand / Workbench / Campfire), blueprint slots, structures with HP,
       repair (hold R), fuel, Tent sleep, Night Watch (§7.4, §7.5).
 3. **P1b - threat loop.**
@@ -528,7 +540,8 @@ src/components/needs/needs_component.gd
 src/components/inventory/inventory_component.gd
 src/components/proficiency/proficiency_component.gd
 src/components/combat/hitbox.gd (or similar)
-src/entities/props/resource_node.gd/.tscn
+src/entities/props/resource_node/resource_node.gd/.tscn   # DONE
+src/components/interaction/interactable.gd                # DONE
 src/entities/props/camp/campfire.gd ... etc.
 src/entities/enemies/wild_boar/wild_boar.gd/.tscn
 src/entities/fauna/island_deer/island_deer.gd/.tscn
