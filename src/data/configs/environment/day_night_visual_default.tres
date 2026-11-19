@@ -4,4 +4,4 @@
 
 [resource]
 script = ExtResource("1_visual_config")
-transition_duration = 9.5
+transition_duration = 9.0
