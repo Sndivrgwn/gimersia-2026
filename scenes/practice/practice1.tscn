@@ -22,6 +22,11 @@
 [ext_resource type="PackedScene" path="res://src/ui/panels/inventory/bag_panel.tscn" id="20_bagpanel"]
 [ext_resource type="Script" path="res://src/components/interaction/interactor_component.gd" id="21_interactor"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/interaction/interaction_hud.tscn" id="22_interactionhud"]
+[ext_resource type="PackedScene" path="res://src/entities/props/resource_node/resource_node.tscn" id="23_resourcenode"]
+[ext_resource type="Resource" path="res://src/data/gathering/twig.tres" id="24_twig"]
+[ext_resource type="Resource" path="res://src/data/gathering/small_rock.tres" id="25_smallrock"]
+[ext_resource type="Resource" path="res://src/data/gathering/fiber_bush.tres" id="26_fiberbush"]
+[ext_resource type="Resource" path="res://src/data/gathering/berry_bush.tres" id="27_berrybush"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ddd1a"]
 texture = ExtResource("1_ur0jx")
@@ -1713,3 +1718,21 @@ count = 2
 position = Vector2(-60, 82)
 item = ExtResource("19_rawmeat")
 count = 1
+
+[node name="GatherDemo" type="Node2D" parent="."]
+
+[node name="TwigNode" parent="GatherDemo" instance=ExtResource("23_resourcenode")]
+position = Vector2(-160, 44)
+definition = ExtResource("24_twig")
+
+[node name="SmallRockNode" parent="GatherDemo" instance=ExtResource("23_resourcenode")]
+position = Vector2(-150, 92)
+definition = ExtResource("25_smallrock")
+
+[node name="FiberBushNode" parent="GatherDemo" instance=ExtResource("23_resourcenode")]
+position = Vector2(-40, 44)
+definition = ExtResource("26_fiberbush")
+
+[node name="BerryBushNode" parent="GatherDemo" instance=ExtResource("23_resourcenode")]
+position = Vector2(-40, 92)
+definition = ExtResource("27_berrybush")
