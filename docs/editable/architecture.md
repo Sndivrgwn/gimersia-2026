@@ -94,13 +94,18 @@ Empty placeholder folders such as `src/entities/enemies`, `src/entities/props`, 
 | **StatsComponent / StatModifier** | `src/components/stats/stats_component.gd`, `stat_modifier.gd` | Derived stats, HP, modifier stacking | `add_modifier()`, `remove_modifier()`, stat getters, `heal()`, `set_hp()`, `hp_changed`, `stats_changed` | Implemented; tests passing |
 | **NeedsComponent / NeedsConfig** | `src/components/needs/needs_component.gd`; `src/data/resources/needs/needs_config.gd`; `src/data/configs/needs_config.tres` | Owns Hunger/Thirst/Fatigue (0..100) and the Fatigue cap, clock-scaled drain, sleep-skip drain, walk drain / sprint drain + cap loss / idle regen, tier effects, ZERO HP loss | `get_value()`, `set_value()`, `add()`, `spend_fatigue()`, `get_tier()`, `get_fatigue_cap()`, `restore_fatigue_capacity()`, `tick(delta)`, `setup(clock, stats, player)`, `get_config()`; `value_changed(need, value)`, `tier_changed(need, tier)`, `fatigue_cap_changed(cap)` | Implemented; 27 tests passing |
 | **InventoryComponent** | `src/components/inventory/inventory_component.gd` | Owns 12 bag slots (0-4 = hotbar) of `ItemStack`, stacking, item use, drop-on-full, and WEAPON/ARMOR equipment + TOOL ownership | `add_item() -> int`, `remove_item() -> bool` (atomic, item or id), `has_item()`, `count_of()`/`count_item()`, `get_slot()`/`get_slot_item()`/`get_slot_count()`, `is_full()`, `move_slot()`, `use_slot()`, `add_or_drop()`, `equip()`/`unequip()`/`has_tool()`/`get_equipped()`, `get_capacity()`, `get_hotbar_size()`, `clear()`, `setup()`; `slot_changed(index)`, `equipment_changed(slot)`, `inventory_changed()`; keys 1-5 use slots | Implemented; 23 tests passing |
-| **ItemDefinition / ItemEffect / ItemStack / ItemCatalog / InventoryConfig** | `src/data/resources/items/`; `.tres` in `src/data/items/`, `src/data/configs/inventory_config.tres` | Item content, consumable effects, slot stacks and inventory tuning | `id`, `display_name`, `description`, `category`, `max_stack`, `icon`, `consume_effect`, `equipment_slot`, `weapon_damage/range`, `armor_damage_reduction/max_hp_bonus`; effect `hunger`/`thirst`/`fatigue`/`hp`/`regen_*`; `ItemCatalog.get_by_id()`; `InventoryConfig` bag_size/hotbar_size/pickup_delay/pickup_radius | Implemented; 22 `.tres` validated by tests |
+| **ItemDefinition / ItemEffect / ItemStack / ItemCatalog / InventoryConfig** | `src/data/resources/items/`; `.tres` in `src/data/items/`, `src/data/configs/inventory_config.tres` | Item content, consumable effects, slot stacks and inventory tuning | `id`, `display_name`, `description`, `category`, `max_stack`, `icon`, `consume_effect`, `equipment_slot`, `weapon_damage/range`, `armor_damage_reduction/max_hp_bonus`; effect `hunger`/`thirst`/`fatigue`/`hp`/`regen_*`; `ItemCatalog.get_by_id()`; `InventoryConfig` bag_size/hotbar_size/pickup_delay/pickup_radius | Implemented; 23 `.tres` validated by tests (includes SPECIAL `cockpit_notes`) |
 | **ItemPickup** | `src/entities/props/item_pickup.gd/.tscn` | Pickup Area2D that adds its item to a body in the `player` group | `item`, `count`, `config` exports; ignores overlaps during `pickup_delay`; keeps leftovers; frees itself at 0 | Implemented; partial pickup + delay tested |
 | **HotbarHUD** | `src/ui/hud/inventory/hotbar_hud.gd/.tscn` | Read-only 5-slot hotbar: key number, display_name or icon, count | No public API beyond `refresh()`; listens to `slot_changed(index)` | Implemented; read-only, not visually verified |
 | **BagPanel / BagSlot** | `src/ui/panels/inventory/bag_panel.gd/.tscn`, `bag_slot.gd/.tscn` | Interactive bag UI on its own `CanvasLayer` (layer 20): 12-slot grid with hotbar markers 1-5, read-only equipment column (Weapon / Tool ownership / Armor), Crafting placeholder tab. No pause; refreshes only from the three inventory signals | `is_open()`, `toggle_panel()`, `get_slots()`; drag-drop → `move_slot()`, right-click → `use_slot()`, tooltip from `ItemDefinition`/`ItemEffect` | Implemented; 17 tests; not visually verified |
 | **PlayerBaseStats** | `src/data/stats/player_base_stats.gd` | Base stat numbers as a Resource | Exported base values | Implemented; no `.tres` instance yet |
-| **Player** | `src/entities/player/player.gd/.tscn` | Top-down movement and sprint using StatsComponent | `can_sprint`, `facing_direction`, `sprint_state_changed`, `stats` | Implemented; no combat/interaction yet |
-| **InputSetup** | `src/utils/input_setup.gd` | Input Map helper; all actions (`move_*`, `sprint`, `hotbar_1..5`, `debug_*`) live in `project.godot` `[input]`, and this only fills missing entries idempotently | `InputSetup.ensure_actions()` | Implemented; no `_unhandled_input` anywhere in `src/`, `scenes/` or `tests/` |
+| **Interactable / InteractorComponent / InteractionHUD** | `src/components/interaction/`, `src/ui/hud/interaction/`, `src/data/configs/interaction_config.tres` | Hold-E framework reused by gathering, looting, building and the beacon | `Interactable`: group `interactable`, virtual `get_prompt()`, `get_hold_time()`, `can_interact()`, `get_block_reason()`, `interact()`. `InteractorComponent`: 0.1 s scan, range from config, real-delta progress, re-press after completion; signals `target_changed`, `progress_changed`, `interaction_completed`, `interaction_blocked`, `interaction_cancelled`; `cancel()`, `get_stats()/get_inventory()/get_needs()` | Implemented; 13 tests |
+| **ResourceNodeDefinition / ResourceNode** | `src/data/resources/gathering/`, `src/data/gathering/*.tres`, `src/entities/props/resource_node/` | Eight gatherable resources with tool gates, stats-scaled hold time, seeded yield, single Fatigue spend and day-based respawn | `id`, `display_name`, `item`, `yield_min/max`, `required_tool`, `gather_time`, `fatigue_cost`, `respawn_rule`; `ResourceNode` exports `definition`, `last_respawn_day`, `rng_seed`, `clock`; `gathered(definition, amount, interactor)`; `is_depleted()`, `setup_clock()` | Implemented; 14 tests |
+| **EmergencySuitcase / RiverEdge** | `src/entities/props/suitcase/`, `src/entities/props/river_edge/` | One-time starter loot and river drinking | Suitcase: `interact()` grants 3 items once, `looted` signal, `is_looted()`. RiverEdge: +25 Thirst / -8 Hunger, 15 s real-second per-player cooldown, `advance_cooldowns()`, `get_cooldown_remaining()` | Implemented; tested |
+| **IslandZones / IslandLayoutConfig / IslandBuilder** | `src/levels/island/island_zones.gd`, `island_builder.gd`, `src/data/resources/island/`, `src/data/configs/island_layout.tres` | Zone classification and deterministic island population | `IslandZones.zone_at()`, `zone_name()`, `zone_center()`; layout exports seed/spacing/keep-out/counts; `IslandBuilder.plan()` and `build()` spawn 139 `ResourceNode` + 16 `night_spawn_point` markers | Implemented; 17 tests |
+| **island.tscn / GatherDebug** | `src/levels/island/island.tscn`, `island.gd`, `gather_debug.gd` | Minimum island composition and island-only debug keys (F2 tools, F3 zone teleport, F4 next morning) | Scene only; `GatherDebug.is_debug_enabled()` | Implemented; boots headless clean; not the main scene |
+| **Player** | `src/entities/player/player.gd/.tscn` | Top-down movement and sprint using StatsComponent | `can_sprint`, `facing_direction`, `sprint_state_changed`, `stats` | Implemented; no combat yet (interaction lives in `InteractorComponent`) |
+| **InputSetup** | `src/utils/input_setup.gd` | Input Map helper; most actions (`move_*`, `sprint`, `hotbar_1..5`, `debug_*`) live in `project.godot` `[input]` while `interact` and `debug_island_*` are registered at runtime; `ensure_actions()` only fills missing entries idempotently | `InputSetup.ensure_actions()`, `INTERACT`, `DEBUG_ISLAND_*` | Implemented; only `BagPanel` uses `_unhandled_input` (for Tab/I) |
 | **SafeZone** | `scenes/practice/safe_zone.gd`, inside `practice1.tscn` | Practice-only camera zoom and movement slow modifier | `phantom_camera`, zoom/slow exports | Practice only; not production camp logic |
 | **Tests / sandbox** | `tests/unit/`, `tests/sandbox/` | Unit tests and manual stats sandbox | GUT tests; sandbox scene | Written; run with GUT 9.7.1 |
 
@@ -125,6 +130,20 @@ ItemPickup ──> InventoryComponent
 HotbarHUD ──> InventoryComponent (read-only)
 BagPanel ──> InventoryComponent (move_slot()/use_slot(); refresh from signals)
 practice1.tscn Pickups (ItemPickup instances) ──> Player/InventoryComponent
+
+Interactable ◄── InteractorComponent ──> InventoryComponent/NeedsComponent/StatsComponent
+InteractionHUD ──> InteractorComponent (read-only)
+ResourceNode ──> ResourceNodeDefinition ──> ItemDefinition
+            ├── add_or_drop() ─────────> InventoryComponent
+            ├── spend_fatigue() ───────> NeedsComponent
+            ├── get_gather_time_factor() ──> StatsComponent
+            └── day_started(day) ──────> DayNightManager
+EmergencySuitcase / RiverEdge ──> InventoryComponent / NeedsComponent
+
+IslandBuilder ──> IslandLayoutConfig
+            ├── zone_at() ─────────────> IslandZones
+            └── spawns ───────────────> ResourceNode + Marker2D (night_spawn_point)
+GatherDebug ──> InventoryComponent (tools), DayNightManager (skip_time), IslandZones
 
 DayNightManager ──> DayNightConfig ──> DayNightPeriod
         ▲
@@ -168,6 +187,30 @@ Ordering caveat: `SafeZone` relies on the player being in the `player` group; th
 **Needs:** `NeedsComponent` is a child of `Player` inside `player.tscn`, next to `StatsComponent`; it resolves its stats node and the `/root/DayNightManager` autoload itself. `NeedsHUD` is a second `CanvasLayer` in `practice1.tscn` that finds the component through the `player` group and never writes need values.
 
 **Inventory:** `InventoryComponent` is added to the `Player` **instance** inside `practice1.tscn`, not to `player.tscn`, so the sandbox scene and tests keep using keys 1-4 for proficiency. It resolves `NeedsComponent`/`StatsComponent` from its parent. `HotbarHUD` reads it through the `player` group. Four `ItemPickup` nodes sit in a practice-only `DemoPickups` node (wood, stone, berry, raw meat) so the map can test pickup and eating; practice debug keys stay F1/X/C/V/B/M and do not overlap with hotbar keys 1-5. `BagPanel` (action `inventory_toggle`: Tab/I) adds the bag UI and drag-and-drop, using the same signals, so `HotbarHUD` and the panel stay in sync. `interact` (E) and crafting do not exist yet.
+
+---
+
+### 5.1 Island Composition (`island.tscn`)
+
+`src/levels/island/island.tscn` is the minimum production map (not the main
+scene; `practice1.tscn` stays `run/main_scene`):
+
+```text
+Island (island.gd: start facing north)
+├── Ground (tinted Polygon2D per zone)
+├── Coastline (4 static walls at ±2450)
+├── Wreckage (0,-185) · Suitcase (-48,40) · Beacon placeholder (0,2100)
+├── RiverEdges (9 RiverEdge, x=-950, y -1400..1400)
+├── Player (group "player", (0,64)) + InventoryComponent + InteractorComponent
+├── Camera2D / PhantomCameraHost / PhantomCamera2D (follow Player)
+├── IslandBuilder (island_layout.tres) → ResourceNode + night markers
+├── DayNightVisual + TimeHUD + NeedsHUD + StatsHUD + HotbarHUD + InteractionHUD + BagPanel
+└── GatherDebug (F2 tools · F3 zone teleport · F4 next morning)
+```
+
+The clock is not started by the scene: the `DayNightManager` autoload already
+`auto_start`s, exactly like `practice1.tscn`. The beacon is a placeholder with
+no Victory logic, and the 16 `night_spawn_point` markers are read by nothing yet.
 
 ---
 

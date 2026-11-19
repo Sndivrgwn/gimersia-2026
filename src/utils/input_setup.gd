@@ -13,6 +13,10 @@ const SPRINT := &"sprint"
 const INVENTORY_TOGGLE := &"inventory_toggle"
 ## Hold E untuk gather/bangun/loot/beacon (InteractorComponent).
 const INTERACT := &"interact"
+## Debug khusus island (GatherDebug): F2 aktifkan, F3 zona berikutnya, F4 pagi berikutnya.
+const DEBUG_ISLAND_TOGGLE := &"debug_island_toggle"
+const DEBUG_ISLAND_ZONE := &"debug_island_zone"
+const DEBUG_ISLAND_MORNING := &"debug_island_morning"
 
 ## Tombol 1-5 memakai slot hotbar InventoryComponent.
 const HOTBAR_ACTIONS: Array[StringName] = [
@@ -54,6 +58,13 @@ static func ensure_actions() -> void:
 
 	_ensure_action(INTERACT)
 	_ensure_key(INTERACT, KEY_E)
+
+	_ensure_action(DEBUG_ISLAND_TOGGLE)
+	_ensure_key(DEBUG_ISLAND_TOGGLE, KEY_F2)
+	_ensure_action(DEBUG_ISLAND_ZONE)
+	_ensure_key(DEBUG_ISLAND_ZONE, KEY_F3)
+	_ensure_action(DEBUG_ISLAND_MORNING)
+	_ensure_key(DEBUG_ISLAND_MORNING, KEY_F4)
 
 	for index in HOTBAR_ACTIONS.size():
 		_ensure_action(HOTBAR_ACTIONS[index])
