@@ -33,6 +33,8 @@ class StubPlayer extends Node:
 	signal sprint_state_changed(is_sprinting: bool)
 
 	var can_sprint: bool = true
+	## Dibaca NeedsComponent untuk membedakan jalan dan diam.
+	var velocity: Vector2 = Vector2.ZERO
 
 	func set_sprinting(value: bool) -> void:
 		sprint_state_changed.emit(value)
@@ -248,7 +250,10 @@ func test_sprint_drain_uses_stats_factor() -> void:
 
 	player.set_sprinting(false)
 	needs.tick(2.0)
-	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.FATIGUE), 92.5, 0.001)
+	assert_almost_eq(
+		needs.get_value(NeedsComponentScript.Need.FATIGUE), 92.5 + 1.0 * 2.0, 0.001,
+		"sprint berhenti -> diam meregenerasi 1.0/s"
+	)
 
 
 func test_can_sprint_locks_at_25() -> void:
@@ -284,8 +289,8 @@ func test_walking_drains_fatigue_slowly() -> void:
 	mover.velocity = Vector2.ZERO
 	needs.tick(10.0)
 	assert_almost_eq(
-		needs.get_value(NeedsComponentScript.Need.FATIGUE), 99.2, 0.01,
-		"diam di tempat tidak mengurangi Fatigue"
+		needs.get_value(NeedsComponentScript.Need.FATIGUE), 100.0, 0.01,
+		"diam di tempat malah meregenerasi Fatigue"
 	)
 
 
@@ -307,6 +312,82 @@ func test_walk_drain_is_much_slower_than_sprint() -> void:
 	mover.velocity = Vector2(120.0, 0.0)
 	needs.tick(60.0)
 	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.FATIGUE), 95.2, 0.01)
+
+
+# --- Regenerasi diam & plafon Fatigue ---------------------------------------
+
+func test_idle_regenerates_fatigue_and_stops_at_max() -> void:
+	needs.set_value(NeedsComponentScript.Need.FATIGUE, 50.0)
+
+	# StubPlayer tanpa velocity = diam.
+	needs.tick(10.0)
+	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.FATIGUE), 60.0, 0.01)
+
+	needs.tick(100.0)
+	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.FATIGUE), 100.0, 0.01)
+
+
+func test_sprint_lowers_fatigue_cap_and_idle_regens_to_cap_only() -> void:
+	assert_almost_eq(needs.get_fatigue_cap(), 100.0, 0.001)
+
+	player.velocity = Vector2(240.0, 0.0)
+	player.set_sprinting(true)
+	needs.tick(50.0)
+	assert_almost_eq(
+		needs.get_fatigue_cap(), 100.0 - 0.4 * 50.0, 0.01,
+		"sprint menurunkan plafon Fatigue"
+	)
+	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.FATIGUE), 0.0, 0.01)
+
+	player.set_sprinting(false)
+	player.velocity = Vector2.ZERO
+	needs.tick(200.0)
+	assert_almost_eq(
+		needs.get_value(NeedsComponentScript.Need.FATIGUE), 80.0, 0.01,
+		"diam hanya memulihkan sampai plafon 80"
+	)
+	assert_almost_eq(needs.get_fatigue_cap(), 80.0, 0.01, "plafon tidak naik sendiri")
+
+
+func test_walking_does_not_lower_fatigue_cap() -> void:
+	player.velocity = Vector2(120.0, 0.0)
+	needs.tick(60.0)
+
+	assert_almost_eq(needs.get_fatigue_cap(), 100.0, 0.001, "jalan tidak mengurangi plafon")
+	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.FATIGUE), 95.2, 0.01)
+
+
+func test_eating_restores_capacity_up_to_max() -> void:
+	player.velocity = Vector2(240.0, 0.0)
+	player.set_sprinting(true)
+	needs.tick(50.0)
+	assert_almost_eq(needs.get_fatigue_cap(), 80.0, 0.01)
+	player.set_sprinting(false)
+
+	needs.restore_fatigue_capacity(10.0)
+	assert_almost_eq(needs.get_fatigue_cap(), 90.0, 0.01, "makan menaikkan plafon")
+	assert_almost_eq(
+		needs.get_value(NeedsComponentScript.Need.FATIGUE), 10.0, 0.01,
+		"makan juga mengisi nilai Fatigue sebanyak itu"
+	)
+
+	needs.restore_fatigue_capacity(50.0)
+	assert_almost_eq(needs.get_fatigue_cap(), 100.0, 0.01, "plafon tidak melewati max")
+
+
+func test_sleep_restores_capacity_and_wakes_rested() -> void:
+	player.velocity = Vector2(240.0, 0.0)
+	player.set_sprinting(true)
+	needs.tick(100.0)
+	assert_almost_eq(needs.get_fatigue_cap(), 60.0, 0.01)
+	player.set_sprinting(false)
+
+	clock.skip(45.0)
+	assert_almost_eq(needs.get_fatigue_cap(), 85.0, 0.01, "tidur +25 plafon")
+	assert_almost_eq(
+		needs.get_value(NeedsComponentScript.Need.FATIGUE), 85.0, 0.01,
+		"bangun tidur Fatigue penuh sampai plafon"
+	)
 
 
 # --- Sinyal -----------------------------------------------------------------
@@ -371,6 +452,10 @@ func test_real_player_sprint_emits_and_drains_fatigue() -> void:
 # --- Debug keys practice + StatsHUD -----------------------------------------
 
 func test_debug_keys_cycle_needs_and_stats_hud_follows() -> void:
+	# GUT kadang menjalankan tes di dalam frame fisika, sementara
+	# Input.is_action_just_pressed() memakai frame proses. Paksa frame proses.
+	await get_tree().process_frame
+
 	var real_player := PLAYER_SCENE.instantiate() as Player
 	real_player.add_to_group(&"player")
 	add_child_autofree(real_player)
@@ -383,6 +468,8 @@ func test_debug_keys_cycle_needs_and_stats_hud_follows() -> void:
 
 	var debug_node := NEEDS_DEBUG_SCRIPT.new()
 	add_child_autofree(debug_node)
+	# Tombol dibaca di _process; tes memanggilnya manual supaya deterministik.
+	debug_node.set_process(false)
 
 	var hud := STATS_HUD_SCENE.instantiate()
 	add_child_autofree(hud)
@@ -390,32 +477,32 @@ func test_debug_keys_cycle_needs_and_stats_hud_follows() -> void:
 	var tier_label := hud.get_node("Root/Panel/Margin/VBox/TierLabel") as Label
 
 	# Default mati: tombol tidak boleh mengubah apa pun.
-	_press_key(debug_node, KEY_X)
+	await _press_action(debug_node, &"debug_cycle_hunger")
 	assert_almost_eq(
 		needs.get_value(NeedsComponentScript.Need.HUNGER), 100.0, 0.001,
 		"debug off: X harus diabaikan"
 	)
 
-	_press_key(debug_node, KEY_F1)
-	_press_key(debug_node, KEY_X)
+	await _press_action(debug_node, &"debug_needs_toggle")
+	await _press_action(debug_node, &"debug_cycle_hunger")
 	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.HUNGER), 25.0, 0.001)
 	assert_string_contains(tier_label.text, "HUNGER LOW")
 	assert_string_contains(stats_label.text, "Attack dmg   6.8")
 	assert_string_contains(stats_label.text, "Move speed   136")
 
-	_press_key(debug_node, KEY_X)
+	await _press_action(debug_node, &"debug_cycle_hunger")
 	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.HUNGER), 0.0, 0.001)
 	assert_string_contains(tier_label.text, "HUNGER ZERO")
 	assert_string_contains(stats_label.text, "Attack dmg   6.8", "efek LOW tetap saat ZERO")
 
-	_press_key(debug_node, KEY_C)
+	await _press_action(debug_node, &"debug_cycle_thirst")
 	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.THIRST), 25.0, 0.001)
 	assert_string_contains(tier_label.text, "THIRST LOW")
 	assert_string_contains(stats_label.text, "Attack speed 0.96/s")
 	assert_string_contains(stats_label.text, "Sprint drain x1.30")
 
-	_press_key(debug_node, KEY_V)
-	_press_key(debug_node, KEY_V)
+	await _press_action(debug_node, &"debug_cycle_fatigue")
+	await _press_action(debug_node, &"debug_cycle_fatigue")
 	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.FATIGUE), 0.0, 0.001)
 	assert_string_contains(tier_label.text, "FATIGUE ZERO")
 	assert_string_contains(stats_label.text, "Move speed   64", "hunger -15% + fatigue -45%")
@@ -423,7 +510,7 @@ func test_debug_keys_cycle_needs_and_stats_hud_follows() -> void:
 	assert_string_contains(stats_label.text, "Gather time  x1.30")
 	assert_false(real_player.can_sprint, "Fatigue ZERO mengunci sprint")
 
-	_press_key(debug_node, KEY_B)
+	await _press_action(debug_node, &"debug_refill_needs")
 	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.HUNGER), 100.0, 0.001)
 	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.THIRST), 100.0, 0.001)
 	assert_almost_eq(needs.get_value(NeedsComponentScript.Need.FATIGUE), 100.0, 0.001)
@@ -432,12 +519,16 @@ func test_debug_keys_cycle_needs_and_stats_hud_follows() -> void:
 	assert_true(real_player.can_sprint, "refill membuka kembali sprint")
 
 
-## Kirim event tombol langsung ke _unhandled_input (tanpa OS input).
-func _press_key(target: Node, keycode: Key) -> void:
-	var event := InputEventKey.new()
-	event.physical_keycode = keycode
-	event.pressed = true
-	target._unhandled_input(event)
+## Tekan action Input Map, jalankan _process target, lepas, lalu tunggu satu
+## frame. Tidak memakai OS input maupun `_unhandled_input`.
+func _press_action(target: Node, action: StringName) -> void:
+	assert_true(InputMap.has_action(action), "%s harus ada di Input Map" % action)
+	Input.action_press(action)
+	target._process(0.0)
+	Input.action_release(action)
+	# Flag "just pressed" bertahan sampai frame berikutnya; jeda satu frame supaya
+	# action berikutnya tidak ikut terpakai di _process yang sama.
+	await get_tree().process_frame
 
 
 func test_spend_fatigue_only_drains_fatigue() -> void:

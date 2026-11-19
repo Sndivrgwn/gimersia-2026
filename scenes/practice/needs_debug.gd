@@ -3,15 +3,24 @@ extends Node
 ## Practice-only debug keys: paksa Hunger/Thirst/Fatigue ke batas tier supaya
 ## efeknya langsung terlihat di StatsHUD. Default mati; F1 menyalakannya.
 ## Tidak dipakai di level produksi (sama seperti SafeZone).
+##
+## Tombol dibaca sebagai action Input Map `debug_*` dari `project.godot` [input];
+## tidak ada `_unhandled_input` dan tidak ada pencocokan raw keycode.
 
 const PLAYER_GROUP := &"player"
 const NEEDS_NAME := "NeedsComponent"
+const ACTION_TOGGLE := &"debug_needs_toggle"
+const ACTION_HUNGER := &"debug_cycle_hunger"
+const ACTION_THIRST := &"debug_cycle_thirst"
+const ACTION_FATIGUE := &"debug_cycle_fatigue"
+const ACTION_REFILL := &"debug_refill_needs"
+const ACTION_EAT := &"debug_eat"
 const LOW_VALUE := 25.0
 const FULL_VALUE := 100.0
 const NEED_NAMES: Array[String] = ["Hunger", "Thirst", "Fatigue"]
 const HINT_TEXT := """NEEDS DEBUG ON
 X hunger · C thirst · V fatigue   (100 -> 25 -> 0 -> 100)
-B refill all · F1 toggle off"""
+B refill all · M makan (+cap) · F1 toggle off"""
 
 var _needs: NeedsComponent
 var _hint: Label
@@ -28,31 +37,31 @@ func _ready() -> void:
 	_build_hint()
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	var key_event := event as InputEventKey
-	if key_event == null or not key_event.pressed or key_event.echo:
-		return
-
-	if key_event.physical_keycode == KEY_F1:
-		if _hint == null:
-			return
-		_enabled = not _enabled
-		_hint.visible = _enabled
-		get_viewport().set_input_as_handled()
+func _process(_delta: float) -> void:
+	if Input.is_action_just_pressed(ACTION_TOGGLE):
+		_toggle()
 		return
 
 	if not _enabled or _needs == null:
 		return
 
-	match key_event.physical_keycode:
-		KEY_X:
-			_cycle(NeedsComponent.Need.HUNGER)
-		KEY_C:
-			_cycle(NeedsComponent.Need.THIRST)
-		KEY_V:
-			_cycle(NeedsComponent.Need.FATIGUE)
-		KEY_B:
-			_refill()
+	if Input.is_action_just_pressed(ACTION_HUNGER):
+		_cycle(NeedsComponent.Need.HUNGER)
+	elif Input.is_action_just_pressed(ACTION_THIRST):
+		_cycle(NeedsComponent.Need.THIRST)
+	elif Input.is_action_just_pressed(ACTION_FATIGUE):
+		_cycle(NeedsComponent.Need.FATIGUE)
+	elif Input.is_action_just_pressed(ACTION_REFILL):
+		_refill()
+	elif Input.is_action_just_pressed(ACTION_EAT):
+		_eat()
+
+
+func _toggle() -> void:
+	if _hint == null:
+		return
+	_enabled = not _enabled
+	_hint.visible = _enabled
 
 
 func _build_hint() -> void:
@@ -83,6 +92,17 @@ func _cycle(need: int) -> void:
 
 
 func _refill() -> void:
+	_needs.restore_fatigue_capacity(FULL_VALUE)
 	for need in NEED_NAMES.size():
 		_needs.set_value(need, FULL_VALUE)
 	print("NeedsDebug: semua needs = 100")
+
+
+## Meniru efek makan: plafon Fatigue naik lagi setelah sprint menurunkannya.
+func _eat() -> void:
+	var step := _needs.get_config().fatigue_meal_cap_restore
+	_needs.restore_fatigue_capacity(step)
+	print("NeedsDebug: makan -> fatigue %d / cap %d" % [
+		int(_needs.get_value(NeedsComponent.Need.FATIGUE)),
+		int(_needs.get_fatigue_cap()),
+	])

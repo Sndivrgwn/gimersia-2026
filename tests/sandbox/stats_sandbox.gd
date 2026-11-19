@@ -17,6 +17,26 @@ const GRID_COLOR := Color(1.0, 1.0, 1.0, 0.06)
 
 const SOURCE_ZIRAH := &"debug_zirah_kulit"
 
+## Tombol debug memakai action Input Map `debug_*` dari `project.godot` [input].
+const ACTION_LEVEL_UP: Array[StringName] = [
+	&"debug_str_up",
+	&"debug_spd_up",
+	&"debug_mas_up",
+	&"debug_agi_up",
+]
+const ACTION_LEVEL_DOWN: Array[StringName] = [
+	&"debug_str_down",
+	&"debug_spd_down",
+	&"debug_mas_down",
+	&"debug_agi_down",
+]
+const LEVEL_PROPERTIES: Array[StringName] = [
+	&"strength_level",
+	&"speed_level",
+	&"mastery_level",
+	&"agility_level",
+]
+
 const CONTROLS_TEXT := """DEBUG KEYS
 1 / 2 / 3 / 4        : +1 STR / SPD / MAS / AGI
 Ctrl + 1 / 2 / 3 / 4 : -1 STR / SPD / MAS / AGI
@@ -189,56 +209,40 @@ func _tier_name(need: int) -> String:
 			return "NORMAL"
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	var key_event := event as InputEventKey
-	if key_event == null or not key_event.pressed or key_event.echo:
-		return
+## Dibaca tiap frame lewat Input Map; tidak ada `_unhandled_input` maupun
+## pencocokan raw keycode.
+func _process(_delta: float) -> void:
 	if _player == null or _player.stats == null:
 		return
 
 	var stats := _player.stats
-	var key := key_event.physical_keycode
+	for index in ACTION_LEVEL_UP.size():
+		if Input.is_action_just_pressed(ACTION_LEVEL_UP[index]):
+			_adjust_level(stats, LEVEL_PROPERTIES[index], 1)
+			return
+		if Input.is_action_just_pressed(ACTION_LEVEL_DOWN[index]):
+			_adjust_level(stats, LEVEL_PROPERTIES[index], -1)
+			return
 
-	if key_event.ctrl_pressed:
-		match key:
-			KEY_1:
-				_adjust_level(stats, &"strength_level", -1)
-			KEY_2:
-				_adjust_level(stats, &"speed_level", -1)
-			KEY_3:
-				_adjust_level(stats, &"mastery_level", -1)
-			KEY_4:
-				_adjust_level(stats, &"agility_level", -1)
-		return
-
-	match key:
-		KEY_1:
-			_adjust_level(stats, &"strength_level", 1)
-		KEY_2:
-			_adjust_level(stats, &"speed_level", 1)
-		KEY_3:
-			_adjust_level(stats, &"mastery_level", 1)
-		KEY_4:
-			_adjust_level(stats, &"agility_level", 1)
-		KEY_Z:
-			_toggle_zirah()
-		KEY_X:
-			_cycle_need(NeedsComponent.Need.HUNGER)
-		KEY_C:
-			_cycle_need(NeedsComponent.Need.THIRST)
-		KEY_V:
-			_cycle_need(NeedsComponent.Need.FATIGUE)
-		KEY_B:
-			_refill_needs()
-		KEY_H:
-			stats.heal(20.0)
-		KEY_J:
-			stats.set_hp(50.0)
-		KEY_T:
-			_player.can_sprint = not _player.can_sprint
-			_refresh_debug_label()
-		KEY_R:
-			_reset_all()
+	if Input.is_action_just_pressed(&"debug_toggle_zirah"):
+		_toggle_zirah()
+	elif Input.is_action_just_pressed(&"debug_cycle_hunger"):
+		_cycle_need(NeedsComponent.Need.HUNGER)
+	elif Input.is_action_just_pressed(&"debug_cycle_thirst"):
+		_cycle_need(NeedsComponent.Need.THIRST)
+	elif Input.is_action_just_pressed(&"debug_cycle_fatigue"):
+		_cycle_need(NeedsComponent.Need.FATIGUE)
+	elif Input.is_action_just_pressed(&"debug_refill_needs"):
+		_refill_needs()
+	elif Input.is_action_just_pressed(&"debug_heal"):
+		stats.heal(20.0)
+	elif Input.is_action_just_pressed(&"debug_set_hp"):
+		stats.set_hp(50.0)
+	elif Input.is_action_just_pressed(&"debug_toggle_sprint"):
+		_player.can_sprint = not _player.can_sprint
+		_refresh_debug_label()
+	elif Input.is_action_just_pressed(&"debug_reset"):
+		_reset_all()
 
 
 ## Setter level sudah meng-clamp dan memancarkan stats_changed.

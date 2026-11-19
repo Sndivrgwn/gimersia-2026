@@ -10,6 +10,20 @@ const MOVE_RIGHT := &"move_right"
 const MOVE_UP := &"move_up"
 const MOVE_DOWN := &"move_down"
 const SPRINT := &"sprint"
+const INVENTORY_TOGGLE := &"inventory_toggle"
+
+## Tombol 1-5 memakai slot hotbar InventoryComponent.
+const HOTBAR_ACTIONS: Array[StringName] = [
+	&"hotbar_1",
+	&"hotbar_2",
+	&"hotbar_3",
+	&"hotbar_4",
+	&"hotbar_5",
+]
+const HOTBAR_KEYS: Array[Key] = [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5]
+
+## Tab dan I membuka panel tas (BagPanel).
+const INVENTORY_TOGGLE_KEYS: Array[Key] = [KEY_TAB, KEY_I]
 
 
 static func ensure_actions() -> void:
@@ -31,6 +45,14 @@ static func ensure_actions() -> void:
 
 	_ensure_action(SPRINT)
 	_ensure_key(SPRINT, KEY_SHIFT)
+
+	_ensure_action(INVENTORY_TOGGLE)
+	for key in INVENTORY_TOGGLE_KEYS:
+		_ensure_key(INVENTORY_TOGGLE, key)
+
+	for index in HOTBAR_ACTIONS.size():
+		_ensure_action(HOTBAR_ACTIONS[index])
+		_ensure_key(HOTBAR_ACTIONS[index], HOTBAR_KEYS[index])
 
 
 static func _ensure_action(action: StringName) -> void:

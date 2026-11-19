@@ -37,10 +37,19 @@ func _ready() -> void:
 	_stats.hp_changed.connect(_refresh.unbind(2))
 	if _needs != null:
 		_needs.tier_changed.connect(_refresh.unbind(2))
+		_needs.value_changed.connect(_refresh.unbind(2))
+		_needs.fatigue_cap_changed.connect(_refresh.unbind(1))
 	_refresh()
 
 
 func _refresh() -> void:
+	var fatigue_text := "-"
+	if _needs != null:
+		fatigue_text = "%.0f / %.0f" % [
+			_needs.get_value(NeedsComponent.Need.FATIGUE),
+			_needs.get_fatigue_cap(),
+		]
+
 	_stats_label.text = "\n".join(PackedStringArray([
 		"HP           %.0f / %.0f" % [_stats.current_hp, _stats.get_max_hp()],
 		"Move speed   %.0f" % _stats.get_move_speed(),
@@ -49,6 +58,7 @@ func _refresh() -> void:
 		"Attack speed %.2f/s" % _stats.get_attack_speed(),
 		"Gather time  x%.2f" % _stats.get_gather_time_factor(),
 		"Sprint drain x%.2f" % _stats.get_sprint_fatigue_drain_factor(),
+		"Fatigue      %s" % fatigue_text,
 	]))
 
 	var parts := PackedStringArray()

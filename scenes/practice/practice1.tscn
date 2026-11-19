@@ -12,6 +12,14 @@
 [ext_resource type="PackedScene" path="res://src/ui/hud/needs/needs_hud.tscn" id="10_needshud"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/stats/stats_hud.tscn" id="11_statshud"]
 [ext_resource type="Script" path="res://scenes/practice/needs_debug.gd" id="12_needsdebug"]
+[ext_resource type="Script" path="res://src/components/inventory/inventory_component.gd" id="13_inventory"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/inventory/hotbar_hud.tscn" id="14_hotbarhud"]
+[ext_resource type="PackedScene" path="res://src/entities/props/item_pickup.tscn" id="15_pickup"]
+[ext_resource type="Resource" path="res://src/data/items/wood.tres" id="16_wood"]
+[ext_resource type="Resource" path="res://src/data/items/stone.tres" id="17_stone"]
+[ext_resource type="Resource" path="res://src/data/items/berry.tres" id="18_berry"]
+[ext_resource type="Resource" path="res://src/data/items/raw_meat.tres" id="19_rawmeat"]
+[ext_resource type="PackedScene" path="res://src/ui/panels/inventory/bag_panel.tscn" id="20_bagpanel"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ddd1a"]
 texture = ExtResource("1_ur0jx")
@@ -1669,3 +1677,32 @@ shape = SubResource("RectangleShape2D_ohrhu")
 
 [node name="NeedsDebug" type="Node" parent="."]
 script = ExtResource("12_needsdebug")
+
+[node name="InventoryComponent" type="Node" parent="Player"]
+script = ExtResource("13_inventory")
+
+[node name="HotbarHUD" parent="." instance=ExtResource("14_hotbarhud")]
+
+[node name="BagPanel" parent="." instance=ExtResource("20_bagpanel")]
+
+[node name="DemoPickups" type="Node2D" parent="."]
+
+[node name="WoodPickup" parent="DemoPickups" instance=ExtResource("15_pickup")]
+position = Vector2(-150, 82)
+item = ExtResource("16_wood")
+count = 3
+
+[node name="StonePickup" parent="DemoPickups" instance=ExtResource("15_pickup")]
+position = Vector2(-120, 82)
+item = ExtResource("17_stone")
+count = 2
+
+[node name="BerryPickup" parent="DemoPickups" instance=ExtResource("15_pickup")]
+position = Vector2(-90, 82)
+item = ExtResource("18_berry")
+count = 2
+
+[node name="RawMeatPickup" parent="DemoPickups" instance=ExtResource("15_pickup")]
+position = Vector2(-60, 82)
+item = ExtResource("19_rawmeat")
+count = 1

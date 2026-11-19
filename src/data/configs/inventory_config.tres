@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="InventoryConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/inventory_config.gd" id="1_config"]
+
+[resource]
+script = ExtResource("1_config")
+bag_size = 12
+hotbar_size = 5
+pickup_delay = 0.5
+pickup_radius = 24.0

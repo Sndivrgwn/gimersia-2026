@@ -17,9 +17,16 @@ extends Node
 ##
 ## Tier: NORMAL (> 25), LOW (<= 25 dan > 0), ZERO (<= 0). Tier ZERO mempertahankan
 ## efek LOW dan menimpanya bila stat-nya sama (Fatigue: move speed -45%).
+##
+## Fatigue punya plafon sendiri (`_fatigue_cap`, mulai dari max_value). Sprint
+## menurunkan plafon itu sedikit demi sedikit, jadi setelah beberapa kali sprint
+## nilai maksimum Fatigue bisa 80 dari 100. Jalan tidak menurunkan plafon, hanya
+## menguras nilai. Diam memulihkan nilai sampai plafon. Makan
+## (`restore_fatigue_capacity()`) dan tidur (time_skipped) menaikkan plafon lagi.
 
 signal value_changed(need: int, value: float)
 signal tier_changed(need: int, tier: int)
+signal fatigue_cap_changed(cap: float)
 
 enum Need { HUNGER, THIRST, FATIGUE }
 enum Tier { NORMAL, LOW, ZERO }
@@ -39,6 +46,8 @@ const MANAGER_PATH := "/root/DayNightManager"
 
 var _values: Array[float] = []
 var _tiers: Array[int] = []
+## Plafon Fatigue saat ini (<= config.max_value). -1 berarti belum diinisialisasi.
+var _fatigue_cap: float = -1.0
 var _is_sprinting: bool = false
 var _bound: bool = false
 var _warned_no_clock: bool = false
@@ -84,6 +93,23 @@ func get_tier(need: int) -> int:
 	return _tiers[need]
 
 
+## Plafon Fatigue saat ini. Turun saat sprint, naik lagi lewat makan/tidur.
+func get_fatigue_cap() -> float:
+	_ensure_state()
+	return _fatigue_cap
+
+
+## Makan / minum: menaikkan plafon Fatigue sampai paling tinggi max_value DAN
+## mengisi nilai Fatigue sebanyak `amount` (dibatasi plafon baru). Satu panggilan
+## ini sudah cukup untuk item; jangan memanggil `add(Need.FATIGUE, ...)` lagi.
+func restore_fatigue_capacity(amount: float) -> void:
+	if amount <= 0.0:
+		return
+	_ensure_state()
+	_set_fatigue_cap(_fatigue_cap + amount)
+	_apply_value(Need.FATIGUE, _values[Need.FATIGUE] + amount)
+
+
 ## Satu-satunya jalur tulis nilai selain add()/tick(). Nilai di-clamp 0..max.
 func set_value(need: int, value: float) -> void:
 	if not _is_valid_need(need):
@@ -126,15 +152,22 @@ func tick(delta: float) -> void:
 		_apply_value(Need.THIRST, _values[Need.THIRST] - thirst_rate * game_delta)
 		_apply_zero_tier_hp_loss(game_delta)
 
-	# Fatigue: sprint menguras cepat (dikali faktor StatsComponent), jalan
-	# menguras pelan. Keduanya memakai waktu nyata, bukan time_scale hari/malam.
+	# Fatigue memakai waktu nyata, bukan time_scale hari/malam:
+	# - sprint: nilai turun cepat (dikali faktor StatsComponent) DAN plafon turun;
+	# - jalan: nilai turun pelan, plafon tetap;
+	# - diam: nilai pulih sampai plafon.
 	if _is_sprinting:
 		var factor := 1.0
 		if stats != null:
 			factor = stats.get_sprint_fatigue_drain_factor()
 		_apply_value(Need.FATIGUE, _values[Need.FATIGUE] - config.fatigue_sprint_drain * factor * delta)
-	elif _is_moving() and config.fatigue_walk_drain > 0.0:
-		_apply_value(Need.FATIGUE, _values[Need.FATIGUE] - config.fatigue_walk_drain * delta)
+		if config.fatigue_sprint_cap_drain > 0.0:
+			_set_fatigue_cap(_fatigue_cap - config.fatigue_sprint_cap_drain * delta)
+	elif _is_moving():
+		if config.fatigue_walk_drain > 0.0:
+			_apply_value(Need.FATIGUE, _values[Need.FATIGUE] - config.fatigue_walk_drain * delta)
+	elif config.fatigue_idle_regen > 0.0:
+		_apply_value(Need.FATIGUE, _values[Need.FATIGUE] + config.fatigue_idle_regen * delta)
 
 
 # --- Internal ---------------------------------------------------------------
@@ -182,6 +215,8 @@ func _ensure_state() -> void:
 	for need in NEED_COUNT:
 		_values[need] = start
 		_tiers[need] = _tier_for_value(start)
+	if _fatigue_cap < 0.0:
+		_fatigue_cap = clampf(config.max_value, 0.0, config.max_value)
 	_refresh_sprint_lock()
 
 
@@ -197,12 +232,31 @@ func _tier_for_value(value: float) -> int:
 	return Tier.NORMAL
 
 
+## Plafon Fatigue hanya berubah lewat sini supaya nilai Fatigue ikut turun bila
+## plafonnya turun di bawah nilai saat ini (mis. sprint panjang).
+func _set_fatigue_cap(value: float) -> void:
+	var clamped := clampf(value, 0.0, config.max_value)
+	if is_equal_approx(clamped, _fatigue_cap):
+		return
+	_fatigue_cap = clamped
+	if not _values.is_empty() and _values[Need.FATIGUE] > _fatigue_cap:
+		_apply_value(Need.FATIGUE, _fatigue_cap)
+	fatigue_cap_changed.emit(_fatigue_cap)
+
+
+## Batas atas satu need: Fatigue dibatasi plafonnya, lainnya config.max_value.
+func _max_for(need: int) -> float:
+	if need == Need.FATIGUE:
+		return minf(config.max_value, _fatigue_cap)
+	return config.max_value
+
+
 ## Tulis satu nilai, pancarkan sinyal hanya bila berubah, lalu perbarui tier.
 ## Nilai selalu disimpan; is_equal_approx hanya memutuskan sinyal. Kalau
 ## penyimpanan ikut dijaga olehnya, drain per frame yang lebih kecil dari
 ## toleransi (layar 240 Hz di nilai mendekati 100) akan hilang, bukan menumpuk.
 func _apply_value(need: int, value: float) -> void:
-	var clamped := clampf(value, 0.0, config.max_value)
+	var clamped := clampf(value, 0.0, _max_for(need))
 	var changed := not is_equal_approx(clamped, _values[need])
 	_values[need] = clamped
 	if changed:
@@ -281,12 +335,15 @@ func _apply_zero_tier_hp_loss(game_delta: float) -> void:
 
 
 ## Tidur Tenda: drain fase berjalan untuk detik yang dilewati, tetapi Hunger
-## dan Thirst tidak pernah turun di bawah sleep_min_value.
+## dan Thirst tidak pernah turun di bawah sleep_min_value. Tidur juga memulihkan
+## plafon Fatigue dan mengisi Fatigue sampai plafon barunya (bangun segar).
 func _on_time_skipped(seconds: float) -> void:
 	if seconds <= 0.0:
 		return
 
 	_ensure_state()
+	_set_fatigue_cap(_fatigue_cap + config.sleep_fatigue_cap_restore)
+	_apply_value(Need.FATIGUE, _fatigue_cap)
 	var night := _is_night()
 	var hunger_rate := config.hunger_night_drain if night else config.hunger_day_drain
 	var thirst_rate := config.thirst_night_drain if night else config.thirst_day_drain

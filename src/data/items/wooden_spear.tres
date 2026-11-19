@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_definition.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+id = &"wooden_spear"
+display_name = "Tombak Kayu"
+description = "Tombak kayu sederhana."
+category = 2
+max_stack = 20
+equipment_slot = 1
+weapon_damage = 18.0
+weapon_range = 75.0

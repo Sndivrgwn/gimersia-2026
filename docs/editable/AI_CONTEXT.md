@@ -4,7 +4,7 @@
 > repository. Read this file first, then the linked docs. **Code is the source of
 > truth** when a doc disagrees with it.
 
-Last verified: 2026-11-18, Godot 4.7.2, GUT 9.7.1, 52/52 tests passing.
+Last verified: 2026-11-19, Godot 4.7.2, GUT 9.7.1, 106/106 tests passing.
 Spec cross-check: 2026-11-18 against spec V8. Gaps found are listed in §4
 (missing systems), §7.1-7.8 (spec details), §8 (revised build order) and §13
 (open design questions).
@@ -46,7 +46,7 @@ in `docs/editable/` is maintained by the project.
 |---|---|---|
 | Engine | — | `D:\Programming\Gamedev\Godot_v4.7.2-stable_win64.exe` (console variant exists) |
 | GUT | — | **9.7.1 installed** in `addons/gut` (docs saying otherwise are stale) |
-| Unit tests | see §9 | **52/52 passing**, 249 asserts, ~1.2 s |
+| Unit tests | see §9 | **106/106 passing**, 861 asserts, ~1.2 s |
 | Main scene boot | see §9 | `practice1.tscn` runs headless for 120 frames with **no errors** |
 | Default clock config | — | `cycle_duration` **600 s** (script default; `.tres` no longer overrides it) |
 | Dusk warning | — | 15 s before night |
@@ -66,20 +66,25 @@ Known bugs still present:
 | `DayNightVisual` / `DayNightVisualConfig` | `src/levels/components/environment/`, `src/data/resources/environment/` | World tint via one `CanvasModulate`, dawn/dusk transitions, particles |
 | `TimeHUD` | `src/ui/hud/time/` | Read-only day/phase/remaining/progress/night-survival label |
 | `StatsComponent` / `StatModifier` | `src/components/stats/` | Derived stats, proficiency, modifier stacking, HP, `hp_changed`, `stats_changed` |
-| `NeedsComponent` / `NeedsConfig` | `src/components/needs/`, `src/data/resources/needs/` | Owns Hunger/Thirst/Fatigue (0..100). `get_value()`, `set_value()`, `add()`, `spend_fatigue()`, `tick(delta)`, `get_tier()`; signals `value_changed(need, value)`, `tier_changed(need, tier)`. Tiers NORMAL/LOW/ZERO apply stats via `&"lapar"`/`&"haus"`/`&"lelah"`. Drains via `get_time_scale()`; no own clock |
+| `NeedsComponent` / `NeedsConfig` | `src/components/needs/`, `src/data/resources/needs/` | Owns Hunger/Thirst/Fatigue (0..100) plus a Fatigue cap that sprint lowers and food/sleep restores. `get_value()`, `set_value()`, `add()`, `spend_fatigue()`, `get_tier()`, `get_fatigue_cap()`, `restore_fatigue_capacity()`, `tick(delta)`; signals `value_changed(need, value)`, `tier_changed(need, tier)`, `fatigue_cap_changed(cap)`. Tiers NORMAL/LOW/ZERO apply stats via `&"lapar"`/`&"haus"`/`&"lelah"`. Drains via `get_time_scale()`; no own clock |
 | `NeedsHUD` | `src/ui/hud/needs/` | Read-only Hunger/Thirst/Fatigue bars, warning color at tier <= LOW |
-| `StatsHUD` | `src/ui/hud/stats/` | Read-only readout of HP, speeds, attack, gather time, sprint drain and the three need tiers; makes ZERO-tier effects visible |
+| `StatsHUD` | `src/ui/hud/stats/` | Read-only readout of HP, speeds, attack, gather time, sprint drain, Fatigue value/cap and the three need tiers; makes ZERO-tier effects visible |
+| `InventoryComponent` | `src/components/inventory/` | Owns 12 bag slots (0-4 = hotbar) of `ItemStack`, plus WEAPON/ARMOR equipment and TOOL ownership. `add_item() -> int` (leftover), atomic `remove_item() -> bool`, `has_item()`, `count_of()`, `get_slot()`/`get_slot_item()`/`get_slot_count()`, `is_full()`, `move_slot()`, `use_slot()`, `add_or_drop()`, `equip()`/`unequip()`/`has_tool()`, `get_capacity()`, `get_hotbar_size()`, `clear()`; `slot_changed(index)`, `equipment_changed(slot)`, `inventory_changed()`. Keys 1-5 use slots; effects via `NeedsComponent.add()` / `StatsComponent` / `restore_fatigue_capacity()`; armor modifiers use `&"equip_armor"` |
+| `ItemDefinition` / `ItemEffect` / `ItemStack` / `ItemCatalog` / `InventoryConfig` | `src/data/resources/items/`, `.tres` in `src/data/items/` + `src/data/configs/inventory_config.tres` | Item content: `id`, `display_name`, `description`, `category` {RESOURCE, CONSUMABLE, WEAPON, TOOL, ARMOR, SPECIAL}, `max_stack`, `icon`, `consume_effect`, `equipment_slot`, `weapon_damage/range`, `armor_damage_reduction/max_hp_bonus`; effect `hunger`, `thirst`, `fatigue`, `hp`, `regen_hp_per_second`, `regen_duration`. `ItemCatalog.ALL` + 22 constants + `get_by_id()` |
+| `ItemPickup` | `src/entities/props/item_pickup.gd/.tscn` | Area2D pickup: a body in the `player` group adds `item` x `count` through `InventoryComponent.add_item()`; leftover stays in the world, frees itself at 0. Ignores overlaps during `InventoryConfig.pickup_delay` and sizes its shape from `pickup_radius` |
+| `HotbarHUD` | `src/ui/hud/inventory/` | Read-only 5-slot hotbar (key number, display_name or icon, count); binds to `slot_changed(index)` and finds `InventoryComponent` via the `player` group or `@export inventory` |
+| `BagPanel` / `BagSlot` | `src/ui/panels/inventory/` | Interactive bag UI on its own `CanvasLayer` (layer 20): 12-slot grid with hotbar markers 1-5, a read-only equipment column (Weapon / Tool ownership / Armor) and a `Crafting` placeholder tab. Toggled by the `inventory_toggle` action (Tab or I) in `_unhandled_input`; Esc (`ui_cancel`) closes it but never opens it; it never pauses the game. Slots use `_get_drag_data`/`_can_drop_data`/`_drop_data` → `move_slot()`, right-click → `use_slot()`, hover tooltip from `ItemDefinition`/`ItemEffect`. Refreshes only from `slot_changed`, `equipment_changed`, `inventory_changed` |
 | `PlayerBaseStats` | `src/data/stats/player_base_stats.gd` | Base numbers (no `.tres` instance yet; script defaults are used) |
 | `Player` | `src/entities/player/` | Top-down movement + sprint from `StatsComponent`; `can_sprint`, `facing_direction`, `sprint_state_changed` |
-| `InputSetup` | `src/utils/input_setup.gd` | Idempotent Input Map registration (`move_*`, `sprint`) |
+| `InputSetup` | `src/utils/input_setup.gd` | Input Map helper: every action (`move_*`, `sprint`, `hotbar_1..5`, `debug_*`) is declared in `project.godot` `[input]`; `ensure_actions()` only fills gaps idempotently. Gameplay code polls `Input.is_action_just_pressed()`/`Input.get_vector()`, never `_unhandled_input` or raw keycodes |
 | `SafeZone` | `scenes/practice/safe_zone.gd` | **Practice-only** camera zoom + speed modifier example |
 | Tests / sandbox | `tests/unit/`, `tests/sandbox/` | GUT tests and a manual stats sandbox |
 
 ### What does NOT exist yet
 
-Inventory/items/equipment/hotbar, resource nodes &
-gathering, crafting recipes/stations, camp structures + blueprint slots + repair
-(hold R), Emergency Suitcase, combat (auto-attack + manual provocation trigger,
+Drop-on-death loot, resource nodes & gathering, crafting recipes/stations (the
+bag panel's Crafting tab is a placeholder), camp structures + blueprint slots +
+repair (hold R), Emergency Suitcase, combat (auto-attack + manual provocation trigger,
 dodge), enemy AI (Wild Boar **and Island Deer**), daytime fauna quota, night
 spawner + camp-aggro logic, Proficiency XP / passives / death debuff,
 death/respawn/loot bag, main/pause/death/victory UI, audio, save system,
@@ -218,11 +223,37 @@ Total 1 cycle = 600 s, full run = 4200 s. Dusk tint + warning in the last 15 s.
 |---|---:|---:|---|---|
 | Hunger | -0.16/s | -0.20/s | move -15%, damage -15% | -1.5 HP/s |
 | Thirst | -0.24/s | -0.18/s | fatigue drain +30%, attack speed -20% | -2.0 HP/s |
-| Fatigue | walk -0.08/s, sprint -2.5/s, attack -1.2/hit, gather -2.0/action | same | sprint locked, move -20%, gather +30% time | move -45%, attack speed -50% |
+| Fatigue | walk -0.08/s, sprint -2.5/s (-cap 0.4/s), idle +1.0/s, attack -1.2/hit, gather -2.0/action | same | sprint locked, move -20%, gather +30% time | move -45%, attack speed -50% |
 
 - Fatigue recover: idle within 120 px of lit Campfire +5/s; sleep in Tent
   (day only, >60 s remaining, 60 s cooldown) restores 100% and `skip_time(45)`;
   berry/coconut +10.
+- **Implemented today (differs from the spec, intentional tuning):** Fatigue has a
+  cap that starts at `max_value` (100). Sprinting drains the value at -2.5/s **and**
+  lowers the cap by `fatigue_sprint_cap_drain` (-0.4/s, e.g. 100 -> 80 after 50 s
+  of sprinting). Walking drains the value at -0.08/s but never the cap. Standing
+  still regenerates `fatigue_idle_regen` (+1.0/s) up to the cap. Eating calls
+  `restore_fatigue_capacity(amount)`, which raises the cap **and** fills the
+  current Fatigue by the same amount (bounded by the new cap); Berry and Coconut
+  use `ItemEffect.fatigue_cap_restore` = 10, other consumables use 0. Sleeping
+  (`time_skipped`) restores `sleep_fatigue_cap_restore` (+25) and fills Fatigue to
+  the new cap. Campfire-adjacent +5/s is not implemented yet.
+
+### Items & consumables (implemented)
+
+Items are `ItemDefinition` resources in `src/data/items/<id>.tres`, reached through
+`ItemCatalog`. `ItemEffect` carries `hunger`, `thirst`, `fatigue`, `hp` (instant)
+plus `regen_hp_per_second`/`regen_duration` (stored only). Items never call
+`add(Need.FATIGUE, ...)`: `fatigue` is applied through
+`restore_fatigue_capacity()` so the Fatigue cap rises with the value. Berry +12
+hunger / +10 fatigue, Coconut +10 hunger +30 thirst / +10 fatigue, Raw Meat +15
+hunger -10 thirst, Cooked Meat +45 hunger +15 HP, Bone Broth +35 hunger +40
+thirst (+1 HP/s for 20 s stored), Boiled Water +60 thirst, Herbal Bandage +35 HP.
+`InventoryComponent.use_slot(index)` applies them, consumes one item even when
+the stat is full, and ignores non-CONSUMABLE categories; keys **1-5** use the
+first five bag slots. 22 definitions exist (6 resources, 7 consumables, 3
+special, 3 weapons, 2 tools, 1 armor); equipment slots WEAPON/ARMOR/TOOL are
+implemented (TOOL = ownership set), and only Leather Vest changes stats.
 - Sleep must clamp hunger/thirst to at least 1.0 (sleep cannot kill).
 - Campfire idle at 120 px radius; camp radius = 180 px.
 
@@ -268,8 +299,10 @@ the spec; if anything disagrees, the spec wins.
   releasing early or leaving range resets to 0%.
 - Hold **R** for 1.0 s near a damaged camp structure to repair it (consumes
   materials from the bag). Costs are in §7.4.
-- **Tab / I** opens the bag + Hand-Crafting tab. Keys **1-5** use the item in that
-  hotbar slot. In the bag UI: right-click = use, left-click drag = move slot.
+- **Tab / I** opens the bag + Hand-Crafting tab (`BagPanel` implements the bag and
+the drag/right-click rules; the Crafting tab is still a "Segera hadir"
+placeholder). Keys **1-5** use the item in that hotbar slot. In the bag UI:
+right-click = use, left-click drag = move slot.
 - Crafting/gathering progress cancels cleanly (no material loss) if the player
   moves or is hit.
 - Bag rules: new items fill the leftmost empty slot or stack onto the same item;
@@ -531,11 +564,15 @@ Godot_v4.7.2-stable_win64_console.exe --headless --quit-after 120 res://scenes/p
 
 ### Upkeep
 
-When adding a feature, add or extend a GUT test in `tests/unit/` and update:
+When adding a feature, add or extend a GUT test in `tests/unit/` and update every
+doc in the allowed-edit list. Only these files are editable by agents:
 
+- `docs/editable/AI_CONTEXT.md` (this handoff: state, contracts, build order)
 - `docs/editable/architecture.md` (module table, dependency direction, gaps)
-- `docs/editable/PANDUAN_MODUL.md` (how to use the module)
+- `docs/editable/PANDUAN_MODUL.md` (how to use the module, practice wiring tree)
 - `docs/editable/MVP_CHECKLIST.md` (check items only after code + runtime/test verification)
+
+`docs/noneditable/` (the spec and work list) is input only — never edit it.
 
 ---
 

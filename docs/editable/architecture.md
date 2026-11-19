@@ -37,25 +37,31 @@ gimersia-2026/
 │       └── somethingMove.tscn
 ├── src/
 │   ├── components/
+│   │   ├── inventory/                   # 12-slot inventory + hotbar use
 │   │   ├── needs/                       # Hunger/Thirst/Fatigue component
 │   │   └── stats/                       # Reusable stat component + modifier value object
 │   ├── core/
 │   │   └── managers/                    # DayNightManager autoload scene + script
 │   ├── data/
 │   │   ├── configs/environment/         # Day/night tuning resources (.tres)
-│   │   ├── configs/                     # needs_config.tres (Needs tuning instance)
+│   │   ├── configs/                     # needs_config.tres, inventory_config.tres
+│   │   ├── items/                       # Item definitions (.tres per item)
 │   │   ├── resources/environment/       # Day/night Resource definitions
+│   │   ├── resources/items/             # ItemDefinition, ItemEffect, ItemStack, InventoryConfig, ItemCatalog
 │   │   ├── resources/needs/             # NeedsConfig Resource definition
 │   │   └── stats/                       # PlayerBaseStats definition
 │   ├── entities/
-│   │   └── player/                      # Player scene + controller
+│   │   ├── player/                      # Player scene + controller
+│   │   └── props/                       # World props (ItemPickup)
 │   ├── levels/
 │   │   └── components/environment/      # Reusable level components (day/night visual)
 │   ├── ui/
-│   │   └── hud/
-│   │       ├── needs/                   # Needs HUD
-│   │       ├── stats/                   # Player stat readout HUD
-│   │       └── time/                    # Day/night HUD
+│   │   ├── hud/
+│   │   │   ├── inventory/               # Hotbar HUD (5 slots)
+│   │   │   ├── needs/                   # Needs HUD
+│   │   │   ├── stats/                   # Player stat readout HUD
+│   │   │   └── time/                    # Day/night HUD
+│   │   └── panels/inventory/            # BagPanel + BagSlot (interactive bag UI)
 │   └── utils/                           # Static helpers (InputSetup)
 └── tests/
     ├── sandbox/                         # Manual stats sandbox
@@ -86,10 +92,15 @@ Empty placeholder folders such as `src/entities/enemies`, `src/entities/props`, 
 | **NeedsHUD** | `src/ui/hud/needs/needs_hud.gd/.tscn` | Displays Hunger/Thirst/Fatigue bars with a warning color at tier <= LOW | No public API; listens to `value_changed` and `tier_changed`, finds `NeedsComponent` via the `player` group | Implemented; read-only, not visually verified |
 | **StatsHUD** | `src/ui/hud/stats/stats_hud.gd/.tscn` | Readout of HP, move/sprint speed, attack, gather time, sprint drain and the three need tiers | No public API; listens to `stats_changed`, `hp_changed`, `tier_changed`; finds the player via the `player` group | Implemented; read-only, not visually verified |
 | **StatsComponent / StatModifier** | `src/components/stats/stats_component.gd`, `stat_modifier.gd` | Derived stats, HP, modifier stacking | `add_modifier()`, `remove_modifier()`, stat getters, `heal()`, `set_hp()`, `hp_changed`, `stats_changed` | Implemented; tests passing |
-| **NeedsComponent / NeedsConfig** | `src/components/needs/needs_component.gd`; `src/data/resources/needs/needs_config.gd`; `src/data/configs/needs_config.tres` | Owns Hunger/Thirst/Fatigue (0..100), clock-scaled drain, sleep-skip drain, walk/sprint Fatigue, tier effects, ZERO HP loss | `get_value()`, `set_value()`, `add()`, `spend_fatigue()`, `get_tier()`, `tick(delta)`, `setup(clock, stats, player)`, `get_config()`; `value_changed(need, value)`, `tier_changed(need, tier)` | Implemented; 22 tests passing |
+| **NeedsComponent / NeedsConfig** | `src/components/needs/needs_component.gd`; `src/data/resources/needs/needs_config.gd`; `src/data/configs/needs_config.tres` | Owns Hunger/Thirst/Fatigue (0..100) and the Fatigue cap, clock-scaled drain, sleep-skip drain, walk drain / sprint drain + cap loss / idle regen, tier effects, ZERO HP loss | `get_value()`, `set_value()`, `add()`, `spend_fatigue()`, `get_tier()`, `get_fatigue_cap()`, `restore_fatigue_capacity()`, `tick(delta)`, `setup(clock, stats, player)`, `get_config()`; `value_changed(need, value)`, `tier_changed(need, tier)`, `fatigue_cap_changed(cap)` | Implemented; 27 tests passing |
+| **InventoryComponent** | `src/components/inventory/inventory_component.gd` | Owns 12 bag slots (0-4 = hotbar) of `ItemStack`, stacking, item use, drop-on-full, and WEAPON/ARMOR equipment + TOOL ownership | `add_item() -> int`, `remove_item() -> bool` (atomic, item or id), `has_item()`, `count_of()`/`count_item()`, `get_slot()`/`get_slot_item()`/`get_slot_count()`, `is_full()`, `move_slot()`, `use_slot()`, `add_or_drop()`, `equip()`/`unequip()`/`has_tool()`/`get_equipped()`, `get_capacity()`, `get_hotbar_size()`, `clear()`, `setup()`; `slot_changed(index)`, `equipment_changed(slot)`, `inventory_changed()`; keys 1-5 use slots | Implemented; 23 tests passing |
+| **ItemDefinition / ItemEffect / ItemStack / ItemCatalog / InventoryConfig** | `src/data/resources/items/`; `.tres` in `src/data/items/`, `src/data/configs/inventory_config.tres` | Item content, consumable effects, slot stacks and inventory tuning | `id`, `display_name`, `description`, `category`, `max_stack`, `icon`, `consume_effect`, `equipment_slot`, `weapon_damage/range`, `armor_damage_reduction/max_hp_bonus`; effect `hunger`/`thirst`/`fatigue`/`hp`/`regen_*`; `ItemCatalog.get_by_id()`; `InventoryConfig` bag_size/hotbar_size/pickup_delay/pickup_radius | Implemented; 22 `.tres` validated by tests |
+| **ItemPickup** | `src/entities/props/item_pickup.gd/.tscn` | Pickup Area2D that adds its item to a body in the `player` group | `item`, `count`, `config` exports; ignores overlaps during `pickup_delay`; keeps leftovers; frees itself at 0 | Implemented; partial pickup + delay tested |
+| **HotbarHUD** | `src/ui/hud/inventory/hotbar_hud.gd/.tscn` | Read-only 5-slot hotbar: key number, display_name or icon, count | No public API beyond `refresh()`; listens to `slot_changed(index)` | Implemented; read-only, not visually verified |
+| **BagPanel / BagSlot** | `src/ui/panels/inventory/bag_panel.gd/.tscn`, `bag_slot.gd/.tscn` | Interactive bag UI on its own `CanvasLayer` (layer 20): 12-slot grid with hotbar markers 1-5, read-only equipment column (Weapon / Tool ownership / Armor), Crafting placeholder tab. No pause; refreshes only from the three inventory signals | `is_open()`, `toggle_panel()`, `get_slots()`; drag-drop → `move_slot()`, right-click → `use_slot()`, tooltip from `ItemDefinition`/`ItemEffect` | Implemented; 17 tests; not visually verified |
 | **PlayerBaseStats** | `src/data/stats/player_base_stats.gd` | Base stat numbers as a Resource | Exported base values | Implemented; no `.tres` instance yet |
 | **Player** | `src/entities/player/player.gd/.tscn` | Top-down movement and sprint using StatsComponent | `can_sprint`, `facing_direction`, `sprint_state_changed`, `stats` | Implemented; no combat/interaction yet |
-| **InputSetup** | `src/utils/input_setup.gd` | Idempotent runtime registration of movement/sprint actions | `InputSetup.ensure_actions()` | Implemented |
+| **InputSetup** | `src/utils/input_setup.gd` | Input Map helper; all actions (`move_*`, `sprint`, `hotbar_1..5`, `debug_*`) live in `project.godot` `[input]`, and this only fills missing entries idempotently | `InputSetup.ensure_actions()` | Implemented; no `_unhandled_input` anywhere in `src/`, `scenes/` or `tests/` |
 | **SafeZone** | `scenes/practice/safe_zone.gd`, inside `practice1.tscn` | Practice-only camera zoom and movement slow modifier | `phantom_camera`, zoom/slow exports | Practice only; not production camp logic |
 | **Tests / sandbox** | `tests/unit/`, `tests/sandbox/` | Unit tests and manual stats sandbox | GUT tests; sandbox scene | Written; run with GUT 9.7.1 |
 
@@ -105,6 +116,15 @@ NeedsComponent ──> NeedsConfig
        ├── add_modifier()/remove_modifier() ──> StatsComponent
        ├── get_time_scale()/is_night() ───────> DayNightManager
        └── time_skipped(seconds) ─────────────> DayNightManager
+
+InventoryComponent ──> ItemDefinition ──> ItemEffect
+       ├── add()/restore_fatigue_capacity() ──> NeedsComponent
+       └── heal()/set_hp() ───────────────────> StatsComponent
+
+ItemPickup ──> InventoryComponent
+HotbarHUD ──> InventoryComponent (read-only)
+BagPanel ──> InventoryComponent (move_slot()/use_slot(); refresh from signals)
+practice1.tscn Pickups (ItemPickup instances) ──> Player/InventoryComponent
 
 DayNightManager ──> DayNightConfig ──> DayNightPeriod
         ▲
@@ -146,6 +166,8 @@ Rules:
 Ordering caveat: `SafeZone` relies on the player being in the `player` group; the group is set on the `Player` instance in `practice1.tscn`, not inside the base `player.tscn`.
 
 **Needs:** `NeedsComponent` is a child of `Player` inside `player.tscn`, next to `StatsComponent`; it resolves its stats node and the `/root/DayNightManager` autoload itself. `NeedsHUD` is a second `CanvasLayer` in `practice1.tscn` that finds the component through the `player` group and never writes need values.
+
+**Inventory:** `InventoryComponent` is added to the `Player` **instance** inside `practice1.tscn`, not to `player.tscn`, so the sandbox scene and tests keep using keys 1-4 for proficiency. It resolves `NeedsComponent`/`StatsComponent` from its parent. `HotbarHUD` reads it through the `player` group. Four `ItemPickup` nodes sit in a practice-only `DemoPickups` node (wood, stone, berry, raw meat) so the map can test pickup and eating; practice debug keys stay F1/X/C/V/B/M and do not overlap with hotbar keys 1-5. `BagPanel` (action `inventory_toggle`: Tab/I) adds the bag UI and drag-and-drop, using the same signals, so `HotbarHUD` and the panel stay in sync. `interact` (E) and crafting do not exist yet.
 
 ---
 
@@ -233,7 +255,7 @@ At 00:00 on the final night:
 | Resource | Path | Current values / purpose |
 |---|---|---|
 | `DayNightConfig` | `src/data/configs/environment/day_night_default.tres` | **`cycle_duration = 600.0`** (script default; the `.tres` no longer overrides it), 7 days, periods 1–3 (0.5), 4–5 (0.4), 6–7 (0.3) |
-| `NeedsConfig` | `src/data/configs/needs_config.tres`, numbers in `src/data/resources/needs/needs_config.gd` | Drain rates, thresholds, tier modifiers, ZERO HP loss, sleep clamp; the `.tres` overrides nothing |
+| `NeedsConfig` | `src/data/configs/needs_config.tres`, numbers in `src/data/resources/needs/needs_config.gd` | Drain rates (hunger/thirst/walk/sprint), `fatigue_idle_regen`, `fatigue_sprint_cap_drain`, `fatigue_meal_cap_restore`, `sleep_fatigue_cap_restore`, thresholds, tier modifiers, ZERO HP loss, sleep clamp; the `.tres` overrides nothing |
 | Debug fast config | `src/data/configs/environment/day_night_debug_fast.tres` | `cycle_duration = 60.0`; attached to the autoload scene as `debug_config`, but `use_debug_config = false` |
 | `DayNightVisualConfig` | `src/data/configs/environment/day_night_visual_default.tres` | Default colors, light intensity, 30 s transition, particles |
 | `PlayerBaseStats` | `src/data/stats/player_base_stats.gd` | Base HP/speed/combat/survival numbers; no `.tres` instance yet |
@@ -252,7 +274,9 @@ Guidelines:
 - Unit tests use **GUT 9.x** and live in `tests/unit/`.
 - `tests/unit/test_stats_component.gd` covers base stats, proficiency bonuses, modifiers, HP clamps, and dodge caps.
 - `tests/unit/test_game_clock.gd` covers durations, carry-over, dusk, Night Watch, `skip_time()`, final dawn, signal order, and remaining-time text.
-- `tests/unit/test_needs_component.gd` covers day/night drain, `time_scale` 0 and 2, `time_skipped` plus the 1.0 sleep clamp, 0..100 clamping, tier changes at exactly 25 and 0 (asserted through `StatsComponent` getters), ZERO HP loss stacking, sprint drain through `get_sprint_fatigue_drain_factor()`, `can_sprint` locking, and one signal per change. It drives `tick()` with a stub clock and stub player.
+- `tests/unit/test_inventory_component.gd` covers 12-slot capacity, stacking order (top up first, then leftmost empty, never reorder), `max_stack` 1 and 20, full-inventory leftover, atomic `remove_item`, `has_item`/`count_of` across stacks, `move_slot` swap/merge, exact consume deltas for all seven consumables (including consume-when-full and rejecting non-consumables), armor modifier add/remove/replace, weapon replacement, TOOL ownership, `add_or_drop` spawning an `ItemPickup`, partial pickup plus `pickup_delay`, once-per-change signals, hotbar actions 1-5, `HotbarHUD` following `slot_changed(index)`, and `tests/unit/test_bag_panel.gd` covering the Tab/I toggle in `project.godot` `[input]`, the 12-slot grid with hotbar markers, tooltips, drag-drop swap/merge, right-click use, no pause, and the read-only equipment column.
+- `tests/unit/test_item_definitions.gd` loads every `.tres` in `src/data/items/` and validates unique ids, `max_stack >= 1`, display names, categories, equipment slots, weapon/armor numbers and consume effects against the spec.
+- `tests/unit/test_needs_component.gd` covers day/night drain, `time_scale` 0 and 2, `time_skipped` plus the 1.0 sleep clamp, 0..100 clamping, tier changes at exactly 25 and 0 (asserted through `StatsComponent` getters), ZERO HP loss stacking, sprint drain through `get_sprint_fatigue_drain_factor()`, `can_sprint` locking, walk drain without cap loss, idle regeneration up to the cap, sprint lowering the Fatigue cap, `restore_fatigue_capacity()`, sleep raising the cap and refilling Fatigue, and one signal per change. It drives `tick()` with a stub clock and stub player (the stub has a `velocity` field, so moving vs standing still is testable).
 - The clock test creates its own `DayNightConfig` with `cycle_duration = 600.0`, `auto_start = false`, disables `_process`, and calls `start()`/`advance()` explicitly. It does not depend on the autoload’s current `.tres`.
 - `tests/sandbox/stats_sandbox.tscn` is a manual scene for stat debugging; it is not an automated test.
 - **GUT 9.7.1 is installed in `addons/gut`** (`plugin.cfg` reports the version). The suite runs through the GUT command line and passes; the clock test count is tracked in the handoff doc (`docs/editable/AI_CONTEXT.md` §3).
@@ -270,7 +294,7 @@ These are deliberate notes so future modules do not build on incorrect assumptio
 3. **`set_time_scale(-1)` resets to config (resolved).** Only negatives clear the override and fall back to `DayNightConfig.time_scale`; `0.0` stays a real override and is what the final-dawn freeze uses.
 4. **`phase_changed(phase)` has no `day` argument.** Adding one would break the existing one-argument listener in `day_night_visual.gd`. Use `day_started`/`night_started`/`day_changed`, or add a separate signal if the day is required.
 5. **`get_time_scale()` changed at final dawn.** It now returns 0 while `rescue_triggered`; this is required for the final-dawn freeze but is a semantic change to an existing getter. No other module currently calls it, but future survival systems must use it consistently.
-6. **No combat, enemies, items, camp, crafting, death/respawn, menus, or audio yet.** Do not assume those APIs exist. (`NeedsComponent`/`NeedsHUD` now exist — see §3 — but item consumption, Campfire rest and Tent sleep do not.) The MVP checklist tracks them.
+6. **No combat, enemies, resource gathering, camp, crafting, death/respawn, menus, or audio yet.** Do not assume those APIs exist. `NeedsComponent`/`NeedsHUD`, `InventoryComponent`/`HotbarHUD`, all item data, drops and equipment slots exist (see §3), but drop-on-death, Campfire rest, Tent sleep and crafting do not (the bag panel's Crafting tab is a placeholder). The MVP checklist tracks them.
 7. **Progression is data-only.** `StatsComponent` accepts proficiency levels, but there is no XP gain, level-up flow, or death debuff implementation.
 8. **`SafeZone` is practice-only.** It is a useful reference for modifier-based effects, not a production camp system.
 9. **No `EventBus`.** The generic “decouple with EventBus” advice remains a future option, not current architecture.

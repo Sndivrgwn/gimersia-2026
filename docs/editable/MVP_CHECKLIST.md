@@ -25,8 +25,8 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 | Kontrol & movement | Ada | Top-down, sprint, collision dasar |
 | Stats & proficiency | Ada | Komponen + tes tertulis; belum ada XP/level-up |
 | Siklus waktu | Ada | Manager, config, HUD, visual; config default 600 dtk |
-| Survival needs | Sebagian | Komponen + HUD + 22 tes; konsumsi item, Campfire, dan Tenda belum |
-| Inventory & gathering | Belum | Belum ada item, pickup, atau resource node |
+| Survival needs | Sebagian | Komponen + HUD + 27 tes (termasuk plafon Fatigue, regen diam); konsumsi item, Campfire, dan Tenda belum |
+| Inventory & gathering | Sebagian | Inventory 12 slot + hotbar 1-5, definisi item, pickup, efek makan/minum, dan bag UI (Tab/I, drag-drop, klik kanan, tooltip) ada (23 tes inventory + 17 tes bag panel); resource node, crafting, dan drop saat mati belum |
 | Crafting & camp | Belum | Belum ada resep, workbench, campfire, tenda |
 | Combat & enemy | Belum | Belum ada attack, AI, spawn, scaling malam |
 | Night survival loop | Belum | Timer malam ada di HUD, tetapi belum ada gelombang ancaman |
@@ -43,7 +43,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] Struktur folder `src/core`, `src/components`, `src/data`, `src/entities`, `src/levels`, `src/ui`, `src/utils`, `tests`, `docs`.
 - [x] Scene utama sementara: `scenes/practice/practice1.tscn`.
 - [x] Autoload `DayNightManager` terdaftar di `project.godot`.
-- [x] Input Map untuk `move_up`, `move_down`, `move_left`, `move_right`, `sprint`; didaftarkan idempotent oleh `InputSetup`.
+- [x] Input Map di `project.godot` `[input]` untuk `move_up/down/left/right`, `sprint`, `hotbar_1..5`, dan action `debug_*`; semua kode membaca action, bukan `_unhandled_input`/keycode mentah.
 - [x] Player top-down dengan `CharacterBody2D`, collision, dan `move_and_slide()`.
 - [x] Sprint dengan kecepatan dari `StatsComponent`.
 - [x] `StatsComponent`, `StatModifier`, dan `PlayerBaseStats` sebagai fondasi stat.
@@ -96,7 +96,9 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [ ] Attack otomatis dan cooldown.
 - [ ] Dodge dengan i-frame.
 - [ ] Interaksi dengan resource/objek (E).
-- [ ] Inventory dan item yang dibawa.
+- [x] Inventory dan item yang dibawa.
+  - `InventoryComponent` 12 slot (5 pertama hotbar), stacking 20, `use_slot()`, `add_or_drop()`, equipment WEAPON/TOOL/ARMOR; dibuktikan `tests/unit/test_inventory_component.gd`.
+  - Bag UI (Tab/I) + drag-and-drop ada di `src/ui/panels/inventory/bag_panel.tscn` + `bag_slot.tscn` (action `inventory_toggle`), dibuktikan `tests/unit/test_bag_panel.gd`.
 - [ ] Respawn di camp.
 - [ ] Efek debuff setelah respawn.
 
@@ -126,10 +128,14 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
   - Bar, angka, dan warna peringatan ada di `src/ui/hud/needs/`, tetapi belum diverifikasi visual; ikon menyusul.
 - [x] Efek status saat nilai rendah.
 - [x] Sprint terkunci saat Fatigue <= 25.
+- [x] Fatigue pulih saat diam (regen +1.0/s sampai plafon).
+- [x] Sprint menurunkan plafon Fatigue (-0.4/s); jalan tidak menurunkan plafon.
+- [x] API pemulihan plafon untuk makan (`restore_fatigue_capacity()`) dan tidur (`+25` pada `time_skipped`).
 - [ ] Rest di dekat Campfire menyala.
 - [ ] Tidur di Tenda Daun: pulihkan Fatigue, `skip_time(45)`, cooldown, syarat sisa siang > 60 detik.
-  - `time_skipped` dan clamp 1.0 sudah siap dan teruji; scene Tenda belum ada.
-- [ ] Konsumsi makanan/minuman memulihkan nilai.
+  - `time_skipped`, clamp 1.0, dan pemulihan plafon Fatigue sudah siap dan teruji; scene Tenda belum ada.
+- [x] Konsumsi makanan/minuman memulihkan nilai.
+  - Item `.tres` + `InventoryComponent.use_slot()`; field `fatigue` (Berry/Kelapa +10) diterapkan lewat `restore_fatigue_capacity()`, item lain 0 (tes lulus).
 - [x] Integrasi `get_time_scale()` agar drain ikut 2× saat Night Watch dan 0 saat final dawn.
 - [x] Clamp agar tidur tidak membunuh pemain (minimal 1.0).
 
@@ -137,14 +143,22 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 
 ## 6. Inventory dan Item
 
-- [ ] Definisi item/data item.
-- [ ] Inventory pemain dan kapasitas.
-- [ ] Pickup resource ke inventory.
-- [ ] UI inventory sederhana.
+- [x] Definisi item/data item.
+  - `ItemDefinition` + `ItemEffect` + `ItemStack` + `InventoryConfig` di `src/data/resources/items/`, 22 `.tres` di `src/data/items/`, diakses lewat `ItemCatalog`; setiap file divalidasi `tests/unit/test_item_definitions.gd`.
+- [x] Inventory pemain dan kapasitas.
+  - 12 slot, 5 slot pertama hotbar, stack maksimal 20 (Waterskin/Flare = 1); angka dari `inventory_config.tres`; dicek tes kapasitas dan stacking.
+- [x] Equipment slot dasar (senjata, tool, armor).
+  - Weapon/Armor menyimpan satu item; TOOL adalah kepemilikan Stone Axe + Stone Pickaxe; hanya Leather Vest yang mengubah stat (tes lulus).
+- [x] Pickup resource ke inventory.
+  - `ItemPickup` memasukkan item ke `InventoryComponent` saat disentuh body grup `player`, mengabaikan overlap selama `pickup_delay`, dan menyisakan yang tidak muat; dicek tes dan dipasang di `DemoPickups` `practice1.tscn`.
+  - Resource node (gather E) belum ada.
+- [x] UI inventory sederhana.
+  - Hotbar 5 slot (`HotbarHUD`) dan panel tas 12 slot + kolom equipment (Tab/I, drag-drop, klik kanan pakai, tooltip) ada; tab Crafting masih placeholder (Step 4).
 - [ ] Item drop di lokasi kematian.
 - [ ] Pengambilan kembali item drop.
 - [ ] Item Suar Darurat.
-- [ ] Item makanan/minuman dan efeknya.
+- [x] Item makanan/minuman dan efeknya.
+  - Berry, Coconut, Raw/Cooked Meat, Bone Broth, Boiled Water, Herbal Bandage; efek Hunger/Thirst/HP/plafon Fatigue dicek tes. Regen Bone Broth (+1 HP/s 20 dtk) belum.
 - [ ] Senjata/tools dasar (jika diperlukan MVP).
 
 ---
@@ -363,7 +377,7 @@ Jalankan setelah modul inti tersedia. Centang hanya jika seluruh langkah berhasi
 3. **[Selesai] `set_time_scale(-1)` reset ke config.** Nilai negatif mengembalikan `DayNightConfig.time_scale`; `0.0` tetap override nyata untuk freeze final dawn.
 4. **`phase_changed` tidak membawa `day`.** Jangan ubah sinyal lama; tambahkan sinyal baru bila perlu.
 5. **[Selesai] GUT 9.7.1 terpasang.** Tes clock/stats sudah dijalankan lewat GUT command line.
-6. **[Sebagian] Modul inti belum lengkap.** Needs sudah ada (komponen + HUD + 22 tes); inventory, gather, craft, combat, enemy, death, menu, audio, victory belum.
+6. **[Sebagian] Modul inti belum lengkap.** Needs sudah ada (komponen + HUD + 27 tes); inventory, gather, craft, combat, enemy, death, menu, audio, victory belum.
 7. **`get_time_scale()` berubah saat final dawn.** Modul survival harus memakai getter ini agar ikut berhenti.
 8. **`SafeZone` masih practice-only.** Jangan anggap ini sistem camp produksi.
 

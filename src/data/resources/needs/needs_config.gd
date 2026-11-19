@@ -35,6 +35,17 @@ extends Resource
 ## jalan lama-lama melelahkan, tapi jauh lebih lambat daripada sprint.
 ## 0.0 = hanya sprint yang menguras Fatigue.
 @export var fatigue_walk_drain: float = 0.08
+## Fatigue per detik nyata saat diam di tempat (regenerasi).
+@export var fatigue_idle_regen: float = 1.0
+
+@export_group("Fatigue Capacity")
+## Plafon Fatigue yang hilang per detik nyata saat sprint. Sprint panjang
+## menurunkan nilai maksimum Fatigue (mis. 100 -> 80); jalan dan diam tidak.
+@export var fatigue_sprint_cap_drain: float = 0.4
+## Makan/minum memulihkan plafon Fatigue sebesar ini (dipakai oleh item nanti).
+@export var fatigue_meal_cap_restore: float = 10.0
+## Tidur (time_skipped) memulihkan plafon Fatigue sebesar ini.
+@export var sleep_fatigue_cap_restore: float = 25.0
 
 @export_group("Zero Tier HP Loss Per Second")
 ## HP hilang per detik game saat Hunger ZERO.
