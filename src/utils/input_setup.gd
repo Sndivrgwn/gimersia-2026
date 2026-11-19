@@ -11,6 +11,8 @@ const MOVE_UP := &"move_up"
 const MOVE_DOWN := &"move_down"
 const SPRINT := &"sprint"
 const INVENTORY_TOGGLE := &"inventory_toggle"
+## Hold E untuk gather/bangun/loot/beacon (InteractorComponent).
+const INTERACT := &"interact"
 
 ## Tombol 1-5 memakai slot hotbar InventoryComponent.
 const HOTBAR_ACTIONS: Array[StringName] = [
@@ -49,6 +51,9 @@ static func ensure_actions() -> void:
 	_ensure_action(INVENTORY_TOGGLE)
 	for key in INVENTORY_TOGGLE_KEYS:
 		_ensure_key(INVENTORY_TOGGLE, key)
+
+	_ensure_action(INTERACT)
+	_ensure_key(INTERACT, KEY_E)
 
 	for index in HOTBAR_ACTIONS.size():
 		_ensure_action(HOTBAR_ACTIONS[index])

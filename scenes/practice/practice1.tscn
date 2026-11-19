@@ -20,6 +20,8 @@
 [ext_resource type="Resource" path="res://src/data/items/berry.tres" id="18_berry"]
 [ext_resource type="Resource" path="res://src/data/items/raw_meat.tres" id="19_rawmeat"]
 [ext_resource type="PackedScene" path="res://src/ui/panels/inventory/bag_panel.tscn" id="20_bagpanel"]
+[ext_resource type="Script" path="res://src/components/interaction/interactor_component.gd" id="21_interactor"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/interaction/interaction_hud.tscn" id="22_interactionhud"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ddd1a"]
 texture = ExtResource("1_ur0jx")
@@ -1681,7 +1683,12 @@ script = ExtResource("12_needsdebug")
 [node name="InventoryComponent" type="Node" parent="Player"]
 script = ExtResource("13_inventory")
 
+[node name="InteractorComponent" type="Node" parent="Player"]
+script = ExtResource("21_interactor")
+
 [node name="HotbarHUD" parent="." instance=ExtResource("14_hotbarhud")]
+
+[node name="InteractionHUD" parent="." instance=ExtResource("22_interactionhud")]
 
 [node name="BagPanel" parent="." instance=ExtResource("20_bagpanel")]
 
