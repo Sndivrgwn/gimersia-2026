@@ -113,11 +113,12 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] HP clamp saat `max_hp` berubah; `hp_changed`.
 - [x] Dodge hard cap dan damage reduction cap.
 - [x] Faktor craft/gather/sprint fatigue.
-- [ ] XP gain dari aktivitas (gather, craft, combat).
-- [ ] Level-up otomatis dan batas XP.
-- [ ] Passive ability yang terhubung ke level.
-- [ ] Death debuff permanen dengan batas maksimal.
-- [ ] Integrasi `max_respawn_tokens` dan `fatigue_sprint_threshold` ke gameplay.
+- [x] XP gain dari aktivitas (gather, craft, combat) — `ProficiencyComponent`.
+- [x] Level-up otomatis dan batas XP (100 x level, overflow, lock di Lv 10).
+- [x] Passive ability yang terhubung ke level (Heavy Strike, Sturdy, Second Wind, Quick Reflex, Swift Counter; Light Footed di `StatsComponent`).
+- [x] Death debuff permanen dengan batas maksimal (2 proficiency).
+- [x] Integrasi `max_respawn_tokens` dan `fatigue_sprint_threshold` ke gameplay (`DeathController` memakai 3 token sesuai spec; ambang sprint sudah di `NeedsComponent`).
+- [ ] Master Chef (+10 restore) belum diterapkan — belum ada hook konsumsi item yang diizinkan.
 
 ---
 
@@ -260,15 +261,15 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 
 ## 11. Death dan Respawn
 
-- [ ] Deteksi kematian pemain.
-- [ ] Layar kematian dengan pilihan **Respawn** dan **Main Menu**.
-- [ ] Respawn mengembalikan pemain ke camp.
-- [ ] Semua item yang dibawa jatuh di lokasi kematian.
-- [ ] Item drop bisa diambil kembali.
-- [ ] Debuff skill permanen setelah respawn.
-- [ ] Batas maksimal debuff.
-- [ ] Sisa kesempatan respawn (`max_respawn_tokens`).
-- [ ] Edge case: mati saat timer Hari 7 00:00, respawn tetap mempertahankan kondisi fajar.
+- [x] Deteksi kematian pemain (`DeathController` lewat `hp_changed`).
+- [x] Layar kematian dengan pilihan **Respawn** dan **Main Menu**.
+- [x] Respawn mengembalikan pemain ke camp (0, 64) dengan 70% HP dan 60/60/80 needs.
+- [x] Semua item yang dibawa jatuh di lokasi kematian (`LootBag`, equipment tetap).
+- [x] Item drop bisa diambil kembali (hold E).
+- [x] Debuff skill permanen setelah respawn.
+- [x] Batas maksimal debuff (2 proficiency, algoritma spec §7.6).
+- [x] Sisa kesempatan respawn (3 token; kematian ke-4 = game over).
+- [x] Edge case: clock tidak dipause saat layar mati, jadi fajar Hari 7 tetap terjadi dan state rescue bertahan setelah respawn.
 
 ---
 
@@ -281,10 +282,11 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [ ] HUD inventory.
 - [ ] HUD debuff setelah respawn.
 - [ ] Indikator status siang/malam yang lebih lengkap.
-- [ ] Menu utama dan navigasi.
+- [x] Menu utama dan navigasi (`main_menu.tscn`, bukan main scene; `RunController`).
 - [ ] Pause menu.
-- [ ] Layar kematian.
-- [ ] Layar Victory.
+- [x] Layar kematian.
+- [x] Layar Victory (panel di `EndgameHUD`).
+- [x] Banner Hari 7 dan panah Beacon (placeholder Label).
 - [ ] Audio ambience siang/malam.
 - [ ] SFX langkah, gather, combat, hit, kematian, respawn.
 - [ ] Audio peringatan senja.
@@ -294,16 +296,16 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 
 ## 13. Kondisi Menang dan Hari ke-7
 
-- [ ] Banner pagi Hari 7.
-- [ ] Gelombang maksimal malam Hari 7.
+- [x] Banner pagi Hari 7 (`EndgameController` + `EndgameHUD`).
+- [ ] Gelombang maksimal malam Hari 7 (tabel `NightSpawner` sudah ada; playtest belum).
 - [x] Final dawn membekukan waktu dan menghentikan Hunger/Thirst.
-- [ ] Musuh malam ekstra kabur/despawn.
-- [ ] Arrow pointer ke Tiang Suar.
-- [ ] Item Suar Darurat di inventory.
-- [ ] Interaksi tahan E 1.5 detik di Tiang Suar.
-- [ ] Layar Victory setelah suar dinyalakan.
-- [ ] Anti-softlock Babi Hutan (minimal 2 ekor, respawn terbatas).
-- [ ] Tidak ada softlock jika pemain mati tepat saat 00:00.
+- [x] Musuh malam ekstra kabur/despawn (aturan rescue `FaunaQuota`).
+- [x] Arrow pointer ke Tiang Suar.
+- [x] Item Suar Darurat di inventory (resep Workbench sudah ada).
+- [x] Interaksi tahan E 1.5 detik di Tiang Suar.
+- [x] Layar Victory setelah suar dinyalakan.
+- [x] Anti-softlock Babi Hutan (minimal 2 ekor, respawn terbatas — `FaunaQuota`).
+- [x] Tidak ada softlock jika pemain mati tepat saat 00:00 (clock berjalan terus).
 
 ---
 
@@ -401,8 +403,8 @@ Jalankan setelah modul inti tersedia. Centang hanya jika seluruh langkah berhasi
 - [ ] Kumpulkan resource → masuk inventory → kembali ke camp.
 - [ ] Craft item inti → gunakan → efeknya terlihat.
 - [ ] Malam: Survival Timer berjalan, musuh menyerang, pemain bisa bertahan.
-- [ ] Mati → item jatuh → pilih Respawn → kembali ke camp → ambil item → debuff terlihat.
-- [ ] Hari 7: final dawn, flare, Victory.
+- [x] Mati → item jatuh → pilih Respawn → kembali ke camp → ambil item → debuff terlihat (tes otomatis; visual belum dicek).
+- [x] Hari 7: final dawn, flare, Victory (tes otomatis; visual belum dicek).
 - [ ] Tidak ada crash/softlock yang menghambat.
 
 ---
@@ -424,7 +426,7 @@ Jalankan setelah modul inti tersedia. Centang hanya jika seluruh langkah berhasi
 
 1. **[Selesai] P0 — Fondasi yang menghambat verifikasi:** GUT 9.7.1 terpasang, tes dijalankan, config 600, `_process` carry-over, smoke test `practice1` headless bersih.
 2. **[Sebagian] P1 — Loop survival minimum:** needs + HUD selesai; inventory + gathering, crafting/camp dasar, combat + satu hewan, night survival belum.
-3. **P2 — Kematian dan akhir permainan:** death/respawn, item drop, debuff, Hari 7, flare, Victory.
+3. **[Selesai] P2 — Kematian dan akhir permainan:** death/respawn, item drop, debuff, Hari 7, flare, Victory, menu utama.
 4. **P3 — Polish:** menu, audio, animasi, balancing, playtest, build final.
 
 ---

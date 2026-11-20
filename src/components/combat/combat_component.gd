@@ -31,6 +31,8 @@ var hovered_control_override: Control
 var bag_panel_override: Node
 
 var _cooldown: float = 0.0
+## Modifier damage per sumber, dipanggil berurutan saat satu ayunan mengenai.
+var _hit_modifiers: Array[Dictionary] = []
 var _slash: Polygon2D
 var _slash_timer: float = 0.0
 var _bound: bool = false
@@ -75,6 +77,23 @@ func get_attack_damage() -> float:
 
 func get_cone_angle() -> float:
 	return combat_config.cone_angle_degrees if combat_config != null else 90.0
+
+
+## Daftarkan pengubah damage (mis. passive Heavy Strike). Callable berbentuk
+## `(damage: float, target: Node) -> float`. Satu source_id hanya punya satu.
+func register_hit_modifier(source_id: StringName, callable: Callable) -> void:
+	unregister_hit_modifier(source_id)
+	_hit_modifiers.append({"source": source_id, "callable": callable})
+
+
+func unregister_hit_modifier(source_id: StringName) -> void:
+	for index in range(_hit_modifiers.size() - 1, -1, -1):
+		if _hit_modifiers[index]["source"] == source_id:
+			_hit_modifiers.remove_at(index)
+
+
+func get_hit_modifier_count() -> int:
+	return _hit_modifiers.size()
 
 
 # --- Tick -------------------------------------------------------------------
@@ -286,7 +305,7 @@ func _hit(target: Node) -> bool:
 	var health := _health_of(target)
 	if health == null:
 		return false
-	var damage := get_attack_damage()
+	var damage := _apply_hit_modifiers(get_attack_damage(), target)
 	health.take_damage(damage, player)
 	hit_dealt.emit(target, damage)
 
@@ -298,6 +317,16 @@ func _hit(target: Node) -> bool:
 	_show_damage_text(target, damage)
 	_connect_killed(target, health)
 	return true
+
+
+## Jalankan semua modifier sesuai urutan pendaftaran.
+func _apply_hit_modifiers(damage: float, target: Node) -> float:
+	var result := damage
+	for entry in _hit_modifiers:
+		var callable: Callable = entry["callable"]
+		if callable.is_valid():
+			result = float(callable.call(result, target))
+	return result
 
 
 func _apply_bleed(health: HealthComponent) -> void:

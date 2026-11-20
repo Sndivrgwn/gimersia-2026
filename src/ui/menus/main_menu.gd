@@ -1,0 +1,69 @@
+extends Control
+
+## Menu Utama placeholder. Scene ini BUKAN main scene (project tetap memakai
+## practice1.tscn); dibuka dari DeathScreen / RunController.
+##
+## "Mulai Baru": DayNightManager.restart() lalu pindah ke island.tscn.
+## "Keluar": menutup aplikasi.
+
+const GAME_SCENE := "res://src/levels/island/island.tscn"
+
+
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	_build()
+
+
+# --- Internal ---------------------------------------------------------------
+
+func _build() -> void:
+	set_anchors_preset(Control.PRESET_FULL_RECT)
+
+	var background := ColorRect.new()
+	background.color = Color(0.09, 0.12, 0.16, 1.0)
+	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(background)
+
+	var column := VBoxContainer.new()
+	column.position = Vector2(470, 260)
+	column.custom_minimum_size = Vector2(212, 180)
+	column.add_theme_constant_override("separation", 14)
+	add_child(column)
+
+	var title := Label.new()
+	title.text = "GIMERSIA 2026"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 30)
+	column.add_child(title)
+
+	var subtitle := Label.new()
+	subtitle.text = "Bertahan 7 hari sampai kapal penyelamat datang."
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	subtitle.custom_minimum_size = Vector2(212, 40)
+	subtitle.add_theme_font_size_override("font_size", 12)
+	column.add_child(subtitle)
+
+	var start_button := Button.new()
+	start_button.name = "StartButton"
+	start_button.text = "Mulai Baru"
+	start_button.pressed.connect(_start_game)
+	column.add_child(start_button)
+
+	var quit_button := Button.new()
+	quit_button.name = "QuitButton"
+	quit_button.text = "Keluar"
+	quit_button.pressed.connect(_quit)
+	column.add_child(quit_button)
+
+
+func _start_game() -> void:
+	var clock := get_node_or_null("/root/DayNightManager")
+	if clock != null and clock.has_method(&"restart"):
+		clock.restart()
+	get_tree().change_scene_to_file(GAME_SCENE)
+
+
+func _quit() -> void:
+	get_tree().quit()

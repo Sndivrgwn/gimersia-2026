@@ -106,6 +106,14 @@ func start() -> void:
 	started.emit()
 
 
+## Mulai ulang dari Hari 1 siang memakai config default (Menu Utama -> Mulai
+## Baru). Mengembalikan time scale ke config, mematikan Night Watch, menghapus
+## flag rescue, lalu memancarkan sinyal yang sama seperti start().
+func restart() -> void:
+	_time_scale_override = -1.0
+	start()
+
+
 ## Tick manual yang memakai pengali waktu; berguna untuk tes dan modul lain.
 func advance(delta: float) -> void:
 	if delta <= 0.0 or not is_running or rescue_triggered:

@@ -13,7 +13,7 @@ extends Node
 const PLAYER_GROUP := &"player"
 const INVENTORY_NAME := "InventoryComponent"
 const HINT_OFF := "F2: island debug (tools · zona · pagi · kit · fauna · senjata)"
-const HINT_ON := "ISLAND DEBUG ON\nF2 off · F3 zona · F4 pagi · F5 kit · F6 boar · F7 rusa\nF8 malam · F9 heal · F10 senjata"
+const HINT_ON := "ISLAND DEBUG ON\nF2 off · F3 zona · F4 pagi · F5 kit · F6 boar · F7 rusa\nF8 malam · F9 heal · F10 senjata · F11 mati · F12 rescue"
 const BOAR_SCENE: PackedScene = preload("res://src/entities/fauna/wild_boar/wild_boar.tscn")
 const DEER_SCENE: PackedScene = preload("res://src/entities/fauna/island_deer/island_deer.tscn")
 const SPAWN_DISTANCE := 250.0
@@ -80,6 +80,10 @@ func _process(_delta: float) -> void:
 		_heal_player()
 	elif Input.is_action_just_pressed(InputSetup.DEBUG_ISLAND_WEAPON):
 		_cycle_weapon()
+	elif Input.is_action_just_pressed(InputSetup.DEBUG_ISLAND_KILL):
+		_kill_player()
+	elif Input.is_action_just_pressed(InputSetup.DEBUG_ISLAND_RESCUE):
+		_jump_to_rescue()
 
 
 func is_debug_enabled() -> bool:
@@ -199,6 +203,33 @@ func _cycle_weapon() -> void:
 	inventory.add_or_drop(item, 1)
 	inventory.equip(item)
 	print("GatherDebug: senjata %s" % item.display_name)
+
+
+## F11: HP 0 supaya DeathController/DeathScreen teruji tanpa menunggu boar.
+func _kill_player() -> void:
+	var player := _resolve_player()
+	if player == null:
+		return
+	var stats := player.get_node_or_null("StatsComponent") as StatsComponent
+	if stats == null:
+		return
+	stats.get_max_hp()
+	stats.set_hp(0.0)
+	print("GatherDebug: pemain dimatikan")
+
+
+## F12: lompat fase sampai rescue (fajar Hari 7) menyala.
+func _jump_to_rescue() -> void:
+	var manager := clock
+	if manager == null:
+		manager = get_node_or_null("/root/DayNightManager")
+	if manager == null:
+		return
+	var guard := 0
+	while not manager.rescue_triggered and guard < 40:
+		manager.skip_time(manager.get_remaining_seconds() + 0.01)
+		guard += 1
+	print("GatherDebug: lompat ke rescue (hari %d)" % manager.get_current_day())
 
 
 func _grant_kit() -> void:

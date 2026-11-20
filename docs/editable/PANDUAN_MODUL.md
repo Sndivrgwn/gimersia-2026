@@ -387,6 +387,8 @@ memakai `_unhandled_input`.
 | `debug_island_boar` / `debug_island_deer` / `debug_island_night` / `debug_island_heal` / `debug_island_weapon` | F6 / F7 / F8 / F9 / F10 | `GatherDebug` (island only) — spawn Boar HOSTILE / Rusa 250 px di depan, lompat ke awal malam, heal penuh + needs, siklus senjata none→wooden→stone→bone |
 | `attack_click` | Klik kiri | `CombatComponent` — ayunan manual ke arah kursor (diabaikan saat kursor di UI/BagPanel terbuka) |
 | `attack_space` | Space | `CombatComponent` — ayunan manual ke arah `facing_direction` |
+| `debug_island_kill` | F11 | `GatherDebug` — HP 0 untuk menguji death screen (island saja) |
+| `debug_island_rescue` | F12 | `GatherDebug` — lompat fase sampai rescue/fajar Hari 7 (island saja) |
 | `ui_cancel` (bawaan) | Esc | `BagPanel` — hanya menutup saat terbuka |
 | `debug_needs_toggle` | F1 | `NeedsDebug` (practice only) |
 | `debug_cycle_hunger` / `debug_cycle_thirst` / `debug_cycle_fatigue` | X / C / V | `NeedsDebug`, sandbox |
@@ -418,7 +420,7 @@ Export: `phantom_camera`, `normal_zoom`, `safe_zone_zoom`, `zoom_duration`, `slo
 D:\Programming\Gamedev\Godot_v4.7.2-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests/unit -gexit
 ```
 
-Tes ada di `tests/unit/`: clock, stats, needs (termasuk override rest), inventory/item, bag panel, crafting panel, item slot store, interaction, resource node, island, resep, crafting, struktur camp, blueprint slot, campfire, repair, peti, tenda, jaga malam, camp controller, health, player damage receiver, knockback, combat, fauna base, wild boar, island deer, night scaling, fauna quota, night spawner, ember snuff. Saat ini **351/351 tes lulus** (2077 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
+Tes ada di `tests/unit/`: clock, stats, needs (termasuk override rest), inventory/item, bag panel, crafting panel, item slot store, interaction, resource node, island, resep, crafting, struktur camp, blueprint slot, campfire, repair, peti, tenda, jaga malam, camp controller, health, player damage receiver, knockback, combat, fauna base, wild boar, island deer, night scaling, fauna quota, night spawner, ember snuff, proficiency, death controller, loot bag, signal beacon, endgame, restart clock, serta seam hit modifier/idle-regen. Saat ini **383/383 tes lulus** (2168 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
 
 **Sandbox manual** (`tests/sandbox/stats_sandbox.tscn`) untuk mencoba stat dan needs tanpa main game:
 
@@ -894,6 +896,52 @@ ke Campfire saat malam hari >= 5 juga memakan 8 detik bahan bakar.
 
 **Jangan:** menulis HP fauna langsung, memakai physics query untuk menyerang,
 atau menaruh state gameplay di HUD.
+
+---
+
+## 29. Proficiency, kematian, dan endgame — P1c + P2
+
+**ProficiencyComponent** (anak Player, `tick(delta)` publik):
+
+```gdscript
+prof.add_xp(ProficiencyComponent.Prof.STRENGTH, 10.0, true)  # true = XP tempur (x1.5 malam)
+prof.get_level(ProficiencyComponent.Prof.SPEED)
+prof.get_xp_to_next_level(ProficiencyComponent.Prof.AGILITY)
+prof.has_passive(ProficiencyComponent.Prof.STRENGTH, 3)
+prof.apply_death_debuff()   # dipanggil DeathController
+```
+
+Level tetap ditulis ke `StatsComponent.strength_level` dkk. XP Speed memakai
+perpindahan nyata per tick dan hanya di luar radius 180 px; teleport > 200 px
+per tick diabaikan. Passive Heavy Strike/Swift Counter lewat
+`CombatComponent.register_hit_modifier`; Second Wind lewat
+`NeedsComponent.set_idle_regen_multiplier`; Quick Reflex menambah modifier
+`&"prof_quick_reflex"` saat HP < 40%. Master Chef belum diterapkan
+(`get_campfire_restore_bonus()` hanya menyediakan angkanya).
+
+**DeathController** (`island.tscn`): `stats.hp_changed` -> HP 0:
+`respawns_remaining -= 1`, seluruh tas jadi `LootBag` di posisi mati,
+pemain disembunyikan + `PROCESS_MODE_DISABLED`. `respawn()` mengembalikan ke
+(0, 64), 70% HP, 60/60/80 needs, lalu debuff. Kematian ke-4 -> `game_over`.
+Clock TIDAK dipause. Sinyal: `died(respawns_remaining)`, `respawned`, `game_over`.
+
+**DeathScreen** (CanvasLayer, `PROCESS_MODE_ALWAYS`): hanya UI, memancarkan
+`respawn_requested` / `main_menu_requested`; `island.gd` yang menghubungkannya.
+
+**EndgameController + SignalBeacon + EndgameHUD**: banner saat
+`day_started(max_days)`, banner rescue saat `rescue_started`, panah arah/jarak ke
+Beacon, dan Victory saat Beacon dipakai. Beacon (`Interactable`, hold 1.5 s) hanya
+bisa dipakai saat `clock.rescue_triggered` dan `InventoryComponent` punya
+`signal_flare` (tidak dikonsumsi).
+
+**RunController / MainMenu**: `request_main_menu()` membekukan clock
+(`set_time_scale(0.0)`), `request_restart()` memanggil `DayNightManager.restart()`.
+Perubahan scene lewat `_change_scene()` yang bisa ditimpa tes.
+
+**Debug island:** F11 = HP 0 (uji death screen), F12 = lompat ke rescue Hari 7.
+
+**Jangan:** menghitung ulang efek per level di `ProficiencyComponent`, menulis
+`current_hp` langsung, atau mem-pause SceneTree saat layar mati.
 
 ---
 

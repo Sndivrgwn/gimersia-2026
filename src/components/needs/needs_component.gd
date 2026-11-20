@@ -52,6 +52,9 @@ var _is_sprinting: bool = false
 var _bound: bool = false
 ## Override regen diam dari sumber luar (mis. `&"campfire"`).
 var _idle_regen_overrides: Dictionary = {}
+## Pengali regen override (mis. passive Second Wind). Hanya mengalikan regen
+## yang datang dari override, bukan regen diam dasar.
+var _idle_regen_multipliers: Dictionary = {}
 var _warned_no_clock: bool = false
 
 
@@ -136,10 +139,29 @@ func add(need: int, amount: float) -> void:
 func get_idle_regen() -> float:
 	if config == null:
 		return 0.0
-	var value := config.fatigue_idle_regen
+	var override_value := -1.0
 	for source_id in _idle_regen_overrides:
-		value = maxf(value, float(_idle_regen_overrides[source_id]))
-	return value
+		override_value = maxf(override_value, float(_idle_regen_overrides[source_id]))
+	if override_value <= 0.0:
+		return config.fatigue_idle_regen
+
+	# Pengali hanya berlaku pada regen override; bila override tidak lebih
+	# tinggi dari regen dasar, regen dasar yang dipakai tanpa pengali.
+	if override_value <= config.fatigue_idle_regen:
+		return config.fatigue_idle_regen
+	var multiplier := 1.0
+	for source_id in _idle_regen_multipliers:
+		multiplier *= float(_idle_regen_multipliers[source_id])
+	return override_value * multiplier
+
+
+## Pengali untuk regen override saja (passive Speed Lv6 Second Wind).
+func set_idle_regen_multiplier(source_id: StringName, multiplier: float) -> void:
+	_idle_regen_multipliers[source_id] = maxf(multiplier, 0.0)
+
+
+func clear_idle_regen_multiplier(source_id: StringName) -> void:
+	_idle_regen_multipliers.erase(source_id)
 
 
 ## Tambah/ubah override regen diam dari satu sumber (mis. Campfire menyala).

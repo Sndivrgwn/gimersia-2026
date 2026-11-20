@@ -28,6 +28,9 @@ const DEBUG_ISLAND_DEER := &"debug_island_deer"
 const DEBUG_ISLAND_NIGHT := &"debug_island_night"
 const DEBUG_ISLAND_HEAL := &"debug_island_heal"
 const DEBUG_ISLAND_WEAPON := &"debug_island_weapon"
+## F11: matikan pemain (uji death screen). F12: lompat ke fajar Hari 7 (rescue).
+const DEBUG_ISLAND_KILL := &"debug_island_kill"
+const DEBUG_ISLAND_RESCUE := &"debug_island_rescue"
 
 ## Serangan manual: klik kiri (arah kursor) dan Space (arah hadap).
 const ATTACK_CLICK := &"attack_click"
@@ -103,6 +106,10 @@ static func ensure_actions() -> void:
 	_ensure_key(DEBUG_ISLAND_HEAL, KEY_F9)
 	_ensure_action(DEBUG_ISLAND_WEAPON)
 	_ensure_key(DEBUG_ISLAND_WEAPON, KEY_F10)
+	_ensure_action(DEBUG_ISLAND_KILL)
+	_ensure_key(DEBUG_ISLAND_KILL, KEY_F11)
+	_ensure_action(DEBUG_ISLAND_RESCUE)
+	_ensure_key(DEBUG_ISLAND_RESCUE, KEY_F12)
 
 	_ensure_action(ATTACK_SPACE)
 	_ensure_key(ATTACK_SPACE, KEY_SPACE)

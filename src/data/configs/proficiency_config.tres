@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="ProficiencyConfig" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/proficiency/proficiency_config.gd" id="1_pnrtu"]
+
+[resource]
+script = ExtResource("1_pnrtu")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3]
+[gd_scene load_steps=38 format=3]
 
 [ext_resource type="Script" path="res://src/levels/island/island.gd" id="1_island"]
 [ext_resource type="PackedScene" path="res://src/entities/player/player.tscn" id="2_player"]
@@ -26,6 +26,13 @@
 [ext_resource type="Script" path="res://src/components/combat/player_damage_receiver.gd" id="24_receiver"]
 [ext_resource type="Script" path="res://src/core/managers/fauna_quota.gd" id="25_quota"]
 [ext_resource type="Script" path="res://src/core/managers/night_spawner.gd" id="26_spawner"]
+[ext_resource type="Script" path="res://src/components/proficiency/proficiency_component.gd" id="27_prof"]
+[ext_resource type="Script" path="res://src/core/managers/death_controller.gd" id="28_death"]
+[ext_resource type="Script" path="res://src/core/managers/endgame_controller.gd" id="29_endgame"]
+[ext_resource type="Script" path="res://src/core/managers/run_controller.gd" id="30_run"]
+[ext_resource type="PackedScene" path="res://src/ui/menus/death_screen.tscn" id="31_deathscreen"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/endgame/endgame_hud.tscn" id="32_endgamehud"]
+[ext_resource type="Script" path="res://src/entities/props/beacon/signal_beacon.gd" id="33_beacon"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
 size = Vector2(5000, 100)
@@ -102,6 +109,7 @@ position = Vector2(-48, 40)
 
 [node name="Beacon" type="Node2D" parent="."]
 position = Vector2(0, 2100)
+script = ExtResource("33_beacon")
 
 [node name="Visual" type="Polygon2D" parent="Beacon"]
 color = Color(0.9, 0.75, 0.3, 1)
@@ -168,6 +176,9 @@ script = ExtResource("24_receiver")
 [node name="CombatComponent" type="Node" parent="Player"]
 script = ExtResource("23_combat")
 
+[node name="ProficiencyComponent" type="Node" parent="Player"]
+script = ExtResource("27_prof")
+
 [node name="Camera2D" type="Camera2D" parent="."]
 physics_interpolation_mode = 1
 top_level = true
@@ -217,6 +228,19 @@ fauna_parent = NodePath("../Fauna")
 [node name="InteractionHUD" parent="." instance=ExtResource("15_interactionhud")]
 
 [node name="BagPanel" parent="." instance=ExtResource("14_bagpanel")]
+
+[node name="DeathController" type="Node" parent="."]
+script = ExtResource("28_death")
+
+[node name="RunController" type="Node" parent="."]
+script = ExtResource("30_run")
+
+[node name="EndgameController" type="Node" parent="."]
+script = ExtResource("29_endgame")
+
+[node name="DeathScreen" parent="." instance=ExtResource("31_deathscreen")]
+
+[node name="EndgameHUD" parent="." instance=ExtResource("32_endgamehud")]
 
 [node name="GatherDebug" type="Node" parent="."]
 script = ExtResource("16_gatherdebug")
