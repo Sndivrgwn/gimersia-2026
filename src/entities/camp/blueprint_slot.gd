@@ -15,6 +15,7 @@ signal built(structure: CampStructure)
 const PROMPT_FORMAT := "Bangun %s (%s)"
 const ALREADY_BUILT := "Sudah dibangun"
 const MISSING_COST := "Bahan kurang"
+const BROKEN_BLUEPRINT := "Blueprint rusak"
 const PLACEHOLDER_COLOR := Color(0.95, 0.9, 0.55, 0.35)
 const PLACEHOLDER_SIZE := Vector2(44.0, 44.0)
 
@@ -23,6 +24,9 @@ const PLACEHOLDER_SIZE := Vector2(44.0, 44.0)
 
 var _structure: CampStructure
 var _placeholder: Node2D
+## Cache hasil probe scene: instan hanya sekali per PackedScene.
+var _probed_scene: PackedScene
+var _probe_result: bool = false
 
 
 func _ready() -> void:
@@ -61,6 +65,10 @@ func get_block_reason(interactor: Node) -> String:
 		return ""
 	if _structure != null:
 		return ALREADY_BUILT
+	# Scene hilang / bukan CampStructure: slot tidak boleh memakan bahan sama
+	# sekali, jadi alasan ini dicek sebelum biaya.
+	if not _has_usable_scene():
+		return BROKEN_BLUEPRINT
 	if not _has_cost(interactor):
 		return MISSING_COST
 	return ""
@@ -69,9 +77,33 @@ func get_block_reason(interactor: Node) -> String:
 func interact(interactor: Node) -> void:
 	if definition == null or _structure != null:
 		return
+	# Guard terakhir sebelum menyentuh tas: scene rusak tidak boleh mengonsumsi.
+	if not _has_usable_scene():
+		push_warning("BlueprintSlot: scene untuk '%s' tidak bisa dipakai." % definition.id)
+		return
 	if not _consume_cost(interactor):
 		return
 	_spawn_structure()
+
+
+## True bila `definition.scene` ada, bisa di-instance, dan root-nya CampStructure.
+func _has_usable_scene() -> bool:
+	if definition == null or definition.scene == null:
+		return false
+
+	var scene := definition.scene
+	if scene == _probed_scene:
+		return _probe_result
+
+	var usable := scene.can_instantiate()
+	if usable:
+		var probe := scene.instantiate()
+		usable = probe is CampStructure
+		if probe != null:
+			probe.free()
+	_probed_scene = scene
+	_probe_result = usable
+	return usable
 
 
 # --- Read API ---------------------------------------------------------------

@@ -415,7 +415,7 @@ Export: `phantom_camera`, `normal_zoom`, `safe_zone_zoom`, `zoom_duration`, `slo
 D:\Programming\Gamedev\Godot_v4.7.2-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests/unit -gexit
 ```
 
-Tes ada di `tests/unit/`: clock, stats, needs (termasuk override rest), inventory/item, bag panel, interaction, resource node, island, resep, crafting, struktur camp, blueprint slot, campfire, repair. Saat ini **233/233 tes lulus** (1672 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
+Tes ada di `tests/unit/`: clock, stats, needs (termasuk override rest), inventory/item, bag panel, interaction, resource node, island, resep, crafting, struktur camp, blueprint slot, campfire, repair, peti, tenda, jaga malam, camp controller. Saat ini **275/275 tes lulus** (1809 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
 
 **Sandbox manual** (`tests/sandbox/stats_sandbox.tscn`) untuk mencoba stat dan needs tanpa main game:
 
@@ -743,6 +743,77 @@ additive (perilaku HUD lama tidak berubah).
 
 **Jangan:** menaruh collision di struktur, menulis HP langsung (pakai
 `take_damage()`/`repair()`), atau membuat jam sendiri untuk bahan bakar.
+
+---
+
+## 27. Peti, Tenda, Jaga Malam, dan `CampController`
+
+### `ChestComponent` + `Chest` — penyimpanan 24 slot
+
+`src/components/storage/chest_component.gd`, dipasang sebagai anak Peti.
+Aturan stacking sama dengan tas (isi stack sama dulu, lalu slot kosong paling
+kiri, urutan tidak diacak).
+
+```gdscript
+var chest := $ChestComponent as ChestComponent
+chest.add_item(ItemCatalog.WOOD, 10)    # 0 = masuk semua; > 0 = sisa
+chest.count_of(&"wood")
+chest.move_to_bag(0, inventory)         # seluruh stack; sisa tetap di peti
+chest.move_from_bag(inventory, 0)       # seluruh stack tas; sisa tetap di tas
+```
+
+API: `get_capacity()` (24), `get_slot(index)`, `get_slot_item()`, `get_slot_count()`,
+`is_full()`, `is_empty()`, `count_of()`, `remove_item()` (atomik), `clear()`,
+`get_slots()`; sinyal `slot_changed(index)`, `contents_changed()`.
+
+`Chest` (`src/entities/camp/chest/chest.tscn`, extends `CampStructure`) punya
+anak `Interact` dengan prompt **"Peti (24 slot)"**; panel UI belum ada (stretch).
+Saat HP 0, setiap stack dijatuhkan sebagai `ItemPickup` di posisi peti.
+
+### `Tent` + `TentConfig` — tidur siang
+
+`src/entities/camp/tent/tent.tscn`. Hold **E** 1.5 s (`TentConfig.hold_time`,
+nilai misi) saat siang. Syarat: `clock.is_day()`,
+`get_remaining_seconds() > 60`, dan `>= 60` detik game sejak tidur terakhir
+(`get_total_elapsed_seconds()`). Alasan blokir: `"Hanya bisa tidur di siang hari"`,
+`"Waktu siang kurang dari 60 detik"`, `"Tenda masih perlu istirahat"`.
+
+Saat berhasil Tenda hanya memanggil `clock.skip_time(45.0)` **sekali**;
+drain Hunger/Thirst (minimal 1.0) dan plafon Fatigue +25 ditangani
+`NeedsComponent` lewat `time_skipped` — jangan diduplikasi di Tenda.
+
+### `NightWatchController` — Jaga Malam
+
+`src/levels/camp/night_watch_controller.gd`, anak dari `CampController`
+(di `camp_controller.tscn`). Malam + E di Tenda = nyalakan/matikan Jaga Malam.
+Syarat mulai: malam (`"Hanya saat malam"`) dan ada Campfire menyala
+(`"Butuh Api Unggun menyala"`). ON/OFF memanggil `clock.set_night_watch(true/false)`.
+
+Berhenti otomatis saat: input `move_*` ditekan (`"Bergerak"`), Campfire
+`fuel_depleted` atau hancur (`"Api padam"`), ada `camp_structure` yang menerima
+damage (`"Struktur diserang"`), atau fajar/`night_ended` (`"Fajar"`); toggle
+manual (`"Dimatikan"`). Sinyal: `watch_started`, `watch_stopped(reason)`.
+Controller juga mengisi `Tent.night_watch` saat Tenda dibangun, sehingga prompt
+Tenda berubah: `"Tahan E: Tidur"` (siang), `"Tahan E: Jaga Malam"` / `"Tahan E: Berhenti Jaga Malam"` (malam).
+
+### `CampController` — registry struktur camp
+
+`src/levels/camp/camp_controller.tscn`: Node2D + 4 `BlueprintSlot`
+(campfire 0,0 · workbench -96,-32 · chest 96,-32 · tent 0,-110) +
+`NightWatchController`.
+
+```gdscript
+camp.has_built(&"campfire")
+camp.get_structure(&"workbench")          # CampStructure atau null
+camp.get_structures()                     # Array[CampStructure]
+camp.get_structures_by_priority()         # aggro 0 -> 1 -> 2 (untuk AI musuh)
+```
+
+Sinyal: `structure_built(id)`, `structure_destroyed(id)`. Registry otomatis
+mengisi dan mengosongkan diri lewat slot blueprint dan sinyal `destroyed`.
+
+**Jangan:** menyimpan HP/isi struktur di controller, atau menaruh state gameplay
+di panel UI.
 
 ---
 

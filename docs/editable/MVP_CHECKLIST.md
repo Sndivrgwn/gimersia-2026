@@ -28,7 +28,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 | Survival needs | Ada | Komponen + HUD + 27 tes (termasuk plafon Fatigue, regen diam); konsumsi item lewat `use_slot()` sudah ada (efek instan). Rest Campfire dan tidur Tenda belum |
 | Inventory & gathering | Sebagian | Inventory 12 slot + hotbar 1-5, definisi item, pickup, efek makan/minum, bag UI (Tab/I, drag-drop, klik kanan, tooltip), hold-E interaction, dan 8 resource node + respawn/tool gate ada (23 tes inventory, 17 bag panel, 13 interaction, 14 resource node); crafting dan drop saat mati belum |
 | Peta pulau | Minimum | `src/levels/island/island.tscn` (placeholder): zona sesuai spec §7.7, 139 node resource, 16 marker night spawn (tanpa spawner), wreckage, koper darurat, beacon placeholder, 9 river edge. Art produksi dan level loader belum |
-| Crafting & camp | Sebagian | 13 resep + `CraftingComponent`, 4 definisi struktur, `CampStructure`/`BlueprintSlot`/`Campfire`/`Workbench`, dan repair hold-R ada dan teruji; Tenda, Peti, UI crafting, dan pemasangan di `island.tscn` belum |
+| Crafting & camp | Sebagian | 13 resep + `CraftingComponent`, 4 definisi struktur, `CampStructure`/`BlueprintSlot`/`Campfire`/`Workbench`/`Chest`/`Tent`, repair hold-R, Night Watch, dan `CampController` ada dan teruji; UI crafting, panel Peti, dan pemasangan di `island.tscn` belum |
 | Combat & enemy | Belum | Belum ada attack, AI, spawn, scaling malam |
 | Night survival loop | Belum | Timer malam ada di HUD, tetapi belum ada gelombang ancaman |
 | Death & respawn | Belum | Belum ada death screen, drop item, debuff |
@@ -134,8 +134,8 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] API pemulihan plafon untuk makan (`restore_fatigue_capacity()`) dan tidur (`+25` pada `time_skipped`).
 - [x] Rest di dekat Campfire menyala.
   - `Campfire` menyala dalam 120 px memanggil `NeedsComponent.set_idle_regen_override(&"campfire", 5.0)` tiap 0.25 s dan membersihkannya saat keluar radius / api padam; dibuktikan `tests/unit/test_campfire.gd` + `test_needs_rest_override.gd`.
-- [ ] Tidur di Tenda Daun: pulihkan Fatigue, `skip_time(45)`, cooldown, syarat sisa siang > 60 detik.
-  - `time_skipped`, clamp 1.0, dan pemulihan plafon Fatigue sudah siap dan teruji; scene Tenda belum ada.
+- [x] Tidur di Tenda Daun: pulihkan Fatigue, `skip_time(45)`, cooldown, syarat sisa siang > 60 detik.
+  - `Tent` + `TentConfig`: hold E 1.5 s, hanya siang, sisa siang > 60 dtk, cooldown 60 dtk game, `skip_time(45.0)` sekali; Needs menangani `time_skipped`. Dibuktikan `tests/unit/test_tent.gd`.
 - [x] Konsumsi makanan/minuman memulihkan nilai.
   - Item `.tres` + `InventoryComponent.use_slot()`; field `fatigue` (Berry/Kelapa +10) diterapkan lewat `restore_fatigue_capacity()`, item lain 0 (tes lulus).
 - [x] Integrasi `get_time_scale()` agar drain ikut 2× saat Night Watch dan 0 saat final dawn.
@@ -202,9 +202,10 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
   - `Workbench` (grup `crafting_station`, `station_type` WORKBENCH, selalu aktif) + `workbench.tres`; dibangun lewat `BlueprintSlot`, dibuktikan `tests/unit/test_blueprint_slot.gd`.
 - [x] Campfire dengan fuel dan radius cahaya.
   - 240 s awal / 600 maksimum, drain 0.25/s siang dan 1.0/s malam x `get_time_scale()`, refuel 2 kayu -> +180 s (blokir di >= 580), cahaya 240 px / ember 80 px; dibuktikan `tests/unit/test_campfire.gd`.
-- [ ] Tenda Daun dengan interaksi tidur.
-  - Scene Tenda belum ada; `tent.tres` sudah ada dan slot tidurnya belum diisi.
-- [ ] Peti camp.
+- [x] Tenda Daun dengan interaksi tidur.
+  - `tent.tscn` + `tent.tres` (120 HP, 6 kayu + 6 serat + 2 bambu) + `NightWatchController` untuk malam; dibuktikan `test_tent.gd` dan `test_night_watch_controller.gd`.
+- [x] Peti camp.
+  - Logika penyimpanan 24 slot (`ChestComponent`) + Peti yang menjatuhkan isinya saat hancur; dibuktikan `test_chest_component.gd` + `test_chest.gd`. Panel UI peti belum (stretch).
 - [ ] Tiang Suar di Pantai Selatan.
 - [x] Daya tahan struktur camp (destructible).
   - `CampStructure.take_damage()/repair()/destroyed`, HP bar hanya saat rusak, dan hold-R `RepairComponent` (1 kayu + 1 batu -> +80 untuk Campfire, dst.); dibuktikan `test_camp_structure.gd` + `test_repair_component.gd`.
@@ -398,7 +399,7 @@ Jalankan setelah modul inti tersedia. Centang hanya jika seluruh langkah berhasi
 3. **[Selesai] `set_time_scale(-1)` reset ke config.** Nilai negatif mengembalikan `DayNightConfig.time_scale`; `0.0` tetap override nyata untuk freeze final dawn.
 4. **`phase_changed` tidak membawa `day`.** Jangan ubah sinyal lama; tambahkan sinyal baru bila perlu.
 5. **[Selesai] GUT 9.7.1 terpasang.** Tes clock/stats sudah dijalankan lewat GUT command line.
-6. **[Sebagian] Modul inti belum lengkap.** Needs (komponen + HUD + 27 tes), inventory (12 slot + hotbar + equipment, 23 tes), bag panel (17 tes), gathering (8 resource node + hold-E, 14 tes), peta pulau minimum, crafting (13 resep + `CraftingComponent`) dan struktur camp (Campfire/Workbench/BlueprintSlot + repair, rest Campfire) sudah ada; Tenda, Night Watch, Peti, UI crafting, combat, enemy, death, menu, audio, victory belum.
+6. **[Sebagian] Modul inti belum lengkap.** Needs (komponen + HUD + 27 tes), inventory (12 slot + hotbar + equipment, 23 tes), bag panel (17 tes), gathering (8 resource node + hold-E, 14 tes), peta pulau minimum, crafting (13 resep + `CraftingComponent`), struktur camp (Campfire/Workbench/BlueprintSlot + repair + rest, Peti 24 slot, Tenda tidur, Night Watch, `CampController`) sudah ada; UI crafting, panel Peti, combat, enemy, death, menu, audio, victory belum.
 7. **`get_time_scale()` berubah saat final dawn.** Modul survival harus memakai getter ini agar ikut berhenti.
 8. **`SafeZone` masih practice-only.** Jangan anggap ini sistem camp produksi.
 

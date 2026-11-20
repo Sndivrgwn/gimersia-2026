@@ -138,6 +138,55 @@ func test_workbench_blueprint_produces_active_station() -> void:
 	assert_eq(bench.get_current_hp(), 180.0)
 
 
+func test_missing_scene_blocks_and_never_consumes_materials() -> void:
+	var broken := StructureDefinition.new()
+	broken.id = &"broken"
+	broken.display_name = "Rusak"
+	broken.max_hp = 100.0
+	broken.build_time = 1.0
+	var cost := ItemAmount.new(ItemCatalog.WOOD, 2)
+	var amounts: Array[ItemAmount] = [cost]
+	broken.build_cost = amounts
+	broken.scene = null
+	slot.definition = broken
+	inventory.add_item(ItemCatalog.WOOD, 2)
+
+	assert_false(slot._has_usable_scene(), "scene null tidak bisa dipakai")
+	assert_false(slot.can_interact(interactor))
+	assert_eq(slot.get_block_reason(interactor), "Blueprint rusak")
+
+	slot.interact(interactor)
+
+	assert_false(slot.is_built())
+	assert_null(slot.get_structure())
+	assert_eq(inventory.count_of(ItemCatalog.WOOD), 2, "bahan tidak boleh berkurang")
+
+
+func test_scene_that_is_not_a_camp_structure_blocks_and_never_consumes() -> void:
+	var broken := StructureDefinition.new()
+	broken.id = &"wrong_scene"
+	broken.display_name = "Salah Scene"
+	broken.build_time = 1.0
+	var amounts: Array[ItemAmount] = [ItemAmount.new(ItemCatalog.WOOD, 2)]
+	broken.build_cost = amounts
+	broken.scene = preload("res://src/entities/props/item_pickup.tscn")
+	slot.definition = broken
+	inventory.add_item(ItemCatalog.WOOD, 2)
+
+	assert_false(slot._has_usable_scene(), "root scene bukan CampStructure")
+	assert_eq(slot.get_block_reason(interactor), "Blueprint rusak")
+
+	slot.interact(interactor)
+
+	assert_null(slot.get_structure())
+	assert_eq(inventory.count_of(ItemCatalog.WOOD), 2, "bahan tetap utuh")
+
+
+func test_valid_scene_is_usable() -> void:
+	assert_true(slot._has_usable_scene())
+	assert_eq(slot.get_block_reason(interactor), "Bahan kurang", "alasan biaya, bukan scene")
+
+
 func test_slot_without_definition_is_inert() -> void:
 	slot.definition = null
 	assert_eq(slot.get_prompt(interactor), "")

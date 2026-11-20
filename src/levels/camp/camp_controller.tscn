@@ -1,0 +1,31 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/levels/camp/camp_controller.gd" id="1_camp"]
+[ext_resource type="PackedScene" path="res://src/entities/camp/blueprint_slot.tscn" id="2_slot"]
+[ext_resource type="Resource" path="res://src/data/camp/campfire.tres" id="3_campfire"]
+[ext_resource type="Resource" path="res://src/data/camp/workbench.tres" id="4_workbench"]
+[ext_resource type="Resource" path="res://src/data/camp/chest.tres" id="5_chest"]
+[ext_resource type="Resource" path="res://src/data/camp/tent.tres" id="6_tent"]
+[ext_resource type="Script" path="res://src/levels/camp/night_watch_controller.gd" id="7_watch"]
+
+[node name="CampController" type="Node2D"]
+script = ExtResource("1_camp")
+
+[node name="CampfireSlot" parent="." instance=ExtResource("2_slot")]
+position = Vector2(0, 0)
+definition = ExtResource("3_campfire")
+
+[node name="WorkbenchSlot" parent="." instance=ExtResource("2_slot")]
+position = Vector2(-96, -32)
+definition = ExtResource("4_workbench")
+
+[node name="ChestSlot" parent="." instance=ExtResource("2_slot")]
+position = Vector2(96, -32)
+definition = ExtResource("5_chest")
+
+[node name="TentSlot" parent="." instance=ExtResource("2_slot")]
+position = Vector2(0, -110)
+definition = ExtResource("6_tent")
+
+[node name="NightWatchController" type="Node" parent="."]
+script = ExtResource("7_watch")

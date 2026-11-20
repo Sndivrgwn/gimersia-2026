@@ -1,0 +1,33 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/entities/camp/chest/chest.gd" id="1_chest"]
+[ext_resource type="Script" path="res://src/components/storage/chest_component.gd" id="2_storage"]
+[ext_resource type="Script" path="res://src/entities/camp/chest/chest_interact.gd" id="3_interact"]
+
+[node name="Chest" type="Node2D"]
+script = ExtResource("1_chest")
+
+[node name="Body" type="Polygon2D" parent="."]
+color = Color(0.52, 0.36, 0.2, 1)
+polygon = PackedVector2Array(-22, -10, 22, -10, 22, 16, -22, 16)
+
+[node name="Lid" type="Polygon2D" parent="."]
+color = Color(0.62, 0.44, 0.25, 1)
+polygon = PackedVector2Array(-24, -16, 24, -16, 22, -8, -22, -8)
+
+[node name="Label" type="Label" parent="."]
+offset_left = -50.0
+offset_top = -36.0
+offset_right = 50.0
+offset_bottom = -18.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.95, 0.9, 0.75, 1)
+theme_override_font_sizes/font_size = 11
+text = "Peti"
+horizontal_alignment = 1
+
+[node name="ChestComponent" type="Node" parent="."]
+script = ExtResource("2_storage")
+
+[node name="Interact" type="Node2D" parent="."]
+script = ExtResource("3_interact")

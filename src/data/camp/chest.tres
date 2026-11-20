@@ -1,33 +1,35 @@
 [gd_resource type="Resource" script_class="StructureDefinition" format=3]
 
-[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_b6ddn"]
-[ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_i1in8"]
-[ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="3_gwi06"]
-[ext_resource type="Script" path="res://src/data/resources/camp/structure_definition.gd" id="4_2e6db"]
-
-[sub_resource type="Resource" id="Resource_3eo6j"]
-script = ExtResource("1_b6ddn")
-item = ExtResource("2_i1in8")
-count = 6
-
-[sub_resource type="Resource" id="Resource_jn7a6"]
-script = ExtResource("1_b6ddn")
-item = ExtResource("3_gwi06")
-count = 2
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_i1in8"]
+[ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_gwi06"]
+[ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="3_2e6db"]
+[ext_resource type="PackedScene" path="res://src/entities/camp/chest/chest.tscn" id="4_3eo6j"]
+[ext_resource type="Script" path="res://src/data/resources/camp/structure_definition.gd" id="5_jn7a6"]
 
 [sub_resource type="Resource" id="Resource_4pqib"]
-script = ExtResource("1_b6ddn")
-item = ExtResource("2_i1in8")
+script = ExtResource("1_i1in8")
+item = ExtResource("2_gwi06")
+count = 6
+
+[sub_resource type="Resource" id="Resource_if2g8"]
+script = ExtResource("1_i1in8")
+item = ExtResource("3_2e6db")
+count = 2
+
+[sub_resource type="Resource" id="Resource_vgjxu"]
+script = ExtResource("1_i1in8")
+item = ExtResource("2_gwi06")
 count = 2
 
 [resource]
-script = ExtResource("4_2e6db")
+script = ExtResource("5_jn7a6")
 id = &"chest"
 display_name = "Peti"
+scene = ExtResource("4_3eo6j")
 max_hp = 200.0
-build_cost = Array[ExtResource("1_b6ddn")]([SubResource("Resource_3eo6j"), SubResource("Resource_jn7a6")])
+build_cost = Array[ExtResource("1_i1in8")]([SubResource("Resource_4pqib"), SubResource("Resource_if2g8")])
 build_time = 2.5
 aggro_priority = 1
-repair_cost = Array[ExtResource("1_b6ddn")]([SubResource("Resource_4pqib")])
+repair_cost = Array[ExtResource("1_i1in8")]([SubResource("Resource_vgjxu")])
 repair_hp = 80.0
 slot_position = Vector2(96, -32)

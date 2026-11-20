@@ -1,0 +1,231 @@
+class_name ChestComponent
+extends Node
+
+## Penyimpanan Peti: 24 slot dengan aturan stacking yang sama dengan tas.
+##
+## ItemStack adalah wadah nilai yang sama dengan tas; urutan slot tidak pernah
+## diacak, stack yang sama diisi lebih dulu, lalu slot kosong paling kiri.
+## Komponen ini tidak menyentuh UI dan tidak punya clock.
+
+signal slot_changed(index: int)
+## Sekali per aksi yang mengubah isi (bukan per slot).
+signal contents_changed()
+
+const DEFAULT_CAPACITY := 24
+
+## Jumlah slot. Default 24 sesuai spesifikasi.
+@export var capacity: int = DEFAULT_CAPACITY
+
+var _slots: Array[ItemStack] = []
+
+
+func _ready() -> void:
+	_ensure_slots()
+
+
+# --- Read API ---------------------------------------------------------------
+
+func get_capacity() -> int:
+	return maxi(capacity, 0)
+
+
+func get_slots() -> Array[ItemStack]:
+	_ensure_slots()
+	return _slots
+
+
+func get_slot(index: int) -> ItemStack:
+	if not _is_valid_slot(index):
+		return null
+	return _slots[index]
+
+
+func get_slot_item(index: int) -> ItemDefinition:
+	var stack := get_slot(index)
+	return null if stack == null else stack.item
+
+
+func get_slot_count(index: int) -> int:
+	var stack := get_slot(index)
+	return 0 if stack == null else stack.count
+
+
+func is_slot_empty(index: int) -> bool:
+	var stack := get_slot(index)
+	return stack == null or stack.is_empty()
+
+
+func is_empty() -> bool:
+	for stack in _slots:
+		if stack != null and not stack.is_empty():
+			return false
+	return true
+
+
+func is_full() -> bool:
+	for stack in _slots:
+		if stack == null or stack.is_empty():
+			return false
+	return true
+
+
+func count_of(item: Variant) -> int:
+	var id := _id_of(item)
+	if id == &"":
+		return 0
+	var total := 0
+	for stack in _slots:
+		if stack != null and stack.item != null and stack.item.id == id:
+			total += stack.count
+	return total
+
+
+# --- Write API --------------------------------------------------------------
+
+## Masukkan item; mengembalikan sisa yang tidak muat (0 = semua masuk).
+func add_item(item: ItemDefinition, count: int = 1) -> int:
+	if item == null or count <= 0:
+		return maxi(count, 0)
+	_ensure_slots()
+
+	var remaining := count
+	var stack_max := maxi(item.max_stack, 1)
+	var touched: Array[int] = []
+
+	for index in _slots.size():
+		if remaining <= 0:
+			break
+		var stack := _slots[index]
+		if stack == null or stack.item == null or stack.item.id != item.id:
+			continue
+		var space := stack_max - stack.count
+		if space <= 0:
+			continue
+		var moved := mini(remaining, space)
+		stack.count += moved
+		remaining -= moved
+		touched.append(index)
+
+	for index in _slots.size():
+		if remaining <= 0:
+			break
+		if _slots[index] != null and not _slots[index].is_empty():
+			continue
+		var moved := mini(remaining, stack_max)
+		_slots[index] = ItemStack.new(item, moved)
+		remaining -= moved
+		touched.append(index)
+
+	if remaining == count:
+		return remaining
+	for index in touched:
+		slot_changed.emit(index)
+	contents_changed.emit()
+	return remaining
+
+
+## Buang item; atomik (semua atau tidak sama sekali).
+func remove_item(item: Variant, count: int = 1) -> bool:
+	if count <= 0:
+		return false
+	var id := _id_of(item)
+	if id == &"":
+		return false
+	_ensure_slots()
+	if count_of(id) < count:
+		return false
+
+	var remaining := count
+	var touched: Array[int] = []
+	for index in range(_slots.size() - 1, -1, -1):
+		if remaining <= 0:
+			break
+		var stack := _slots[index]
+		if stack == null or stack.item == null or stack.item.id != id:
+			continue
+		var taken := mini(remaining, stack.count)
+		stack.count -= taken
+		remaining -= taken
+		if stack.count <= 0:
+			_slots[index] = null
+		touched.append(index)
+
+	for index in touched:
+		slot_changed.emit(index)
+	contents_changed.emit()
+	return true
+
+
+## Kosongkan peti (dipakai saat hancur setelah isinya dijatuhkan).
+func clear() -> void:
+	_ensure_slots()
+	var changed := false
+	for index in _slots.size():
+		if _slots[index] == null:
+			continue
+		_slots[index] = null
+		changed = true
+		slot_changed.emit(index)
+	if changed:
+		contents_changed.emit()
+
+
+## Pindahkan seluruh stack slot peti ke tas. Sisa yang tidak muat tetap di peti.
+func move_to_bag(index: int, inventory: InventoryComponent) -> bool:
+	if inventory == null or not _is_valid_slot(index):
+		return false
+	var stack := _slots[index]
+	if stack == null or stack.is_empty():
+		return false
+
+	var leftover := inventory.add_item(stack.item, stack.count)
+	if leftover == stack.count:
+		return false
+	if leftover <= 0:
+		_slots[index] = null
+	else:
+		stack.count = leftover
+	slot_changed.emit(index)
+	contents_changed.emit()
+	return true
+
+
+## Pindahkan seluruh stack slot tas ke peti. Sisa yang tidak muat tetap di tas.
+func move_from_bag(inventory: InventoryComponent, index: int) -> bool:
+	if inventory == null:
+		return false
+	var stack := inventory.get_slot(index)
+	if stack == null or stack.is_empty():
+		return false
+
+	var leftover := add_item(stack.item, stack.count)
+	var moved := stack.count - leftover
+	if moved <= 0:
+		return false
+	inventory.remove_item(stack.item, moved)
+	return true
+
+
+# --- Internal ---------------------------------------------------------------
+
+func _ensure_slots() -> void:
+	var size := get_capacity()
+	if _slots.size() == size:
+		return
+	_slots.resize(size)
+
+
+func _is_valid_slot(index: int) -> bool:
+	return index >= 0 and index < _slots.size()
+
+
+func _id_of(item: Variant) -> StringName:
+	if item == null:
+		return &""
+	if item is ItemDefinition:
+		return (item as ItemDefinition).id
+	if item is StringName:
+		return item as StringName
+	if item is String:
+		return StringName(item as String)
+	return &""
