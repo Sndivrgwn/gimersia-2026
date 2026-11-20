@@ -12,8 +12,20 @@ extends Node
 
 const PLAYER_GROUP := &"player"
 const INVENTORY_NAME := "InventoryComponent"
-const HINT_OFF := "F2: island debug (tools · teleport zona · lompat pagi)"
-const HINT_ON := "ISLAND DEBUG ON\nF2 off · F3 zona berikutnya · F4 pagi berikutnya"
+const HINT_OFF := "F2: island debug (tools · teleport zona · lompat pagi · kit bahan)"
+const HINT_ON := "ISLAND DEBUG ON\nF2 off · F3 zona berikutnya · F4 pagi berikutnya · F5 kit bahan"
+## Kit uji crafting (item, jumlah). Diberikan lewat add_or_drop supaya perilaku
+## overflow sama dengan gameplay normal.
+const KIT: Array = [
+	[ItemCatalog.WOOD, 30],
+	[ItemCatalog.STONE, 20],
+	[ItemCatalog.FIBER, 20],
+	[ItemCatalog.BAMBOO, 10],
+	[ItemCatalog.BONE, 10],
+	[ItemCatalog.HIDE, 10],
+	[ItemCatalog.RAW_MEAT, 6],
+	[ItemCatalog.BERRY, 6],
+]
 const ZONES: Array[int] = [
 	IslandZones.Zone.CAMP,
 	IslandZones.Zone.SOUTH_BEACH,
@@ -46,6 +58,8 @@ func _process(_delta: float) -> void:
 		_cycle_zone()
 	elif Input.is_action_just_pressed(InputSetup.DEBUG_ISLAND_MORNING):
 		_skip_to_morning()
+	elif Input.is_action_just_pressed(InputSetup.DEBUG_ISLAND_KIT):
+		_grant_kit()
 
 
 func is_debug_enabled() -> bool:
@@ -106,6 +120,16 @@ func _skip_to_morning() -> void:
 		seconds += manager.get_night_duration()
 	manager.skip_time(seconds)
 	print("GatherDebug: lompat %.1f detik ke pagi berikutnya" % seconds)
+
+
+func _grant_kit() -> void:
+	var inventory := _inventory()
+	if inventory == null:
+		push_warning("GatherDebug: InventoryComponent tidak ditemukan; kit tidak diberikan.")
+		return
+	for entry: Array in KIT:
+		inventory.add_or_drop(entry[0], entry[1])
+	print("GatherDebug: kit bahan diberikan (%d jenis)." % KIT.size())
 
 
 func _resolve_player() -> Node:

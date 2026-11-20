@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="Script" path="res://src/levels/island/island.gd" id="1_island"]
 [ext_resource type="PackedScene" path="res://src/entities/player/player.tscn" id="2_player"]
@@ -19,6 +19,9 @@
 [ext_resource type="Script" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="17_pchost"]
 [ext_resource type="Script" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_2d.gd" id="18_pc2d"]
 [ext_resource type="Script" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="19_tween"]
+[ext_resource type="Script" path="res://src/components/crafting/crafting_component.gd" id="20_crafting"]
+[ext_resource type="Script" path="res://src/components/camp/repair_component.gd" id="21_repair"]
+[ext_resource type="PackedScene" path="res://src/levels/camp/camp_controller.tscn" id="22_camp"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
 size = Vector2(5000, 100)
@@ -149,6 +152,12 @@ script = ExtResource("3_inventory")
 [node name="InteractorComponent" type="Node" parent="Player"]
 script = ExtResource("4_interactor")
 
+[node name="CraftingComponent" type="Node" parent="Player"]
+script = ExtResource("20_crafting")
+
+[node name="RepairComponent" type="Node" parent="Player"]
+script = ExtResource("21_repair")
+
 [node name="Camera2D" type="Camera2D" parent="."]
 physics_interpolation_mode = 1
 top_level = true
@@ -172,6 +181,8 @@ tween_resource = SubResource("Resource_tween")
 [node name="IslandBuilder" type="Node2D" parent="."]
 script = ExtResource("5_builder")
 layout = ExtResource("6_layout")
+
+[node name="CampController" parent="." instance=ExtResource("22_camp")]
 
 [node name="DayNightVisual" parent="." instance=ExtResource("9_daynight")]
 

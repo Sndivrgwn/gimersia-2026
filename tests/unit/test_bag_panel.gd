@@ -13,7 +13,7 @@ const TABS_PATH := "Root/Frame/Margin/VBox/Tabs"
 const WEAPON_PATH := "Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Weapon/Value"
 const TOOL_PATH := "Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Tool/Value"
 const ARMOR_PATH := "Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Armor/Value"
-const CRAFTING_LABEL_PATH := "Root/Frame/Margin/VBox/Tabs/Crafting/Label"
+const CRAFTING_TAB_PATH := "Root/Frame/Margin/VBox/Tabs/Crafting"
 
 var player: Player
 var needs: NeedsComponent
@@ -263,15 +263,16 @@ func test_equipment_drops_are_not_accepted() -> void:
 
 # --- Tab Crafting -----------------------------------------------------------
 
-func test_crafting_tab_is_placeholder_only() -> void:
+func test_crafting_tab_hosts_code_built_ui_instead_of_placeholder() -> void:
 	var tabs := panel.get_node(TABS_PATH) as TabContainer
 	assert_eq(tabs.get_tab_count(), 2)
 	assert_eq(tabs.get_tab_title(0), "Tas")
 	assert_eq(tabs.get_tab_title(1), "Crafting")
 
-	var label := panel.get_node(CRAFTING_LABEL_PATH) as Label
-	assert_not_null(label)
-	assert_eq(label.text, "Segera hadir")
+	var tab := panel.get_node(CRAFTING_TAB_PATH) as Control
+	assert_not_null(tab.find_child("CraftingBox", true, false), "isi tab dibuat saat runtime")
+	assert_null(tab.find_child("Label", false, false), "label 'Segera hadir' sudah diganti")
+	assert_true(panel.get_crafting_rows().is_empty(), "tanpa pemain tidak ada baris resep")
 
 
 # --- Helper -----------------------------------------------------------------

@@ -289,7 +289,7 @@ Tampilan: lima kartu slot, masing-masing nomor tombol, nama item (atau `icon` bi
 
 **Cara pakai:** instance `src/ui/panels/inventory/bag_panel.tscn` di scene permainan. CanvasLayer-nya `layer = 20` (di atas HUD `layer = 10`) dan panel tersembunyi secara default. Toggle lewat action Input Map `inventory_toggle` (Tab atau I), ditangani panel sendiri di `_unhandled_input`. Saat panel terbuka, **Esc** (`ui_cancel`) juga menutupnya; Esc tidak membuka panel.
 
-Tab **Tas**: grid 12 slot (`bag_slot.tscn`, minimal 64×64, slot 0-4 diberi nomor hotbar 1-5) plus kolom Peralatan read-only (Senjata, Alat = Kapak Batu/Beliung Batu yang dimiliki, Armor). Tab **Crafting** masih placeholder "Segera hadir"; crafting masuk Step 4.
+Tab **Tas**: grid 12 slot (`bag_slot.tscn`, minimal 64×64, slot 0-4 diberi nomor hotbar 1-5) plus kolom Peralatan read-only (Senjata, Alat = Kapak Batu/Beliung Batu yang dimiliki, Armor). Tab **Crafting**: daftar 13 resep (3 tangan di atas, 10 terkunci di bagian redup "TERKUNCI" dengan nama stasiunnya), teks bahan `punya/butuh` per bahan (merah bila kurang), waktu craft, dan tombol **Craft** per baris. Saat craft berjalan: bar progres, label status ("Membuat …", "Selesai: …", "Batal: …"), dan tombol **Batalkan**. Panel hanya memanggil `CraftingComponent.start_craft()` / `cancel_craft()`; angka dibaca ulang lewat sinyal inventaris + `craft_started/progress/completed/cancelled` + `stations_changed()`.
 
 | Aksi | Efek |
 |---|---|
@@ -383,7 +383,7 @@ memakai `_unhandled_input`.
 | `inventory_toggle` | Tab / I | `BagPanel` (`_unhandled_input`) |
 | `interact` | E (tahan) | `InteractorComponent` — didaftarkan `InputSetup` |
 | `repair` | R (tahan) | `RepairComponent` — didaftarkan `InputSetup` |
-| `debug_island_toggle` / `debug_island_zone` / `debug_island_morning` | F2 / F3 / F4 | `GatherDebug` (island only) — didaftarkan `InputSetup` |
+| `debug_island_toggle` / `debug_island_zone` / `debug_island_morning` / `debug_island_kit` | F2 / F3 / F4 / F5 | `GatherDebug` (island only) — didaftarkan `InputSetup`; F5 memberi kit bahan uji crafting |
 | `ui_cancel` (bawaan) | Esc | `BagPanel` — hanya menutup saat terbuka |
 | `debug_needs_toggle` | F1 | `NeedsDebug` (practice only) |
 | `debug_cycle_hunger` / `debug_cycle_thirst` / `debug_cycle_fatigue` | X / C / V | `NeedsDebug`, sandbox |
@@ -415,7 +415,7 @@ Export: `phantom_camera`, `normal_zoom`, `safe_zone_zoom`, `zoom_duration`, `slo
 D:\Programming\Gamedev\Godot_v4.7.2-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests/unit -gexit
 ```
 
-Tes ada di `tests/unit/`: clock, stats, needs (termasuk override rest), inventory/item, bag panel, interaction, resource node, island, resep, crafting, struktur camp, blueprint slot, campfire, repair, peti, tenda, jaga malam, camp controller. Saat ini **275/275 tes lulus** (1809 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
+Tes ada di `tests/unit/`: clock, stats, needs (termasuk override rest), inventory/item, bag panel, crafting panel, item slot store, interaction, resource node, island, resep, crafting, struktur camp, blueprint slot, campfire, repair, peti, tenda, jaga malam, camp controller. Saat ini **289/289 tes lulus** (1899 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
 
 **Sandbox manual** (`tests/sandbox/stats_sandbox.tscn`) untuk mencoba stat dan needs tanpa main game:
 
@@ -600,12 +600,15 @@ Island (Node2D, island.gd: pemain menghadap utara)
 ├── RiverEdges (9 RiverEdge, x=-950, y -1400..1400 tiap 350)
 ├── Player (group "player", (0,64))
 │   ├── InventoryComponent
-│   └── InteractorComponent
+│   ├── InteractorComponent
+│   ├── CraftingComponent
+│   └── RepairComponent
 ├── Camera2D + PhantomCameraHost + PhantomCamera2D (follow Player, zoom 3)
 ├── IslandBuilder (layout = island_layout.tres)
+├── CampController (4 blueprint slot + NightWatchController)
 ├── DayNightVisual
 ├── TimeHUD / NeedsHUD / StatsHUD / HotbarHUD / InteractionHUD / BagPanel
-└── GatherDebug (F2 tools, F3 zona berikutnya, F4 pagi berikutnya)
+└── GatherDebug (F2 tools, F3 zona berikutnya, F4 pagi berikutnya, F5 kit bahan)
 ```
 
 `island.tscn` **bukan** main scene; `run/main_scene` tetap `practice1.tscn`.
@@ -616,9 +619,9 @@ sama seperti `practice1.tscn`.
 
 ## 25. `RecipeDefinition` + `CraftingComponent` — logika crafting
 
-**Gunanya:** data resep + menjalankan satu craft pada satu waktu. Belum ada
-scene stasiun, blueprint, atau UI crafting; komponen ini sudah bisa dipakai
-tes dan siap dipasang ke instance Player di scene.
+**Gunanya:** data resep + menjalankan satu craft pada satu waktu. Sudah dipasang
+di `island.tscn` (node `CraftingComponent` di bawah Player) dan ditampilkan di
+tab Crafting `BagPanel`.
 
 **Data resep:** 13 file `.tres` di `src/data/recipes/`, dibuat lewat generator
 (bukan ditulis tangan, supaya referensi item/uids benar):
@@ -674,7 +677,14 @@ CAMPFIRE butuh Campfire yang menyala.
 
 **Sinyal:** `craft_started(recipe)`, `craft_progress(ratio)`,
 `craft_completed(recipe)`, `craft_cancelled(recipe, reason)`,
-`crafted(recipe, count)` (hook XP, belum ada XP).
+`crafted(recipe, count)` (hook XP, belum ada XP), `stations_changed()`
+(stasiun dalam jangkauan berubah; UI memakai ini untuk membuka/mengunci resep).
+
+**Helper biaya bersama:** `ItemAmount.has_all(amounts, inventory)`,
+`ItemAmount.consume_all(amounts, inventory)` (cek semua dulu, lalu refund bila
+ada yang gagal), `without_weapon_slot(amounts)`, `weapon_slot_amounts(amounts)`.
+Dipakai `CraftingComponent`, `BlueprintSlot._consume_cost()` dan
+`RepairComponent._consume_cost()` — jangan menulis loop cek/konsumsi sendiri.
 
 **Jangan:** menyimpan state craft di UI, atau memberi makan `crafted` dengan XP
 sebelum sistem Proficiency ada.

@@ -20,16 +20,13 @@ signal craft_completed(recipe: RecipeDefinition)
 signal craft_cancelled(recipe: RecipeDefinition, reason: String)
 ## Hook XP masa depan (belum ada XP). Dipancarkan setelah craft_completed.
 signal crafted(recipe: RecipeDefinition, count: int)
+## Stasiun dalam jangkauan berubah (dibangun, hancur, menyala, atau pemain
+## bergerak masuk/keluar). Dipakai UI untuk menyegarkan daftar resep.
+signal stations_changed()
 
 const STATION_GROUP := &"crafting_station"
 const PLAYER_GROUP := &"player"
 const CRAFT_STATION_RANGE := 140.0
-const MOVE_ACTIONS: Array[StringName] = [
-	&"move_left",
-	&"move_right",
-	&"move_up",
-	&"move_down",
-]
 const REASON_MOVED := "Bergerak"
 const REASON_DAMAGED := "Terkena serangan"
 const REASON_STATION_LOST := "Stasiun hilang"
@@ -72,6 +69,7 @@ var _duration: float = 0.0
 var _last_ratio: float = 0.0
 var _hp_at_start: float = -1.0
 var _loaded: bool = false
+var _station_key: String = ""
 
 
 func _ready() -> void:
@@ -174,20 +172,12 @@ func can_craft(recipe: RecipeDefinition) -> bool:
 
 ## Bahan lengkap, termasuk bahan yang diambil dari slot WEAPON.
 func has_ingredients(recipe: RecipeDefinition) -> bool:
-	if recipe == null:
+	if recipe == null or inventory == null:
 		return false
-	if inventory == null:
-		return false
-	for amount in recipe.ingredients:
-		if amount == null or amount.item == null or amount.count <= 0:
-			continue
-		if amount.item.equipment_slot == ItemDefinition.EquipmentSlot.WEAPON:
-			if not _weapon_matches(amount.item):
-				return false
-			continue
-		if not inventory.has_item(amount.item, amount.count):
+	for amount in ItemAmount.weapon_slot_amounts(recipe.ingredients):
+		if not _weapon_matches(amount.item):
 			return false
-	return true
+	return ItemAmount.has_all(ItemAmount.without_weapon_slot(recipe.ingredients), inventory)
 
 
 ## Jumlah bahan yang dimiliki untuk UI ("have/need").
@@ -228,9 +218,10 @@ func cancel_craft(reason: String = "") -> void:
 
 ## Satu tick. _process() hanya memanggil ini supaya tes deterministik.
 func tick(delta: float) -> void:
+	_refresh_station_key()
 	if _recipe == null or delta <= 0.0:
 		return
-	if input_enabled and _movement_pressed():
+	if input_enabled and InputSetup.is_movement_pressed():
 		cancel_craft(REASON_MOVED)
 		return
 	if _hp_dropped():
@@ -336,16 +327,11 @@ func _weapon_matches(item: ItemDefinition) -> bool:
 func _consume_ingredients(recipe: RecipeDefinition) -> bool:
 	if inventory == null or not has_ingredients(recipe):
 		return false
-	# Semua bahan sudah dicek, jadi pengurangan di bawah ini tidak bisa gagal
-	# di tengah jalan untuk bahan tas (remove_item atomik per item).
-	for amount in recipe.ingredients:
-		if amount == null or amount.item == null or amount.count <= 0:
-			continue
-		if amount.item.equipment_slot == ItemDefinition.EquipmentSlot.WEAPON:
-			inventory.unequip(ItemDefinition.EquipmentSlot.WEAPON)
-			continue
-		if not inventory.remove_item(amount.item, amount.count):
-			return false
+	# Bahan tas lewat helper bersama; bahan senjata dilepas dari slot WEAPON.
+	if not ItemAmount.consume_all(ItemAmount.without_weapon_slot(recipe.ingredients), inventory):
+		return false
+	for _amount in ItemAmount.weapon_slot_amounts(recipe.ingredients):
+		inventory.unequip(ItemDefinition.EquipmentSlot.WEAPON)
 	return true
 
 
@@ -397,8 +383,24 @@ func _hp_dropped() -> bool:
 	return stats.current_hp < _hp_at_start - 0.0001
 
 
-func _movement_pressed() -> bool:
-	for action in MOVE_ACTIONS:
-		if Input.is_action_pressed(action):
-			return true
-	return false
+## Kunci stasiun dalam jangkauan; berubah -> pancarkan `stations_changed`.
+func _refresh_station_key() -> void:
+	var parts := PackedStringArray()
+	var tree := get_tree()
+	if tree != null:
+		var origin := _origin()
+		for node in tree.get_nodes_in_group(STATION_GROUP):
+			if not _is_station_usable(node):
+				continue
+			var station := node as Node2D
+			if station == null:
+				continue
+			if origin.distance_to(station.global_position) > station_range:
+				continue
+			parts.append("%d:%d" % [int(node.station_type), node.get_instance_id()])
+	parts.sort()
+	var key := ",".join(parts)
+	if key == _station_key:
+		return
+	_station_key = key
+	stations_changed.emit()

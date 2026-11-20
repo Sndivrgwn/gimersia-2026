@@ -183,21 +183,7 @@ func _complete(structure: CampStructure) -> void:
 
 
 func _consume_cost(definition: StructureDefinition) -> bool:
-	if inventory == null:
-		return false
-	if not _has_cost_for(definition):
-		return false
-
-	var consumed: Array[ItemAmount] = []
-	for amount in definition.repair_cost:
-		if amount == null or amount.item == null or amount.count <= 0:
-			continue
-		if not inventory.remove_item(amount.item, amount.count):
-			for paid in consumed:
-				inventory.add_or_drop(paid.item, paid.count)
-			return false
-		consumed.append(amount)
-	return true
+	return ItemAmount.consume_all(definition.repair_cost, inventory)
 
 
 func _has_cost(structure: CampStructure) -> bool:
@@ -206,14 +192,7 @@ func _has_cost(structure: CampStructure) -> bool:
 
 
 func _has_cost_for(definition: StructureDefinition) -> bool:
-	if inventory == null:
-		return false
-	for amount in definition.repair_cost:
-		if amount == null or amount.item == null or amount.count <= 0:
-			continue
-		if not inventory.has_item(amount.item, amount.count):
-			return false
-	return true
+	return ItemAmount.has_all(definition.repair_cost, inventory)
 
 
 func _emit_blocked(structure: CampStructure, reason: String) -> void:

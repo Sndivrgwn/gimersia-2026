@@ -11,6 +11,8 @@ extends CanvasLayer
 
 const PLAYER_GROUP := &"player"
 const INVENTORY_NAME := "InventoryComponent"
+const CRAFTING_NAME := "CraftingComponent"
+const CRAFTING_TAB_PATH := "Root/Frame/Margin/VBox/Tabs/Crafting"
 const TOGGLE_ACTION := &"inventory_toggle"
 ## Esc hanya menutup panel; tidak membukanya.
 const CLOSE_ACTION := &"ui_cancel"
@@ -26,6 +28,8 @@ const TOOL_ITEMS: Array[ItemDefinition] = [
 
 ## Opsional; bila kosong dicari lewat grup "player" -> InventoryComponent.
 @export var inventory: InventoryComponent
+## Opsional; bila kosong dicari lewat grup "player" -> CraftingComponent.
+@export var crafting_component: CraftingComponent
 ## Buka panel saat scene mulai (default: tersembunyi).
 @export var open_on_start: bool = false
 
@@ -37,6 +41,12 @@ const TOOL_ITEMS: Array[ItemDefinition] = [
 @onready var _armor_value: Label = $Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Armor/Value
 
 var _slots: Array[BagSlot] = []
+var _crafting_tab: Control
+var _crafting_list: VBoxContainer
+var _crafting_progress: ProgressBar
+var _crafting_status: Label
+var _crafting_cancel: Button
+var _crafting_rows: Array[CraftingRow] = []
 
 
 func _ready() -> void:
@@ -54,6 +64,13 @@ func _ready() -> void:
 		_connect_inventory()
 
 	refresh()
+
+	if crafting_component == null:
+		crafting_component = _find_crafting_component()
+	_build_crafting_tab()
+	_connect_crafting()
+	refresh_crafting()
+
 	_apply_visible(open_on_start)
 
 
@@ -169,13 +186,14 @@ func _owned_tools_text() -> String:
 
 
 func _on_slot_changed(index: int) -> void:
-	if index < 0 or index >= _slots.size():
-		return
-	_slots[index].refresh()
+	if index >= 0 and index < _slots.size():
+		_slots[index].refresh()
+	_refresh_crafting_rows()
 
 
 func _on_equipment_changed(_slot: int) -> void:
 	_refresh_equipment()
+	_refresh_crafting_rows()
 
 
 func _on_inventory_changed() -> void:
@@ -190,3 +208,182 @@ func _find_inventory() -> InventoryComponent:
 	if candidate == null:
 		return null
 	return candidate.get_node_or_null(INVENTORY_NAME) as InventoryComponent
+
+
+# --- Tab Crafting -----------------------------------------------------------
+
+func get_crafting_rows() -> Array[CraftingRow]:
+	return _crafting_rows
+
+
+func get_crafting_status_text() -> String:
+	return "" if _crafting_status == null else _crafting_status.text
+
+
+func get_crafting_progress() -> ProgressBar:
+	return _crafting_progress
+
+
+## Batalkan craft yang sedang berjalan (tombol "Batalkan" dan tes).
+func cancel_current_craft() -> void:
+	if crafting_component == null:
+		return
+	crafting_component.cancel_craft("Dibatalkan")
+
+
+func _find_crafting_component() -> CraftingComponent:
+	var tree := get_tree()
+	if tree == null:
+		return null
+	var candidate := tree.get_first_node_in_group(PLAYER_GROUP)
+	if candidate == null:
+		return null
+	return candidate.get_node_or_null(CRAFTING_NAME) as CraftingComponent
+
+
+func _build_crafting_tab() -> void:
+	if _crafting_tab != null:
+		return
+	_crafting_tab = get_node_or_null(CRAFTING_TAB_PATH) as Control
+	if _crafting_tab == null:
+		return
+
+	for child in _crafting_tab.get_children():
+		_crafting_tab.remove_child(child)
+		child.free()
+
+	var vbox := VBoxContainer.new()
+	vbox.name = "CraftingBox"
+	vbox.add_theme_constant_override("separation", 8)
+	_crafting_tab.add_child(vbox)
+
+	_crafting_status = Label.new()
+	_crafting_status.name = "Status"
+	_crafting_status.add_theme_font_size_override("font_size", 12)
+	_crafting_status.add_theme_color_override("font_color", Color(0.9, 0.86, 0.66, 1.0))
+	vbox.add_child(_crafting_status)
+
+	_crafting_progress = ProgressBar.new()
+	_crafting_progress.name = "Progress"
+	_crafting_progress.max_value = 1.0
+	_crafting_progress.value = 0.0
+	_crafting_progress.show_percentage = false
+	_crafting_progress.custom_minimum_size = Vector2(0, 10)
+	_crafting_progress.visible = false
+	vbox.add_child(_crafting_progress)
+
+	_crafting_cancel = Button.new()
+	_crafting_cancel.name = "Cancel"
+	_crafting_cancel.text = "Batalkan"
+	_crafting_cancel.visible = false
+	_crafting_cancel.custom_minimum_size = Vector2(90, 24)
+	_crafting_cancel.pressed.connect(_on_crafting_cancel_pressed)
+	vbox.add_child(_crafting_cancel)
+
+	var scroll := ScrollContainer.new()
+	scroll.name = "Scroll"
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.custom_minimum_size = Vector2(0, 250)
+	vbox.add_child(scroll)
+
+	_crafting_list = VBoxContainer.new()
+	_crafting_list.name = "Rows"
+	_crafting_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_crafting_list.add_theme_constant_override("separation", 4)
+	scroll.add_child(_crafting_list)
+
+
+func _connect_crafting() -> void:
+	if crafting_component == null:
+		return
+	crafting_component.craft_started.connect(_on_craft_started)
+	crafting_component.craft_progress.connect(_on_craft_progress)
+	crafting_component.craft_completed.connect(_on_craft_completed)
+	crafting_component.craft_cancelled.connect(_on_craft_cancelled)
+	crafting_component.stations_changed.connect(_on_stations_changed)
+
+
+## Bangun ulang daftar resep: tersedia dulu, lalu bagian "TERKUNCI" yang redup.
+func refresh_crafting() -> void:
+	if _crafting_list == null:
+		return
+
+	for child in _crafting_list.get_children():
+		_crafting_list.remove_child(child)
+		child.free()
+	_crafting_rows.clear()
+
+	if crafting_component == null:
+		_crafting_status.text = "Crafting tidak tersedia (CraftingComponent tidak ditemukan)."
+		return
+
+	for recipe in crafting_component.get_available_recipes():
+		_add_crafting_row(recipe, false)
+
+	var locked := crafting_component.get_locked_recipes()
+	if not locked.is_empty():
+		var header := Label.new()
+		header.text = "TERKUNCI"
+		header.add_theme_font_size_override("font_size", 10)
+		header.add_theme_color_override("font_color", Color(0.72, 0.78, 0.72, 1.0))
+		_crafting_list.add_child(header)
+		for recipe in locked:
+			_add_crafting_row(recipe, true)
+
+	# Status terakhir ("Selesai"/"Batal") dipertahankan sampai aksi berikutnya.
+	if not crafting_component.is_crafting():
+		_crafting_progress.visible = false
+		_crafting_cancel.visible = false
+
+
+func _add_crafting_row(recipe: RecipeDefinition, locked: bool) -> void:
+	var row := CraftingRow.new()
+	row.setup(recipe, crafting_component, inventory, locked)
+	_crafting_list.add_child(row)
+	_crafting_rows.append(row)
+
+
+func _refresh_crafting_rows() -> void:
+	for row in _crafting_rows:
+		row.refresh()
+
+
+func _on_crafting_cancel_pressed() -> void:
+	cancel_current_craft()
+
+
+func _on_craft_started(recipe: RecipeDefinition) -> void:
+	_crafting_status.text = "Membuat %s..." % recipe.display_name
+	_crafting_progress.value = 0.0
+	_crafting_progress.visible = true
+	_crafting_cancel.visible = true
+	_refresh_crafting_rows()
+
+
+func _on_craft_progress(ratio: float) -> void:
+	if _crafting_progress == null:
+		return
+	_crafting_progress.value = clampf(ratio, 0.0, 1.0)
+	_crafting_progress.visible = true
+
+
+func _on_craft_completed(recipe: RecipeDefinition) -> void:
+	_crafting_status.text = "Selesai: %s" % recipe.display_name
+	_crafting_progress.value = 0.0
+	_crafting_progress.visible = false
+	_crafting_cancel.visible = false
+	refresh_crafting()
+
+
+func _on_craft_cancelled(recipe: RecipeDefinition, reason: String) -> void:
+	var suffix := "" if reason.is_empty() else " (%s)" % reason
+	_crafting_status.text = "Batal: %s%s" % [recipe.display_name, suffix]
+	_crafting_progress.value = 0.0
+	_crafting_progress.visible = false
+	_crafting_cancel.visible = false
+	refresh_crafting()
+
+
+func _on_stations_changed() -> void:
+	if is_open():
+		refresh_crafting()

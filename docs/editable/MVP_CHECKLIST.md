@@ -28,7 +28,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 | Survival needs | Ada | Komponen + HUD + 27 tes (termasuk plafon Fatigue, regen diam); konsumsi item lewat `use_slot()` sudah ada (efek instan). Rest Campfire dan tidur Tenda belum |
 | Inventory & gathering | Sebagian | Inventory 12 slot + hotbar 1-5, definisi item, pickup, efek makan/minum, bag UI (Tab/I, drag-drop, klik kanan, tooltip), hold-E interaction, dan 8 resource node + respawn/tool gate ada (23 tes inventory, 17 bag panel, 13 interaction, 14 resource node); crafting dan drop saat mati belum |
 | Peta pulau | Minimum | `src/levels/island/island.tscn` (placeholder): zona sesuai spec §7.7, 139 node resource, 16 marker night spawn (tanpa spawner), wreckage, koper darurat, beacon placeholder, 9 river edge. Art produksi dan level loader belum |
-| Crafting & camp | Sebagian | 13 resep + `CraftingComponent`, 4 definisi struktur, `CampStructure`/`BlueprintSlot`/`Campfire`/`Workbench`/`Chest`/`Tent`, repair hold-R, Night Watch, dan `CampController` ada dan teruji; UI crafting, panel Peti, dan pemasangan di `island.tscn` belum |
+| Crafting & camp | Sebagian | 13 resep + `CraftingComponent`, tab Crafting di `BagPanel`, 4 definisi struktur, `CampStructure`/`BlueprintSlot`/`Campfire`/`Workbench`/`Chest`/`Tent`, repair hold-R, Night Watch, dan `CampController` (terpasang di `island.tscn`) ada dan teruji; panel Peti belum |
 | Combat & enemy | Belum | Belum ada attack, AI, spawn, scaling malam |
 | Night survival loop | Belum | Timer malam ada di HUD, tetapi belum ada gelombang ancaman |
 | Death & respawn | Belum | Belum ada death screen, drop item, debuff |
@@ -155,7 +155,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
   - `ItemPickup` memasukkan item ke `InventoryComponent` saat disentuh body grup `player`, mengabaikan overlap selama `pickup_delay`, dan menyisakan yang tidak muat; dicek tes dan dipasang di `DemoPickups` `practice1.tscn`.
   - Resource node (hold E) juga ada: `ResourceNode` + `InteractorComponent` di `tests/unit/test_resource_node.gd`.
 - [x] UI inventory sederhana.
-  - Hotbar 5 slot (`HotbarHUD`) dan panel tas 12 slot + kolom equipment (Tab/I, drag-drop, klik kanan pakai, tooltip) ada; tab Crafting masih placeholder (Step 4).
+  - Hotbar 5 slot (`HotbarHUD`) dan panel tas 12 slot + kolom equipment (Tab/I, drag-drop, klik kanan pakai, tooltip) ada; tab Crafting menampilkan 13 resep dengan bahan `punya/butuh` dan progres craft.
 - [ ] Item drop di lokasi kematian.
 - [ ] Pengambilan kembali item drop.
 - [ ] Item Suar Darurat.
@@ -196,8 +196,8 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
   - Stone Axe, Stone Pickaxe, Stone Spear, Bone Spear, Leather Vest, Waterskin, Signal Flare; Stone/Bone Spear mengambil Wooden Spear dari slot WEAPON.
 - [x] Resep Campfire MVP.
   - Cooked Meat, Boiled Water, Bone Broth; datanya ada, tetapi eksekusinya masih menunggu scene Campfire yang menyala.
-- [ ] UI crafting.
-  - Tab Crafting di `BagPanel` masih placeholder; logika `CraftingComponent` sudah siap dipakai.
+- [x] UI crafting.
+  - Tab Crafting di `BagPanel`: 3 resep tangan aktif sesuai bahan, 10 resep terkunci redup dengan nama stasiun, teks bahan `punya/butuh` (merah bila kurang), tombol Craft, bar progres, status, dan Batalkan; dibuktikan `tests/unit/test_crafting_panel.gd` (8 tes). `CraftingComponent` dan `RepairComponent` terpasang di Player `island.tscn`, `CampController` ada di scene, F5 memberi kit bahan uji.
 - [x] Workbench sebagai struktur camp.
   - `Workbench` (grup `crafting_station`, `station_type` WORKBENCH, selalu aktif) + `workbench.tres`; dibangun lewat `BlueprintSlot`, dibuktikan `tests/unit/test_blueprint_slot.gd`.
 - [x] Campfire dengan fuel dan radius cahaya.
@@ -399,7 +399,7 @@ Jalankan setelah modul inti tersedia. Centang hanya jika seluruh langkah berhasi
 3. **[Selesai] `set_time_scale(-1)` reset ke config.** Nilai negatif mengembalikan `DayNightConfig.time_scale`; `0.0` tetap override nyata untuk freeze final dawn.
 4. **`phase_changed` tidak membawa `day`.** Jangan ubah sinyal lama; tambahkan sinyal baru bila perlu.
 5. **[Selesai] GUT 9.7.1 terpasang.** Tes clock/stats sudah dijalankan lewat GUT command line.
-6. **[Sebagian] Modul inti belum lengkap.** Needs (komponen + HUD + 27 tes), inventory (12 slot + hotbar + equipment, 23 tes), bag panel (17 tes), gathering (8 resource node + hold-E, 14 tes), peta pulau minimum, crafting (13 resep + `CraftingComponent`), struktur camp (Campfire/Workbench/BlueprintSlot + repair + rest, Peti 24 slot, Tenda tidur, Night Watch, `CampController`) sudah ada; UI crafting, panel Peti, combat, enemy, death, menu, audio, victory belum.
+6. **[Sebagian] Modul inti belum lengkap.** Needs (komponen + HUD + 27 tes), inventory (12 slot + hotbar + equipment, 23 tes), bag panel (17 tes), gathering (8 resource node + hold-E, 14 tes), peta pulau minimum, crafting (13 resep + `CraftingComponent` + tab Crafting), struktur camp (Campfire/Workbench/BlueprintSlot + repair + rest, Peti 24 slot, Tenda tidur, Night Watch, `CampController` terpasang di `island.tscn`) sudah ada; panel Peti, combat, enemy, death, menu, audio, victory belum.
 7. **`get_time_scale()` berubah saat final dawn.** Modul survival harus memakai getter ini agar ikut berhenti.
 8. **`SafeZone` masih practice-only.** Jangan anggap ini sistem camp produksi.
 

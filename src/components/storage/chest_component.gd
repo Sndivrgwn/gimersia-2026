@@ -56,28 +56,15 @@ func is_slot_empty(index: int) -> bool:
 
 
 func is_empty() -> bool:
-	for stack in _slots:
-		if stack != null and not stack.is_empty():
-			return false
-	return true
+	return ItemSlotStore.is_empty(_slots)
 
 
 func is_full() -> bool:
-	for stack in _slots:
-		if stack == null or stack.is_empty():
-			return false
-	return true
+	return ItemSlotStore.is_full(_slots)
 
 
 func count_of(item: Variant) -> int:
-	var id := _id_of(item)
-	if id == &"":
-		return 0
-	var total := 0
-	for stack in _slots:
-		if stack != null and stack.item != null and stack.item.id == id:
-			total += stack.count
-	return total
+	return ItemSlotStore.count_of(_slots, item)
 
 
 # --- Write API --------------------------------------------------------------
@@ -88,35 +75,10 @@ func add_item(item: ItemDefinition, count: int = 1) -> int:
 		return maxi(count, 0)
 	_ensure_slots()
 
-	var remaining := count
-	var stack_max := maxi(item.max_stack, 1)
 	var touched: Array[int] = []
+	var remaining := ItemSlotStore.add(_slots, item, count, touched)
 
-	for index in _slots.size():
-		if remaining <= 0:
-			break
-		var stack := _slots[index]
-		if stack == null or stack.item == null or stack.item.id != item.id:
-			continue
-		var space := stack_max - stack.count
-		if space <= 0:
-			continue
-		var moved := mini(remaining, space)
-		stack.count += moved
-		remaining -= moved
-		touched.append(index)
-
-	for index in _slots.size():
-		if remaining <= 0:
-			break
-		if _slots[index] != null and not _slots[index].is_empty():
-			continue
-		var moved := mini(remaining, stack_max)
-		_slots[index] = ItemStack.new(item, moved)
-		remaining -= moved
-		touched.append(index)
-
-	if remaining == count:
+	if touched.is_empty():
 		return remaining
 	for index in touched:
 		slot_changed.emit(index)
@@ -128,27 +90,10 @@ func add_item(item: ItemDefinition, count: int = 1) -> int:
 func remove_item(item: Variant, count: int = 1) -> bool:
 	if count <= 0:
 		return false
-	var id := _id_of(item)
-	if id == &"":
-		return false
 	_ensure_slots()
-	if count_of(id) < count:
-		return false
-
-	var remaining := count
 	var touched: Array[int] = []
-	for index in range(_slots.size() - 1, -1, -1):
-		if remaining <= 0:
-			break
-		var stack := _slots[index]
-		if stack == null or stack.item == null or stack.item.id != id:
-			continue
-		var taken := mini(remaining, stack.count)
-		stack.count -= taken
-		remaining -= taken
-		if stack.count <= 0:
-			_slots[index] = null
-		touched.append(index)
+	if not ItemSlotStore.remove(_slots, item, count, touched):
+		return false
 
 	for index in touched:
 		slot_changed.emit(index)
@@ -159,12 +104,9 @@ func remove_item(item: Variant, count: int = 1) -> bool:
 ## Kosongkan peti (dipakai saat hancur setelah isinya dijatuhkan).
 func clear() -> void:
 	_ensure_slots()
-	var changed := false
-	for index in _slots.size():
-		if _slots[index] == null:
-			continue
-		_slots[index] = null
-		changed = true
+	var touched: Array[int] = []
+	var changed := ItemSlotStore.clear(_slots, touched)
+	for index in touched:
 		slot_changed.emit(index)
 	if changed:
 		contents_changed.emit()
@@ -209,23 +151,9 @@ func move_from_bag(inventory: InventoryComponent, index: int) -> bool:
 # --- Internal ---------------------------------------------------------------
 
 func _ensure_slots() -> void:
-	var size := get_capacity()
-	if _slots.size() == size:
-		return
-	_slots.resize(size)
+	ItemSlotStore.ensure_size(_slots, get_capacity())
 
 
 func _is_valid_slot(index: int) -> bool:
 	return index >= 0 and index < _slots.size()
 
-
-func _id_of(item: Variant) -> StringName:
-	if item == null:
-		return &""
-	if item is ItemDefinition:
-		return (item as ItemDefinition).id
-	if item is StringName:
-		return item as StringName
-	if item is String:
-		return StringName(item as String)
-	return &""

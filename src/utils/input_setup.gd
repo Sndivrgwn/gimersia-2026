@@ -20,8 +20,18 @@ const REPAIR := &"repair"
 const DEBUG_ISLAND_TOGGLE := &"debug_island_toggle"
 const DEBUG_ISLAND_ZONE := &"debug_island_zone"
 const DEBUG_ISLAND_MORNING := &"debug_island_morning"
+## F5: beri kit bahan uji crafting (island only).
+const DEBUG_ISLAND_KIT := &"debug_island_kit"
 
 ## Tombol 1-5 memakai slot hotbar InventoryComponent.
+## Action gerak; dipakai Player, dan oleh komponen yang membatalkan aksi saat
+## pemain bergerak (CraftingComponent, NightWatchController).
+const MOVE_ACTIONS: Array[StringName] = [
+	&"move_left",
+	&"move_right",
+	&"move_up",
+	&"move_down",
+]
 const HOTBAR_ACTIONS: Array[StringName] = [
 	&"hotbar_1",
 	&"hotbar_2",
@@ -71,10 +81,20 @@ static func ensure_actions() -> void:
 	_ensure_key(DEBUG_ISLAND_ZONE, KEY_F3)
 	_ensure_action(DEBUG_ISLAND_MORNING)
 	_ensure_key(DEBUG_ISLAND_MORNING, KEY_F4)
+	_ensure_action(DEBUG_ISLAND_KIT)
+	_ensure_key(DEBUG_ISLAND_KIT, KEY_F5)
 
 	for index in HOTBAR_ACTIONS.size():
 		_ensure_action(HOTBAR_ACTIONS[index])
 		_ensure_key(HOTBAR_ACTIONS[index], HOTBAR_KEYS[index])
+
+
+## True bila salah satu action gerak sedang ditekan (polling, bukan event).
+static func is_movement_pressed() -> bool:
+	for action in MOVE_ACTIONS:
+		if Input.is_action_pressed(action):
+			return true
+	return false
 
 
 static func _ensure_action(action: StringName) -> void:

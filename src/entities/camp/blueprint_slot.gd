@@ -159,36 +159,16 @@ func _refresh_placeholder() -> void:
 
 
 func _has_cost(interactor: Node) -> bool:
-	var inventory := _inventory_of(interactor)
-	if inventory == null or definition == null:
+	if definition == null:
 		return false
-	for amount in definition.build_cost:
-		if amount == null or amount.item == null or amount.count <= 0:
-			continue
-		if not inventory.has_item(amount.item, amount.count):
-			return false
-	return true
+	return ItemAmount.has_all(definition.build_cost, _inventory_of(interactor))
 
 
-## Cek dulu semuanya, baru kurangi; bila ada yang gagal di tengah, bahan yang
-## sudah terlanjur diambil dikembalikan.
+## Cek dulu semuanya, baru kurangi atomik lewat helper bersama.
 func _consume_cost(interactor: Node) -> bool:
-	var inventory := _inventory_of(interactor)
-	if inventory == null or definition == null:
+	if definition == null:
 		return false
-	if not _has_cost(interactor):
-		return false
-
-	var consumed: Array[ItemAmount] = []
-	for amount in definition.build_cost:
-		if amount == null or amount.item == null or amount.count <= 0:
-			continue
-		if not inventory.remove_item(amount.item, amount.count):
-			for paid in consumed:
-				inventory.add_or_drop(paid.item, paid.count)
-			return false
-		consumed.append(amount)
-	return true
+	return ItemAmount.consume_all(definition.build_cost, _inventory_of(interactor))
 
 
 func _inventory_of(interactor: Node) -> InventoryComponent:

@@ -14,12 +14,6 @@ extends Node
 signal watch_started
 signal watch_stopped(reason: String)
 
-const MOVE_ACTIONS: Array[StringName] = [
-	&"move_left",
-	&"move_right",
-	&"move_up",
-	&"move_down",
-]
 const REASON_DAY := "Hanya saat malam"
 const REASON_NO_FIRE := "Butuh Api Unggun menyala"
 const REASON_MOVED := "Bergerak"
@@ -63,7 +57,7 @@ func _process(delta: float) -> void:
 func tick(_delta: float) -> void:
 	if not _active:
 		return
-	if input_enabled and _movement_pressed():
+	if input_enabled and InputSetup.is_movement_pressed():
 		stop(REASON_MOVED)
 		return
 	if clock == null or not clock.is_night():
@@ -126,13 +120,6 @@ func toggle() -> bool:
 
 
 # --- Internal ---------------------------------------------------------------
-
-func _movement_pressed() -> bool:
-	for action in MOVE_ACTIONS:
-		if Input.is_action_pressed(action):
-			return true
-	return false
-
 
 func _resolve_fire() -> Campfire:
 	if camp != null:
