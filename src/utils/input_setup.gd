@@ -13,7 +13,10 @@ const SPRINT := &"sprint"
 const INVENTORY_TOGGLE := &"inventory_toggle"
 ## Hold E untuk gather/bangun/loot/beacon (InteractorComponent).
 const INTERACT := &"interact"
-## Debug khusus island (GatherDebug): F2 aktifkan, F3 zona berikutnya, F4 pagi berikutnya.
+## Hold R untuk memperbaiki struktur camp (RepairComponent).
+const REPAIR := &"repair"
+## Debug khusus island (GatherDebug): F2 aktifkan, F3 zona berikutnya, F4 pagi berikutnya,
+## F5 kit uji bahan crafting.
 const DEBUG_ISLAND_TOGGLE := &"debug_island_toggle"
 const DEBUG_ISLAND_ZONE := &"debug_island_zone"
 const DEBUG_ISLAND_MORNING := &"debug_island_morning"
@@ -58,6 +61,9 @@ static func ensure_actions() -> void:
 
 	_ensure_action(INTERACT)
 	_ensure_key(INTERACT, KEY_E)
+
+	_ensure_action(REPAIR)
+	_ensure_key(REPAIR, KEY_R)
 
 	_ensure_action(DEBUG_ISLAND_TOGGLE)
 	_ensure_key(DEBUG_ISLAND_TOGGLE, KEY_F2)

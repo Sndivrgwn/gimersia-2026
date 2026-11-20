@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_iwlkm"]
+[ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_pqal6"]
+[ext_resource type="Resource" path="res://src/data/items/stone.tres" id="3_bn3u0"]
+[ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="4_8s6qw"]
+[ext_resource type="Resource" path="res://src/data/items/stone_pickaxe.tres" id="5_ytu0i"]
+[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="6_o0rnx"]
+
+[sub_resource type="Resource" id="Resource_qxkbs"]
+script = ExtResource("1_iwlkm")
+item = ExtResource("2_pqal6")
+count = 2
+
+[sub_resource type="Resource" id="Resource_wypvw"]
+script = ExtResource("1_iwlkm")
+item = ExtResource("3_bn3u0")
+count = 3
+
+[sub_resource type="Resource" id="Resource_eqrym"]
+script = ExtResource("1_iwlkm")
+item = ExtResource("4_8s6qw")
+
+[resource]
+script = ExtResource("6_o0rnx")
+id = &"stone_pickaxe"
+display_name = "Beliung Batu"
+result = ExtResource("5_ytu0i")
+ingredients = Array[ExtResource("1_iwlkm")]([SubResource("Resource_qxkbs"), SubResource("Resource_wypvw"), SubResource("Resource_eqrym")])
+station = 1
+craft_time = 2.5

@@ -1,0 +1,289 @@
+class_name Campfire
+extends CampStructure
+
+## Api unggun: bahan bakar, cahaya, refuel, dan bonus rest.
+##
+## Bahan bakar dihitung dalam detik game: `day_drain`/`night_drain` dikali
+## `DayNightManager.get_time_scale()` (0 saat final dawn membekukan fuel).
+## Clock bisa di-inject lewat `clock` untuk tes.
+##
+## Menyala = fuel > 0. Saat habis, api menjadi ember (cahaya 80 px) dan
+## `fuel_depleted` dipancarkan; struktur tetap berdiri sampai dihancurkan.
+##
+## Bonus rest: pemain dalam `rest_radius` mendapat override idle regen
+## `&"campfire"` sebesar `rest_regen`, dicek tiap `rest_check_interval`.
+
+signal fuel_changed(seconds: float)
+signal lit_changed(is_lit: bool)
+signal fuel_depleted
+
+const STATION_GROUP := &"crafting_station"
+const STATION_TYPE := RecipeDefinition.Station.CAMPFIRE
+const PLAYER_GROUP := &"player"
+const NEEDS_NAME := "NeedsComponent"
+const REST_SOURCE := &"campfire"
+
+## Tuning. Null berarti memakai CampfireConfig() bawaan.
+@export var config: CampfireConfig
+## Opsional; default autoload DayNightManager.
+@export var clock: Node
+
+var _fuel: float = 0.0
+var _rest_timer: float = 0.0
+var _rest_players: Array[Node] = []
+var _light: PointLight2D
+var _light_texture: GradientTexture2D
+
+
+func _enter_tree() -> void:
+	super()
+	add_to_group(STATION_GROUP)
+
+
+func _ready() -> void:
+	super()
+	_ensure_config()
+	if clock == null:
+		clock = get_node_or_null("/root/DayNightManager")
+	_fuel = clampf(config.start_fuel, 0.0, config.max_fuel)
+	_ensure_light()
+	_refresh_light()
+
+
+func _process(delta: float) -> void:
+	tick(delta)
+
+
+func _exit_tree() -> void:
+	for player in _rest_players:
+		_clear_rest(player)
+	_rest_players.clear()
+
+
+# --- Stasiun crafting -------------------------------------------------------
+
+## `station_type` dibaca CraftingComponent lewat properti dinamis.
+var station_type: int = STATION_TYPE
+
+
+func is_station_active() -> bool:
+	return is_lit()
+
+
+# --- State ------------------------------------------------------------------
+
+func is_lit() -> bool:
+	return _fuel > 0.0
+
+
+func get_fuel() -> float:
+	return _fuel
+
+
+func get_max_fuel() -> float:
+	return config.max_fuel if config != null else 600.0
+
+
+func get_light_radius() -> float:
+	if is_lit():
+		return config.lit_light_radius
+	return config.ember_light_radius
+
+
+## Radius Dazzled (getter saja; efek musuh menyusul).
+func get_dazzle_radius() -> float:
+	return config.dazzle_radius
+
+
+func get_refuel_hold_time() -> float:
+	return config.refuel_hold_time
+
+
+## PointLight2D milik api (dipakai tes dan visual).
+func get_light() -> PointLight2D:
+	return _light
+
+
+func is_full() -> bool:
+	return _fuel >= config.full_threshold
+
+
+## Set bahan bakar langsung (tes dan save nanti). Dibatasi 0..max_fuel.
+func set_fuel(value: float) -> void:
+	_ensure_config()
+	_set_fuel(value)
+
+
+# --- Tick -------------------------------------------------------------------
+
+## Satu tick game. `_process` hanya memanggil ini supaya tes deterministik.
+func tick(delta: float) -> void:
+	if delta <= 0.0:
+		return
+	if _fuel > 0.0:
+		var scale := _time_scale()
+		if scale > 0.0:
+			var rate := config.night_drain if _is_night() else config.day_drain
+			_set_fuel(_fuel - rate * scale * delta)
+	_update_rest(delta)
+
+
+# --- Refuel -----------------------------------------------------------------
+
+func can_refuel(interactor: Node) -> bool:
+	return get_refuel_block_reason(interactor).is_empty()
+
+
+func get_refuel_block_reason(interactor: Node) -> String:
+	if is_full():
+		return "Bahan bakar penuh"
+	var inventory := _inventory_of(interactor)
+	if inventory == null:
+		return "Butuh 2 Kayu"
+	if not inventory.has_item(ItemCatalog.WOOD, config.refuel_wood_cost):
+		return "Butuh 2 Kayu"
+	return ""
+
+
+## Isi ulang: 2 kayu -> +180 s, dibatasi max_fuel. False bila tidak bisa.
+func refuel(interactor: Node) -> bool:
+	if not can_refuel(interactor):
+		return false
+	var inventory := _inventory_of(interactor)
+	if inventory == null:
+		return false
+	if not inventory.remove_item(ItemCatalog.WOOD, config.refuel_wood_cost):
+		return false
+	_set_fuel(_fuel + config.refuel_seconds)
+	return true
+
+
+# --- Internal ---------------------------------------------------------------
+
+func _ensure_config() -> void:
+	if config == null:
+		config = CampfireConfig.new()
+
+
+func _set_fuel(value: float) -> void:
+	var clamped := clampf(value, 0.0, config.max_fuel)
+	var was_lit := is_lit()
+	if is_equal_approx(clamped, _fuel):
+		return
+	_fuel = clamped
+	fuel_changed.emit(_fuel)
+	_refresh_light()
+	var now_lit := is_lit()
+	if was_lit and not now_lit:
+		lit_changed.emit(false)
+		fuel_depleted.emit()
+	elif not was_lit and now_lit:
+		lit_changed.emit(true)
+
+
+func _time_scale() -> float:
+	if clock == null or not clock.has_method("get_time_scale"):
+		return 1.0
+	return clock.get_time_scale()
+
+
+func _is_night() -> bool:
+	if clock == null or not clock.has_method("is_night"):
+		return false
+	return clock.is_night()
+
+
+func _inventory_of(interactor: Node) -> InventoryComponent:
+	if interactor == null or not interactor.has_method(&"get_inventory"):
+		return null
+	return interactor.get_inventory() as InventoryComponent
+
+
+# --- Rest bonus -------------------------------------------------------------
+
+func _update_rest(delta: float) -> void:
+	if config == null:
+		return
+	_rest_timer += delta
+	if _rest_timer < config.rest_check_interval:
+		return
+	_rest_timer = 0.0
+	_refresh_rest()
+
+
+func _refresh_rest() -> void:
+	var tree := get_tree()
+	if tree == null:
+		return
+
+	var active: Array[Node] = []
+	if is_lit():
+		for node in tree.get_nodes_in_group(PLAYER_GROUP):
+			var entity := node as Node2D
+			if entity == null:
+				continue
+			if global_position.distance_to(entity.global_position) > config.rest_radius:
+				continue
+			if _apply_rest(node):
+				active.append(node)
+
+	for player in _rest_players:
+		if not is_instance_valid(player):
+			continue
+		if not active.has(player):
+			_clear_rest(player)
+	_rest_players = active
+
+
+## Parameter sengaja tidak bertipe: pemain bisa sudah freed saat campfire masih
+## memegang referensinya, dan cast bertipe akan error sebelum bisa dicek.
+func _apply_rest(player) -> bool:
+	if player == null or not is_instance_valid(player):
+		return false
+	var needs := player.get_node_or_null(NEEDS_NAME) as NeedsComponent
+	if needs == null:
+		return false
+	needs.set_idle_regen_override(REST_SOURCE, config.rest_regen)
+	return true
+
+
+func _clear_rest(player) -> void:
+	if player == null or not is_instance_valid(player):
+		return
+	var needs := player.get_node_or_null(NEEDS_NAME) as NeedsComponent
+	if needs != null:
+		needs.clear_idle_regen_override(REST_SOURCE)
+
+
+# --- Light ------------------------------------------------------------------
+
+func _ensure_light() -> void:
+	if _light != null:
+		return
+	var gradient := Gradient.new()
+	gradient.offsets = PackedFloat32Array([0.0, 1.0])
+	gradient.colors = PackedColorArray([Color(1.0, 1.0, 1.0, 1.0), Color(1.0, 1.0, 1.0, 0.0)])
+
+	_light_texture = GradientTexture2D.new()
+	_light_texture.gradient = gradient
+	_light_texture.fill = GradientTexture2D.FILL_RADIAL
+	_light_texture.fill_from = Vector2(0.5, 0.5)
+	_light_texture.fill_to = Vector2(1.0, 0.5)
+	_light_texture.width = 256
+	_light_texture.height = 256
+
+	_light = PointLight2D.new()
+	_light.name = "Light"
+	_light.texture = _light_texture
+	_light.color = Color(1.0, 0.72, 0.4, 1.0)
+	_light.energy = 1.0
+	add_child(_light)
+
+
+func _refresh_light() -> void:
+	if _light == null or _light_texture == null:
+		return
+	var radius := get_light_radius()
+	var width := maxf(float(_light_texture.width), 1.0)
+	_light.texture_scale = (radius * 2.0) / width
+	_light.visible = true

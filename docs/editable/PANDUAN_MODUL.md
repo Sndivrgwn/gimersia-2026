@@ -132,6 +132,9 @@ needs.spend_fatigue(2.0)                         # biaya gather
 needs.get_tier(NeedsComponent.Need.FATIGUE)      # NORMAL / LOW / ZERO
 needs.get_fatigue_cap()                          # plafon Fatigue sekarang (<= 100)
 needs.restore_fatigue_capacity(10.0)             # makan/minum: plafon +10
+needs.set_idle_regen_override(&"campfire", 5.0)  # bonus rest: regen diam jadi 5/s
+needs.clear_idle_regen_override(&"campfire")
+needs.get_idle_regen()                           # max(base, override tertinggi)
 ```
 
 **Dengar perubahannya:**
@@ -222,6 +225,13 @@ berry.consume_effect.fatigue    # 10.0
 ```
 
 `ItemCatalog` punya 22 konstanta (`WOOD`…`LEATHER_VEST`), array `ALL`, dan `get_by_id(id)`. Field `ItemDefinition`: `id`, `display_name`, `description`, `category` {RESOURCE, CONSUMABLE, WEAPON, TOOL, ARMOR, SPECIAL}, `max_stack`, `icon`, `consume_effect`, `equipment_slot` {NONE, WEAPON, TOOL, ARMOR}, `weapon_damage`, `weapon_range`, `armor_damage_reduction`, `armor_max_hp_bonus`. `ItemEffect`: `hunger`, `thirst`, `fatigue`, `hp`, `regen_hp_per_second`, `regen_duration`.
+
+**Penting soal `fatigue`:** field ini **bukan** delta Fatigue biasa.
+`InventoryComponent` menerapkannya lewat
+`NeedsComponent.restore_fatigue_capacity(fatigue)`, jadi nilainya **menaikkan
+plafon Fatigue** sekaligus mengisi nilai Fatigue sebanyak itu (dibatasi plafon
+baru). Nama field dipertahankan demi kompatibilitas `.tres`; jangan menambah
+`add(Need.FATIGUE, ...)` untuk item.
 
 | Item | Kategori | Efek (`ItemEffect`) |
 |---|---|---|
@@ -356,9 +366,14 @@ HUD mencari Player lewat grup `player`; isi `@export player` kalau mau eksplisit
 jadi terlihat dan bisa diubah di **Project Settings → Input Map**. Action yang
 ditambahkan setelah itu (`interact`, `debug_island_*`) didaftarkan
 `InputSetup.ensure_actions()` saat runtime supaya `project.godot` tidak berubah;
-idempotent, jadi tidak menimpa Project Settings. Kode gameplay tidak memakai
-`_unhandled_input` dan tidak mencocokkan `physical_keycode` sendiri; cukup
-polling `Input.is_action_just_pressed()` / `Input.get_vector()`.
+idempotent, jadi tidak menimpa Project Settings.
+
+**Aturan input (berlaku di seluruh proyek):** komponen gameplay **polling**
+action Input (`Input.is_action_pressed()`, `Input.is_action_just_pressed()`,
+`Input.get_vector()`) di dalam `_process`/tick dan **tidak** mencocokkan
+`physical_keycode` sendiri. Panel UI seperti `BagPanel` boleh memakai
+`_unhandled_input`, dan hanya untuk toggle/tutup. Tidak ada kode gameplay yang
+memakai `_unhandled_input`.
 
 | Action | Tombol | Dipakai |
 |---|---|---|
@@ -367,6 +382,7 @@ polling `Input.is_action_just_pressed()` / `Input.get_vector()`.
 | `hotbar_1` … `hotbar_5` | 1–5 | `InventoryComponent` |
 | `inventory_toggle` | Tab / I | `BagPanel` (`_unhandled_input`) |
 | `interact` | E (tahan) | `InteractorComponent` — didaftarkan `InputSetup` |
+| `repair` | R (tahan) | `RepairComponent` — didaftarkan `InputSetup` |
 | `debug_island_toggle` / `debug_island_zone` / `debug_island_morning` | F2 / F3 / F4 | `GatherDebug` (island only) — didaftarkan `InputSetup` |
 | `ui_cancel` (bawaan) | Esc | `BagPanel` — hanya menutup saat terbuka |
 | `debug_needs_toggle` | F1 | `NeedsDebug` (practice only) |
@@ -399,7 +415,7 @@ Export: `phantom_camera`, `normal_zoom`, `safe_zone_zoom`, `zoom_duration`, `slo
 D:\Programming\Gamedev\Godot_v4.7.2-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests/unit -gexit
 ```
 
-Tes ada di `tests/unit/`: clock, stats, needs, inventory/item, bag panel, interaction, resource node, island. Saat ini **156/156 tes lulus** (1160 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
+Tes ada di `tests/unit/`: clock, stats, needs (termasuk override rest), inventory/item, bag panel, interaction, resource node, island, resep, crafting, struktur camp, blueprint slot, campfire, repair. Saat ini **233/233 tes lulus** (1672 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
 
 **Sandbox manual** (`tests/sandbox/stats_sandbox.tscn`) untuk mencoba stat dan needs tanpa main game:
 
@@ -595,6 +611,138 @@ Island (Node2D, island.gd: pemain menghadap utara)
 `island.tscn` **bukan** main scene; `run/main_scene` tetap `practice1.tscn`.
 Clock tidak diurus scene ini — `DayNightManager` autoload sudah `auto_start`,
 sama seperti `practice1.tscn`.
+
+---
+
+## 25. `RecipeDefinition` + `CraftingComponent` — logika crafting
+
+**Gunanya:** data resep + menjalankan satu craft pada satu waktu. Belum ada
+scene stasiun, blueprint, atau UI crafting; komponen ini sudah bisa dipakai
+tes dan siap dipasang ke instance Player di scene.
+
+**Data resep:** 13 file `.tres` di `src/data/recipes/`, dibuat lewat generator
+(bukan ditulis tangan, supaya referensi item/uids benar):
+
+```bash
+godot --headless --path . -s tools/generate_recipes.gd
+```
+
+`RecipeDefinition`: `id`, `display_name`, `result`, `result_count`,
+`ingredients` (`Array[ItemAmount]`), `station` {HAND, WORKBENCH, CAMPFIRE},
+`craft_time`. `ItemAmount` (`src/data/resources/items/item_amount.gd`) hanya
+`item` + `count`.
+
+| Stasiun | Resep |
+|---|---|
+| HAND | Wooden Spear 3 wood + 2 fiber (2.0 s) · Torch 2 wood + 1 fiber (1.5 s) · Herbal Bandage 3 fiber + 2 berry (1.5 s) |
+| WORKBENCH | Stone Axe 2 wood + 2 stone + 1 fiber (2.5 s) · Stone Pickaxe 2 wood + 3 stone + 1 fiber (2.5 s) · Stone Spear 1 Wooden Spear + 2 stone + 2 fiber (3.0 s) · Bone Spear 1 Wooden Spear + 2 bone + 2 fiber (3.0 s) · Leather Vest 3 hide + 3 fiber (3.0 s) · Waterskin 2 hide + 1 fiber (2.5 s) · Signal Flare 5 wood + 3 bone + 2 hide + 2 fiber (4.0 s) |
+| CAMPFIRE (menyala) | Cooked Meat 1 raw meat (2.0 s) · Boiled Water 1 bamboo (2.0 s) · Bone Broth 2 bone + 1 raw meat (2.5 s) |
+
+**Cara pakai:** tambahkan node `CraftingComponent` ke instance Player, di
+scene (bukan `player.tscn`). Komponen mencari `InventoryComponent` dan
+`StatsComponent` dari parent-nya.
+
+```gdscript
+var crafting := player.get_node("CraftingComponent") as CraftingComponent
+
+crafting.get_available_recipes()   # Array[RecipeDefinition] yang stasiunnya ada
+crafting.get_block_reason(recipe)  # "Butuh Workbench", "Bahan kurang", ...
+crafting.can_craft(recipe)
+crafting.start_craft(recipe)
+crafting.cancel_craft("Batal")
+crafting.tick(delta)               # _process sudah memanggil ini (delta nyata)
+```
+
+**Stasiun:** node di grup `crafting_station` dalam jarak `station_range`
+(default 140 px) dari pemain, dengan properti `station_type`
+(`RecipeDefinition.Station`) dan method `is_station_active() -> bool`.
+HAND selalu tersedia; WORKBENCH butuh `station_type` WORKBENCH aktif;
+CAMPFIRE butuh Campfire yang menyala.
+
+**Aturan craft:**
+- Satu craft pada satu waktu. Bahan dicek dan **dikonsumsi atomik saat selesai**.
+- Bahan yang item-nya `equipment_slot == WEAPON` diambil dari slot WEAPON dan
+  harus sama dengan senjata yang sedang dipasang (`unequip()` dipakai).
+- Waktu = `craft_time` x `StatsComponent.get_craft_time_factor()`, memakai delta
+  nyata (bukan jam game).
+- Batal tanpa kehilangan bahan bila: tombol `move_*` ditekan, HP turun, atau
+  stasiun keluar jangkauan / padam.
+- Hasil WEAPON/ARMOR/TOOL dipasang lewat `equip()`; WEAPON hanya bila damage-nya
+  lebih tinggi (kalau tidak: "Sudah punya senjata yang lebih baik"), TOOL hanya
+  bila belum dimiliki ("Alat sudah dimiliki"), ARMOR hanya bila slot kosong
+  ("Zirah sudah terpasang"). Hasil lain lewat `add_or_drop()`.
+
+**Sinyal:** `craft_started(recipe)`, `craft_progress(ratio)`,
+`craft_completed(recipe)`, `craft_cancelled(recipe, reason)`,
+`crafted(recipe, count)` (hook XP, belum ada XP).
+
+**Jangan:** menyimpan state craft di UI, atau memberi makan `crafted` dengan XP
+sebelum sistem Proficiency ada.
+
+---
+
+## 26. Struktur camp — `StructureDefinition`, `CampStructure`, `BlueprintSlot`, `Campfire`, `Workbench`, repair
+
+**Gunanya:** struktur camp yang bisa dibangun, dirusak, dan diperbaiki.
+Struktur **non-blocking** (Node2D tanpa collision) dan hanya dibangun lewat slot
+blueprint, bukan dirakit manual.
+
+**Data:** 4 file `.tres` di `src/data/camp/`, dibuat lewat generator:
+
+```bash
+godot --headless --path . -s tools/generate_structures.gd
+```
+
+| id | posisi | HP | biaya bangun | waktu | aggro | repair -> HP |
+|---|---|---:|---|---:|---:|---|
+| `campfire` | (0,0) | 250 | 4 kayu + 3 batu + 2 serat | 2.5 s | 0 | 1 kayu + 1 batu -> +80 |
+| `workbench` | (-96,-32) | 180 | 5 kayu + 2 batu + 3 serat | 3.0 s | 1 | 1 kayu + 1 serat -> +70 |
+| `chest` | (96,-32) | 200 | 6 kayu + 2 serat | 2.5 s | 1 | 2 kayu -> +80 |
+| `tent` | (0,-110) | 120 | 6 kayu + 6 serat + 2 bambu | 4.0 s | 2 | 1 kayu + 2 serat -> +60 |
+
+`StructureDefinition`: `id`, `display_name`, `scene`, `max_hp`, `build_cost`,
+`build_time`, `aggro_priority`, `repair_cost`, `repair_hp`, `slot_position`,
+`get_build_cost_text()`, `get_repair_cost_text()`.
+
+**`CampStructure`** (grup `camp_structure`): `take_damage(amount, source)`,
+`repair(amount) -> float`, `is_damaged()`, `get_aggro_priority()`,
+`get_hp_bar()`, `apply_definition()`, `get_definition()`, `get_display_name()`.
+Sinyal: `damaged(amount, source)`, `repaired(amount)`, `destroyed`,
+`hp_changed(current, max)`. HP bar hanya terlihat saat `current_hp < max_hp`.
+HP 0 -> `destroyed` lalu `queue_free()`.
+
+**`BlueprintSlot`** (`src/entities/camp/blueprint_slot.tscn`, extends
+`Interactable`): isi `definition`, letakkan di posisi slot. Placeholder
+transparan tampil saat kosong. Hold-E membangun (`build_time` x faktor waktu
+craft), biaya dicek dulu lalu dikonsumsi; prompt
+`"Bangun Api Unggun (4 Kayu, 3 Batu, 2 Serat)"`. `get_structure()`,
+`is_built()`, sinyal `built(structure)`. Saat struktur hancur, placeholder
+muncul lagi dan slot bisa dibangun ulang.
+
+**`Campfire`** (`campfire.tscn`, juga stasiun `crafting_station`): mulai 240 s
+bahan bakar, maks 600, drain 0.25/s siang dan 1.0/s malam x `get_time_scale()`.
+Refuel lewat anak `CampfireRefuel` (hold E 0.5 s): 2 kayu -> +180 s, diblokir
+`"Bahan bakar penuh"` mulai 580 dan `"Butuh 2 Kayu"` bila kayu kurang.
+Menyala = `is_lit()`; cahaya 240 px, ember 80 px, `get_dazzle_radius()` 180 px
+(getter saja). Saat menyala, pemain dalam 120 px mendapat regen diam 5/s lewat
+`NeedsComponent.set_idle_regen_override(&"campfire", 5.0)` (dicek tiap 0.25 s,
+dibersihkan saat keluar radius/api padam/hancur). Sinyal: `fuel_changed(seconds)`,
+`lit_changed(is_lit)`, `fuel_depleted`. Tes memakai clock stub dan `set_fuel()`.
+
+**`Workbench`** (`workbench.tscn`): stasiun WORKBENCH yang selalu aktif
+(`is_station_active()` true) selama berdiri.
+
+**`RepairComponent`** (anak instance Player): tahan **R** 1.0 s pada struktur
+terdekat dalam 96 px. Biaya `repair_cost` dikonsumsi atomik saat selesai, lalu
+`repair(repair_hp)`. Reset saat R dilepas atau keluar jangkauan. Alasan blokir:
+`"Bahan kurang"`, `"Struktur sudah penuh"`. Sinyal `progress_changed(ratio)`,
+`repair_completed(structure)`, `repair_blocked(structure, reason)`,
+`target_changed(structure)`. `InteractionHUD` menampilkan
+`"Tahan R: Perbaiki Api Unggun (1 Kayu, 1 Batu)"` + progress bar secara
+additive (perilaku HUD lama tidak berubah).
+
+**Jangan:** menaruh collision di struktur, menulis HP langsung (pakai
+`take_damage()`/`repair()`), atau membuat jam sendiri untuk bahan bakar.
 
 ---
 

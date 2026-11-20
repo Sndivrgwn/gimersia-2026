@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="StructureDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_ru2bg"]
+[ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_phr5q"]
+[ext_resource type="Resource" path="res://src/data/items/stone.tres" id="3_oab8f"]
+[ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="4_801iv"]
+[ext_resource type="PackedScene" path="res://src/entities/camp/workbench/workbench.tscn" id="5_o7xbn"]
+[ext_resource type="Script" path="res://src/data/resources/camp/structure_definition.gd" id="6_migvm"]
+
+[sub_resource type="Resource" id="Resource_5dyty"]
+script = ExtResource("1_ru2bg")
+item = ExtResource("2_phr5q")
+count = 5
+
+[sub_resource type="Resource" id="Resource_6c1ul"]
+script = ExtResource("1_ru2bg")
+item = ExtResource("3_oab8f")
+count = 2
+
+[sub_resource type="Resource" id="Resource_atedg"]
+script = ExtResource("1_ru2bg")
+item = ExtResource("4_801iv")
+count = 3
+
+[sub_resource type="Resource" id="Resource_rt8h1"]
+script = ExtResource("1_ru2bg")
+item = ExtResource("2_phr5q")
+
+[sub_resource type="Resource" id="Resource_kntdd"]
+script = ExtResource("1_ru2bg")
+item = ExtResource("4_801iv")
+
+[resource]
+script = ExtResource("6_migvm")
+id = &"workbench"
+display_name = "Meja Kerja"
+scene = ExtResource("5_o7xbn")
+max_hp = 180.0
+build_cost = Array[ExtResource("1_ru2bg")]([SubResource("Resource_5dyty"), SubResource("Resource_6c1ul"), SubResource("Resource_atedg")])
+build_time = 3.0
+aggro_priority = 1
+repair_cost = Array[ExtResource("1_ru2bg")]([SubResource("Resource_rt8h1"), SubResource("Resource_kntdd")])
+repair_hp = 70.0
+slot_position = Vector2(-96, -32)

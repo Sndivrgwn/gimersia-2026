@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_56bok"]
+[ext_resource type="Resource" path="res://src/data/items/hide.tres" id="2_s54uh"]
+[ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="3_fqymj"]
+[ext_resource type="Resource" path="res://src/data/items/leather_vest.tres" id="4_ohtbt"]
+[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="5_bjwrl"]
+
+[sub_resource type="Resource" id="Resource_53hyq"]
+script = ExtResource("1_56bok")
+item = ExtResource("2_s54uh")
+count = 3
+
+[sub_resource type="Resource" id="Resource_da50i"]
+script = ExtResource("1_56bok")
+item = ExtResource("3_fqymj")
+count = 3
+
+[resource]
+script = ExtResource("5_bjwrl")
+id = &"leather_vest"
+display_name = "Rompi Kulit"
+result = ExtResource("4_ohtbt")
+ingredients = Array[ExtResource("1_56bok")]([SubResource("Resource_53hyq"), SubResource("Resource_da50i")])
+station = 1
+craft_time = 3.0

@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_enmnv"]
+[ext_resource type="Resource" path="res://src/data/items/wooden_spear.tres" id="2_0r63x"]
+[ext_resource type="Resource" path="res://src/data/items/stone.tres" id="3_jnqf2"]
+[ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="4_oe8yg"]
+[ext_resource type="Resource" path="res://src/data/items/stone_spear.tres" id="5_6gwa4"]
+[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="6_gq0i2"]
+
+[sub_resource type="Resource" id="Resource_04vs2"]
+script = ExtResource("1_enmnv")
+item = ExtResource("2_0r63x")
+
+[sub_resource type="Resource" id="Resource_6bj3g"]
+script = ExtResource("1_enmnv")
+item = ExtResource("3_jnqf2")
+count = 2
+
+[sub_resource type="Resource" id="Resource_uaqgo"]
+script = ExtResource("1_enmnv")
+item = ExtResource("4_oe8yg")
+count = 2
+
+[resource]
+script = ExtResource("6_gq0i2")
+id = &"stone_spear"
+display_name = "Tombak Batu"
+result = ExtResource("5_6gwa4")
+ingredients = Array[ExtResource("1_enmnv")]([SubResource("Resource_04vs2"), SubResource("Resource_6bj3g"), SubResource("Resource_uaqgo")])
+station = 1
+craft_time = 3.0

@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="StructureDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_d8ymi"]
+[ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_eqyhd"]
+[ext_resource type="Resource" path="res://src/data/items/stone.tres" id="3_jbmpw"]
+[ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="4_vauyl"]
+[ext_resource type="PackedScene" path="res://src/entities/camp/campfire/campfire.tscn" id="5_kty8x"]
+[ext_resource type="Script" path="res://src/data/resources/camp/structure_definition.gd" id="6_0swcp"]
+
+[sub_resource type="Resource" id="Resource_7dun0"]
+script = ExtResource("1_d8ymi")
+item = ExtResource("2_eqyhd")
+count = 4
+
+[sub_resource type="Resource" id="Resource_p6xjx"]
+script = ExtResource("1_d8ymi")
+item = ExtResource("3_jbmpw")
+count = 3
+
+[sub_resource type="Resource" id="Resource_j0036"]
+script = ExtResource("1_d8ymi")
+item = ExtResource("4_vauyl")
+count = 2
+
+[sub_resource type="Resource" id="Resource_0lsvq"]
+script = ExtResource("1_d8ymi")
+item = ExtResource("2_eqyhd")
+
+[sub_resource type="Resource" id="Resource_a6sjf"]
+script = ExtResource("1_d8ymi")
+item = ExtResource("3_jbmpw")
+
+[resource]
+script = ExtResource("6_0swcp")
+id = &"campfire"
+display_name = "Api Unggun"
+scene = ExtResource("5_kty8x")
+max_hp = 250.0
+build_cost = Array[ExtResource("1_d8ymi")]([SubResource("Resource_7dun0"), SubResource("Resource_p6xjx"), SubResource("Resource_j0036")])
+build_time = 2.5
+repair_cost = Array[ExtResource("1_d8ymi")]([SubResource("Resource_0lsvq"), SubResource("Resource_a6sjf")])
+repair_hp = 80.0

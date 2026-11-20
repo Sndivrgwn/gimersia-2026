@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_fhusp"]
+[ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_u8qke"]
+[ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="3_l57vy"]
+[ext_resource type="Resource" path="res://src/data/items/torch.tres" id="4_b6jbc"]
+[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="5_g17yn"]
+
+[sub_resource type="Resource" id="Resource_kdray"]
+script = ExtResource("1_fhusp")
+item = ExtResource("2_u8qke")
+count = 2
+
+[sub_resource type="Resource" id="Resource_ae4w4"]
+script = ExtResource("1_fhusp")
+item = ExtResource("3_l57vy")
+
+[resource]
+script = ExtResource("5_g17yn")
+id = &"torch"
+display_name = "Obor"
+result = ExtResource("4_b6jbc")
+ingredients = Array[ExtResource("1_fhusp")]([SubResource("Resource_kdray"), SubResource("Resource_ae4w4")])
+craft_time = 1.5

@@ -50,6 +50,8 @@ var _tiers: Array[int] = []
 var _fatigue_cap: float = -1.0
 var _is_sprinting: bool = false
 var _bound: bool = false
+## Override regen diam dari sumber luar (mis. `&"campfire"`).
+var _idle_regen_overrides: Dictionary = {}
 var _warned_no_clock: bool = false
 
 
@@ -129,6 +131,28 @@ func add(need: int, amount: float) -> void:
 	_apply_value(need, _values[need] + amount)
 
 
+## Regen diam efektif: `max(fatigue_idle_regen, override tertinggi)`. Selalu
+## dibatasi plafon Fatigue karena lewat `_apply_value()`.
+func get_idle_regen() -> float:
+	if config == null:
+		return 0.0
+	var value := config.fatigue_idle_regen
+	for source_id in _idle_regen_overrides:
+		value = maxf(value, float(_idle_regen_overrides[source_id]))
+	return value
+
+
+## Tambah/ubah override regen diam dari satu sumber (mis. Campfire menyala).
+## Additive: sumber lain tetap aktif; yang dipakai nilai tertinggi.
+func set_idle_regen_override(source_id: StringName, per_second: float) -> void:
+	_idle_regen_overrides[source_id] = maxf(per_second, 0.0)
+
+
+## Hapus override satu sumber (mis. pemain keluar radius / api padam).
+func clear_idle_regen_override(source_id: StringName) -> void:
+	_idle_regen_overrides.erase(source_id)
+
+
 ## Biaya Fatigue manual: serangan (-1.2) dan gather (-2.0) menyusul.
 func spend_fatigue(amount: float) -> void:
 	if amount <= 0.0:
@@ -166,8 +190,10 @@ func tick(delta: float) -> void:
 	elif _is_moving():
 		if config.fatigue_walk_drain > 0.0:
 			_apply_value(Need.FATIGUE, _values[Need.FATIGUE] - config.fatigue_walk_drain * delta)
-	elif config.fatigue_idle_regen > 0.0:
-		_apply_value(Need.FATIGUE, _values[Need.FATIGUE] + config.fatigue_idle_regen * delta)
+	else:
+		var idle_regen := get_idle_regen()
+		if idle_regen > 0.0:
+			_apply_value(Need.FATIGUE, _values[Need.FATIGUE] + idle_regen * delta)
 
 
 # --- Internal ---------------------------------------------------------------

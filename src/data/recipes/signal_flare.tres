@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_lock8"]
+[ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_e7nl7"]
+[ext_resource type="Resource" path="res://src/data/items/bone.tres" id="3_y81jw"]
+[ext_resource type="Resource" path="res://src/data/items/hide.tres" id="4_q4b5n"]
+[ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="5_tdonw"]
+[ext_resource type="Resource" path="res://src/data/items/signal_flare.tres" id="6_u3sjl"]
+[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="7_jbgwp"]
+
+[sub_resource type="Resource" id="Resource_hsndh"]
+script = ExtResource("1_lock8")
+item = ExtResource("2_e7nl7")
+count = 5
+
+[sub_resource type="Resource" id="Resource_rmvg5"]
+script = ExtResource("1_lock8")
+item = ExtResource("3_y81jw")
+count = 3
+
+[sub_resource type="Resource" id="Resource_4kblb"]
+script = ExtResource("1_lock8")
+item = ExtResource("4_q4b5n")
+count = 2
+
+[sub_resource type="Resource" id="Resource_6lopk"]
+script = ExtResource("1_lock8")
+item = ExtResource("5_tdonw")
+count = 2
+
+[resource]
+script = ExtResource("7_jbgwp")
+id = &"signal_flare"
+display_name = "Suar Darurat"
+result = ExtResource("6_u3sjl")
+ingredients = Array[ExtResource("1_lock8")]([SubResource("Resource_hsndh"), SubResource("Resource_rmvg5"), SubResource("Resource_4kblb"), SubResource("Resource_6lopk")])
+station = 1
+craft_time = 4.0

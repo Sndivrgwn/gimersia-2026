@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_wc1ev"]
+[ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="2_cvw17"]
+[ext_resource type="Resource" path="res://src/data/items/berry.tres" id="3_e30vy"]
+[ext_resource type="Resource" path="res://src/data/items/herbal_bandage.tres" id="4_dypfv"]
+[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="5_ihy1f"]
+
+[sub_resource type="Resource" id="Resource_qf2ip"]
+script = ExtResource("1_wc1ev")
+item = ExtResource("2_cvw17")
+count = 3
+
+[sub_resource type="Resource" id="Resource_aoerd"]
+script = ExtResource("1_wc1ev")
+item = ExtResource("3_e30vy")
+count = 2
+
+[resource]
+script = ExtResource("5_ihy1f")
+id = &"herbal_bandage"
+display_name = "Perban Herbal"
+result = ExtResource("4_dypfv")
+ingredients = Array[ExtResource("1_wc1ev")]([SubResource("Resource_qf2ip"), SubResource("Resource_aoerd")])
+craft_time = 1.5

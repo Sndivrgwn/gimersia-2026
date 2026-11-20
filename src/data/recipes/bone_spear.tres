@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_fb3q2"]
+[ext_resource type="Resource" path="res://src/data/items/wooden_spear.tres" id="2_dud1t"]
+[ext_resource type="Resource" path="res://src/data/items/bone.tres" id="3_853xc"]
+[ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="4_hrrb6"]
+[ext_resource type="Resource" path="res://src/data/items/bone_spear.tres" id="5_p808h"]
+[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="6_2hc8k"]
+
+[sub_resource type="Resource" id="Resource_vi84v"]
+script = ExtResource("1_fb3q2")
+item = ExtResource("2_dud1t")
+
+[sub_resource type="Resource" id="Resource_20iq2"]
+script = ExtResource("1_fb3q2")
+item = ExtResource("3_853xc")
+count = 2
+
+[sub_resource type="Resource" id="Resource_hu2ca"]
+script = ExtResource("1_fb3q2")
+item = ExtResource("4_hrrb6")
+count = 2
+
+[resource]
+script = ExtResource("6_2hc8k")
+id = &"bone_spear"
+display_name = "Tombak Tulang"
+result = ExtResource("5_p808h")
+ingredients = Array[ExtResource("1_fb3q2")]([SubResource("Resource_vi84v"), SubResource("Resource_20iq2"), SubResource("Resource_hu2ca")])
+station = 1
+craft_time = 3.0

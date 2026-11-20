@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_q68gv"]
+[ext_resource type="Resource" path="res://src/data/items/bamboo.tres" id="2_284tm"]
+[ext_resource type="Resource" path="res://src/data/items/boiled_water.tres" id="3_cnwxf"]
+[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="4_e1urc"]
+
+[sub_resource type="Resource" id="Resource_ebf05"]
+script = ExtResource("1_q68gv")
+item = ExtResource("2_284tm")
+
+[resource]
+script = ExtResource("4_e1urc")
+id = &"boiled_water"
+display_name = "Air Matang"
+result = ExtResource("3_cnwxf")
+ingredients = Array[ExtResource("1_q68gv")]([SubResource("Resource_ebf05")])
+station = 2
+craft_time = 2.0

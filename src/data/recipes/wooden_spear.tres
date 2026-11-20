@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_7u01f"]
+[ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_vitm3"]
+[ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="3_lbfq4"]
+[ext_resource type="Resource" path="res://src/data/items/wooden_spear.tres" id="4_no6tu"]
+[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="5_x7wwn"]
+
+[sub_resource type="Resource" id="Resource_gqlh4"]
+script = ExtResource("1_7u01f")
+item = ExtResource("2_vitm3")
+count = 3
+
+[sub_resource type="Resource" id="Resource_io7el"]
+script = ExtResource("1_7u01f")
+item = ExtResource("3_lbfq4")
+count = 2
+
+[resource]
+script = ExtResource("5_x7wwn")
+id = &"wooden_spear"
+display_name = "Tombak Kayu"
+result = ExtResource("4_no6tu")
+ingredients = Array[ExtResource("1_7u01f")]([SubResource("Resource_gqlh4"), SubResource("Resource_io7el")])
+craft_time = 2.0

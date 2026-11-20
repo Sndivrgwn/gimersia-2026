@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_c3723"]
+[ext_resource type="Resource" path="res://src/data/items/hide.tres" id="2_vntae"]
+[ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="3_axgdy"]
+[ext_resource type="Resource" path="res://src/data/items/waterskin.tres" id="4_m5tcu"]
+[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="5_o0it8"]
+
+[sub_resource type="Resource" id="Resource_8noqv"]
+script = ExtResource("1_c3723")
+item = ExtResource("2_vntae")
+count = 2
+
+[sub_resource type="Resource" id="Resource_i2xnh"]
+script = ExtResource("1_c3723")
+item = ExtResource("3_axgdy")
+
+[resource]
+script = ExtResource("5_o0it8")
+id = &"waterskin"
+display_name = "Kantung Air Kulit"
+result = ExtResource("4_m5tcu")
+ingredients = Array[ExtResource("1_c3723")]([SubResource("Resource_8noqv"), SubResource("Resource_i2xnh")])
+station = 1
+craft_time = 2.5

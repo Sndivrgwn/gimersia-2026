@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_3fibs"]
+[ext_resource type="Resource" path="res://src/data/items/raw_meat.tres" id="2_rswt5"]
+[ext_resource type="Resource" path="res://src/data/items/cooked_meat.tres" id="3_dnr6y"]
+[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="4_ypbgo"]
+
+[sub_resource type="Resource" id="Resource_dseoo"]
+script = ExtResource("1_3fibs")
+item = ExtResource("2_rswt5")
+
+[resource]
+script = ExtResource("4_ypbgo")
+id = &"cooked_meat"
+display_name = "Daging Matang"
+result = ExtResource("3_dnr6y")
+ingredients = Array[ExtResource("1_3fibs")]([SubResource("Resource_dseoo")])
+station = 2
+craft_time = 2.0
