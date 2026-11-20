@@ -384,6 +384,9 @@ memakai `_unhandled_input`.
 | `interact` | E (tahan) | `InteractorComponent` — didaftarkan `InputSetup` |
 | `repair` | R (tahan) | `RepairComponent` — didaftarkan `InputSetup` |
 | `debug_island_toggle` / `debug_island_zone` / `debug_island_morning` / `debug_island_kit` | F2 / F3 / F4 / F5 | `GatherDebug` (island only) — didaftarkan `InputSetup`; F5 memberi kit bahan uji crafting |
+| `debug_island_boar` / `debug_island_deer` / `debug_island_night` / `debug_island_heal` / `debug_island_weapon` | F6 / F7 / F8 / F9 / F10 | `GatherDebug` (island only) — spawn Boar HOSTILE / Rusa 250 px di depan, lompat ke awal malam, heal penuh + needs, siklus senjata none→wooden→stone→bone |
+| `attack_click` | Klik kiri | `CombatComponent` — ayunan manual ke arah kursor (diabaikan saat kursor di UI/BagPanel terbuka) |
+| `attack_space` | Space | `CombatComponent` — ayunan manual ke arah `facing_direction` |
 | `ui_cancel` (bawaan) | Esc | `BagPanel` — hanya menutup saat terbuka |
 | `debug_needs_toggle` | F1 | `NeedsDebug` (practice only) |
 | `debug_cycle_hunger` / `debug_cycle_thirst` / `debug_cycle_fatigue` | X / C / V | `NeedsDebug`, sandbox |
@@ -415,7 +418,7 @@ Export: `phantom_camera`, `normal_zoom`, `safe_zone_zoom`, `zoom_duration`, `slo
 D:\Programming\Gamedev\Godot_v4.7.2-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests/unit -gexit
 ```
 
-Tes ada di `tests/unit/`: clock, stats, needs (termasuk override rest), inventory/item, bag panel, crafting panel, item slot store, interaction, resource node, island, resep, crafting, struktur camp, blueprint slot, campfire, repair, peti, tenda, jaga malam, camp controller. Saat ini **289/289 tes lulus** (1899 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
+Tes ada di `tests/unit/`: clock, stats, needs (termasuk override rest), inventory/item, bag panel, crafting panel, item slot store, interaction, resource node, island, resep, crafting, struktur camp, blueprint slot, campfire, repair, peti, tenda, jaga malam, camp controller, health, player damage receiver, knockback, combat, fauna base, wild boar, island deer, night scaling, fauna quota, night spawner, ember snuff. Saat ini **351/351 tes lulus** (2077 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
 
 **Sandbox manual** (`tests/sandbox/stats_sandbox.tscn`) untuk mencoba stat dan needs tanpa main game:
 
@@ -602,13 +605,19 @@ Island (Node2D, island.gd: pemain menghadap utara)
 │   ├── InventoryComponent
 │   ├── InteractorComponent
 │   ├── CraftingComponent
-│   └── RepairComponent
+│   ├── RepairComponent
+│   ├── PlayerDamageReceiver
+│   └── CombatComponent
 ├── Camera2D + PhantomCameraHost + PhantomCamera2D (follow Player, zoom 3)
 ├── IslandBuilder (layout = island_layout.tres)
 ├── CampController (4 blueprint slot + NightWatchController)
+├── Fauna (Node2D: semua Boar/Rusa)
+├── FaunaQuota (2 Boar + 3 Deer, aturan fajar/rescue)
+├── NightSpawner (spawn + scaling saat night_started)
 ├── DayNightVisual
 ├── TimeHUD / NeedsHUD / StatsHUD / HotbarHUD / InteractionHUD / BagPanel
-└── GatherDebug (F2 tools, F3 zona berikutnya, F4 pagi berikutnya, F5 kit bahan)
+└── GatherDebug (F2 tools, F3 zona, F4 pagi, F5 kit, F6 Boar, F7 Rusa, F8 malam,
+    F9 heal, F10 senjata)
 ```
 
 `island.tscn` **bukan** main scene; `run/main_scene` tetap `practice1.tscn`.
@@ -824,6 +833,67 @@ mengisi dan mengosongkan diri lewat slot blueprint dan sinyal `destroyed`.
 
 **Jangan:** menyimpan HP/isi struktur di controller, atau menaruh state gameplay
 di panel UI.
+
+---
+
+## 28. Combat, fauna, dan malam — `CombatComponent`, `FaunaBase`, `FaunaQuota`, `NightSpawner`
+
+**Gunanya:** loop ancaman P1b. Terpasang di `island.tscn`: `PlayerDamageReceiver`
++ `CombatComponent` di bawah Player, `Fauna`, `FaunaQuota`, `NightSpawner`.
+
+**CombatComponent** (anak Player; `tick(delta)` publik):
+
+```gdscript
+combat.get_attack_damage()      # senjata terpasang, atau 8 (tangan kosong)
+combat.get_attack_range()       # 45 / 75 / 85
+combat.swing_manual(aim_dir)    # ayunan manual; memprovokasi target
+# sinyal: hit_dealt(target, damage), swing(aim_dir, hit_count), enemy_killed(target)
+```
+
+Aturan: auto-attack hanya menyentuh target `can_be_auto_targeted()` (HOSTILE atau
+sudah diprovokasi); manual memakai kerucut 90° dan memprovokasi; cooldown dipakai
+bersama, manual didahulukan; klik diabaikan saat kursor berada di Control atau
+`BagPanel.is_open()`. Damage lewat `StatsComponent.get_attack_damage(weapon_damage)`,
+range dari item WEAPON, Fatigue -1.2 per hit, Bone Spear menambah bleed.
+
+**PlayerDamageReceiver** (anak Player): `receive_hit(raw, source, dir, distance)`
+-> dodge roll (`dodged` + "DODGE!") atau damage `calc_incoming_damage()` +
+knockback `Player.apply_knockback()`. HP 0 diabaikan musuh (kematian belum ada).
+
+**FaunaBase** (`src/entities/fauna/fauna_base.gd`): grup `fauna`, layer 0 /
+mask 1 (pemain bisa menembus hewan; hanya dinding yang menahan).
+
+```gdscript
+fauna.provoke(source)
+fauna.can_be_auto_targeted()
+fauna.apply_night_scaling(1.3, 1.3)   # rasio HP dijaga
+fauna.set_speed_modifier(&"dazzle", 0.7)
+fauna.begin_flee(player.global_position, 8.0)
+```
+
+**WildBoar** (`wild_boar.tscn`): gigit 12 dmg / 50 px / 1.2 s; dash 110-240 px,
+0.8 s telegraf, 330 px/s, 20 ke pemain + knockback 60 px, 40 ke struktur;
+cooldown dash 6 s siang / 4 s malam; siang NEUTRAL + leash 380 px, malam HOSTILE
+deteksi 300 px; `raid_camp` aktif bila mendeteksi pemain di dekat camp atau
+mengejar pemain masuk camp, batal > 650 px atau tanpa struktur.
+
+**IslandDeer** (`island_deer.tscn`): 40 HP, selalu PASSIVE, kabur 175 px/s 5 s
+saat pemain <= 130 px atau setelah dipukul; drop 2 raw meat + 1 hide.
+
+**FaunaQuota**: 2 Boar + 3 Deer, tanpa respawn siang. `day_started(2..7)`:
+lebih dari 2 Boar kabur, survivor NEUTRAL x1.0, top-up 2 Boar + 3 Deer.
+`rescue_started`: sisanya kabur, jamin 2 Boar NEUTRAL, respawn 45 detik NYATA,
+maksimal 4 (`guarantee_deer_at_rescue` sengaja OFF).
+
+**NightSpawner**: `night_started` -> semua Boar HOSTILE + scaling malam itu, satu
+spawn langsung, lalu tiap interval selama Boar HOSTILE < batas tabel. Timer =
+delta x `get_time_scale()`.
+
+**Ember Snuff**: `Campfire.remove_fuel(seconds)`; serangan sumber grup `fauna`
+ke Campfire saat malam hari >= 5 juga memakan 8 detik bahan bakar.
+
+**Jangan:** menulis HP fauna langsung, memakai physics query untuk menyerang,
+atau menaruh state gameplay di HUD.
 
 ---
 

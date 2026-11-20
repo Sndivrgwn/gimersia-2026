@@ -15,7 +15,13 @@ var can_sprint: bool = true
 ## Arah hadap terakhir yang tidak nol.
 var facing_direction: Vector2 = Vector2.DOWN
 
+## Pengali jarak knockback (hook pasif Sturdy).
+var knockback_multiplier: float = 1.0
+
 var _is_sprinting: bool = false
+## Dorongan eksternal (knockback) yang meluruh selama durasinya.
+var _knockback_velocity: Vector2 = Vector2.ZERO
+var _knockback_remaining: float = 0.0
 
 
 func _ready() -> void:
@@ -42,6 +48,51 @@ func _physics_process(_delta: float) -> void:
 
 	velocity = input_direction * speed
 	move_and_slide()
+	_apply_knockback_step(_delta)
+
+
+## Dorongan sekali pakai (mis. Dash Boar). Total perpindahan = `distance`
+## selama `duration`; collision tetap dihormati karena lewat move_and_slide().
+func apply_knockback(direction: Vector2, distance: float, duration: float) -> void:
+	if distance <= 0.0 or duration <= 0.0:
+		return
+	var dir := direction.normalized() if direction.length_squared() > 0.0001 else Vector2.ZERO
+	if dir == Vector2.ZERO:
+		return
+	_knockback_remaining = duration
+	_knockback_velocity = dir * (distance / duration)
+
+
+func is_knocked_back() -> bool:
+	return _knockback_remaining > 0.0
+
+
+## Kecepatan dorongan saat ini (px/s); nol setelah durasi habis.
+func get_knockback_velocity() -> Vector2:
+	return _knockback_velocity
+
+
+func _tick_knockback(delta: float) -> void:
+	if _knockback_remaining <= 0.0:
+		_knockback_velocity = Vector2.ZERO
+		return
+	_knockback_remaining = maxf(_knockback_remaining - delta, 0.0)
+	# Epsilon: 10 langkah 0.02 s menyisakan sisa float ~1e-17.
+	if _knockback_remaining <= 0.0001:
+		_knockback_remaining = 0.0
+		_knockback_velocity = Vector2.ZERO
+
+
+## Langkah dorongan memakai delta eksplisit supaya total perpindahan = distance
+## dan tetap berhenti di dinding (move_and_collide).
+func _apply_knockback_step(delta: float) -> void:
+	if _knockback_remaining <= 0.0001:
+		_knockback_remaining = 0.0
+		_knockback_velocity = Vector2.ZERO
+		return
+	var step := minf(delta, _knockback_remaining)
+	move_and_collide(_knockback_velocity * step)
+	_tick_knockback(step)
 
 
 func _set_sprinting(value: bool) -> void:

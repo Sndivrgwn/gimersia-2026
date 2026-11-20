@@ -4,7 +4,7 @@
 > repository. Read this file first, then the linked docs. **Code is the source of
 > truth** when a doc disagrees with it.
 
-Last verified: 2026-11-20, Godot 4.7.2, GUT 9.7.1, 289/289 tests passing.
+Last verified: 2026-11-20, Godot 4.7.2, GUT 9.7.1, 351/351 tests passing.
 Spec cross-check: 2026-11-18 against spec V8. Gaps found are listed in §4
 (missing systems), §7.1-7.8 (spec details), §8 (revised build order) and §13
 (open design questions).
@@ -46,7 +46,7 @@ in `docs/editable/` is maintained by the project.
 |---|---|---|
 | Engine | — | `D:\Programming\Gamedev\Godot_v4.7.2-stable_win64.exe` (console variant exists) |
 | GUT | — | **9.7.1 installed** in `addons/gut` (docs saying otherwise are stale) |
-| Unit tests | see §9 | **289/289 passing**, 1899 asserts, ~7.6 s |
+| Unit tests | see §9 | **351/351 passing**, 2077 asserts, ~10 s |
 | Main scene boot | see §9 | `practice1.tscn` runs headless for 120 frames with **no errors** |
 | Island boot | see §9 | `src/levels/island/island.tscn` runs headless for 120 frames with **no errors** |
 | Default clock config | — | `cycle_duration` **600 s** (script default; `.tres` no longer overrides it) |
@@ -90,23 +90,27 @@ Known bugs still present:
 | `IslandZones` / `IslandLayoutConfig` / `IslandBuilder` | `src/levels/island/island_zones.gd`, `island_builder.gd`, `src/data/resources/island/`, `src/data/configs/island_layout.tres` | Zone lookup in the order CAMP, SOUTH_BEACH, EAST_BEACH, WEST_CLIFFS, RIVER, FOREST, OUTSIDE; deterministic seeded rejection-sampled layout with spacing/keep-out rules; 139 resource nodes and 16 `night_spawn_point` markers | Implemented; 17 tests |
 | `island.tscn` / `GatherDebug` | `src/levels/island/island.tscn`, `island.gd`, `gather_debug.gd` | Minimum map: tinted ground per zone, coastline static walls at ±2400, PlaneWreckage, suitcase, beacon placeholder (no logic), 9 river edges, full player/HUD wiring, builder node. `GatherDebug` (island only, off by default): F2 grants both tools, F3 teleports to the next zone, F4 skips to the next morning, F5 grants a crafting test kit (30 wood, 20 stone, 20 fiber, 10 bamboo, 10 bone, 10 hide, 6 raw meat, 6 berry) | Implemented; boots headless clean |
 | `PlayerBaseStats` | `src/data/stats/player_base_stats.gd` | Base numbers (no `.tres` instance yet; script defaults are used) |
-| `Player` | `src/entities/player/` | Top-down movement + sprint from `StatsComponent`; `can_sprint`, `facing_direction`, `sprint_state_changed` |
+| `Player` | `src/entities/player/` | Top-down movement + sprint from `StatsComponent`; `can_sprint`, `facing_direction`, `sprint_state_changed`, additive `apply_knockback(direction, distance, duration)` + `knockback_multiplier` hook |
+| `CombatComponent` / `PlayerDamageReceiver` / `HealthComponent` | `src/components/combat/` | Player attacks: auto only targets HOSTILE/PROVOKED (`can_be_auto_targeted()`), manual swing (click/Space, 90° cone, shared cooldown) provokes NEUTRAL/PASSIVE; weapon damage/range from equipped WEAPON, fatigue 1.2/hit, bone spear bleed, floating damage text + flash; `swing_manual()`, `get_attack_range()`, `get_attack_damage()`, signals `hit_dealt`, `swing`, `enemy_killed`. Receiver: dodge roll (seeded RNG) -> `dodged` + "DODGE!", damage through `calc_incoming_damage()`, knockback, `damaged`. `HealthComponent` owns fauna HP + bleed, group `damageable`, signals `hp_changed`, `damaged`, `died`. `CombatConfig` in `src/data/configs/combat_config.tres` |
+| `FaunaBase` / `WildBoar` / `IslandDeer` | `src/entities/fauna/` | `FaunaBase` (CharacterBody2D, group `fauna`, layer 0/mask 1): HealthComponent child, temperament PASSIVE/NEUTRAL/HOSTILE, `provoke()`, `can_be_auto_targeted()`, speed/attack modifier dictionaries, `apply_night_scaling()` keeping HP ratio, `reset_night_scaling()`, Dazzled from lit Campfire (0.70 speed / 0.75 attack), wander, flee+despawn, `drop_loot()` via ItemPickup, `flash_hit()`. Boar: bite 12/50 px/1.2 s, dash 110–240 px with 0.8 s telegraph then 330 px/s (20 + 60 px knockback to player, 40 to structures), camp aggro (player <=140, raid_camp, priority structures), leash 380. Deer: 40 HP, always PASSIVE, flees 175 px/s for 5 s at 130 px or when hit. Configs `boar_config.tres` / `deer_config.tres` |
+| `FaunaQuota` / `NightSpawner` / `NightScalingConfig` | `src/core/managers/`, `src/data/resources/fauna/` | Quota: 2 Boar + 3 Deer at start, no mid-day respawn, dawn rule (extras flee, survivors NEUTRAL x1.0, top-up 2/3) for days 2-7, rescue rule (flee, >=2 boars, 45 s REAL respawn, max 4), spawn-point rule (>=600 px from player else farthest). Spawner: night start makes residents HOSTILE + scaled, one spawn immediately then per interval while hostile count < table max (timer x time_scale). Table 3/4/5/6/7/9/12, 45..15 s, x1.0..1.5 |
 | `InputSetup` | `src/utils/input_setup.gd` | Input Map helper: most actions (`move_*`, `sprint`, `hotbar_1..5`, `debug_*`) are declared in `project.godot` `[input]`; `interact` (E), `repair` (R) and `debug_island_*` (F2/F3/F4/F5) are registered by `ensure_actions()`, which only fills gaps idempotently. Also owns `MOVE_ACTIONS` and `is_movement_pressed()`, the single movement poll used by `CraftingComponent` and `NightWatchController`. **Input rule:** gameplay components poll Input actions (`Input.is_action_pressed()`, `is_action_just_pressed()`, `get_vector()`) inside `_process`/tick and never match raw keycodes; UI panels such as `BagPanel` may use `_unhandled_input` for toggle/close only. No gameplay code uses `_unhandled_input` |
 | `SafeZone` | `scenes/practice/safe_zone.gd` | **Practice-only** camera zoom + speed modifier example |
 | Tests / sandbox | `tests/unit/`, `tests/sandbox/` | GUT tests and a manual stats sandbox |
 
 ### What does NOT exist yet
 
-Drop-on-death loot, the Chest panel, the Crafting tab UI (still a placeholder),
-wiring the camp/crafting components and `CampController` into `island.tscn`,
-combat
-(auto-attack + manual provocation trigger, dodge), enemy AI (Wild Boar **and
-Island Deer**), daytime fauna quota, night spawner + camp-aggro logic (the 16
-`night_spawn_point` markers exist, but nothing reads them yet), Proficiency XP /
-passives / death debuff, death/respawn/loot bag, main/pause/death/victory UI,
-audio, save system, `EventBus`, `GameManager`, `AudioManager`, the production
-island map (only `practice1.tscn` and the placeholder `island.tscn` exist — no
-production art, no level loader). Do not assume these APIs exist.
+Drop-on-death loot, the Chest panel, Proficiency XP / passives / death debuff,
+death/respawn/loot bag, main/pause/death/victory UI, audio, save system,
+`EventBus`, `GameManager`, `AudioManager`, the production island map (only
+`practice1.tscn` and the placeholder `island.tscn` exist — no production art,
+no level loader), post-MVP fauna (Wolf, Shadow Stalker, Snare Trap, NPCs). Combat,
+both fauna, the daytime quota, the night spawner, camp aggro, Dazzled, Ember Snuff
+and the rescue boar guarantee now exist. Do not assume the missing APIs exist.
+
+Combat simplification to remember: enemy bodies use `collision_layer = 0` and
+`collision_mask = 1`, so the player walks through animals and only walls/coast
+block them.
 
 Note: `StatsComponent` has proficiency **levels** only (§6.2). XP,
 `max_reached_level` and passive abilities are not implemented (see §7.6).
@@ -543,13 +547,15 @@ Supersedes the order in `MVP_CHECKLIST` §19 (update that file to match).
       added the Crafting tab, the `island.tscn` wiring (CampController instance +
       `CraftingComponent`/`RepairComponent` on Player) and the F5 kit. Still open:
       the Chest panel.
-3. **P1b - threat loop.**
-   1. Combat: auto-attack + manual provocation (click/Space), dodge, knockback,
-      weapon slot stats (§7.2).
+3. **P1b - threat loop. — DONE.**
+   1. Combat: auto-attack + manual provocation (click/Space), dodge (no
+i-frames), knockback, weapon slot stats (§7.2). `CombatComponent`,
+`PlayerDamageReceiver`, `HealthComponent`, `Player.apply_knockback`.
    2. Island Deer (only Hide source) + Wild Boar day/night AI + daytime quota
-      (§7.3).
+      (§7.3). `FaunaBase`/`WildBoar`/`IslandDeer` + `FaunaQuota`.
    3. Night spawner (16 markers, caps/intervals/multipliers), camp-aggro logic,
-      Dazzled, Ember Snuff (§7.3, §7.4).
+      Dazzled, Ember Snuff (§7.3, §7.4). `NightSpawner` + `NightScalingConfig` +
+Campfire `remove_fuel()`/Ember Snuff. 55 new tests in total; F6-F10 debug helpers.
 4. **P1c - Proficiency.** `ProficiencyComponent`: XP, carry-over,
    `max_reached_level`, passives, night XP bonus; hook XP from gather/craft/hit/
    kill/dodge/distance (§7.6). Must exist before the death debuff.
@@ -683,3 +689,9 @@ numbers in `.tres` so tuning stays cheap.
 4. **Workbench dependency at the end.** The Flare is crafted at the Workbench. If
    it is destroyed late, the player must rebuild it (5 wood + 2 stone + 3 fiber)
    before crafting. Make sure Zone 1 materials or stock cover this.
+5. **P1b assumptions implemented (confirm with design).** The dawn rule runs for
+   days 2-7 (question 3 treated as "same rule"). The Deer guarantee flag
+   `FaunaQuota.guarantee_deer_at_rescue` exists but stays OFF (question 2 still
+   open). Resident boars count toward the night maximum. Night spawner spawns one
+   boar immediately at night start. The first ember-snuff hit on nights >= 5 also
+   removes fuel on top of the normal structure damage.

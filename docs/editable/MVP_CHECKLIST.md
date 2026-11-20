@@ -29,8 +29,8 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 | Inventory & gathering | Sebagian | Inventory 12 slot + hotbar 1-5, definisi item, pickup, efek makan/minum, bag UI (Tab/I, drag-drop, klik kanan, tooltip), hold-E interaction, dan 8 resource node + respawn/tool gate ada (23 tes inventory, 17 bag panel, 13 interaction, 14 resource node); crafting dan drop saat mati belum |
 | Peta pulau | Minimum | `src/levels/island/island.tscn` (placeholder): zona sesuai spec §7.7, 139 node resource, 16 marker night spawn (tanpa spawner), wreckage, koper darurat, beacon placeholder, 9 river edge. Art produksi dan level loader belum |
 | Crafting & camp | Sebagian | 13 resep + `CraftingComponent`, tab Crafting di `BagPanel`, 4 definisi struktur, `CampStructure`/`BlueprintSlot`/`Campfire`/`Workbench`/`Chest`/`Tent`, repair hold-R, Night Watch, dan `CampController` (terpasang di `island.tscn`) ada dan teruji; panel Peti belum |
-| Combat & enemy | Belum | Belum ada attack, AI, spawn, scaling malam |
-| Night survival loop | Belum | Timer malam ada di HUD, tetapi belum ada gelombang ancaman |
+| Combat & enemy | Ada | Auto-attack + manual klik/Space 90°, dodge (tanpa i-frame), knockback, bleed, teks damage; Boar (gigit, dash, camp aggro) + Rusa; 33 tes combat + 27 tes fauna |
+| Night survival loop | Sebagian | Spawner malam + tabel scaling 1-7, Dazzled, Ember Snuff, kuota fajar; timer gagal/survival masih label HUD |
 | Death & respawn | Belum | Belum ada death screen, drop item, debuff |
 | Win condition | Belum | `rescue_started` ada, tetapi flare/victory belum |
 | UI & audio final | Sebagian | HUD waktu, needs, stats, hotbar, interaksi ada; HUD needs belum dicek visual; menu dan audio belum |
@@ -209,33 +209,48 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [ ] Tiang Suar di Pantai Selatan.
 - [x] Daya tahan struktur camp (destructible).
   - `CampStructure.take_damage()/repair()/destroyed`, HP bar hanya saat rusak, dan hold-R `RepairComponent` (1 kayu + 1 batu -> +80 untuk Campfire, dst.); dibuktikan `test_camp_structure.gd` + `test_repair_component.gd`.
-- [ ] Light debuff `Dazzled` untuk musuh di radius campfire.
-- [ ] Ember Snuff malam 5–7.
+- [x] Light debuff `Dazzled` untuk musuh di radius campfire.
+  - `FaunaBase` mengecek `Campfire.is_lit()` + `get_dazzle_radius()` tiap tick: speed x0.70, attack speed x0.75, dibuktikan `tests/unit/test_fauna_base.gd`.
+- [x] Ember Snuff malam 5–7.
+  - `Campfire.remove_fuel()` + reaksi `take_damage()` dari sumber grup `fauna` saat malam hari >= 5 (8 detik, `ember_snuff_config.tres`), dibuktikan `tests/unit/test_ember_snuff.gd`.
 
 ---
 
 ## 9. Combat dan Enemy
 
-- [ ] Auto-attack pemain.
-- [ ] Damage, knockback, dan feedback hit.
-- [ ] Dodge/i-frame.
-- [ ] Satu jenis hewan liar MVP.
-- [ ] AI berkeliaran, mendeteksi, mengejar, menyerang.
-- [ ] Spawn musuh siang/malam.
-- [ ] Scaling jumlah/stat malam berdasarkan hari.
-- [ ] Target prioritas pemain vs struktur camp.
-- [ ] Serangan ke Campfire/Workbench/Peti/Tenda.
-- [ ] Dash Charge Babi Hutan dan damage 2× ke struktur.
+- [x] Auto-attack pemain.
+  - `CombatComponent` hanya menyerang target HOSTILE/PROVOKED; manual tidak mengubah target netral selain memprovokasi; `tests/unit/test_combat_component.gd`.
+- [x] Damage, knockback, dan feedback hit.
+  - Damage lewat `calc_incoming_damage()`, knockback 60 px/0.2 s, teks melayang + flash; `test_player_damage_receiver.gd`, `test_player_knockback.gd`.
+- [x] Dodge/i-frame.
+  - Dodge roll RNG pasif, damage 0 + "DODGE!"; **tanpa i-frame** (sesuai spec).
+- [x] Satu jenis hewan liar MVP.
+  - Wild Boar dan Island Deer; `test_wild_boar.gd`, `test_island_deer.gd`.
+- [x] AI berkeliaran, mendeteksi, mengejar, menyerang.
+  - WANDER/CHASE/BITE/DASH_TELEGRAPH/DASH/RECOVER/FLEE, deteksi 300 px malam, leash 380 px siang.
+- [x] Spawn musuh siang/malam.
+  - Kuota siang 2 Boar + 3 Deer; `NightSpawner` saat `night_started`; `test_fauna_quota.gd`, `test_night_spawner.gd`.
+- [x] Scaling jumlah/stat malam berdasarkan hari.
+  - `NightScalingConfig` tabel 1-7 (3..12 musuh, 45..15 s, x1.0..1.5); `test_night_scaling_config.gd`.
+- [x] Target prioritas pemain vs struktur camp.
+  - Pemain <=140 px, lalu struktur (raid_camp), lalu pemain terdeteksi; struktur diurut `get_aggro_priority()`.
+- [x] Serangan ke Campfire/Workbench/Peti/Tenda.
+  - Gigitan 12 dan dash 40 lewat `CampStructure.take_damage()`; `test_wild_boar.gd`.
+- [x] Dash Charge Babi Hutan dan damage 2× ke struktur.
+  - Telegraf 0.8 s, 330 px/s, 20 ke pemain + knockback, 40 ke struktur.
 - [ ] Bonus XP +50% untuk combat malam.
-- [ ] Anti-softlock spawn 2 Babi Hutan setelah fajar Hari 7.
+- [x] Anti-softlock spawn 2 Babi Hutan setelah fajar Hari 7.
+  - `FaunaQuota` rescue: setidaknya 2 Boar NEUTRAL, respawn 45 detik nyata, maksimal 4 tambahan; `test_fauna_quota.gd`.
 
 ---
 
 ## 10. Night Survival Loop
 
 - [ ] Survival Timer malam terhubung ke gameplay, bukan hanya label.
-- [ ] Gelombang musuh malam.
-- [ ] Peningkatan ancaman per hari.
+- [x] Gelombang musuh malam.
+  - `NightSpawner` menambah Boar sampai batas tabel, satu langsung saat malam mulai.
+- [x] Peningkatan ancaman per hari.
+  - Jumlah/interval/HP-damage mengikuti `night_scaling_config.tres`.
 - [ ] Pemain bisa bertahan sampai timer 00:00 tanpa wajib membunuh semua musuh.
 - [ ] Fajar berikutnya reset ke hari baru.
 - [ ] Kondisi gagal saat pemain mati di malam hari.

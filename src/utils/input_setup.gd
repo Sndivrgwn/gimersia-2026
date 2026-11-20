@@ -22,6 +22,16 @@ const DEBUG_ISLAND_ZONE := &"debug_island_zone"
 const DEBUG_ISLAND_MORNING := &"debug_island_morning"
 ## F5: beri kit bahan uji crafting (island only).
 const DEBUG_ISLAND_KIT := &"debug_island_kit"
+## F6-F10 (island only): spawn fauna, lompat ke malam, heal, siklus senjata.
+const DEBUG_ISLAND_BOAR := &"debug_island_boar"
+const DEBUG_ISLAND_DEER := &"debug_island_deer"
+const DEBUG_ISLAND_NIGHT := &"debug_island_night"
+const DEBUG_ISLAND_HEAL := &"debug_island_heal"
+const DEBUG_ISLAND_WEAPON := &"debug_island_weapon"
+
+## Serangan manual: klik kiri (arah kursor) dan Space (arah hadap).
+const ATTACK_CLICK := &"attack_click"
+const ATTACK_SPACE := &"attack_space"
 
 ## Tombol 1-5 memakai slot hotbar InventoryComponent.
 ## Action gerak; dipakai Player, dan oleh komponen yang membatalkan aksi saat
@@ -83,6 +93,21 @@ static func ensure_actions() -> void:
 	_ensure_key(DEBUG_ISLAND_MORNING, KEY_F4)
 	_ensure_action(DEBUG_ISLAND_KIT)
 	_ensure_key(DEBUG_ISLAND_KIT, KEY_F5)
+	_ensure_action(DEBUG_ISLAND_BOAR)
+	_ensure_key(DEBUG_ISLAND_BOAR, KEY_F6)
+	_ensure_action(DEBUG_ISLAND_DEER)
+	_ensure_key(DEBUG_ISLAND_DEER, KEY_F7)
+	_ensure_action(DEBUG_ISLAND_NIGHT)
+	_ensure_key(DEBUG_ISLAND_NIGHT, KEY_F8)
+	_ensure_action(DEBUG_ISLAND_HEAL)
+	_ensure_key(DEBUG_ISLAND_HEAL, KEY_F9)
+	_ensure_action(DEBUG_ISLAND_WEAPON)
+	_ensure_key(DEBUG_ISLAND_WEAPON, KEY_F10)
+
+	_ensure_action(ATTACK_SPACE)
+	_ensure_key(ATTACK_SPACE, KEY_SPACE)
+	_ensure_action(ATTACK_CLICK)
+	_ensure_mouse_button(ATTACK_CLICK, MOUSE_BUTTON_LEFT)
 
 	for index in HOTBAR_ACTIONS.size():
 		_ensure_action(HOTBAR_ACTIONS[index])
@@ -109,6 +134,16 @@ static func _ensure_key(action: StringName, key: Key) -> void:
 	var event := InputEventKey.new()
 	event.physical_keycode = key
 	InputMap.action_add_event(action, event)
+
+
+static func _ensure_mouse_button(action: StringName, button: MouseButton) -> void:
+	for event in InputMap.action_get_events(action):
+		var mouse_event := event as InputEventMouseButton
+		if mouse_event != null and mouse_event.button_index == button:
+			return
+	var created := InputEventMouseButton.new()
+	created.button_index = button
+	InputMap.action_add_event(action, created)
 
 
 static func _has_physical_key(action: StringName, key: Key) -> bool:

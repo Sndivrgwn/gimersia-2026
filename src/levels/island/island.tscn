@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=31 format=3]
 
 [ext_resource type="Script" path="res://src/levels/island/island.gd" id="1_island"]
 [ext_resource type="PackedScene" path="res://src/entities/player/player.tscn" id="2_player"]
@@ -22,6 +22,10 @@
 [ext_resource type="Script" path="res://src/components/crafting/crafting_component.gd" id="20_crafting"]
 [ext_resource type="Script" path="res://src/components/camp/repair_component.gd" id="21_repair"]
 [ext_resource type="PackedScene" path="res://src/levels/camp/camp_controller.tscn" id="22_camp"]
+[ext_resource type="Script" path="res://src/components/combat/combat_component.gd" id="23_combat"]
+[ext_resource type="Script" path="res://src/components/combat/player_damage_receiver.gd" id="24_receiver"]
+[ext_resource type="Script" path="res://src/core/managers/fauna_quota.gd" id="25_quota"]
+[ext_resource type="Script" path="res://src/core/managers/night_spawner.gd" id="26_spawner"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
 size = Vector2(5000, 100)
@@ -158,6 +162,12 @@ script = ExtResource("20_crafting")
 [node name="RepairComponent" type="Node" parent="Player"]
 script = ExtResource("21_repair")
 
+[node name="PlayerDamageReceiver" type="Node" parent="Player"]
+script = ExtResource("24_receiver")
+
+[node name="CombatComponent" type="Node" parent="Player"]
+script = ExtResource("23_combat")
+
 [node name="Camera2D" type="Camera2D" parent="."]
 physics_interpolation_mode = 1
 top_level = true
@@ -183,6 +193,16 @@ script = ExtResource("5_builder")
 layout = ExtResource("6_layout")
 
 [node name="CampController" parent="." instance=ExtResource("22_camp")]
+
+[node name="Fauna" type="Node2D" parent="."]
+
+[node name="FaunaQuota" type="Node" parent="." node_paths=PackedStringArray("fauna_parent")]
+script = ExtResource("25_quota")
+fauna_parent = NodePath("../Fauna")
+
+[node name="NightSpawner" type="Node" parent="." node_paths=PackedStringArray("fauna_parent")]
+script = ExtResource("26_spawner")
+fauna_parent = NodePath("../Fauna")
 
 [node name="DayNightVisual" parent="." instance=ExtResource("9_daynight")]
 

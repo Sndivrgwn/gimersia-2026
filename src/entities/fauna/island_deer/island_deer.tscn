@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/entities/fauna/island_deer/island_deer.gd" id="1_deer"]
+[ext_resource type="Resource" path="res://src/data/configs/fauna/deer_config.tres" id="2_config"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_deer"]
+radius = 10.0
+
+[node name="IslandDeer" type="CharacterBody2D"]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1_deer")
+config = ExtResource("2_config")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_deer")
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(0.72, 0.58, 0.38, 1)
+polygon = PackedVector2Array(-10, -8, 10, -8, 11, 6, -11, 6)

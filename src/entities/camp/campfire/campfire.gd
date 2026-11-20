@@ -25,6 +25,8 @@ const REST_SOURCE := &"campfire"
 
 ## Tuning. Null berarti memakai CampfireConfig() bawaan.
 @export var config: CampfireConfig
+## Ember Snuff (malam 5-7): serangan fisik musuh juga memakan bahan bakar.
+@export var ember_snuff_config: EmberSnuffConfig = preload("res://src/data/configs/fauna/ember_snuff_config.tres")
 ## Opsional; default autoload DayNightManager.
 @export var clock: Node
 
@@ -112,6 +114,40 @@ func is_full() -> bool:
 func set_fuel(value: float) -> void:
 	_ensure_config()
 	_set_fuel(value)
+
+
+## Kurangi bahan bakar (Ember Snuff). Tidak pernah menambah.
+func remove_fuel(seconds: float) -> void:
+	if seconds <= 0.0:
+		return
+	_ensure_config()
+	_set_fuel(_fuel - seconds)
+
+
+## Ember Snuff: serangan fisik dari fauna saat malam hari >= first_day
+## juga memakan bahan bakar.
+func take_damage(amount: float, source: Node) -> void:
+	if _ember_snuff_applies(source):
+		remove_fuel(ember_snuff_config.fuel_loss)
+	super.take_damage(amount, source)
+
+
+func _ember_snuff_applies(source: Node) -> bool:
+	if ember_snuff_config == null or source == null:
+		return false
+	if not _fuel > 0.0:
+		return false
+	if not source.is_in_group(&"fauna"):
+		return false
+	if not _is_night():
+		return false
+	return _day() >= ember_snuff_config.first_day
+
+
+func _day() -> int:
+	if clock == null or not clock.has_method(&"get_current_day"):
+		return 1
+	return int(clock.get_current_day())
 
 
 # --- Tick -------------------------------------------------------------------

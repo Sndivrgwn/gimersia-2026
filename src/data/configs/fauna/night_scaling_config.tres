@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="NightScalingConfig" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/fauna/night_scaling_config.gd" id="1_0ml7i"]
+
+[resource]
+script = ExtResource("1_0ml7i")
