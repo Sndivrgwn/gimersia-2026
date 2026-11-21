@@ -12,6 +12,29 @@ const GAME_SCENE := "res://src/levels/island/island.tscn"
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build()
+	_ensure_settings_ui()
+
+
+## Mission 7: panel pengaturan dipakai ulang di menu utama.
+func _ensure_settings_ui() -> void:
+	var service := get_node_or_null("SettingsService") as SettingsService
+	if service == null:
+		service = SettingsService.new()
+		service.name = "SettingsService"
+		add_child(service)
+	var panel := get_node_or_null("SettingsPanel") as SettingsPanel
+	if panel == null:
+		panel = SettingsPanel.new()
+		panel.name = "SettingsPanel"
+		add_child(panel)
+	panel.setup(service)
+	if find_child("SettingsButton", true, false) != null:
+		return
+	var button := Button.new()
+	button.name = "SettingsButton"
+	button.text = "Pengaturan"
+	button.pressed.connect(panel.open)
+	add_child(button)
 
 
 # --- Internal ---------------------------------------------------------------

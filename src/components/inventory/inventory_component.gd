@@ -245,6 +245,10 @@ func move_slot(from: int, to: int) -> bool:
 
 ## Pakai item di slot. Hanya CONSUMABLE; item tetap terpakai walau stat sudah
 ## penuh. True bila item benar-benar dipakai dan dikurangi satu.
+## Mission 7: hook additive setelah item berhasil dipakai.
+signal item_used(item: ItemDefinition, slot_index: int)
+
+
 func use_slot(index: int) -> bool:
 	if is_slot_empty(index):
 		return false
@@ -258,6 +262,7 @@ func use_slot(index: int) -> bool:
 
 	_apply_effect(item.consume_effect)
 	_consume_one(index)
+	item_used.emit(item, index)
 	return true
 
 

@@ -12,6 +12,10 @@ extends Node
 ## terpasang. Debuff memakai `ProficiencyComponent.apply_death_debuff()`.
 
 signal died(respawns_remaining: int)
+## Mission 7: rincian debuff yang diterapkan saat respawn.
+signal debuff_applied(changes: Array)
+
+var _last_debuff_changes: Array = []
 signal respawned
 signal game_over
 
@@ -65,6 +69,10 @@ func get_last_loot_bag() -> Node:
 # --- Kontrol ----------------------------------------------------------------
 
 ## Respawn ke kamp. False bila token habis (game over permanen).
+func get_last_debuff_changes() -> Array:
+	return _last_debuff_changes
+
+
 func respawn() -> bool:
 	_bind()
 	if not can_respawn() or not is_dead:
@@ -83,7 +91,18 @@ func respawn() -> bool:
 		needs.set_value(NeedsComponent.Need.THIRST, RESPAWN_THIRST)
 		needs.set_value(NeedsComponent.Need.FATIGUE, RESPAWN_FATIGUE)
 	if proficiency != null:
-		proficiency.apply_death_debuff()
+		var before: Array[int] = []
+		for prof in ProficiencyComponent.PROF_COUNT:
+			before.append(proficiency.get_level(prof))
+		var changed: Array[int] = proficiency.apply_death_debuff()
+		_last_debuff_changes = []
+		for prof in changed:
+			_last_debuff_changes.append({
+				"prof": prof,
+				"from_level": before[prof] if prof < before.size() else 0,
+				"to_level": proficiency.get_level(prof),
+			})
+		debuff_applied.emit(_last_debuff_changes)
 
 	respawned.emit()
 	return true

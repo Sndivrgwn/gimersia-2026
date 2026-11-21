@@ -23,12 +23,17 @@ const PLAYER_GROUP := &"player"
 @export var rescue_max_extra_respawns: int = 4
 ## Pertanyaan desain §13: jaminan rusa saat rescue. Sengaja OFF.
 @export var guarantee_deer_at_rescue: bool = false
+## Mission 7: jaminan rusa saat rescue (min 2, respawn 45 s nyata, max 4).
+@export var rescue_min_deer: int = 2
+@export var rescue_max_extra_deer_respawns: int = 4
 
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 var _rescue_mode: bool = false
 var _respawn_timers: Array[float] = []
 var _extra_respawns: int = 0
+var _deer_respawn_timers: Array[float] = []
+var _deer_extra_respawns: int = 0
 var _initial_spawned: bool = false
 
 
@@ -58,6 +63,12 @@ func tick(delta: float) -> void:
 			continue
 		_respawn_timers.remove_at(index)
 		_spawn_boar()
+	for index in range(_deer_respawn_timers.size() - 1, -1, -1):
+		_deer_respawn_timers[index] -= delta
+		if _deer_respawn_timers[index] > 0.0:
+			continue
+		_deer_respawn_timers.remove_at(index)
+		_spawn_deer_in_forest()
 
 
 func _process(delta: float) -> void:
@@ -151,6 +162,43 @@ func _spawn_boar() -> WildBoar:
 	return boar
 
 
+## Mission 7: rusa jaminan rescue muncul di FOREST, jauh dari base & pemain.
+func _spawn_deer_in_forest() -> IslandDeer:
+	var deer := DEER_SCENE.instantiate() as IslandDeer
+	if deer == null:
+		return null
+	deer.clock = clock
+	_parent().add_child(deer)
+	deer.global_position = _forest_spawn_position()
+	deer.died.connect(_on_fauna_died)
+	return deer
+
+
+func _forest_spawn_position() -> Vector2:
+	var tree := get_tree()
+	if tree == null:
+		return get_spawn_position()
+	var anchor := CampAnchor.find_anchor(self)
+	var base_center := anchor.get_center() if anchor != null else Vector2.ZERO
+	var base_clear := (anchor.get_ring_radius() + 100.0) if anchor != null else 0.0
+	var player_position := _player_position()
+	var forest: Array[Vector2] = []
+	for node in tree.get_nodes_in_group(SPAWN_GROUP):
+		var marker := node as Node2D
+		if marker == null:
+			continue
+		if IslandZones.zone_at(marker.global_position) != IslandZones.Zone.FOREST:
+			continue
+		if base_clear > 0.0 and marker.global_position.distance_to(base_center) < base_clear:
+			continue
+		if marker.global_position.distance_to(player_position) < min_spawn_distance:
+			continue
+		forest.append(marker.global_position)
+	if forest.is_empty():
+		return get_spawn_position()
+	return forest[rng.randi_range(0, forest.size() - 1)]
+
+
 func _spawn_deer() -> IslandDeer:
 	var deer := DEER_SCENE.instantiate() as IslandDeer
 	if deer == null:
@@ -214,12 +262,17 @@ func _on_rescue_started() -> void:
 		if boar != null:
 			boar.set_temperament(FaunaBase.Temperament.NEUTRAL)
 	if guarantee_deer_at_rescue:
-		while get_deer_count() < deer_target:
-			_spawn_deer()
+		while get_deer_count() < rescue_min_deer:
+			_spawn_deer_in_forest()
 
 
 func _on_fauna_died(node: Node) -> void:
 	if not _rescue_mode:
+		return
+	if node is IslandDeer:
+		if guarantee_deer_at_rescue and _deer_extra_respawns < rescue_max_extra_deer_respawns:
+			_deer_extra_respawns += 1
+			_deer_respawn_timers.append(rescue_respawn_delay)
 		return
 	if not (node is WildBoar):
 		return
@@ -231,6 +284,10 @@ func _on_fauna_died(node: Node) -> void:
 
 func get_extra_respawns_left() -> int:
 	return maxi(rescue_max_extra_respawns - _extra_respawns, 0)
+
+
+func get_deer_extra_respawns_left() -> int:
+	return maxi(rescue_max_extra_deer_respawns - _deer_extra_respawns, 0)
 
 
 # --- Internal ---------------------------------------------------------------

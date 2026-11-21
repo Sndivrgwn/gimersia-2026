@@ -58,6 +58,7 @@ func test_s5_endgame_loop() -> void:
 	beacon.interact(inter)
 	assert_signal_emitted(beacon, "victory_triggered")
 	assert_signal_emitted(endgame, "victory")
+	assert_eq(inv.count_of(ItemCatalog.SIGNAL_FLARE), 0, "M7: suar dikonsumsi saat victory")
 
 	# Assert victory state / signal fires once
 	var victory_signal_count: int = get_signal_emit_count(endgame, "victory")

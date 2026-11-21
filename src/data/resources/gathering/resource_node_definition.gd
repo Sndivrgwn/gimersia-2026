@@ -21,6 +21,11 @@ enum RespawnRule { DAILY, EVERY_OTHER_DAY, NEVER }
 @export var yield_max: int = 1
 ## Tool wajib; NONE berarti bisa dengan tangan.
 @export var required_tool: RequiredTool = RequiredTool.NONE
+## Mission 7: tool yang mempercepat (tidak wajib) + faktor waktunya.
+@export var speed_tool: RequiredTool = RequiredTool.NONE
+@export var speed_factor: float = 1.0
+## Mission 7: hanya pohon yang memasang ChopFeedback.
+@export var chop_feedback_enabled: bool = false
 ## Lama hold dasar (detik nyata); dikali `StatsComponent.get_gather_time_factor()`.
 @export var gather_time: float = 1.0
 ## Fatigue yang dibayar sekali saat panen selesai.

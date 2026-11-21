@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="HintDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/hints/hint_definition.gd" id="1_75y4k"]
+
+[resource]
+script = ExtResource("1_75y4k")
+id = &"neutral_hit"
+text = "Menyerang hewan netral membuatnya menyerang balik."

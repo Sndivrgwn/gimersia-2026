@@ -16,6 +16,7 @@ const LAYOUT_DEFAULT: IslandLayoutConfig = preload("res://src/data/configs/islan
 const RESOURCE_SCENE: PackedScene = preload("res://src/entities/props/resource_node/resource_node.tscn")
 
 const DEF_TWIG := preload("res://src/data/gathering/twig.tres")
+const DEF_SMALL_TREE: ResourceNodeDefinition = preload("res://src/data/gathering/small_tree.tres")
 const DEF_TREE := preload("res://src/data/gathering/tree.tres")
 const DEF_SMALL_ROCK := preload("res://src/data/gathering/small_rock.tres")
 const DEF_BIG_ROCK := preload("res://src/data/gathering/big_rock.tres")
@@ -94,6 +95,7 @@ func plan() -> Array[Dictionary]:
 	_plan_zone(entries, IslandZones.Zone.CAMP, DEF_SMALL_ROCK, layout.camp_small_rock, starters, true)
 	_plan_zone(entries, IslandZones.Zone.CAMP, DEF_FIBER_BUSH, layout.camp_fiber_bush, starters, true)
 	_plan_zone(entries, IslandZones.Zone.CAMP, DEF_BERRY_BUSH, layout.camp_berry_bush, starters, true)
+	_plan_zone(entries, IslandZones.Zone.CAMP, DEF_SMALL_TREE, layout.camp_small_tree, starters, true)
 
 	_plan_zone(entries, IslandZones.Zone.SOUTH_BEACH, DEF_COCONUT_PALM, layout.south_coconut_palm, 0, false)
 	_plan_zone(entries, IslandZones.Zone.WEST_CLIFFS, DEF_SMALL_ROCK, layout.west_small_rock, 0, false)

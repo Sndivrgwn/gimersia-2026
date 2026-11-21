@@ -4,7 +4,7 @@ extends Interactable
 ## Signal Beacon di (0, 2100): hold E 1.5 s sambil membawa Suar Darurat pada
 ## fase rescue (fajar Hari 7) -> Victory (spec §7.8).
 ##
-## Suar tidak dikonsumsi (spec tidak menyebutkannya); cukup dimiliki.
+## Suar DIKONSUMSI saat victory (keputusan owner Mission 7).
 
 signal victory_triggered
 
@@ -52,8 +52,13 @@ func get_block_reason(_interactor: Node) -> String:
 	return ""
 
 
-func interact(_interactor: Node) -> void:
-	if not can_interact(_interactor) or _victory_done:
+func interact(interactor: Node) -> void:
+	if _victory_done or not can_interact(interactor):
+		return
+	var bag := inventory
+	if bag == null and interactor != null and interactor.has_method(&"get_inventory"):
+		bag = interactor.get_inventory() as InventoryComponent
+	if bag == null or not bag.remove_item(FLARE_ID, 1):
 		return
 	_victory_done = true
 	victory_triggered.emit()

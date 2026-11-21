@@ -17,6 +17,8 @@ extends Resource
 @export var hold_time: float = 0.3
 ## Batu yang dipakai per percobaan (bukan per strike).
 @export var stone_cost: int = 1
+## Mission 7: batu hanya dipakai bila percobaan gagal.
+@export var consume_stone_on_fail_only: bool = true
 ## Cooldown setelah percobaan gagal.
 @export var fail_cooldown: float = 0.8
 ## Batal bila campfire lebih jauh dari ini.

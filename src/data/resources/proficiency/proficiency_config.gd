@@ -44,6 +44,9 @@ extends Resource
 @export var resourceful_bonus: int = 1
 @export var master_chef_level: int = 6
 @export var master_chef_bonus: float = 10.0
+## Mission 7: item yang mendapat bonus Master Chef (need terkait).
+@export var master_chef_hunger_items: Array[StringName] = [&"cooked_meat"]
+@export var master_chef_thirst_items: Array[StringName] = [&"bone_broth", &"boiled_water"]
 
 @export_group("Agility")
 @export var agility_dodge_xp: float = 20.0

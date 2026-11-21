@@ -43,6 +43,16 @@
 [ext_resource type="Script" path="res://src/components/crafting/fire_starter_controller.gd" id="41_firestarter"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/crafting/fire_starter_hud.tscn" id="42_fshud"]
 [ext_resource type="Script" path="res://src/components/combat/combat_feedback.gd" id="43_feedback"]
+[ext_resource type="Script" path="res://src/core/managers/settings_service.gd" id="44_settings"]
+[ext_resource type="Script" path="res://src/ui/menus/pause_menu.gd" id="45_pause"]
+[ext_resource type="Script" path="res://src/ui/menus/settings_panel.gd" id="46_settings_panel"]
+[ext_resource type="Script" path="res://src/ui/menus/help_panel.gd" id="47_help"]
+[ext_resource type="Script" path="res://src/ui/hud/hints/hint_manager.gd" id="48_hints"]
+[ext_resource type="Script" path="res://src/ui/panels/chest/chest_panel.gd" id="49_chestpanel"]
+[ext_resource type="Script" path="res://src/ui/hud/night/night_banner.gd" id="50_nightbanner"]
+[ext_resource type="Script" path="res://src/ui/hud/night/night_survival_hud.gd" id="51_survivalhud"]
+[ext_resource type="Script" path="res://src/ui/hud/respawn_recap/respawn_recap_hud.gd" id="52_recap"]
+[ext_resource type="Script" path="res://src/ui/hud/proficiency/proficiency_hud.gd" id="53_proficiencyhud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
 size = Vector2(5000, 100)
@@ -234,9 +244,25 @@ config = ExtResource("40_fenceconf")
 
 [node name="Fauna" type="Node2D" parent="."]
 
+[node name="SettingsService" type="Node" parent="."]
+script = ExtResource("44_settings")
+
+[node name="PauseMenu" type="CanvasLayer" parent="."]
+script = ExtResource("45_pause")
+
+[node name="SettingsPanel" type="Control" parent="PauseMenu"]
+script = ExtResource("46_settings_panel")
+
+[node name="HelpPanel" type="Control" parent="PauseMenu"]
+script = ExtResource("47_help")
+
+[node name="HintManager" type="Node" parent="."]
+script = ExtResource("48_hints")
+
 [node name="FaunaQuota" type="Node" parent="." node_paths=PackedStringArray("fauna_parent")]
 script = ExtResource("25_quota")
 fauna_parent = NodePath("../Fauna")
+guarantee_deer_at_rescue = true
 
 [node name="NightSpawner" type="Node" parent="." node_paths=PackedStringArray("fauna_parent")]
 script = ExtResource("26_spawner")
@@ -245,6 +271,7 @@ fauna_parent = NodePath("../Fauna")
 [node name="DayNightVisual" parent="." instance=ExtResource("9_daynight")]
 
 [node name="TimeHUD" parent="." instance=ExtResource("10_timehud")]
+show_survival_label = false
 
 [node name="NeedsHUD" parent="." instance=ExtResource("11_needshud")]
 
@@ -253,6 +280,21 @@ fauna_parent = NodePath("../Fauna")
 [node name="HotbarHUD" parent="." instance=ExtResource("13_hotbarhud")]
 
 [node name="InteractionHUD" parent="." instance=ExtResource("15_interactionhud")]
+
+[node name="ChestPanel" type="CanvasLayer" parent="."]
+script = ExtResource("49_chestpanel")
+
+[node name="NightBanner" type="Control" parent="."]
+script = ExtResource("50_nightbanner")
+
+[node name="NightSurvivalHUD" type="Control" parent="."]
+script = ExtResource("51_survivalhud")
+
+[node name="RespawnRecapHUD" type="Control" parent="."]
+script = ExtResource("52_recap")
+
+[node name="ProficiencyHUD" type="Control" parent="."]
+script = ExtResource("53_proficiencyhud")
 
 [node name="BagPanel" parent="." instance=ExtResource("14_bagpanel")]
 

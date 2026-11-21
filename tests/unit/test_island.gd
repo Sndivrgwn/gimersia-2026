@@ -79,7 +79,7 @@ func test_zone_centers_are_inside_their_zone() -> void:
 
 func test_counts_per_zone() -> void:
 	var counts := _count_by_zone(_resource_entries(builder.plan()))
-	assert_eq(counts.get(IslandZones.Zone.CAMP, 0), 19, "camp starter: 6 twig + 4 rock + 5 fiber + 4 berry")
+	assert_eq(counts.get(IslandZones.Zone.CAMP, 0), 33, "camp starter: 10 twig + 8 rock + 5 fiber + 4 berry + 6 small tree")
 	assert_eq(counts.get(IslandZones.Zone.SOUTH_BEACH, 0), 12, "12 coconut palm")
 	assert_eq(counts.get(IslandZones.Zone.WEST_CLIFFS, 0), 22, "14 small + 8 big rock")
 	assert_eq(counts.get(IslandZones.Zone.RIVER, 0), 14, "14 bamboo")
@@ -142,8 +142,8 @@ func test_camp_starters_stay_in_ring_and_expire_after_day_4() -> void:
 		assert_between(distance, layout.camp_ring_min - 0.01, layout.camp_ring_max + 0.01)
 		if entry["last_respawn_day"] == layout.camp_starters_last_respawn_day:
 			expired += 1
-	assert_eq(inside, 19)
-	assert_eq(expired, 19, "semua starter Zone 1 hilang setelah hari 4")
+	assert_eq(inside, 33)
+	assert_eq(expired, 33, "semua starter Zone 1 hilang setelah hari 4")
 
 
 func test_layout_is_deterministic_for_same_seed() -> void:
@@ -197,9 +197,9 @@ func test_build_spawns_resource_nodes_and_markers() -> void:
 				interactables += 1
 		elif child is Marker2D and child.is_in_group(IslandBuilder.NIGHT_SPAWN_GROUP):
 			markers += 1
-	assert_eq(resources, 139)
+	assert_eq(resources, 153)
 	assert_eq(markers, 16)
-	assert_eq(interactables, 139, "setiap ResourceNode terdaftar di grup interactable")
+	assert_eq(interactables, 153, "setiap ResourceNode terdaftar di grup interactable")
 
 
 # --- Helper -----------------------------------------------------------------

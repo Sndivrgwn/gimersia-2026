@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="HintDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/hints/hint_definition.gd" id="1_c20xt"]
+
+[resource]
+script = ExtResource("1_c20xt")
+id = &"fence"
+text = "Bangun pagar di sekitar base."

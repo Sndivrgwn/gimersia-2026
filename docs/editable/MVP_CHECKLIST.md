@@ -338,6 +338,22 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 
 ---
 
+## 17. Tambahan di luar spec — Mission 7 (keputusan & kelengkapan)
+
+Hanya yang sudah terbukti lewat tes otomatis:
+
+- [x] Rusa dijamin saat rescue (min 2, respawn 45 s nyata, counter terpisah, maks 4).
+- [x] Suar darurat dikonsumsi saat Victory (victory tetap sekali).
+- [x] Batu api hanya dipakai saat percobaan gagal (sukses/batal tidak).
+- [x] Master Chef sederhana: +10 need terkait untuk cooked_meat / bone_broth / boiled_water.
+- [x] Pohon kecil bisa ditebang tangan (2 kayu, 3 fatigue) + chop feedback penuh.
+- [x] Ekonomi kayu starter baru (twig 10, batu kecil 8, pohon kecil 6; total 153 node).
+- [x] Pause menu (guard, restore time scale), settings (intensitas/guncangan/petunjuk), help (H).
+- [x] Hint manager sekali-per-run + reset; chest panel dua arah + ambil semua.
+- [x] HUD: recap debuff, baris proficiency memerah, banner malam/fajar, panel survival malam.
+
+Belum: audio, art, dan rasa permainan (butuh playtest manual).
+
 ## 16. Tambahan di luar spec — Mission 6 (Base & Feel)
 
 Hanya yang sudah terbukti lewat tes otomatis:
@@ -351,6 +367,8 @@ Hanya yang sudah terbukti lewat tes otomatis:
 Belum: audio (di luar izin), playtest rasa (harus manual), verifikasi visual.
 
 ## 15. Gerbang Akhir MVP
+
+Status: **belum dicentang** - needs manual playtest.
 
 Checklist ini mengikuti kriteria selesai di dokumen MVP. Semua harus tercentang sebelum build dianggap MVP.
 

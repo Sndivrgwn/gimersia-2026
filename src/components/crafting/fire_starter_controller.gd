@@ -75,8 +75,9 @@ func start(campfire: Node) -> bool:
 		return false
 	if inventory == null or not inventory.has_item(ItemCatalog.STONE, config.stone_cost):
 		return false
-	if not inventory.remove_item(ItemCatalog.STONE, config.stone_cost):
-		return false
+	if not config.consume_stone_on_fail_only:
+		if not inventory.remove_item(ItemCatalog.STONE, config.stone_cost):
+			return false
 	_campfire = campfire
 	_strikes = 0
 	_marker = 0.0
@@ -107,6 +108,7 @@ func strike() -> void:
 		return
 	_strikes += 1
 	if _strikes >= config.strikes_per_attempt:
+		_consume_stone_on_failure()
 		_finish(false)
 
 
@@ -215,6 +217,14 @@ func _should_cancel() -> bool:
 		_last_cancel = &"hurt"
 		return true
 	return false
+
+
+## Mission 7: batu hanya hilang bila percobaan gagal (batal/sukses tidak).
+func _consume_stone_on_failure() -> void:
+	if config == null or not config.consume_stone_on_fail_only or inventory == null:
+		return
+	if inventory.has_item(ItemCatalog.STONE, config.stone_cost):
+		inventory.remove_item(ItemCatalog.STONE, config.stone_cost)
 
 
 func _finish(success: bool) -> void:

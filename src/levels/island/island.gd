@@ -22,11 +22,71 @@ extends Node2D
 @onready var _beacon: SignalBeacon = get_node_or_null("Beacon") as SignalBeacon
 
 
+func _wire_hud(player: Node) -> void:
+	var spawner := find_child("NightSpawner", true, false)
+	var quota := find_child("FaunaQuota", true, false)
+	var death := find_child("DeathController", true, false)
+	var endgame := find_child("EndgameController", true, false)
+	var banner := find_child("NightBanner", true, false) as NightBanner
+	if banner != null:
+		banner.endgame = endgame
+	var survival := find_child("NightSurvivalHUD", true, false) as NightSurvivalHUD
+	if survival != null:
+		survival.spawner = spawner
+		survival.quota = quota
+		if spawner != null:
+			survival.scaling = spawner.get("scaling") as NightScalingConfig
+	var recap := find_child("RespawnRecapHUD", true, false) as RespawnRecapHUD
+	if death != null and recap != null and death.has_signal(&"debuff_applied"):
+		death.debuff_applied.connect(recap.show_recap)
+	var prof_hud := find_child("ProficiencyHUD", true, false) as ProficiencyHUD
+	if death != null and prof_hud != null and death.has_signal(&"debuff_applied"):
+		death.debuff_applied.connect(prof_hud.flash_rows)
+
+
+func _wire_chest_panel(player: Node) -> void:
+	var panel := get_node_or_null("ChestPanel") as ChestPanel
+	if panel == null or player == null:
+		return
+	panel.inventory = player.get_node_or_null("InventoryComponent") as InventoryComponent
+	panel.player = player as Node2D
+	panel.bag_panel = find_child("BagPanel", true, false)
+
+
+func _wire_pause_menu() -> void:
+	var menu := get_node_or_null("PauseMenu") as PauseMenu
+	if menu == null:
+		return
+	var names := ["BaseHUD", "FireStarterHUD", "BagPanel", "ChestPanel", "DeathScreen", "GameOverScreen", "EndgameHUD"]
+	var blockers: Array[Node] = []
+	for node_name in names:
+		var node := find_child(node_name, true, false)
+		if node != null:
+			blockers.append(node)
+	menu.blockers = blockers
+	var settings := get_node_or_null("SettingsService") as SettingsService
+	var settings_panel := get_node_or_null("PauseMenu/SettingsPanel") as SettingsPanel
+	var help_panel := get_node_or_null("PauseMenu/HelpPanel") as HelpPanel
+	var hint_manager := get_node_or_null("HintManager") as HintManager
+	if settings != null:
+		if settings_panel != null:
+			settings_panel.setup(settings)
+		if hint_manager != null:
+			hint_manager.settings = settings
+	if settings_panel != null:
+		menu.settings_requested.connect(settings_panel.open)
+	if help_panel != null:
+		menu.help_requested.connect(help_panel.toggle)
+
+
 func _ready() -> void:
 	var player := get_node_or_null(player_path)
 	if player != null:
 		player.set("facing_direction", start_facing)
 	_wire_endgame(player as Node2D)
+	_wire_pause_menu()
+	_wire_chest_panel(player)
+	_wire_hud(player)
 
 
 func _wire_endgame(player: Node2D) -> void:

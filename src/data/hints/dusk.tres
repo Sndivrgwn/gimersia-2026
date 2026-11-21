@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="HintDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/hints/hint_definition.gd" id="1_6ew5y"]
+
+[resource]
+script = ExtResource("1_6ew5y")
+id = &"dusk"
+text = "Malam hampir tiba. Nyalakan api unggun dan siapkan pertahanan."

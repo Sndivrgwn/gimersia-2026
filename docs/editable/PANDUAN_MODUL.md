@@ -425,6 +425,61 @@ CanvasLayer (HUD)
 └── FireStarterHUD
 ```
 
+## 14f. Pengaturan, pause, bantuan — `SettingsService`, `PauseMenu`, `HelpPanel`
+
+- `SettingsService` (Node di island & menu, grup `settings_service`, **bukan**
+  autoload): `juice_intensity` (0..1.5), `screenshake_enabled`, `hints_enabled`;
+  `get_value/set_value`, sinyal `changed`, simpan di `user://settings.cfg`
+  (file hilang/rusak → default). `CombatFeedback` membaca service ini.
+- `PauseMenu` (CanvasLayer 40, `PROCESS_MODE_ALWAYS`): **P** membuka/menutup;
+  tidak terbuka bila DeathScreen, game over, Victory, BaseHUD, FireStarterHUD,
+  BagPanel, atau ChestPanel sedang tampil. Menyimpan `get_time_scale()` lalu
+  memulihkannya tepat (Night Watch x2 / final dawn 0 tetap aman).
+- `SettingsPanel`: slider intensitas, toggle guncangan & petunjuk (dipakai
+  PauseMenu dan tombol "Pengaturan" di MainMenu).
+- `HelpPanel`: daftar kontrol statis, toggle **H**, tidak mem-pause.
+
+## 14g. Peti — `ChestPanel`
+
+`ChestPanel` (CanvasLayer 21) terbuka dari `Chest.interaction_requested`:
+24 slot peti + cermin 12 slot tas, klik kanan memindahkan, tombol "Ambil semua".
+Tutup dengan Esc/E, peti hancur, atau pemain > 120 px. Tidak mem-pause dan
+mengunci toggle BagPanel selama terbuka.
+
+## 14h. Petunjuk & HUD malam
+
+- `HintManager`: satu hint sekaligus, 5 s, sekali per run, reset saat restart,
+  mati bila `hints_enabled` false. Resource `src/data/hints/*.tres` dibuat oleh
+  `tools/generate_hints.gd`.
+- `RespawnRecapHUD`: toast 8 s "Debuff kematian: Kekuatan Lv 4 -> 3" atau
+  "Tidak ada debuff"; `ProficiencyHUD` memerahkan baris 3 s.
+- `NightBanner`: "Malam N dimulai" (+ "Ember Snuff aktif" dari malam 5) dan
+  "Fajar hari N - kamu selamat dari malam N-1" 4 s; fajar dilewati saat rescue.
+- `NightSurvivalHUD`: "Malam N | Bertahan mm:ss | Musuh X/Y" + progress bar,
+  hanya malam. `TimeHUD.show_survival_label = false` di island agar tidak ganda.
+
+### Pohon kecil — `small_tree` + `ChopFeedback`
+
+`small_tree` (tangan kosong 4.0 s, 2 kayu, 3 fatigue; dengan kapak 2.0 s) ada 6 di
+ring camp dan hilang permanen setelah hari 4. `ChopFeedback` hanya menempel pada
+definisi dengan `chop_feedback_enabled`: goyang visual, serpihan tiap 0.25 s,
+tumbang 85° / 0.6 s, tunggul sampai respawn, lalu tumbuh lagi 0.3 → 1.0 / 0.5 s.
+
+### Susunan node baru Mission 7 (island)
+
+```text
+Island
+├── SettingsService
+├── PauseMenu (CanvasLayer 40)
+│   ├── SettingsPanel
+│   └── HelpPanel
+├── HintManager
+└── HUD CanvasLayer
+    ├── ChestPanel (CanvasLayer 21)
+    ├── NightBanner · NightSurvivalHUD · RespawnRecapHUD · ProficiencyHUD
+    └── TimeHUD (show_survival_label = false)
+```
+
 ## 15. Input Map — `project.godot`
 
 **Sumber kebenaran:** sebagian besar action ada di `project.godot` bagian `[input]`,
@@ -456,6 +511,8 @@ memakai `_unhandled_input`.
 | `debug_island_rescue` | F12 | `GatherDebug` — lompat fase sampai rescue/fajar Hari 7 (island saja) |
 | `base_place` | B | `BasePlacementController` — masuk/keluar mode pendirian base (didaftarkan `InputSetup`) |
 | `debug_fauna_labels` | Insert | `GatherDebug` — label temperament/HP fauna di atas kepala (island saja) |
+| `pause_toggle` | P | `PauseMenu` — buka/tutup pause (didaftarkan `InputSetup`) |
+| `help_toggle` | H | `HelpPanel` — buka/tutup daftar kontrol (didaftarkan `InputSetup`) |
 | `ui_cancel` (bawaan) | Esc | `BagPanel` — hanya menutup saat terbuka |
 | `debug_needs_toggle` | F1 | `NeedsDebug` (practice only) |
 | `debug_cycle_hunger` / `debug_cycle_thirst` / `debug_cycle_fatigue` | X / C / V | `NeedsDebug`, sandbox |
@@ -480,6 +537,23 @@ Export: `phantom_camera`, `normal_zoom`, `safe_zone_zoom`, `zoom_duration`, `slo
 ---
 
 ## 17. Tes dan sandbox
+
+### Uji manual Mission 7 (island)
+
+1. **Pohon:** tebang `small_tree` dengan tangan (4 s) dan dengan kapak (2 s);
+   lihat goyang, serpihan, tumbang, tunggul, lalu tumbuh lagi pagi berikutnya.
+   Hitung kayu hari 1 (starter ring sekarang: 10 twig, 8 batu kecil, 6 pohon kecil).
+2. **Suar:** bawa flare ke Beacon saat rescue; setelah Victory flare hilang dari tas.
+3. **Batu api:** biarkan api padam, siapkan 1 batu; percobaan gagal memakai batu,
+   sukses/batal tidak. Tanpa batu → "Butuh Batu".
+4. **Pause:** P saat malam (Night Watch x2) dan saat final dawn (0); setelah
+   lanjut, skala waktu kembali tepat.
+5. **Settings:** ubah slider intensitas dan toggle guncangan; pukul boar dan
+   rasakan perbedaannya. Matikan petunjuk → hint tidak muncul.
+6. **Peti:** buka peti, klik kanan untuk memindahkan dua arah, "Ambil semua" dengan
+   tas penuh, lalu menjauh > 120 px (panel menutup).
+7. **Hint & HUD:** baca tiap hint sekali; awasi panel survival sepanjang malam,
+   banner malam/fajar, recap debuff saat respawn, dan baris proficiency memerah.
 
 ### Uji manual Mission 6 (island)
 

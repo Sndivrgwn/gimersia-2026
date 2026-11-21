@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="HintDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/hints/hint_definition.gd" id="1_xl5ng"]
+
+[resource]
+script = ExtResource("1_xl5ng")
+id = &"campfire_cold"
+text = "Api padam. Tahan E lalu tekan E tepat waktu untuk menggesek batu."

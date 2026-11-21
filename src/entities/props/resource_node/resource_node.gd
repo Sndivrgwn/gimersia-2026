@@ -48,6 +48,10 @@ func _ready() -> void:
 		_visual.color = tint_for(definition)
 
 	_connect_clock()
+	if definition != null and definition.chop_feedback_enabled:
+		var feedback := ChopFeedback.new()
+		feedback.name = "ChopFeedback"
+		add_child(feedback)
 
 
 # --- Interactable -----------------------------------------------------------
@@ -60,6 +64,8 @@ func get_prompt(_interactor: Node) -> String:
 
 func get_hold_time(interactor: Node) -> float:
 	var base: float = 1.0 if definition == null else definition.gather_time
+	if definition != null and definition.speed_factor != 1.0 and _has_tool(interactor, definition.speed_tool):
+		base *= definition.speed_factor
 	var stats := _stats_of(interactor)
 	if stats != null:
 		base *= stats.get_gather_time_factor()
@@ -173,6 +179,21 @@ static func tint_for(def: ResourceNodeDefinition) -> Color:
 			return COLOR_BAMBOO
 		_:
 			return COLOR_DEFAULT
+
+
+func _has_tool(interactor: Node, tool: int) -> bool:
+	if tool == ResourceNodeDefinition.RequiredTool.NONE:
+		return false
+	var tool_id: StringName = &""
+	match tool:
+		ResourceNodeDefinition.RequiredTool.AXE:
+			tool_id = &"stone_axe"
+		ResourceNodeDefinition.RequiredTool.PICKAXE:
+			tool_id = &"stone_pickaxe"
+		_:
+			return false
+	var inventory := _inventory_of(interactor)
+	return inventory != null and inventory.has_tool(tool_id)
 
 
 func _has_required_tool(interactor: Node) -> bool:

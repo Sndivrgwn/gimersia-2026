@@ -15,6 +15,8 @@ const NIGHT_PHASE_COLOR := Color(0.62, 0.76, 1.0, 1.0)
 @onready var _phase_label: Label = $Root/Panel/Margin/VBox/PhaseLabel
 @onready var _remaining_label: Label = $Root/Panel/Margin/VBox/RemainingLabel
 @onready var _survival_label: Label = $Root/Panel/Margin/VBox/SurvivalLabel
+## Mission 7: dimatikan di island karena NightSurvivalHUD menggantikannya.
+@export var show_survival_label: bool = true
 @onready var _phase_progress: ProgressBar = $Root/Panel/Margin/VBox/PhaseProgress
 
 # Untyped: see the note in day_night_visual.gd.
@@ -44,6 +46,8 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	if not show_survival_label:
+		_survival_label.visible = false
 	_update_progress()
 
 

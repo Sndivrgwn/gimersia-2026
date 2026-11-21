@@ -22,14 +22,14 @@ func test_s1_wiring_counts_and_links() -> void:
 	assert_eq(players.size(), 1, "Harus ada tepat 1 node di group 'player'")
 	assert_eq(players[0], _harness.player, "Pemain di grup harus sama dengan instance Player")
 
-	# 2. 139 resource nodes under IslandBuilder
+	# 2. 153 resource nodes under IslandBuilder
 	var builder := _harness.island.get_node("IslandBuilder") as Node2D
 	assert_not_null(builder, "IslandBuilder harus ada")
 	var resource_nodes: Array[Node] = []
 	for child in builder.get_children():
 		if child is ResourceNode:
 			resource_nodes.append(child)
-	assert_eq(resource_nodes.size(), 139, "IslandBuilder harus men-spawn 139 ResourceNode")
+	assert_eq(resource_nodes.size(), 153, "IslandBuilder harus men-spawn 153 ResourceNode")
 
 	# 3. 16 night_spawn_point markers
 	var markers := get_tree().get_nodes_in_group(&"night_spawn_point")

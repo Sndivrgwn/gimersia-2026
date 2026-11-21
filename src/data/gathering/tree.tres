@@ -14,3 +14,4 @@ required_tool = 1
 gather_time = 2.5
 fatigue_cost = 2.0
 respawn_rule = 0
+chop_feedback_enabled = true

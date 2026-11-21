@@ -72,7 +72,7 @@ in `docs/editable/` is maintained by the project.
 | Engine | — | `D:\Programming\Gamedev\Godot_v4.7.2-stable_win64.exe` (console variant exists) |
 | GUT | — | **9.7.1 installed** in `addons/gut` (docs saying otherwise are stale) |
 | Unit tests | see §9 | included in the combined suite below (~35 s) |
-| Integration tests | see §9 | **7/7 passing** (S1-S5 + 7-day soak); whole suite **432/432**, 2546 asserts, ~43 s |
+| Integration tests | see §9 | **7/7 passing** (S1-S5 + 7-day soak); whole suite **475/475**, 2732 asserts, ~70 s |
 | Verified on | — | 21 Nov 2026 |
 | Main scene boot | see §9 | `practice1.tscn` runs headless for 120 frames with **no errors** |
 | Island boot | see §9 | `src/levels/island/island.tscn` runs headless for 120 frames with **no errors** |
@@ -129,7 +129,13 @@ Known bugs still present:
 | `BasePlacementController` / `BaseHUD` | `src/components/base/`, `src/ui/hud/base/` | B opens build mode, ghost follows the cursor, invalid sites blocked with an Indonesian reason, left-click founds the base. Signals `placement_changed`, `base_founded(center, radius)` | Implemented; unit-tested |
 | `FenceRing` / `FenceSegment` / `FenceConfig` / `FenceGeometry` | `src/levels/camp/fence_ring.gd`, `fence_geometry.gd`, `src/entities/camp/fence/`, `src/data/resources/camp/fence_config.gd`, `src/data/configs/fence_config.tres` | Ring of ~20 fence segments (200 px radius, 66 px segments, 10 wood + 60 hp each) on `PhysicsLayers.FENCE_LAYER` (bit 3, value 8). Boars path around fences, bite/chew blocking segments and can break through; gaps are valid. `FenceSegment` extends `CampStructure` (`repair()` restores 30 hp for 1 wood) | Implemented; 9 tests |
 | `FireStarterController` / `FireStarterConfig` / `FireStarterHUD` | `src/components/crafting/fire_starter_controller.gd`, `src/data/resources/combat/fire_starter_config.gd`, `src/data/configs/fire_starter_config.tres`, `src/ui/hud/crafting/` | Campfire ignition QTE: a COLD campfire (fuel refilled but never lit) needs 3 stone strikes in a 1.1 s window; `request_ignition()` blocks with `Butuh Batu`, cancel at 96 px or on state change. RNG injected for tests | Implemented; 7 tests |
-| `CombatFeedback` / `JuiceConfig` | `src/components/combat/combat_feedback.gd`, `src/data/resources/combat/juice_config.gd`, `src/data/configs/juice_config.tres` | Visual-only juice: hit-stop via `freeze_for`, camera shake through `Camera2D.offset`, flash/squash, one-shot particles, `feedback_event(kind, position)`, death corpse animation (a detached visual, fauna still frees immediately), boar telegraph line and input buffer (`CombatComponent.swing_buffer_time`) | Implemented; 10 tests |
+| `CombatFeedback` / `JuiceConfig` | `src/components/combat/combat_feedback.gd`, `src/data/resources/combat/juice_config.gd`, `src/data/configs/juice_config.tres` | Visual-only juice: hit-stop via `freeze_for`, camera shake through `Camera2D.offset`, flash/squash, one-shot particles, `feedback_event(kind, position)`, death corpse animation (a detached visual, fauna still frees immediately), boar telegraph line and input buffer (`CombatComponent.swing_buffer_time`). Mission 7: intensity and screenshake also obey `SettingsService` | Implemented; 10 tests |
+| `SettingsService` | `src/core/managers/settings_service.gd` | Player settings node (group `settings_service`, not an autoload): `juice_intensity`, `screenshake_enabled`, `hints_enabled`; `get_value/set_value`, `changed(key, value)`, ConfigFile at `user://settings.cfg`, tolerant of missing/corrupt files | Implemented; save/load tested |
+| `PauseMenu` / `SettingsPanel` / `HelpPanel` | `src/ui/menus/` | Pause (layer 40, `PROCESS_MODE_ALWAYS`) guarded by visible HUD/panels, stores and restores the exact clock time scale, tree pause; settings slider/toggles; static help list toggled with H; all UI panels use `_unhandled_input` only for toggle/close | Implemented; 10 tests |
+| `HintManager` / `HintDefinition` | `src/ui/hud/hints/`, `src/data/resources/hints/`, `src/data/hints/*.tres`, `tools/generate_hints.gd` | One hint at a time, 5 s each, once per run, reset on restart, skipped when hints are off. Triggers: base missing after 3 s, first interactable, first night (day 1), need tier LOW, structure damaged, neutral animal hit, and `trigger()` for the rest | Implemented; queue/reset/off tested |
+| `ChestPanel` | `src/ui/panels/chest/chest_panel.gd` | 24 chest slots + 12-slot bag mirror (layer 21): right-click transfers, "Ambil semua", Esc/interact/chest destroyed/120 px closes; locks `BagPanel` while open; no pause | Implemented; 5 tests |
+| `small_tree` / `ChopFeedback` | `src/data/gathering/small_tree.tres`, `src/entities/props/resource_node/chop_feedback.gd` | Hand-choppable tree (4.0 s, 2 wood, 3 fatigue, 0.5x with axe) plus chop feedback: shake 2 px/12 Hz, chips every 0.25 s, fall 85 deg/0.6 s, stump until respawn, regrow 0.3→1.0 over 0.5 s, `feedback_event(chop_hit/tree_fall)` | Implemented; 11 tests |
+| `RespawnRecapHUD` / `ProficiencyHUD` / `NightBanner` / `NightSurvivalHUD` | `src/ui/hud/` | Read-only HUD: 8 s death-debuff recap from `DeathController.debuff_applied`, 3 s red row flash, night/dawn banner 4 s (dawn skipped while rescue), night survival "Malam N | Bertahan mm:ss | Musuh X/Y" with progress, hidden by day | Implemented; 4 tests |
 | `InputSetup` | `src/utils/input_setup.gd` | Input Map helper: most actions (`move_*`, `sprint`, `hotbar_1..5`, `debug_*`) are declared in `project.godot` `[input]`; `interact` (E), `repair` (R) and `debug_island_*` (F2/F3/F4/F5) are registered by `ensure_actions()`, which only fills gaps idempotently. Also owns `MOVE_ACTIONS` and `is_movement_pressed()`, the single movement poll used by `CraftingComponent` and `NightWatchController`. **Input rule:** gameplay components poll Input actions (`Input.is_action_pressed()`, `is_action_just_pressed()`, `get_vector()`) inside `_process`/tick and never match raw keycodes; UI panels such as `BagPanel` may use `_unhandled_input` for toggle/close only. No gameplay code uses `_unhandled_input` |
 | `SafeZone` | `scenes/practice/safe_zone.gd` | **Practice-only** camera zoom + speed modifier example |
 | Tests / sandbox / integration | `tests/unit/`, `tests/sandbox/`, `tests/integration/` | GUT unit tests, a manual stats sandbox, and scene-level integration tests on `island.tscn`. `island_harness.gd` (preload, no `class_name`) instantiates the island, resolves the real components, creates `/root/DayNightManager` only when absent (and frees it in teardown), and drives time through `clock.advance()` + the public `tick()` of each node. Scenarios: `test_island_wiring.gd` (S1), `_survival` (S2), `_night` (S3), `_death` (S4), `_endgame` (S5), `_soak` (7-day, 0.5 s step) | Implemented; 7 tests |
@@ -641,6 +647,14 @@ resources under `src/data/recipes/`.
 
 ---
 
+### Mission 7 — Decisions, Trees, MVP completeness (21 Nov 2026)
+
+Deer are guaranteed at rescue, the flare is consumed at the Beacon, fire-starting
+stones are only consumed on a failed attempt, Master Chef adds its +10 through
+`InventoryComponent.item_used`, the camp starter ring gained hand-choppable
+small trees (total 153 resource nodes), pause/settings/help/hints/chest panel and
+the missing night/debuff HUDs exist. No audio, no art, no balance changes.
+
 ### Mission 6 — Base & Feel (21 Nov 2026)
 
 Day-time boars are neutral again (temperament is derived every tick, aggro
@@ -655,6 +669,10 @@ has visual juice. None of it changes balance numbers.
 - Campfire COLD state: refuelling an unlit campfire no longer relights it.
 - Death animation uses a detached corpse visual; fauna frees immediately so
   quota/spawn/soak timing is unchanged.
+- Mission 7: `small_tree` + new CAMP starter counts (twig 10, small_rock 8,
+  small_tree 6; total 153); fire-start stone is consumed only on a failed
+  attempt; the signal flare is consumed at the Beacon; Master Chef is implemented
+  simply (+10 to the related need); deer guarantee at rescue is ON.
 
 ## 9. Commands & upkeep
 

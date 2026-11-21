@@ -99,7 +99,7 @@ func test_controller_success_ignites_and_locks_interactor() -> void:
 	assert_true(controller.start(campfire))
 	assert_true(controller.is_active())
 	assert_true(interactor.is_locked(), "interactor dikunci selama minigame")
-	assert_eq(inventory.count_of(ItemCatalog.STONE), 0, "1 batu dipakai per percobaan")
+	assert_eq(inventory.count_of(ItemCatalog.STONE), 1, "M7: sukses tidak memakai batu")
 
 	controller.set_marker(0.5)
 	controller.roll_override = 0.0
@@ -133,7 +133,7 @@ func test_controller_three_misses_fail_and_cooldown() -> void:
 	assert_false(campfire.is_lit())
 	assert_gt(controller.get_cooldown(), 0.0)
 	assert_false(controller.start(campfire), "cooldown memblokir percobaan baru")
-	assert_eq(inventory.count_of(ItemCatalog.STONE), 2, "batu dipakai sekali per percobaan")
+	assert_eq(inventory.count_of(ItemCatalog.STONE), 2, "M7: batu dipakai hanya saat gagal")
 
 
 func test_controller_cancels_when_too_far() -> void:

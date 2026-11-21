@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ResourceNodeDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/gathering/resource_node_definition.gd" id="1_def"]
+[ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_item"]
+
+[resource]
+script = ExtResource("1_def")
+id = &"small_tree"
+display_name = "Pohon Kecil"
+item = ExtResource("2_item")
+yield_min = 2
+yield_max = 2
+required_tool = 0
+gather_time = 4.0
+fatigue_cost = 3.0
+respawn_rule = 0
+speed_tool = 1
+speed_factor = 0.5
+chop_feedback_enabled = true

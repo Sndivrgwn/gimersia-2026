@@ -13,6 +13,7 @@ const DEFAULT_CONFIG: JuiceConfig = preload("res://src/data/configs/juice_config
 @export var receiver: PlayerDamageReceiver
 @export var camera: Camera2D
 @export var player: Node2D
+@export var settings: SettingsService
 
 var _hit_stop: float = 0.0
 var _shake_time: float = 0.0
@@ -70,7 +71,7 @@ func notify_hit(target: Node, damage: float, heavy: bool = false) -> void:
 	var position := (target as Node2D).global_position if target is Node2D else Vector2.ZERO
 	_last_target_position = position
 	_last_kind = &"heavy_hit" if heavy else &"hit"
-	_hit_stop = (config.hit_stop_heavy if heavy else config.hit_stop_light) * config.intensity
+	_hit_stop = (config.hit_stop_heavy if heavy else config.hit_stop_light) * _intensity()
 	_start_shake(
 		config.shake_heavy if heavy else config.shake_light,
 		config.shake_heavy_time if heavy else config.shake_light_time
@@ -147,11 +148,11 @@ func _on_dodged(_source: Node) -> void:
 
 
 func _start_shake(strength: float, duration: float) -> void:
-	if not config.screenshake_enabled:
+	if not _screenshake_enabled():
 		_shake_time = 0.0
 		_shake_strength = 0.0
 		return
-	_shake_strength = strength * config.intensity
+	_shake_strength = strength * _intensity()
 	_shake_duration = duration
 	_shake_time = duration
 
@@ -198,6 +199,28 @@ func _spawn_burst(position: Vector2, count: int, color: Color) -> void:
 		return
 	host.add_child(particles)
 	particles.finished.connect(particles.queue_free)
+
+
+## Mission 7: pengaturan pemain menimpa JuiceConfig bila SettingsService ada.
+func _settings() -> SettingsService:
+	if settings == null:
+		settings = SettingsService.find_service(self)
+	return settings
+
+
+func _intensity() -> float:
+	var base := config.intensity
+	var service := _settings()
+	if service != null:
+		return base * service.get_juice_intensity()
+	return base
+
+
+func _screenshake_enabled() -> bool:
+	var service := _settings()
+	if service != null:
+		return config.screenshake_enabled and service.is_screenshake_enabled()
+	return config.screenshake_enabled
 
 
 func _resolve_combat() -> void:

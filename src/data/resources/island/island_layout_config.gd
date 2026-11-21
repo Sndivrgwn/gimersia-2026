@@ -27,10 +27,11 @@ extends Resource
 ## Starter Zone 1 hilang permanen setelah hari ini (spec: hari 5).
 @export var camp_starters_last_respawn_day: int = 4
 
-@export var camp_twig: int = 6
-@export var camp_small_rock: int = 4
+@export var camp_twig: int = 10
+@export var camp_small_rock: int = 8
 @export var camp_fiber_bush: int = 5
 @export var camp_berry_bush: int = 4
+@export var camp_small_tree: int = 6
 
 @export var south_coconut_palm: int = 12
 

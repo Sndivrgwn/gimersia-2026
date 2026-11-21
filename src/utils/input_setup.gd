@@ -15,6 +15,8 @@ const INVENTORY_TOGGLE := &"inventory_toggle"
 const INTERACT := &"interact"
 ## Hold R untuk memperbaiki struktur camp (RepairComponent).
 const REPAIR := &"repair"
+const PAUSE_TOGGLE := &"pause_toggle"
+const HELP_TOGGLE := &"help_toggle"
 ## Debug khusus island (GatherDebug): F2 aktifkan, F3 zona berikutnya, F4 pagi berikutnya,
 ## F5 kit uji bahan crafting.
 const DEBUG_ISLAND_TOGGLE := &"debug_island_toggle"
@@ -91,6 +93,12 @@ static func ensure_actions() -> void:
 
 	_ensure_action(REPAIR)
 	_ensure_key(REPAIR, KEY_R)
+
+	_ensure_action(PAUSE_TOGGLE)
+	_ensure_key(PAUSE_TOGGLE, KEY_P)
+
+	_ensure_action(HELP_TOGGLE)
+	_ensure_key(HELP_TOGGLE, KEY_H)
 
 	_ensure_action(DEBUG_ISLAND_TOGGLE)
 	_ensure_key(DEBUG_ISLAND_TOGGLE, KEY_F2)

@@ -70,6 +70,7 @@ var _refreshing: bool = false
 
 func _ready() -> void:
 	_bind()
+	_connect_inventory()
 	_install_hit_modifiers()
 	_connect_sources()
 	_refresh_passives()
@@ -142,6 +143,28 @@ func get_campfire_restore_bonus() -> float:
 	if config == null or not has_passive(Prof.MASTERY, config.master_chef_level):
 		return 0.0
 	return config.master_chef_bonus
+
+
+func _connect_inventory() -> void:
+	if inventory == null and get_parent() != null:
+		inventory = get_parent().get_node_or_null("InventoryComponent") as InventoryComponent
+	if inventory != null and not inventory.item_used.is_connected(_on_item_used):
+		inventory.item_used.connect(_on_item_used)
+
+
+## Mission 7: Master Chef sederhana (+bonus need untuk item masak/minuman).
+func _on_item_used(item: ItemDefinition, _slot_index: int) -> void:
+	if item == null or needs == null or config == null:
+		return
+	if not has_passive(Prof.MASTERY, config.master_chef_level):
+		return
+	var bonus := get_campfire_restore_bonus()
+	if bonus <= 0.0:
+		return
+	if config.master_chef_hunger_items.has(item.id):
+		needs.add(NeedsComponent.Need.HUNGER, bonus)
+	elif config.master_chef_thirst_items.has(item.id):
+		needs.add(NeedsComponent.Need.THIRST, bonus)
 
 
 # --- XP ---------------------------------------------------------------------

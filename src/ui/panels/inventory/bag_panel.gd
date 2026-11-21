@@ -41,6 +41,7 @@ const TOOL_ITEMS: Array[ItemDefinition] = [
 @onready var _armor_value: Label = $Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Armor/Value
 
 var _slots: Array[BagSlot] = []
+var _locked: bool = false
 var _crafting_tab: Control
 var _crafting_list: VBoxContainer
 var _crafting_progress: ProgressBar
@@ -74,7 +75,18 @@ func _ready() -> void:
 	_apply_visible(open_on_start)
 
 
+## Mission 7: dikunci saat ChestPanel terbuka.
+func set_locked(value: bool) -> void:
+	_locked = value
+
+
+func is_locked() -> bool:
+	return _locked
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if _locked:
+		return
 	if is_open() and event.is_action_pressed(CLOSE_ACTION):
 		_apply_visible(false)
 		get_viewport().set_input_as_handled()
@@ -93,6 +105,8 @@ func is_open() -> bool:
 
 
 func toggle_panel() -> void:
+	if _locked:
+		return
 	_apply_visible(not is_open())
 
 
