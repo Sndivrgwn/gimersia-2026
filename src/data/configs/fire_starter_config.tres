@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="FireStarterConfig" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/combat/fire_starter_config.gd" id="1_firestarter"]
+
+[resource]
+script = ExtResource("1_firestarter")

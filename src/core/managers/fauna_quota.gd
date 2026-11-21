@@ -107,15 +107,27 @@ func get_spawn_position() -> Vector2:
 	if tree == null:
 		return Vector2.ZERO
 	var player_position := _player_position()
+	var anchor := CampAnchor.find_anchor(self)
+	var base_center := Vector2.ZERO
+	var base_clear := 0.0
+	if anchor != null:
+		base_center = anchor.get_center()
+		base_clear = anchor.get_ring_radius() + 100.0
+	var raw: Array[Vector2] = []
 	var all: Array[Vector2] = []
 	var far: Array[Vector2] = []
 	for node in tree.get_nodes_in_group(SPAWN_GROUP):
 		var marker := node as Node2D
 		if marker == null:
 			continue
+		raw.append(marker.global_position)
+		if base_clear > 0.0 and marker.global_position.distance_to(base_center) < base_clear:
+			continue
 		all.append(marker.global_position)
 		if marker.global_position.distance_to(player_position) >= min_spawn_distance:
 			far.append(marker.global_position)
+	if all.is_empty():
+		all = raw
 	if not far.is_empty():
 		return far[rng.randi_range(0, far.size() - 1)]
 	if all.is_empty():

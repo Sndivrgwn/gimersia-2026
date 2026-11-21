@@ -31,6 +31,10 @@ const DEBUG_ISLAND_WEAPON := &"debug_island_weapon"
 ## F11: matikan pemain (uji death screen). F12: lompat ke fajar Hari 7 (rescue).
 const DEBUG_ISLAND_KILL := &"debug_island_kill"
 const DEBUG_ISLAND_RESCUE := &"debug_island_rescue"
+## Insert (island debug): tampilkan label temperament/state di atas setiap fauna.
+const DEBUG_FAUNA_LABELS := &"debug_fauna_labels"
+## B: tentukan lokasi base (BasePlacementController).
+const BASE_PLACE := &"base_place"
 
 ## Serangan manual: klik kiri (arah kursor) dan Space (arah hadap).
 const ATTACK_CLICK := &"attack_click"
@@ -110,6 +114,12 @@ static func ensure_actions() -> void:
 	_ensure_key(DEBUG_ISLAND_KILL, KEY_F11)
 	_ensure_action(DEBUG_ISLAND_RESCUE)
 	_ensure_key(DEBUG_ISLAND_RESCUE, KEY_F12)
+
+	_ensure_action(DEBUG_FAUNA_LABELS)
+	_ensure_key(DEBUG_FAUNA_LABELS, KEY_INSERT)
+
+	_ensure_action(BASE_PLACE)
+	_ensure_key(BASE_PLACE, KEY_B)
 
 	_ensure_action(ATTACK_SPACE)
 	_ensure_key(ATTACK_SPACE, KEY_SPACE)

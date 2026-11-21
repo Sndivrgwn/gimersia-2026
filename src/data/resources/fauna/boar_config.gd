@@ -22,6 +22,8 @@ extends FaunaConfig
 @export_group("Persepsi")
 @export var detect_radius: float = 300.0
 @export var leash_radius: float = 380.0
+## Provoked hilang bila tidak ada hit yang bertukar selama ini (detik).
+@export var provoke_calm_seconds: float = 10.0
 @export var camp_player_radius: float = 140.0
 @export var raid_camp_radius: float = 500.0
 @export var raid_clear_radius: float = 650.0

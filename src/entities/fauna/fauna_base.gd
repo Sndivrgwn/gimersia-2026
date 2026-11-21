@@ -34,6 +34,15 @@ var raid_camp: bool = false
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 var _provoked: bool = false
+## Debug (GatherDebug F6): paksa HOSTILE walau siang.
+var forced_hostile: bool = false
+var _freeze_remaining: float = 0.0
+var _provoke_elapsed: float = 0.0
+var _knockback_remaining: float = 0.0
+var _knockback_velocity: Vector2 = Vector2.ZERO
+var _dying: bool = false
+## D5: durasi animasi mati sebelum queue_free (0 = langsung).
+@export var death_sequence_time: float = 0.25
 var _speed_modifiers: Dictionary = {}
 var _attack_modifiers: Dictionary = {}
 var _damage_multiplier: float = 1.0
@@ -67,6 +76,12 @@ func tick(delta: float) -> void:
 	ensure_ready()
 	if delta <= 0.0:
 		return
+	if _freeze_remaining > 0.0:
+		_freeze_remaining = maxf(_freeze_remaining - delta, 0.0)
+		return
+	if _knockback_remaining > 0.0:
+		global_position += _knockback_velocity * delta
+		_knockback_remaining = maxf(_knockback_remaining - delta, 0.0)
 	health.tick(delta)
 	_tick_flash(delta)
 	_update_dazzle()
@@ -90,7 +105,7 @@ func ensure_ready() -> void:
 		player = _find_player()
 	_home = global_position
 	collision_layer = 0
-	collision_mask = 1
+	collision_mask = PhysicsLayers.WORLD | PhysicsLayers.FENCE_LAYER
 	_ensure_health()
 	_ensure_visual()
 	_ensure_hp_bar()
@@ -173,6 +188,7 @@ func clear_attack_speed_modifier(source: StringName) -> void:
 # --- Temperament / scaling --------------------------------------------------
 
 func provoke(source: Node) -> void:
+	_provoke_elapsed = 0.0
 	if _provoked:
 		return
 	_provoked = true
@@ -183,6 +199,55 @@ func provoke(source: Node) -> void:
 ## Hook untuk subclass/sinyal masa depan.
 func provoked(_source: Node) -> void:
 	pass
+
+
+## Hentikan provoke tanpa menyentuh temperament (dipakai saat malam berakhir).
+func clear_provoke() -> void:
+	_provoked = false
+
+
+func reset_provoke_calm() -> void:
+	_provoke_elapsed = 0.0
+
+
+func tick_provoke(delta: float) -> void:
+	_provoke_elapsed += delta
+
+
+func get_provoke_elapsed() -> float:
+	return _provoke_elapsed
+
+
+## HitStop lokal (juice): fauna melewati tick selama `seconds`.
+func freeze_for(seconds: float) -> void:
+	_freeze_remaining = maxf(_freeze_remaining, seconds)
+
+
+func is_frozen() -> bool:
+	return _freeze_remaining > 0.0
+
+
+## D5: dorongan visual/kinematik diterapkan di tick. Diabaikan saat dash/telegraph.
+func apply_knockback(direction: Vector2, distance: float, duration: float) -> void:
+	if direction.length_squared() <= 0.0001 or distance <= 0.0 or duration <= 0.0:
+		return
+	if is_knockback_ignored():
+		return
+	_knockback_remaining = duration
+	_knockback_velocity = direction.normalized() * (distance / duration)
+
+
+## Hook subclass: dash/telegraph kebal knockback.
+func is_knockback_ignored() -> bool:
+	return false
+
+
+func is_knocked_back() -> bool:
+	return _knockback_remaining > 0.0
+
+
+func is_dying() -> bool:
+	return _dying
 
 
 func set_temperament(value: int) -> void:
@@ -298,7 +363,40 @@ func _on_health_died(source: Node) -> void:
 	drop_loot()
 	velocity = Vector2.ZERO
 	died.emit(self)
+	_start_death_sequence()
+
+
+## D5: shrink + spin + fade 0.25 s sebelum bebas; loot sudah jatuh di atas.
+## Animasi mati memakai "jasad" visual terpisah supaya fauna asli tetap langsung
+## dibebaskan: kuota/spawn/soak tidak bergeser sama sekali (D5).
+func _start_death_sequence() -> void:
+	_dying = true
+	_spawn_corpse()
 	queue_free()
+
+
+func _spawn_corpse() -> void:
+	if death_sequence_time <= 0.0 or not is_inside_tree():
+		return
+	var parent := get_parent()
+	if parent == null:
+		return
+	var corpse := Node2D.new()
+	corpse.name = "FaunaCorpse"
+	if _visual != null:
+		var copy := _visual.duplicate()
+		if copy is Node2D:
+			(copy as Node2D).position = Vector2.ZERO
+			corpse.add_child(copy)
+	corpse.global_position = global_position
+	corpse.rotation = rotation
+	parent.add_child(corpse)
+	var tween := corpse.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(corpse, "scale", Vector2(0.2, 0.2), death_sequence_time)
+	tween.tween_property(corpse, "rotation", rotation + TAU * 0.5, death_sequence_time)
+	tween.tween_property(corpse, "modulate:a", 0.0, death_sequence_time)
+	tween.chain().tween_callback(corpse.queue_free)
 
 
 func _update_behavior(delta: float) -> void:

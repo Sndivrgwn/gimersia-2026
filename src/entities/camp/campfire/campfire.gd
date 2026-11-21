@@ -31,6 +31,9 @@ const REST_SOURCE := &"campfire"
 @export var clock: Node
 
 var _fuel: float = 0.0
+## D3: api mati (fuel 0) tetap COLD setelah diisi bahan bakar sampai
+## dinyalakan dengan minigame gesek batu.
+var _cold: bool = false
 var _rest_timer: float = 0.0
 var _rest_players: Array[Node] = []
 var _light: PointLight2D
@@ -75,7 +78,48 @@ func is_station_active() -> bool:
 # --- State ------------------------------------------------------------------
 
 func is_lit() -> bool:
-	return _fuel > 0.0
+	return not _cold and _fuel > 0.0
+
+
+func is_cold() -> bool:
+	return _cold
+
+
+## Perlu minigame: sudah ada bahan bakar tetapi api masih mati.
+func needs_ignition() -> bool:
+	return _cold and _fuel > 0.0
+
+
+func can_ignite() -> bool:
+	return needs_ignition() and (config == null or config.manual_ignition_enabled)
+
+
+## Nyalakan api yang COLD (bahan bakar sudah ada).
+func ignite() -> bool:
+	if not can_ignite():
+		return false
+	_cold = false
+	_refresh_light()
+	lit_changed.emit(true)
+	return true
+
+
+## Alasan blokir untuk minigame gesek batu.
+func get_ignite_block_reason(interactor: Node) -> String:
+	if not needs_ignition():
+		return ""
+	var inventory := _inventory_of(interactor)
+	if inventory == null or not inventory.has_item(ItemCatalog.STONE, 1):
+		return "Butuh Batu"
+	return ""
+
+
+## Dipanggil CampfireRefuel saat api COLD dengan bahan bakar.
+func request_ignition(interactor: Node) -> bool:
+	var starter := _fire_starter_of(interactor)
+	if starter == null:
+		return false
+	return starter.start(self)
 
 
 func get_fuel() -> float:
@@ -156,7 +200,7 @@ func _day() -> int:
 func tick(delta: float) -> void:
 	if delta <= 0.0:
 		return
-	if _fuel > 0.0:
+	if is_lit():
 		var scale := _time_scale()
 		if scale > 0.0:
 			var rate := config.night_drain if _is_night() else config.day_drain
@@ -207,6 +251,8 @@ func _set_fuel(value: float) -> void:
 	if is_equal_approx(clamped, _fuel):
 		return
 	_fuel = clamped
+	if _fuel <= 0.0:
+		_cold = true
 	fuel_changed.emit(_fuel)
 	_refresh_light()
 	var now_lit := is_lit()
@@ -233,6 +279,18 @@ func _inventory_of(interactor: Node) -> InventoryComponent:
 	if interactor == null or not interactor.has_method(&"get_inventory"):
 		return null
 	return interactor.get_inventory() as InventoryComponent
+
+
+func _fire_starter_of(interactor: Node) -> FireStarterController:
+	if interactor == null:
+		return null
+	var direct := interactor.get_node_or_null("FireStarterController") as FireStarterController
+	if direct != null:
+		return direct
+	var parent := interactor.get_parent()
+	if parent != null:
+		return parent.get_node_or_null("FireStarterController") as FireStarterController
+	return null
 
 
 # --- Rest bonus -------------------------------------------------------------

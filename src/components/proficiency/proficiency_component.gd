@@ -266,7 +266,7 @@ func _track_speed(delta: float) -> void:
 	_last_position = position
 	if step <= 0.0 or step > MAX_TRACKED_STEP:
 		return
-	var outside := position.length() > config.speed_camp_radius
+	var outside := position.distance_to(CampAnchor.center_of(self)) > config.speed_camp_radius
 	if not outside:
 		return
 	if _sprinting:

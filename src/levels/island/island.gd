@@ -15,8 +15,10 @@ extends Node2D
 
 @onready var _death: DeathController = get_node_or_null("DeathController") as DeathController
 @onready var _death_screen: DeathScreen = get_node_or_null("DeathScreen") as DeathScreen
+@onready var _game_over_screen: GameOverScreen = get_node_or_null("GameOverScreen") as GameOverScreen
 @onready var _run: RunController = get_node_or_null("RunController") as RunController
 @onready var _endgame: EndgameController = get_node_or_null("EndgameController") as EndgameController
+@onready var _endgame_hud: EndgameHUD = get_node_or_null("EndgameHUD") as EndgameHUD
 @onready var _beacon: SignalBeacon = get_node_or_null("Beacon") as SignalBeacon
 
 
@@ -43,6 +45,14 @@ func _wire_endgame(player: Node2D) -> void:
 		_death_screen.respawn_requested.connect(_on_respawn_requested)
 		_death_screen.main_menu_requested.connect(_on_main_menu_requested)
 
+	if _game_over_screen != null:
+		_game_over_screen.restart_requested.connect(_on_restart_requested)
+		_game_over_screen.main_menu_requested.connect(_on_main_menu_requested)
+
+	if _endgame_hud != null:
+		_endgame_hud.restart_requested.connect(_on_restart_requested)
+		_endgame_hud.main_menu_requested.connect(_on_main_menu_requested)
+
 	if _death != null and _death.game_over.is_connected(_on_game_over) == false:
 		_death.game_over.connect(_on_game_over)
 
@@ -51,13 +61,17 @@ func _on_player_died(respawns_remaining: int) -> void:
 	if _death_screen == null:
 		return
 	if respawns_remaining < 0:
-		_death_screen.show_game_over()
+		_on_game_over()
 	else:
 		_death_screen.show_death(respawns_remaining)
 
 
 func _on_game_over() -> void:
 	if _death_screen != null:
+		_death_screen.hide_screen()
+	if _game_over_screen != null:
+		_game_over_screen.show_screen()
+	elif _death_screen != null:
 		_death_screen.show_game_over()
 
 
@@ -66,6 +80,11 @@ func _on_respawn_requested() -> void:
 		return
 	if _death.respawn() and _death_screen != null:
 		_death_screen.hide_screen()
+
+
+func _on_restart_requested() -> void:
+	if _run != null:
+		_run.request_restart()
 
 
 func _on_main_menu_requested() -> void:

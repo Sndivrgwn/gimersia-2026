@@ -73,7 +73,7 @@ func respawn() -> bool:
 	is_dead = false
 	_restore_player()
 	if player is Node2D:
-		(player as Node2D).global_position = RESPAWN_POSITION
+		(player as Node2D).global_position = CampAnchor.respawn_position_of(self)
 
 	if stats != null:
 		stats.get_max_hp()

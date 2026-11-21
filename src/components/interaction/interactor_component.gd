@@ -30,6 +30,8 @@ var _needs_release: bool = false
 var _scan_timer: float = 0.0
 var _blocked_target: Interactable
 var _blocked_reason: String = ""
+## D3: dikunci selama minigame menyalakan api (tidak ada progres interaksi).
+var _locked: bool = false
 
 
 func _ready() -> void:
@@ -39,8 +41,20 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not enabled:
 		return
+	if _locked:
+		return
 	_tick_scan(delta)
 	_tick_hold(delta)
+
+
+func set_locked(value: bool) -> void:
+	_locked = value
+	if value:
+		cancel()
+
+
+func is_locked() -> bool:
+	return _locked
 
 
 # --- Read API ---------------------------------------------------------------

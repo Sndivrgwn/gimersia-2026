@@ -23,16 +23,16 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 |---|---|---|
 | Fondasi project & struktur | Sebagian besar ada | Godot 4.7.2, folder, scene practice, autoload |
 | Kontrol & movement | Ada | Top-down, sprint, collision dasar |
-| Stats & proficiency | Ada | Komponen + tes tertulis; belum ada XP/level-up |
+| Stats & proficiency | Ada | Komponen + tes tertulis; XP/level-up/passive/debuff ada di `ProficiencyComponent` |
 | Siklus waktu | Ada | Manager, config, HUD, visual; config default 600 dtk |
-| Survival needs | Ada | Komponen + HUD + 27 tes (termasuk plafon Fatigue, regen diam); konsumsi item lewat `use_slot()` sudah ada (efek instan). Rest Campfire dan tidur Tenda belum |
-| Inventory & gathering | Sebagian | Inventory 12 slot + hotbar 1-5, definisi item, pickup, efek makan/minum, bag UI (Tab/I, drag-drop, klik kanan, tooltip), hold-E interaction, dan 8 resource node + respawn/tool gate ada (23 tes inventory, 17 bag panel, 13 interaction, 14 resource node); crafting dan drop saat mati belum |
-| Peta pulau | Minimum | `src/levels/island/island.tscn` (placeholder): zona sesuai spec §7.7, 139 node resource, 16 marker night spawn (tanpa spawner), wreckage, koper darurat, beacon placeholder, 9 river edge. Art produksi dan level loader belum |
+| Survival needs | Ada | Komponen + HUD + 27 tes (termasuk plafon Fatigue, regen diam); konsumsi item lewat `use_slot()` sudah ada (efek instan). Rest Campfire dan tidur Tenda sudah ada |
+| Inventory & gathering | Sebagian | Inventory 12 slot + hotbar 1-5, definisi item, pickup, efek makan/minum, bag UI (Tab/I, drag-drop, klik kanan, tooltip), hold-E interaction, dan 8 resource node + respawn/tool gate ada (23 tes inventory, 17 bag panel, 13 interaction, 14 resource node); crafting Workbench/Campfire dan drop saat mati (`LootBag`) sudah ada |
+| Peta pulau | Minimum | `src/levels/island/island.tscn`: zona sesuai spec §7.7, 139 node resource, 16 marker night spawn (dibaca `NightSpawner`), wreckage, koper darurat, `SignalBeacon` fungsional, 9 river edge, `DeathScreen`/`GameOverScreen`/`EndgameHUD`. Art produksi dan level loader belum |
 | Crafting & camp | Sebagian | 13 resep + `CraftingComponent`, tab Crafting di `BagPanel`, 4 definisi struktur, `CampStructure`/`BlueprintSlot`/`Campfire`/`Workbench`/`Chest`/`Tent`, repair hold-R, Night Watch, dan `CampController` (terpasang di `island.tscn`) ada dan teruji; panel Peti belum |
 | Combat & enemy | Ada | Auto-attack + manual klik/Space 90°, dodge (tanpa i-frame), knockback, bleed, teks damage; Boar (gigit, dash, camp aggro) + Rusa; 33 tes combat + 27 tes fauna |
 | Night survival loop | Sebagian | Spawner malam + tabel scaling 1-7, Dazzled, Ember Snuff, kuota fajar; timer gagal/survival masih label HUD |
-| Death & respawn | Belum | Belum ada death screen, drop item, debuff |
-| Win condition | Belum | `rescue_started` ada, tetapi flare/victory belum |
+| Death & respawn | Ada | DeathController, LootBag di lokasi kematian, debuff proficiency, DeathScreen dengan Respawn & Menu Utama (8 tes) |
+| Win condition | Ada | EndgameController, SignalBeacon, banner Hari 7, arrow ke beacon, layar Victory (7 tes); integrasi HUD ada |
 | UI & audio final | Sebagian | HUD waktu, needs, stats, hotbar, interaksi ada; HUD needs belum dicek visual; menu dan audio belum |
 | Build & playtest | Belum | Belum ada build/export yang diverifikasi |
 
@@ -81,7 +81,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] Final dawn membekukan clock, skala 0, hari tetap 7, `advance`/`skip_time` tidak berefek.
 - [x] `rescue_started` tersedia sebagai penanda final dawn.
 - [ ] Audio peringatan senja.
-- [ ] Integrasi waktu dengan Hunger/Thirst/fuel (Hunger/Thirst selesai; fuel menunggu Campfire).
+- [x] Integrasi waktu dengan Hunger/Thirst/fuel (drain fuel Campfire 0.25/s siang, 1.0/s malam x get_time_scale()).
 - [ ] Survival Timer malam yang terhubung ke gelombang musuh (HUD saja belum cukup).
 
 ---
@@ -94,14 +94,14 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] `can_sprint` dapat dikunci modul luar.
 - [x] `facing_direction` menyimpan arah hadap terakhir.
 - [ ] Animasi sprite/arah hadap.
-- [ ] Attack otomatis dan cooldown.
+- [x] Attack otomatis dan cooldown.
 - [ ] Dodge dengan i-frame.
-- [ ] Interaksi dengan resource/objek (E).
+- [x] Interaksi dengan resource/objek (E).
 - [x] Inventory dan item yang dibawa.
   - `InventoryComponent` 12 slot (5 pertama hotbar), stacking 20, `use_slot()`, `add_or_drop()`, equipment WEAPON/TOOL/ARMOR; dibuktikan `tests/unit/test_inventory_component.gd`.
   - Bag UI (Tab/I) + drag-and-drop ada di `src/ui/panels/inventory/bag_panel.tscn` + `bag_slot.tscn` (action `inventory_toggle`), dibuktikan `tests/unit/test_bag_panel.gd`.
-- [ ] Respawn di camp.
-- [ ] Efek debuff setelah respawn.
+- [x] Respawn di camp.
+- [x] Efek debuff setelah respawn.
 
 ---
 
@@ -117,7 +117,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] Level-up otomatis dan batas XP (100 x level, overflow, lock di Lv 10).
 - [x] Passive ability yang terhubung ke level (Heavy Strike, Sturdy, Second Wind, Quick Reflex, Swift Counter; Light Footed di `StatsComponent`).
 - [x] Death debuff permanen dengan batas maksimal (2 proficiency).
-- [x] Integrasi `max_respawn_tokens` dan `fatigue_sprint_threshold` ke gameplay (`DeathController` memakai 3 token sesuai spec; ambang sprint sudah di `NeedsComponent`).
+- [x] Integrasi `max_respawn_tokens` dan `fatigue_sprint_threshold` ke gameplay. Catatan: `DeathController` memakai konstanta internal `RESPAWN_TOKENS = 3`; `PlayerBaseStats.max_respawn_tokens` belum dibaca (angkanya sama). Ambang sprint sudah di `NeedsComponent`.
 - [ ] Master Chef (+10 restore) belum diterapkan — belum ada hook konsumsi item yang diizinkan.
 
 ---
@@ -157,9 +157,9 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
   - Resource node (hold E) juga ada: `ResourceNode` + `InteractorComponent` di `tests/unit/test_resource_node.gd`.
 - [x] UI inventory sederhana.
   - Hotbar 5 slot (`HotbarHUD`) dan panel tas 12 slot + kolom equipment (Tab/I, drag-drop, klik kanan pakai, tooltip) ada; tab Crafting menampilkan 13 resep dengan bahan `punya/butuh` dan progres craft.
-- [ ] Item drop di lokasi kematian.
-- [ ] Pengambilan kembali item drop.
-- [ ] Item Suar Darurat.
+- [x] Item drop di lokasi kematian.
+- [x] Pengambilan kembali item drop.
+- [x] Item Suar Darurat.
 - [x] Efek instan makanan/minuman (Hunger/Thirst/HP/plafon Fatigue).
   - Berry, Coconut, Raw/Cooked Meat, Bone Broth, Boiled Water, Herbal Bandage; efek Hunger/Thirst/HP/plafon Fatigue dicek tes.
 - [ ] Regen HP Bone Broth (+1 HP/s, 20 dtk).
@@ -196,7 +196,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] Resep Workbench MVP.
   - Stone Axe, Stone Pickaxe, Stone Spear, Bone Spear, Leather Vest, Waterskin, Signal Flare; Stone/Bone Spear mengambil Wooden Spear dari slot WEAPON.
 - [x] Resep Campfire MVP.
-  - Cooked Meat, Boiled Water, Bone Broth; datanya ada, tetapi eksekusinya masih menunggu scene Campfire yang menyala.
+  - Cooked Meat, Boiled Water, Bone Broth; hanya bisa di Campfire yang menyala (dibuktikan `test_island_survival.gd` S2: masak lalu makan menaikkan hunger).
 - [x] UI crafting.
   - Tab Crafting di `BagPanel`: 3 resep tangan aktif sesuai bahan, 10 resep terkunci redup dengan nama stasiun, teks bahan `punya/butuh` (merah bila kurang), tombol Craft, bar progres, status, dan Batalkan; dibuktikan `tests/unit/test_crafting_panel.gd` (8 tes). `CraftingComponent` dan `RepairComponent` terpasang di Player `island.tscn`, `CampController` ada di scene, F5 memberi kit bahan uji.
 - [x] Workbench sebagai struktur camp.
@@ -207,7 +207,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
   - `tent.tscn` + `tent.tres` (120 HP, 6 kayu + 6 serat + 2 bambu) + `NightWatchController` untuk malam; dibuktikan `test_tent.gd` dan `test_night_watch_controller.gd`.
 - [x] Peti camp.
   - Logika penyimpanan 24 slot (`ChestComponent`) + Peti yang menjatuhkan isinya saat hancur; dibuktikan `test_chest_component.gd` + `test_chest.gd`. Panel UI peti belum (stretch).
-- [ ] Tiang Suar di Pantai Selatan.
+- [x] Tiang Suar di Pantai Selatan.
 - [x] Daya tahan struktur camp (destructible).
   - `CampStructure.take_damage()/repair()/destroyed`, HP bar hanya saat rusak, dan hold-R `RepairComponent` (1 kayu + 1 batu -> +80 untuk Campfire, dst.); dibuktikan `test_camp_structure.gd` + `test_repair_component.gd`.
 - [x] Light debuff `Dazzled` untuk musuh di radius campfire.
@@ -239,7 +239,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
   - Gigitan 12 dan dash 40 lewat `CampStructure.take_damage()`; `test_wild_boar.gd`.
 - [x] Dash Charge Babi Hutan dan damage 2× ke struktur.
   - Telegraf 0.8 s, 330 px/s, 20 ke pemain + knockback, 40 ke struktur.
-- [ ] Bonus XP +50% untuk combat malam.
+- [x] Bonus XP +50% untuk combat malam.
 - [x] Anti-softlock spawn 2 Babi Hutan setelah fajar Hari 7.
   - `FaunaQuota` rescue: setidaknya 2 Boar NEUTRAL, respawn 45 detik nyata, maksimal 4 tambahan; `test_fauna_quota.gd`.
 
@@ -297,7 +297,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 ## 13. Kondisi Menang dan Hari ke-7
 
 - [x] Banner pagi Hari 7 (`EndgameController` + `EndgameHUD`).
-- [ ] Gelombang maksimal malam Hari 7 (tabel `NightSpawner` sudah ada; playtest belum).
+- [x] Gelombang maksimal malam Hari 7 (tabel `NightSpawner` sudah ada; playtest belum).
 - [x] Final dawn membekukan waktu dan menghentikan Hunger/Thirst.
 - [x] Musuh malam ekstra kabur/despawn (aturan rescue `FaunaQuota`).
 - [x] Arrow pointer ke Tiang Suar.
@@ -306,6 +306,24 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] Layar Victory setelah suar dinyalakan.
 - [x] Anti-softlock Babi Hutan (minimal 2 ekor, respawn terbatas — `FaunaQuota`).
 - [x] Tidak ada softlock jika pemain mati tepat saat 00:00 (clock berjalan terus).
+
+## 14. Integrasi Test Harness & Semua Scenario
+
+- [x] S1 Wiring: 139 resource nodes, 16 night_spawn_point markers, 9 RiverEdge, 4 BlueprintSlot — verified in test_island_wiring.gd
+- [x] S2 Survival Loop: 4 blueprint builds, tree gathering, workbench axe crafting, campfire meat cooking/eating, tent day-sleeping — verified in test_island_survival.gd
+- [x] S3 Night Loop: night spawner scaling (nights 1, 4, 7), camp raiding priorities, campfire dazzle debuff, ember snuff (night >= 5), dawn fauna cleanup — verified in test_island_night.gd
+- [x] S4 Death Loop: player lethal damage, loot bag creation, bag slot clearing, equipment retention, debuff application, 3-token respawn limit, game_over emission — verified in test_island_death.gd
+- [x] S5 Endgame Loop: jump to rescue, signal flare beacon usage, victory emission, rescue state persistence across death, flare/rescue requirements — verified in test_island_endgame.gd
+- [x] B2 Soak Test: 7-day loop (0.5s/1.0s step) asserting bounded nodes (<20% growth) and state invariants — verified in test_island_soak.gd
+
+## 15. Fitur Post-MVP (Jangan Dikerjakan Sebelum Inti Stabil)
+
+- [ ] NPC penyintas.
+- [ ] Spesialisasi NPC.
+- [ ] NPC otomatis di camp.
+- [ ] Variasi hewan liar.
+- [ ] Area tambahan.
+- [ ] Crafting/building di luar kebutuhan inti.
 
 ---
 
@@ -320,9 +338,23 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 
 ---
 
+## 16. Tambahan di luar spec — Mission 6 (Base & Feel)
+
+Hanya yang sudah terbukti lewat tes otomatis:
+
+- [x] Boar siang NEUTRAL (temperament diturunkan tiap tick), aggro butuh `can_be_auto_targeted()`; F6 (paksa hostile) dan Insert (label) untuk uji manual.
+- [x] Base dinamis: `CampAnchor`, validasi situs, mode B, HUD, slot blueprint bergantung anchor.
+- [x] Ring pagar: segmen di layer fisika sendiri, blokir/unyah/tembus, perbaikan R.
+- [x] Campfire COLD + QTE nyalakan api (3 gebrakan batu / 1.1 s, `Butuh Batu`).
+- [x] Juice: hit-stop, shake, flash/squash, partikel, event, garis telegraph, input buffer, animasi jasad.
+
+Belum: audio (di luar izin), playtest rasa (harus manual), verifikasi visual.
+
 ## 15. Gerbang Akhir MVP
 
 Checklist ini mengikuti kriteria selesai di dokumen MVP. Semua harus tercentang sebelum build dianggap MVP.
+
+**Butir di bagian ini needs manual playtest:** tidak satu pun dicentang oleh tes otomatis; centang hanya setelah bermain manual.
 
 - [ ] Pemain dapat memulai permainan dan mengendalikan karakter di area pulau.
 - [ ] Pemain dapat mengumpulkan sumber daya dan kembali ke camp.

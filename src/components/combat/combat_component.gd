@@ -28,6 +28,11 @@ const BAG_PANEL_NAME := "BagPanel"
 @export var ignore_ui_guard: bool = false
 ## Untuk tes: kontrol yang dianggap sedang di-hover / panel tas yang dianggap terbuka.
 var hovered_control_override: Control
+## D5 input buffer: 0 = mati. Diisi CombatFeedback dari JuiceConfig.manual_swing_buffer.
+@export var swing_buffer_time: float = 0.0
+var _buffered_aim: Vector2 = Vector2.ZERO
+var _buffer_time_left: float = 0.0
+var _last_hit_heavy: bool = false
 var bag_panel_override: Node
 
 var _cooldown: float = 0.0
@@ -101,14 +106,27 @@ func get_hit_modifier_count() -> int:
 func tick(delta: float) -> void:
 	_bind()
 	_cooldown = maxf(_cooldown - delta, 0.0)
+	_buffer_time_left = maxf(_buffer_time_left - delta, 0.0)
+	if _buffer_time_left <= 0.0:
+		_buffered_aim = Vector2.ZERO
 	_tick_slash(delta)
 
 	if _cooldown > 0.0:
+		var early := _read_manual_aim()
+		if early != Vector2.ZERO:
+			queue_manual_swing(early)
 		return
 
 	var aim := _read_manual_aim()
 	if aim != Vector2.ZERO:
 		swing_manual(aim)
+		return
+
+	if _buffered_aim != Vector2.ZERO:
+		var buffered := _buffered_aim
+		_buffered_aim = Vector2.ZERO
+		_buffer_time_left = 0.0
+		swing_manual(buffered)
 		return
 
 	if stats != null and stats.current_hp <= 0.0:
@@ -213,6 +231,26 @@ func _facing() -> Vector2:
 
 ## Ayunan manual (klik/Space memanggil ini). Publik supaya tes bisa
 ## menggerakkannya tanpa event input.
+## D5: antrikan ayunan manual selama cooldown (input buffer).
+func queue_manual_swing(aim: Vector2) -> void:
+	if swing_buffer_time <= 0.0:
+		return
+	_buffered_aim = aim
+	_buffer_time_left = swing_buffer_time
+
+
+func get_buffered_aim() -> Vector2:
+	return _buffered_aim
+
+
+func get_cooldown() -> float:
+	return _cooldown
+
+
+func was_last_hit_heavy() -> bool:
+	return _last_hit_heavy
+
+
 func swing_manual(aim: Vector2) -> void:
 	var target := _nearest_in_cone(aim)
 	_cooldown = _attack_cooldown()

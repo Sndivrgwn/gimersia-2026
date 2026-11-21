@@ -4,6 +4,9 @@ extends CanvasLayer
 ## HUD endgame: banner Hari 7 / rescue, panah ke Beacon, dan panel Victory.
 ## Read-only: semua state datang dari EndgameController.
 
+signal restart_requested
+signal main_menu_requested
+
 const ARROW_FORMAT := "%s  Beacon %d px"
 const VICTORY_TITLE := "SELAMAT!"
 const VICTORY_DETAIL := "Suar darurat menyala. Kapal penyelamat menemukanmu."
@@ -11,6 +14,8 @@ const VICTORY_DETAIL := "Suar darurat menyala. Kapal penyelamat menemukanmu."
 var _banner: Label
 var _arrow: Label
 var _victory_panel: PanelContainer
+var _restart_button: Button
+var _menu_button: Button
 var _controller: EndgameController
 var _banner_timer: float = 0.0
 
@@ -87,6 +92,26 @@ func _build() -> void:
 	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail.custom_minimum_size = Vector2(320, 40)
 	column.add_child(detail)
+
+	_restart_button = Button.new()
+	_restart_button.name = "RestartButton"
+	_restart_button.text = "Mulai Baru"
+	_restart_button.pressed.connect(_on_restart_pressed)
+	column.add_child(_restart_button)
+
+	_menu_button = Button.new()
+	_menu_button.name = "MenuButton"
+	_menu_button.text = "Menu Utama"
+	_menu_button.pressed.connect(_on_menu_pressed)
+	column.add_child(_menu_button)
+
+
+func _on_restart_pressed() -> void:
+	restart_requested.emit()
+
+
+func _on_menu_pressed() -> void:
+	main_menu_requested.emit()
 
 
 func _on_banner_shown(text: String) -> void:

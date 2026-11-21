@@ -4,10 +4,35 @@
 > repository. Read this file first, then the linked docs. **Code is the source of
 > truth** when a doc disagrees with it.
 
-Last verified: 2026-11-20, Godot 4.7.2, GUT 9.7.1, 383/383 tests passing.
+Last verified: 2026-11-21, Godot 4.7.2, GUT 9.7.1, 393/393 tests passing (386 unit + 7 integration).
 Spec cross-check: 2026-11-18 against spec V8. Gaps found are listed in §4
 (missing systems), §7.1-7.8 (spec details), §8 (revised build order) and §13
 (open design questions).
+
+--- Integration Test Harness Status ---
+All 5 survival scenarios and the soak test are implemented and have dedicated test files:
+- S1 Wiring: test_island_wiring.gd (139 nodes, 16 markers, 9 river edges, 4 blueprint slots)
+- S2 Survival: test_island_survival.gd (4 blueprints, gathering, axe crafting, campfire cooking, tent sleeping)
+- S3 Night: test_island_night.gd (night scaling 1-7, dazzle, ember snuff, dawn fauna cleanup)
+- S4 Death: test_island_death.gd (lethal damage, loot bags, 3-token respawn limit, game_over)
+- S5 Endgame: test_island_endgame.gd (rescue, signal flare, victory, persistence across death)
+- B2 Soak: test_island_soak.gd (7-day loop with bounded node growth invariants)
+
+--- Current Verified State ---
+| Check | Command | Result |
+|---|---|---|
+| Engine | — | Godot 4.7.2 (console) |
+| GUT | — | 9.7.1 installed in addons/gut |
+| Unit tests | see §9 | 386/386 passing, 2178 asserts, ~9 s |
+| Main scene boot | see §9 | practice1.tscn runs headless for 120 frames no errors |
+| Island boot | see §9 | island.tscn runs headless for 120 frames no errors |
+| Integration tests | see §9 | 7/7 passing (S1-S5 + 7-day soak); suite total 393/393, 2327 asserts, ~19 s |
+| Default clock config | — | cycle_duration 600 s (script default; .tres no longer overrides it) |
+| Dusk warning | — | 15 s before night |
+
+Known bugs still present:
+
+- `phase_changed` carries **only** `phase: int`. Do not connect a two-arg callback.
 
 ---
 
@@ -46,7 +71,9 @@ in `docs/editable/` is maintained by the project.
 |---|---|---|
 | Engine | — | `D:\Programming\Gamedev\Godot_v4.7.2-stable_win64.exe` (console variant exists) |
 | GUT | — | **9.7.1 installed** in `addons/gut` (docs saying otherwise are stale) |
-| Unit tests | see §9 | **383/383 passing**, 2168 asserts, ~11 s |
+| Unit tests | see §9 | included in the combined suite below (~35 s) |
+| Integration tests | see §9 | **7/7 passing** (S1-S5 + 7-day soak); whole suite **432/432**, 2546 asserts, ~43 s |
+| Verified on | — | 21 Nov 2026 |
 | Main scene boot | see §9 | `practice1.tscn` runs headless for 120 frames with **no errors** |
 | Island boot | see §9 | `src/levels/island/island.tscn` runs headless for 120 frames with **no errors** |
 | Default clock config | — | `cycle_duration` **600 s** (script default; `.tres` no longer overrides it) |
@@ -71,7 +98,7 @@ Known bugs still present:
 | `NeedsHUD` | `src/ui/hud/needs/` | Read-only Hunger/Thirst/Fatigue bars, warning color at tier <= LOW |
 | `StatsHUD` | `src/ui/hud/stats/` | Read-only readout of HP, speeds, attack, gather time, sprint drain, Fatigue value/cap and the three need tiers; makes ZERO-tier effects visible |
 | `InventoryComponent` | `src/components/inventory/` | Owns 12 bag slots (0-4 = hotbar) of `ItemStack`, plus WEAPON/ARMOR equipment and TOOL ownership. `add_item() -> int` (leftover), atomic `remove_item() -> bool`, `has_item()`, `count_of()`, `get_slot()`/`get_slot_item()`/`get_slot_count()`, `is_full()`, `move_slot()`, `use_slot()`, `add_or_drop()`, `equip()`/`unequip()`/`has_tool()`, `get_capacity()`, `get_hotbar_size()`, `clear()`; `slot_changed(index)`, `equipment_changed(slot)`, `inventory_changed()`. Keys 1-5 use slots; effects via `NeedsComponent.add()` / `StatsComponent` / `restore_fatigue_capacity()`; armor modifiers use `&"equip_armor"` |
-| `ItemDefinition` / `ItemEffect` / `ItemStack` / `ItemCatalog` / `InventoryConfig` | `src/data/resources/items/`, `.tres` in `src/data/items/` + `src/data/configs/inventory_config.tres` | Item content: `id`, `display_name`, `description`, `category` {RESOURCE, CONSUMABLE, WEAPON, TOOL, ARMOR, SPECIAL}, `max_stack`, `icon`, `consume_effect`, `equipment_slot`, `weapon_damage/range`, `armor_damage_reduction/max_hp_bonus`; effect `hunger`, `thirst`, `fatigue`, `hp`, `regen_hp_per_second`, `regen_duration`. **`ItemEffect.fatigue` is not a plain Fatigue delta:** `InventoryComponent` applies it through `NeedsComponent.restore_fatigue_capacity()`, so it raises the Fatigue **cap** and fills the current value by the same amount (bounded by the new cap). The field keeps its historical name | `ItemCatalog.ALL` + 22 constants + `get_by_id()` |
+| `ItemDefinition` / `ItemEffect` / `ItemStack` / `ItemCatalog` / `InventoryConfig` | `src/data/resources/items/`, `.tres` in `src/data/items/` + `src/data/configs/inventory_config.tres` | Item content: `id`, `display_name`, `description`, `category` {RESOURCE, CONSUMABLE, WEAPON, TOOL, ARMOR, SPECIAL}, `max_stack`, `icon`, `consume_effect`, `equipment_slot`, `weapon_damage/range`, `armor_damage_reduction/max_hp_bonus`; effect `hunger`, `thirst`, `fatigue`, `hp`, `regen_hp_per_second`, `regen_duration`. **`ItemEffect.fatigue` is not a plain Fatigue delta:** `InventoryComponent` applies it through `NeedsComponent.restore_fatigue_capacity()`, so it raises the Fatigue **cap** and fills the current value by the same amount (bounded by the new cap). The field keeps its historical name | `ItemCatalog.ALL` + 23 constants + `get_by_id()` |
 | `ItemPickup` | `src/entities/props/item_pickup.gd/.tscn` | Area2D pickup: a body in the `player` group adds `item` x `count` through `InventoryComponent.add_item()`; leftover stays in the world, frees itself at 0. Ignores overlaps during `InventoryConfig.pickup_delay` and sizes its shape from `pickup_radius` |
 | `HotbarHUD` | `src/ui/hud/inventory/` | Read-only 5-slot hotbar (key number, display_name or icon, count); binds to `slot_changed(index)` and finds `InventoryComponent` via the `player` group or `@export inventory` |
 | `BagPanel` / `BagSlot` | `src/ui/panels/inventory/` | Interactive bag UI on its own `CanvasLayer` (layer 20): 12-slot grid with hotbar markers 1-5, a read-only equipment column (Weapon / Tool ownership / Armor) and a `Crafting` placeholder tab. Toggled by the `inventory_toggle` action (Tab or I) in `_unhandled_input`; Esc (`ui_cancel`) closes it but never opens it; it never pauses the game. Slots use `_get_drag_data`/`_can_drop_data`/`_drop_data` → `move_slot()`, right-click → `use_slot()`, hover tooltip from `ItemDefinition`/`ItemEffect`. Refreshes only from `slot_changed`, `equipment_changed`, `inventory_changed` |
@@ -79,34 +106,39 @@ Known bugs still present:
 | `ResourceNodeDefinition` / `ResourceNode` | `src/data/resources/gathering/`, `src/data/gathering/*.tres`, `src/entities/props/resource_node/` | Eight definitions (twig, tree, small/big rock, fiber/berry bush, coconut palm, bamboo clump) with tool gates (`stone_axe`/`stone_pickaxe`), hold time = `gather_time` x `StatsComponent.get_gather_time_factor()`, seeded yield, `spend_fatigue()` once, DAILY / EVERY_OTHER_DAY / NEVER respawn through `DayNightManager.day_started(day)`, permanent removal after `last_respawn_day`; signal `gathered(definition, amount, interactor)` | Implemented; 14 tests |
 | `EmergencySuitcase` / `RiverEdge` | `src/entities/props/suitcase/`, `src/entities/props/river_edge/` | Suitcase: hold 1.0 s, grants 1 herbal bandage + 1 boiled water + 1 cockpit notes once, then blocks forever. River edge: hold 1.5 s, +25 Thirst, -8 Hunger, 15 real-second cooldown per player | Implemented; tested |
 | `cockpit_notes` item | `src/data/items/cockpit_notes.tres` | SPECIAL item "Catatan Kokpit", `max_stack` 1, registered in `ItemCatalog` | Implemented; tested |
-| `StructureDefinition` / `CampStructure` / `BlueprintSlot` | `src/data/resources/camp/`, `src/data/camp/*.tres`, `src/entities/camp/` | Four structures (campfire/workbench/chest/tent) generated by `tools/generate_structures.gd`: HP, build cost/time, aggro priority, repair cost/HP, slot position. `CampStructure` (group `camp_structure`, non-blocking Node2D): `take_damage(amount, source)`, `repair(amount) -> float`, `is_damaged()`, `get_aggro_priority()`, `get_hp_bar()` (visible only when damaged); signals `damaged(amount, source)`, `repaired(amount)`, `destroyed`, `hp_changed`. `BlueprintSlot` (extends `Interactable`): hold-E builds `definition.scene`, consumes cost atomically, hides its translucent placeholder, reopens after `destroyed`; `get_structure()`, `built(structure)`. A missing scene, an uninstantiable scene, or a scene whose root is not `CampStructure` blocks with `"Blueprint rusak"` **before** any cost check, so materials can never be consumed | Implemented; 16 blueprint/structure tests. Not yet placed in `island.tscn` |
+| `StructureDefinition` / `CampStructure` / `BlueprintSlot` | `src/data/resources/camp/`, `src/data/camp/*.tres`, `src/entities/camp/` | Four structures (campfire/workbench/chest/tent) generated by `tools/generate_structures.gd`: HP, build cost/time, aggro priority, repair cost/HP, slot position. `CampStructure` (group `camp_structure`, non-blocking Node2D): `take_damage(amount, source)`, `repair(amount) -> float`, `is_damaged()`, `get_aggro_priority()`, `get_hp_bar()` (visible only when damaged); signals `damaged(amount, source)`, `repaired(amount)`, `destroyed`, `hp_changed`. `BlueprintSlot` (extends `Interactable`): hold-E builds `definition.scene`, consumes cost atomically, hides its translucent placeholder, reopens after `destroyed`; `get_structure()`, `built(structure)`. A missing scene, an uninstantiable scene, or a scene whose root is not `CampStructure` blocks with `"Blueprint rusak"` **before** any cost check, so materials can never be consumed | Implemented; 16 blueprint/structure tests. Wired into `island.tscn` via CampController |
 | `Campfire` / `CampfireConfig` / `Workbench` | `src/entities/camp/campfire/`, `src/entities/camp/workbench/`, `src/data/resources/camp/campfire_config.gd` | Campfire station + fuel + light + rest bonus. 240 s start / 600 max, 0.25/s day, 1.0/s night, x `get_time_scale()`; refuel 2 wood -> +180 s, hold 0.5 s, blocked at >= 580 (`Bahan bakar penuh`) or with < 2 wood (`Butuh 2 Kayu`); lit light 240 px, ember 80 px, dazzle getter 180 px; `tick(delta)`, `is_lit()`, `get_fuel()`, `set_fuel()`, `get_light_radius()`, `get_dazzle_radius()`; signals `fuel_changed`, `lit_changed`, `fuel_depleted`. Rest: lit fire within 120 px sets Needs override `&"campfire"` = 5.0 every 0.25 s. Workbench is always an active WORKBENCH station | Implemented; 19 campfire tests + station tests |
 | `ChestComponent` / `Chest` | `src/components/storage/chest_component.gd`, `src/entities/camp/chest/` | 24-slot storage with the bag's stacking rules (top-up first, then leftmost empty, never reorder) | `add_item() -> int` leftover, `remove_item()` atomic, `get_slot()`, `count_of()`, `is_full()`, `clear()`, `move_to_bag(index, inventory)`, `move_from_bag(inventory, index)`, `get_slots()`; `slot_changed(index)`, `contents_changed()`. `Chest` (extends `CampStructure`) exposes `get_prompt()` -> `"Peti (24 slot)"`, `get_component()`, `interaction_requested`, and drops every stack as `ItemPickup` on destruction (panel deferred) | Implemented; 15 tests |
 | `Tent` / `TentConfig` | `src/entities/camp/tent/`, `src/data/resources/camp/tent_config.gd` | Sleep by day and the Night Watch entry point at night | Sleep requires `is_day()`, remaining day > 60 s and >= 60 game seconds since the last sleep; reasons `Hanya bisa tidur di siang hari`, `Waktu siang kurang dari 60 detik`, `Tenda masih perlu istirahat`. On success it calls `clock.skip_time(config.skip_seconds)` **once** (Needs handles `time_skipped`). Hold 1.5 s (mission value). Prompts: `Tahan E: Tidur` / `Tahan E: Jaga Malam` / `... Berhenti Jaga Malam`; `sleep()`, `can_sleep()`, `get_sleep_block_reason()`, `perform_action()` | Implemented; 10 tests |
 | `NightWatchController` | `src/levels/camp/night_watch_controller.gd` | Starts/stops Night Watch from the Tent | Start needs night + a lit Campfire (`Hanya saat malam`, `Butuh Api Unggun menyala`); ON/OFF call `clock.set_night_watch()`. Stops on `move_*` input, campfire `fuel_depleted`/`destroyed`, **any** `camp_structure` `damaged`, or dawn/`night_ended` (reasons `Bergerak`, `Api padam`, `Struktur diserang`, `Fajar`, `Dimatikan`); signals `watch_started`, `watch_stopped(reason)` | Implemented; 9 tests |
-| `CampController` | `src/levels/camp/camp_controller.gd/.tscn` | Registry of built camp structures with 4 `BlueprintSlot` children at the spec positions | `get_structure(id)`, `get_structures()`, `has_built(id)`, `get_structures_by_priority()` (aggro ascending), `get_slots()`, `get_built_ids()`; signals `structure_built(id)`, `structure_destroyed(id)` | Implemented; 5 tests; scene not yet placed in `island.tscn` |
-| `RepairComponent` | `src/components/camp/repair_component.gd` | Hold **R** (action `repair`, registered by `InputSetup`) 1.0 s on the nearest `camp_structure` within 96 px; consumes `definition.repair_cost` atomically at completion, then `repair(definition.repair_hp)`; resets on release/out of range; reasons `Bahan kurang`, `Struktur sudah penuh`; `get_target()`, `get_progress_ratio()`, `get_target_prompt()`, `get_block_reason()`, `tick(delta)`; signals `progress_changed`, `repair_completed`, `repair_blocked`, `target_changed`. `InteractionHUD` shows the repair prompt/progress additively | Implemented; 11 tests. Not yet attached to the island Player |
+| `CampController` | `src/levels/camp/camp_controller.gd/.tscn` | Registry of built camp structures with 4 `BlueprintSlot` children at the spec positions | `get_structure(id)`, `get_structures()`, `has_built(id)`, `get_structures_by_priority()` (aggro ascending), `get_slots()`, `get_built_ids()`; signals `structure_built(id)`, `structure_destroyed(id)` | Implemented; 5 tests; wired into `island.tscn` |
+| `RepairComponent` | `src/components/camp/repair_component.gd` | Hold **R** (action `repair`, registered by `InputSetup`) 1.0 s on the nearest `camp_structure` within 96 px; consumes `definition.repair_cost` atomically at completion, then `repair(definition.repair_hp)`; resets on release/out of range; reasons `Bahan kurang`, `Struktur sudah penuh`; `get_target()`, `get_progress_ratio()`, `get_target_prompt()`, `get_block_reason()`, `tick(delta)`; signals `progress_changed`, `repair_completed`, `repair_blocked`, `target_changed`. `InteractionHUD` shows the repair prompt/progress additively | Implemented; 11 tests; attached to the island Player |
 | `RecipeDefinition` / `ItemAmount` / `CraftingComponent` | `src/data/resources/crafting/`, `src/data/resources/items/item_amount.gd`, `src/data/recipes/*.tres`, `src/components/crafting/` | 13 recipes in `.tres` (3 HAND, 7 WORKBENCH, 3 CAMPFIRE) generated by `tools/generate_recipes.gd`. `CraftingComponent`: `get_stations_in_range()` (group `crafting_station`, 140 px, `station_type` + `is_station_active()`), `get_available_recipes()`, `get_locked_recipes()`, `can_craft()`, `get_block_reason()` (Indonesian), `has_ingredients()`, `count_available()`, `start_craft()`, `cancel_craft()`, `tick(delta)` (real delta x `get_craft_time_factor()`); ingredients consumed atomically at completion (WEAPON-slot ingredient must match the equipped weapon); cancels on movement, HP loss or station loss; result equips WEAPON/TOOL/ARMOR (with better-weapon / already-owned / armor-occupied blocks) or `add_or_drop()`; signals `craft_started`, `craft_progress`, `craft_completed`, `craft_cancelled(recipe, reason)`, `crafted(recipe, count)`, `stations_changed()` (station set in range changed). `ItemAmount` statics `has_all()`, `consume_all()` (atomic + refund), `without_weapon_slot()`, `weapon_slot_amounts()` are shared with `BlueprintSlot` and `RepairComponent` | Implemented; 22 tests; wired into `island.tscn` (Player node) and shown as the `BagPanel` Crafting tab (`CraftingRow`, 8 panel tests) |
 | `IslandZones` / `IslandLayoutConfig` / `IslandBuilder` | `src/levels/island/island_zones.gd`, `island_builder.gd`, `src/data/resources/island/`, `src/data/configs/island_layout.tres` | Zone lookup in the order CAMP, SOUTH_BEACH, EAST_BEACH, WEST_CLIFFS, RIVER, FOREST, OUTSIDE; deterministic seeded rejection-sampled layout with spacing/keep-out rules; 139 resource nodes and 16 `night_spawn_point` markers | Implemented; 17 tests |
-| `island.tscn` / `GatherDebug` | `src/levels/island/island.tscn`, `island.gd`, `gather_debug.gd` | Minimum map: tinted ground per zone, coastline static walls at ±2400, PlaneWreckage, suitcase, beacon placeholder (no logic), 9 river edges, full player/HUD wiring, builder node. `GatherDebug` (island only, off by default): F2 grants both tools, F3 teleports to the next zone, F4 skips to the next morning, F5 grants a crafting test kit (30 wood, 20 stone, 20 fiber, 10 bamboo, 10 bone, 10 hide, 6 raw meat, 6 berry) | Implemented; boots headless clean |
+| `island.tscn` / `GatherDebug` | `src/levels/island/island.tscn`, `island.gd`, `gather_debug.gd` | Minimum map: tinted ground per zone, coastline static walls at ±2400, PlaneWreckage, suitcase, SignalBeacon at South Beach, 9 river edges, full player/HUD wiring, builder node. `GatherDebug` (island only, off by default): F2 grants both tools, F3 teleports to the next zone, F4 skips to the next morning, F5 grants a crafting test kit (30 wood, 20 stone, 20 fiber, 10 bamboo, 10 bone, 10 hide, 6 raw meat, 6 berry) | Implemented; boots headless clean |
 | `PlayerBaseStats` | `src/data/stats/player_base_stats.gd` | Base numbers (no `.tres` instance yet; script defaults are used) |
 | `Player` | `src/entities/player/` | Top-down movement + sprint from `StatsComponent`; `can_sprint`, `facing_direction`, `sprint_state_changed`, additive `apply_knockback(direction, distance, duration)` + `knockback_multiplier` hook |
 | `CombatComponent` / `PlayerDamageReceiver` / `HealthComponent` | `src/components/combat/` | Player attacks: auto only targets HOSTILE/PROVOKED (`can_be_auto_targeted()`), manual swing (click/Space, 90° cone, shared cooldown) provokes NEUTRAL/PASSIVE; weapon damage/range from equipped WEAPON, fatigue 1.2/hit, bone spear bleed, floating damage text + flash; `swing_manual()`, `get_attack_range()`, `get_attack_damage()`, signals `hit_dealt`, `swing`, `enemy_killed`. Receiver: dodge roll (seeded RNG) -> `dodged` + "DODGE!", damage through `calc_incoming_damage()`, knockback, `damaged`. `HealthComponent` owns fauna HP + bleed, group `damageable`, signals `hp_changed`, `damaged`, `died`. `CombatConfig` in `src/data/configs/combat_config.tres`. Additive `register_hit_modifier(source_id, callable)` / `unregister_hit_modifier(source_id)` let passives alter damage in registration order |
 | `ProficiencyConfig` / `ProficiencyComponent` | `src/data/resources/proficiency/`, `src/data/configs/proficiency_config.tres`, `src/components/proficiency/` | XP, carry-over, `max_reached_level`, night combat bonus (1.5x), passives and the death debuff (§7.6). Levels are still written through `StatsComponent.strength_level` etc.; per-level stat effects stay in `StatsComponent`. XP sources are wired from existing signals (hit/kill/dodge/gather/craft/boar dash-miss) plus real player displacement for Speed; inside the 180 px camp radius Speed XP is 0. Passives: Heavy Strike (every 4th landed hit x1.3 via hit modifier), Sturdy (knockback x0.5), Second Wind (campfire idle-regen x1.25 via `set_idle_regen_multiplier`), Quick Reflex (+8% dodge below 40% HP), Swift Counter (next hit after a dodge x1.25). Light Footed stays in `StatsComponent` (not duplicated). Master Chef's +10 restore is **not applied** (no allowed consume hook); `get_campfire_restore_bonus()` exposes the value | Implemented; 11 tests |
-| `DeathController` / `LootBag` / `DeathScreen` | `src/core/managers/death_controller.gd`, `src/entities/props/loot_bag/`, `src/ui/menus/death_screen.gd/.tscn` | 3 respawn tokens (4th death = permanent game over), loot bag from all 12 bag slots at the death position (equipment kept), respawn at (0,64) with 70% HP and 60/60/80 needs, proficiency death debuff, player hidden + `PROCESS_MODE_DISABLED` while dead. The clock keeps running. `died(respawns_remaining)`, `respawned`, `game_over`; `respawn()`, `can_respawn()`, `get_last_loot_bag()`. `DeathScreen` only emits `respawn_requested`/`main_menu_requested` | Implemented; 5 + 3 tests |
+| `DeathController` / `LootBag` / `DeathScreen` | `src/core/managers/death_controller.gd`, `src/entities/props/loot_bag/`, `src/ui/menus/death_screen.gd/.tscn` | 3 respawn tokens via internal `RESPAWN_TOKENS` constant (PlayerBaseStats.max_respawn_tokens not read; 4th death = permanent game over), loot bag from all 12 bag slots at the death position (equipment kept), respawn at (0,64) with 70% HP and 60/60/80 needs, proficiency death debuff, player hidden + `PROCESS_MODE_DISABLED` while dead. The clock keeps running. `died(respawns_remaining)`, `respawned`, `game_over`; `respawn()`, `can_respawn()`, `get_last_loot_bag()`. `DeathScreen` only emits `respawn_requested`/`main_menu_requested`; `GameOverScreen` (`src/ui/menus/game_over_screen.gd/.tscn`, CanvasLayer + `PROCESS_MODE_ALWAYS`, buttons Mulai Baru / Menu Utama) emits `restart_requested`/`main_menu_requested` and `island.gd` shows it on `game_over` | Implemented; 5 + 3 + 1 screen tests |
 | `EndgameController` / `SignalBeacon` / `EndgameHUD` | `src/core/managers/endgame_controller.gd`, `src/entities/props/beacon/signal_beacon.gd`, `src/ui/hud/endgame/` | Day-7 banner (only on `day_started == max_days`), rescue banner, beacon direction/distance arrow, Victory when the beacon is used during rescue while holding `signal_flare`. Beacon: `Interactable`, hold 1.5 s, blocks with `Belum waktunya` / `Butuh Suar Darurat`; flare is not consumed. Anti-softlock boars are handled by `FaunaQuota.rescue_started` | Implemented; 4 tests; 3 beacon tests |
 | `RunController` / `MainMenu` | `src/core/managers/run_controller.gd`, `src/ui/menus/main_menu.gd/.tscn` | `main_menu_requested` / `restart_requested`; freezes the clock with `set_time_scale(0.0)` before the menu and calls `DayNightManager.restart()` on a new run. Scene change goes through the overridable `_change_scene()`. `main_menu.tscn` is **not** the main scene | Implemented; boots headless
 | `FaunaBase` / `WildBoar` / `IslandDeer` | `src/entities/fauna/` | `FaunaBase` (CharacterBody2D, group `fauna`, layer 0/mask 1): HealthComponent child, temperament PASSIVE/NEUTRAL/HOSTILE, `provoke()`, `can_be_auto_targeted()`, speed/attack modifier dictionaries, `apply_night_scaling()` keeping HP ratio, `reset_night_scaling()`, Dazzled from lit Campfire (0.70 speed / 0.75 attack), wander, flee+despawn, `drop_loot()` via ItemPickup, `flash_hit()`. Boar: bite 12/50 px/1.2 s, dash 110–240 px with 0.8 s telegraph then 330 px/s (20 + 60 px knockback to player, 40 to structures), camp aggro (player <=140, raid_camp, priority structures), leash 380. Deer: 40 HP, always PASSIVE, flees 175 px/s for 5 s at 130 px or when hit. Configs `boar_config.tres` / `deer_config.tres` |
 | `FaunaQuota` / `NightSpawner` / `NightScalingConfig` | `src/core/managers/`, `src/data/resources/fauna/` | Quota: 2 Boar + 3 Deer at start, no mid-day respawn, dawn rule (extras flee, survivors NEUTRAL x1.0, top-up 2/3) for days 2-7, rescue rule (flee, >=2 boars, 45 s REAL respawn, max 4), spawn-point rule (>=600 px from player else farthest). Spawner: night start makes residents HOSTILE + scaled, one spawn immediately then per interval while hostile count < table max (timer x time_scale). Table 3/4/5/6/7/9/12, 45..15 s, x1.0..1.5 |
+| `CampAnchor` / `BaseSiteConfig` / `BaseSiteRules` | `src/core/managers/camp_anchor.gd`, `src/data/resources/camp/base_site_config.gd`, `src/utils/base_site_rules.gd` | Camp is dynamic: the anchor is founded once (island founds it at `Vector2.ZERO`), then every consumer reads its centre/radius. `CampAnchor`: `founded`, `get_center()`, `get_ring_radius()`, statics `find_anchor(node)`, `camp_center(node)`, `ring_radius(node)`. `BaseSiteRules` validates placement (water/river clearance, coast margin) | Implemented; 13 tests |
+| `BasePlacementController` / `BaseHUD` | `src/components/base/`, `src/ui/hud/base/` | B opens build mode, ghost follows the cursor, invalid sites blocked with an Indonesian reason, left-click founds the base. Signals `placement_changed`, `base_founded(center, radius)` | Implemented; unit-tested |
+| `FenceRing` / `FenceSegment` / `FenceConfig` / `FenceGeometry` | `src/levels/camp/fence_ring.gd`, `fence_geometry.gd`, `src/entities/camp/fence/`, `src/data/resources/camp/fence_config.gd`, `src/data/configs/fence_config.tres` | Ring of ~20 fence segments (200 px radius, 66 px segments, 10 wood + 60 hp each) on `PhysicsLayers.FENCE_LAYER` (bit 3, value 8). Boars path around fences, bite/chew blocking segments and can break through; gaps are valid. `FenceSegment` extends `CampStructure` (`repair()` restores 30 hp for 1 wood) | Implemented; 9 tests |
+| `FireStarterController` / `FireStarterConfig` / `FireStarterHUD` | `src/components/crafting/fire_starter_controller.gd`, `src/data/resources/combat/fire_starter_config.gd`, `src/data/configs/fire_starter_config.tres`, `src/ui/hud/crafting/` | Campfire ignition QTE: a COLD campfire (fuel refilled but never lit) needs 3 stone strikes in a 1.1 s window; `request_ignition()` blocks with `Butuh Batu`, cancel at 96 px or on state change. RNG injected for tests | Implemented; 7 tests |
+| `CombatFeedback` / `JuiceConfig` | `src/components/combat/combat_feedback.gd`, `src/data/resources/combat/juice_config.gd`, `src/data/configs/juice_config.tres` | Visual-only juice: hit-stop via `freeze_for`, camera shake through `Camera2D.offset`, flash/squash, one-shot particles, `feedback_event(kind, position)`, death corpse animation (a detached visual, fauna still frees immediately), boar telegraph line and input buffer (`CombatComponent.swing_buffer_time`) | Implemented; 10 tests |
 | `InputSetup` | `src/utils/input_setup.gd` | Input Map helper: most actions (`move_*`, `sprint`, `hotbar_1..5`, `debug_*`) are declared in `project.godot` `[input]`; `interact` (E), `repair` (R) and `debug_island_*` (F2/F3/F4/F5) are registered by `ensure_actions()`, which only fills gaps idempotently. Also owns `MOVE_ACTIONS` and `is_movement_pressed()`, the single movement poll used by `CraftingComponent` and `NightWatchController`. **Input rule:** gameplay components poll Input actions (`Input.is_action_pressed()`, `is_action_just_pressed()`, `get_vector()`) inside `_process`/tick and never match raw keycodes; UI panels such as `BagPanel` may use `_unhandled_input` for toggle/close only. No gameplay code uses `_unhandled_input` |
 | `SafeZone` | `scenes/practice/safe_zone.gd` | **Practice-only** camera zoom + speed modifier example |
-| Tests / sandbox | `tests/unit/`, `tests/sandbox/` | GUT tests and a manual stats sandbox |
+| Tests / sandbox / integration | `tests/unit/`, `tests/sandbox/`, `tests/integration/` | GUT unit tests, a manual stats sandbox, and scene-level integration tests on `island.tscn`. `island_harness.gd` (preload, no `class_name`) instantiates the island, resolves the real components, creates `/root/DayNightManager` only when absent (and frees it in teardown), and drives time through `clock.advance()` + the public `tick()` of each node. Scenarios: `test_island_wiring.gd` (S1), `_survival` (S2), `_night` (S3), `_death` (S4), `_endgame` (S5), `_soak` (7-day, 0.5 s step) | Implemented; 7 tests |
 
 ### What does NOT exist yet
 
 The Chest panel, pause menu, audio, save system, `EventBus`, `GameManager`,
-`AudioManager`, the production island map (only `practice1.tscn` and the
-placeholder `island.tscn` exist — no production art, no level loader) and
+`AudioManager`, production art and the level loader (`island.tscn` is now a
+working minimum map wired for death/endgame; only the art is missing) and
 post-MVP fauna (Wolf, Shadow Stalker, Snare Trap, NPCs). Proficiency XP/passives,
 death/respawn/loot bag/debuff, the Day-7 banner, beacon arrow, Signal Flare use
 and Victory now exist. `practice1.tscn` is still the main scene and is **not**
@@ -281,13 +313,19 @@ hunger -10 thirst, Cooked Meat +45 hunger +15 HP, Bone Broth +35 hunger +40
 thirst (+1 HP/s for 20 s stored), Boiled Water +60 thirst, Herbal Bandage +35 HP.
 `InventoryComponent.use_slot(index)` applies them, consumes one item even when
 the stat is full, and ignores non-CONSUMABLE categories; keys **1-5** use the
-first five bag slots. 22 definitions exist (6 resources, 7 consumables, 3
+first five bag slots. 23 definitions exist (6 resources, 7 consumables, 4
 special, 3 weapons, 2 tools, 1 armor); equipment slots WEAPON/ARMOR/TOOL are
 implemented (TOOL = ownership set), and only Leather Vest changes stats.
 - Sleep must clamp hunger/thirst to at least 1.0 (sleep cannot kill).
 - Campfire idle at 120 px radius; camp radius = 180 px.
 
 ### Camp (4 fixed blueprints, all destroyed → blueprint slot again)
+
+> **Mission 6:** the camp is now dynamic. `CampAnchor` stores the founded
+> centre/radius and every consumer (raid target, camp fire radius, respawn,
+> fauna spawn keep-out, blueprint slots) reads it with `Vector2.ZERO` / 180 px
+> defaults, so scenes and tests without an anchor behave exactly as before.
+> The blueprint coordinates below are the defaults relative to that centre.
 
 | Structure | Pos | HP | Build cost | Notes |
 |---|---|---:|---|---|
@@ -539,7 +577,7 @@ Supersedes the order in `MVP_CHECKLIST` §19 (update that file to match).
       resource, wreckage, Emergency Suitcase, Beacon (§7.4, §7.7). Grow it
       incrementally; keep `practice1.tscn` working. **— MINIMUM DONE**
       (`src/levels/island/island.tscn`: zones, 139 nodes, 16 night markers,
-      wreckage, suitcase, beacon placeholder, river edges; art and level loader
+      wreckage, suitcase, `SignalBeacon`, river edges; art and level loader
       still open).
    5. Crafting (hand / Workbench / Campfire), blueprint slots, structures with HP,
       repair (hold R), fuel, Tent sleep, Night Watch (§7.4, §7.5). **— PARTIAL
@@ -570,7 +608,10 @@ Campfire `remove_fuel()`/Ember Snuff. 55 new tests in total; F6-F10 debug helper
    `DeathScreen`, `RunController` + `MainMenu`, `EndgameController` +
    `SignalBeacon` + `EndgameHUD`, island wiring, F11 (kill) / F12 (rescue)
    debug keys. 12 tests.
-6. **P3 - polish.** Main menu, pause, audio, sprites/animations, balancing,
+6. **Mission 5 - integration + stabilization. — DONE.** Scene-level harness on
+   `island.tscn` with S1-S5 scenarios plus a 7-day soak (0.5 s step, ~11 s,
+   node growth 3.96%). 7 integration tests; whole suite 393 tests.
+7. **P3 - polish.** Main menu, pause, audio, sprites/animations, balancing,
    playtest, export. Post-MVP items only after the MVP gate (§12).
 
 Recommended new locations (keep conventions):
@@ -600,6 +641,21 @@ resources under `src/data/recipes/`.
 
 ---
 
+### Mission 6 — Base & Feel (21 Nov 2026)
+
+Day-time boars are neutral again (temperament is derived every tick, aggro
+requires `can_be_auto_targeted()`), the player founds a dynamic base (B), a fence
+ring exists, campfires need an ignition QTE when they were never lit, and combat
+has visual juice. None of it changes balance numbers.
+
+### Spec deviations approved by the owner
+
+- Fence ring is a separate ring of segments, not 4 extra blueprint slots.
+- `PhysicsLayers.FENCE_LAYER = 8` (bit 3) because `project.godot` may not be edited.
+- Campfire COLD state: refuelling an unlit campfire no longer relights it.
+- Death animation uses a detached corpse visual; fauna frees immediately so
+  quota/spawn/soak timing is unchanged.
+
 ## 9. Commands & upkeep
 
 ### Commands
@@ -609,6 +665,9 @@ resources under `src/data/recipes/`.
 ```text
 # Unit tests (GUT)
 GODOT --headless --path . -s addons/gut/gut_cmdln.gd -gdir=res://tests/unit -gexit
+
+# Unit + integration tests (GUT)
+GODOT --headless --path . -s addons/gut/gut_cmdln.gd -gdir=res://tests/unit,res://tests/integration -gexit
 
 # One test file
 GODOT --headless --path . -s addons/gut/gut_cmdln.gd -gtest=res://tests/unit/<file>.gd -gexit
@@ -712,3 +771,7 @@ numbers in `.tres` so tuning stays cheap.
    `get_campfire_restore_bonus()` exists. A manual swing that displaces the player
    by more than 200 px in one tick (debug teleport) is ignored for Speed XP.
    `practice1.tscn` is not wired for proficiency/death/endgame; `island.tscn` is.
+7. **Mission 5 leftovers (no open code bugs).** Every Part A/B check passed, so no
+   code bug is left unfixed. Two doc-level gaps are recorded instead: no
+   `ProficiencyHUD` exists anywhere in `src/` (nothing displays proficiency
+   levels yet), and `PlayerBaseStats.max_respawn_tokens` stays unused (item 6).

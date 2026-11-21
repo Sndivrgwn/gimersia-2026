@@ -51,6 +51,14 @@ var _enabled: bool = false
 var _zone_index: int = 0
 var _weapon_index: int = 0
 var _label: Label
+var _fauna_labels_enabled: bool = false
+var _fauna_labels: Dictionary = {}
+
+const FAUNA_GROUP := &"fauna"
+const TEMPERAMENT_NAMES: Array[String] = ["PASSIVE", "NEUTRAL", "HOSTILE"]
+const BOAR_STATE_NAMES: Array[String] = [
+	"WANDER", "CHASE", "BITE", "DASH_TELEGRAPH", "DASH", "RECOVER", "FLEE"
+]
 
 
 func _ready() -> void:
@@ -62,6 +70,10 @@ func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed(InputSetup.DEBUG_ISLAND_TOGGLE):
 		_toggle()
 		return
+	if Input.is_action_just_pressed(InputSetup.DEBUG_FAUNA_LABELS):
+		set_fauna_labels_enabled(not _fauna_labels_enabled)
+	if _fauna_labels_enabled:
+		refresh_fauna_labels()
 	if not _enabled:
 		return
 	if Input.is_action_just_pressed(InputSetup.DEBUG_ISLAND_ZONE):
@@ -88,6 +100,73 @@ func _process(_delta: float) -> void:
 
 func is_debug_enabled() -> bool:
 	return _enabled
+
+
+func is_fauna_labels_enabled() -> bool:
+	return _fauna_labels_enabled
+
+
+func get_fauna_label_count() -> int:
+	return _fauna_labels.size()
+
+
+## Label temperament/state di atas tiap fauna (Insert). Debug-only.
+func set_fauna_labels_enabled(value: bool) -> void:
+	_fauna_labels_enabled = value
+	if value:
+		refresh_fauna_labels()
+		return
+	for key in _fauna_labels.keys():
+		var label: Label = _fauna_labels[key]
+		if is_instance_valid(label):
+			label.queue_free()
+	_fauna_labels.clear()
+
+
+func refresh_fauna_labels() -> void:
+	if not _fauna_labels_enabled:
+		return
+	var host: Node = get_parent()
+	if host == null:
+		host = self
+	var seen := {}
+	var tree := get_tree()
+	if tree == null:
+		return
+	for node in tree.get_nodes_in_group(FAUNA_GROUP):
+		var fauna := node as FaunaBase
+		if fauna == null or not is_instance_valid(fauna):
+			continue
+		var id := fauna.get_instance_id()
+		seen[id] = true
+		var label: Label = _fauna_labels.get(id)
+		if label == null or not is_instance_valid(label):
+			label = Label.new()
+			label.add_theme_font_size_override("font_size", 10)
+			label.z_index = 20
+			host.add_child(label)
+			_fauna_labels[id] = label
+		label.global_position = fauna.global_position + Vector2(-46.0, -48.0)
+		label.text = _fauna_label_text(fauna)
+	for id in _fauna_labels.keys():
+		if seen.has(id):
+			continue
+		var stale: Label = _fauna_labels[id]
+		if is_instance_valid(stale):
+			stale.queue_free()
+		_fauna_labels.erase(id)
+
+
+func _fauna_label_text(fauna: FaunaBase) -> String:
+	var temperament := fauna.get_temperament()
+	var temperament_name: String = TEMPERAMENT_NAMES[clampi(temperament, 0, TEMPERAMENT_NAMES.size() - 1)]
+	if fauna.forced_hostile:
+		temperament_name += "(forced)"
+	var state_name := "-"
+	if fauna is WildBoar:
+		var state_value: int = (fauna as WildBoar).get_state()
+		state_name = BOAR_STATE_NAMES[clampi(state_value, 0, BOAR_STATE_NAMES.size() - 1)]
+	return "%s | %s | provoked=%s" % [temperament_name, state_name, "yes" if fauna.is_provoked() else "no"]
 
 
 func _build_hint() -> void:
@@ -161,6 +240,7 @@ func _spawn_fauna(scene: PackedScene, hostile: bool) -> void:
 		facing = player.facing_direction
 	fauna.global_position = player.global_position + facing.normalized() * SPAWN_DISTANCE
 	if hostile:
+		fauna.forced_hostile = true
 		fauna.set_temperament(FaunaBase.Temperament.HOSTILE)
 	print("GatherDebug: spawn %s." % fauna.name)
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3]
+[gd_scene load_steps=39 format=3]
 
 [ext_resource type="Script" path="res://src/levels/island/island.gd" id="1_island"]
 [ext_resource type="PackedScene" path="res://src/entities/player/player.tscn" id="2_player"]
@@ -33,6 +33,16 @@
 [ext_resource type="PackedScene" path="res://src/ui/menus/death_screen.tscn" id="31_deathscreen"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/endgame/endgame_hud.tscn" id="32_endgamehud"]
 [ext_resource type="Script" path="res://src/entities/props/beacon/signal_beacon.gd" id="33_beacon"]
+[ext_resource type="PackedScene" path="res://src/ui/menus/game_over_screen.tscn" id="34_gameoverscreen"]
+[ext_resource type="Script" path="res://src/core/managers/camp_anchor.gd" id="35_anchor"]
+[ext_resource type="Script" path="res://src/components/base/base_placement_controller.gd" id="36_baseplace"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/base/base_hud.tscn" id="37_basehud"]
+[ext_resource type="Script" path="res://src/levels/camp/fence_ring.gd" id="38_fencering"]
+[ext_resource type="Resource" path="res://src/data/camp/fence_segment.tres" id="39_fencedef"]
+[ext_resource type="Resource" path="res://src/data/configs/fence_config.tres" id="40_fenceconf"]
+[ext_resource type="Script" path="res://src/components/crafting/fire_starter_controller.gd" id="41_firestarter"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/crafting/fire_starter_hud.tscn" id="42_fshud"]
+[ext_resource type="Script" path="res://src/components/combat/combat_feedback.gd" id="43_feedback"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
 size = Vector2(5000, 100)
@@ -179,6 +189,15 @@ script = ExtResource("23_combat")
 [node name="ProficiencyComponent" type="Node" parent="Player"]
 script = ExtResource("27_prof")
 
+[node name="BasePlacementController" type="Node" parent="Player"]
+script = ExtResource("36_baseplace")
+
+[node name="FireStarterController" type="Node" parent="Player"]
+script = ExtResource("41_firestarter")
+
+[node name="CombatFeedback" type="Node" parent="Player"]
+script = ExtResource("43_feedback")
+
 [node name="Camera2D" type="Camera2D" parent="."]
 physics_interpolation_mode = 1
 top_level = true
@@ -203,7 +222,15 @@ tween_resource = SubResource("Resource_tween")
 script = ExtResource("5_builder")
 layout = ExtResource("6_layout")
 
+[node name="CampAnchor" type="Node" parent="."]
+script = ExtResource("35_anchor")
+
 [node name="CampController" parent="." instance=ExtResource("22_camp")]
+
+[node name="FenceRing" type="Node2D" parent="CampController"]
+script = ExtResource("38_fencering")
+definition = ExtResource("39_fencedef")
+config = ExtResource("40_fenceconf")
 
 [node name="Fauna" type="Node2D" parent="."]
 
@@ -241,6 +268,12 @@ script = ExtResource("29_endgame")
 [node name="DeathScreen" parent="." instance=ExtResource("31_deathscreen")]
 
 [node name="EndgameHUD" parent="." instance=ExtResource("32_endgamehud")]
+
+[node name="GameOverScreen" parent="." instance=ExtResource("34_gameoverscreen")]
+
+[node name="BaseHUD" parent="." instance=ExtResource("37_basehud")]
+
+[node name="FireStarterHUD" parent="." instance=ExtResource("42_fshud")]
 
 [node name="GatherDebug" type="Node" parent="."]
 script = ExtResource("16_gatherdebug")

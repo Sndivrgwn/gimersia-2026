@@ -119,16 +119,27 @@ Empty placeholder folders such as `src/entities/enemies`, `src/entities/props`, 
 | **RecipeDefinition / ItemAmount / CraftingComponent** | `src/data/resources/crafting/recipe_definition.gd`, `src/data/resources/items/item_amount.gd`, `src/data/recipes/*.tres`, `src/components/crafting/crafting_component.gd`, `tools/generate_recipes.gd` | Recipe data, shared cost helpers, and player crafting logic; surfaced by the `BagPanel` Crafting tab | `RecipeDefinition`: `id`, `display_name`, `result`, `result_count`, `ingredients: Array[ItemAmount]`, `station` {HAND, WORKBENCH, CAMPFIRE}, `craft_time`, `get_station_name()`, `get_station_block_reason()`. `CraftingComponent`: `get_stations_in_range()`, `get_available_recipes()`, `get_locked_recipes()`, `get_all_recipes()`, `can_craft()`, `get_block_reason()`, `has_ingredients()`, `count_available()`, `start_craft()`, `cancel_craft()`, `tick(delta)`, `get_progress_ratio()`, `is_crafting()`; signals `craft_started`, `craft_progress`, `craft_completed`, `craft_cancelled(recipe, reason)`, `crafted(recipe, count)`, `stations_changed()`. `ItemAmount` also exposes `has_all()`, `consume_all()`, `without_weapon_slot()`, `weapon_slot_amounts()` shared with `BlueprintSlot`/`RepairComponent` | Implemented; 22 tests; wired into `island.tscn` and shown in `BagPanel` (8 tests) |
 | **HealthComponent** | `src/components/combat/health_component.gd` | HP owner for fauna: damage, heal, bleed, death | `setup(max_hp)`, `take_damage(amount, source) -> float`, `heal()`, `is_dead()`, `get_ratio()`, `apply_bleed(dps, duration, source)`, `tick(delta)`, `set_max_hp_keeping_ratio()`; signals `hp_changed`, `damaged`, `died`; adds its owner to group `damageable` | Implemented; 5 tests |
 | **ProficiencyComponent / ProficiencyConfig** | `src/components/proficiency/proficiency_component.gd`; `src/data/resources/proficiency/`; `src/data/configs/proficiency_config.tres` | XP, level-up carry-over, `max_reached_level`, night combat bonus, passives and the death debuff | `add_xp(prof, amount, combat)`, `tick(delta)`, `get_level()`, `get_xp()`, `get_max_reached_level()`, `get_xp_to_next_level()`, `has_passive()`, `apply_death_debuff()`, `get_campfire_restore_bonus()`; signals `xp_gained`, `level_changed`, `max_reached_level_changed`, `passive_unlocked`. Writes levels only through `StatsComponent` | Implemented; 11 tests. Heavy Strike/Swift Counter use `CombatComponent.register_hit_modifier`; Light Footed stays in `StatsComponent` |
-| **DeathController / LootBag / DeathScreen** | `src/core/managers/death_controller.gd`; `src/entities/props/loot_bag/`; `src/ui/menus/death_screen.gd/.tscn` | Death, respawn tokens, loot drop, respawn state, debuff trigger, UI | `respawn()`, `can_respawn()`, `get_respawns_remaining()`, `get_last_loot_bag()`, `died(respawns_remaining)`, `respawned`, `game_over`. `LootBag` is an `Interactable` (hold E) | Implemented; 8 tests |
+| **DeathController / LootBag / DeathScreen** | `src/core/managers/death_controller.gd`; `src/entities/props/loot_bag/`; `src/ui/menus/death_screen.gd/.tscn` | Death, respawn tokens, loot drop, respawn state, debuff trigger, UI | `respawn()`, `can_respawn()`, `get_respawns_remaining()`, `get_last_loot_bag()`, `died(respawns_remaining)`, `respawned`, `game_over`. `LootBag` is an `Interactable` (hold E); `GameOverScreen` (CanvasLayer, `PROCESS_MODE_ALWAYS`) shows on the 4th death with Mulai Baru / Menu Utama | Implemented; 9 tests |
 | **EndgameController / SignalBeacon / EndgameHUD** | `src/core/managers/endgame_controller.gd`; `src/entities/props/beacon/signal_beacon.gd`; `src/ui/hud/endgame/` | Day-7 banner, rescue state, beacon arrow, Victory | `is_rescue_active()`, `get_beacon_direction()/get_beacon_distance()`, `can_use_beacon()`, `victory`; beacon hold 1.5 s requires `signal_flare` + rescue | Implemented; 7 tests |
 | **RunController / MainMenu** | `src/core/managers/run_controller.gd`; `src/ui/menus/main_menu.gd/.tscn` | Menu/restart flow; freezes and restarts the clock | `main_menu_requested`, `restart_requested`, `request_main_menu()`, `request_restart()`; overridable `_change_scene()` | Implemented; menu boots headless. Not the main scene |
 | **CombatComponent / PlayerDamageReceiver / CombatConfig** | `src/components/combat/`, `src/data/resources/combat/combat_config.gd`, `src/data/configs/combat_config.tres` | Player auto-attack, manual provocation, dodge, knockback and hit feedback | `tick(delta)`, `swing_manual(aim)`, `get_attack_damage()`, `get_attack_range()`, `get_cooldown_remaining()`; signals `hit_dealt(target, damage)`, `swing(aim, hit_count)`, `enemy_killed(target)`. Receiver: `receive_hit(raw, source, dir, distance) -> bool`, `setup(player)`, `rng`; signals `dodged`, `damaged` | Implemented; 17 tests (plus 5 knockback) |
 | **FaunaBase / WildBoar / IslandDeer** | `src/entities/fauna/`, `src/data/resources/fauna/`, `src/data/configs/fauna/*.tres` | Fauna bodies, temperament, AI states, night scaling, Dazzled, loot | `FaunaBase`: `tick(delta)`, `provoke()`, `can_be_auto_targeted()`, `get_speed_factor()`, `get_attack_speed_factor()`, `apply_night_scaling()`, `reset_night_scaling()`, `begin_flee()`, `drop_loot()`, `flash_hit()`, `despawn()`; group `fauna`, layer 0 / mask 1. `WildBoar`: states WANDER/CHASE/BITE/DASH_TELEGRAPH/DASH/RECOVER/FLEE, `raid_camp`, `dash_ended(hit)`. `IslandDeer`: WANDER/FLEE | Implemented; 15 tests |
+| **CampAnchor / BaseSiteRules / BasePlacementController** | `src/core/managers/camp_anchor.gd`, `src/utils/base_site_rules.gd`, `src/components/base/base_placement_controller.gd`, `src/ui/hud/base/` | Founded-base centre/radius and placement validation; consumers fall back to `Vector2.ZERO` / 180 px | `founded`, `get_center()`, `get_ring_radius()`, static `find_anchor/camp_center/ring_radius`; `placement_changed`, `base_founded` | Implemented; 13 tests |
+| **FenceRing / FenceSegment / FenceGeometry** | `src/levels/camp/fence_ring.gd`, `fence_geometry.gd`, `src/entities/camp/fence/` | Ring of fence segments on their own physics layer; blocking, chewing, breakthrough | `get_segments()`, `rebuild(center, radius)`; `FenceSegment`: `get_endpoints()`, `get_current_hp()`, `take_damage()`, `repair()`; `FenceGeometry.segments_cross()`, `first_blocking_segment()` (untyped return to avoid a cyclic class dependency) | Implemented; 9 tests |
+| **FireStarterController / FireStarterHUD** | `src/components/crafting/fire_starter_controller.gd`, `src/ui/hud/crafting/` | Ignition QTE for a COLD campfire | `start(campfire: Node)`, `tick(delta)`, `cancel(reason)`, `is_active()`; campfire side: `ignite()`, `needs_ignition()`, `can_ignite()`, `get_ignite_block_reason()`, `request_ignition()` | Implemented; 7 tests |
+| **CombatFeedback / JuiceConfig** | `src/components/combat/combat_feedback.gd`, `src/data/configs/juice_config.tres` | Pure feedback: hit-stop, shake, flash/squash, particles, events, corpse visual, input buffer | `notify_hit(target, damage, heavy)`, `tick(delta)`, `get_shake_offset()`, `is_hit_stopped()`, `get_squash_scale()`, `feedback_event(kind, position)`; values live in `JuiceConfig` | Implemented; 10 tests |
 | **FaunaQuota / NightSpawner / NightScalingConfig / EmberSnuffConfig** | `src/core/managers/`, `src/data/resources/fauna/`, `src/data/configs/fauna/*.tres` | Daytime quota, dawn/rescue rules, night waves and Ember Snuff tuning | `FaunaQuota`: `tick(delta)`, `spawn_initial()`, `get_boar_count()`, `get_deer_count()`, `get_hostile_count()`, `get_spawn_position()`, `get_extra_respawns_left()`; `guarantee_deer_at_rescue` (default false). `NightSpawner`: `tick(delta)`, `get_hostile_count()`, `get_night()`, `is_active()`. `NightScalingConfig`: `get_max_enemies()`, `get_spawn_interval()`, `get_hp_damage_multiplier()`, clamped 1..7. `Campfire.remove_fuel()` + Ember Snuff in `take_damage()` | Implemented; 13 tests |
 
 ---
 
 ## 4. Dependency Direction
+
+New in Mission 6: `CampAnchor` is a leaf (imports nothing); `BaseSiteRules` is
+static and stateless; `Campfire` and the ignition controller talk through duck
+typing (`start(campfire: Node)`) because a typed pair would be a cyclic class
+dependency. `FenceGeometry.first_blocking_segment()` is deliberately untyped for
+the same reason. Physics layers live in `src/utils/physics_layers.gd`:
+`WORLD = 1`, `FENCE_LAYER = 8`; fauna mask `WORLD | FENCE_LAYER`.
 
 ```text
 InputSetup ──> Player ──> StatsComponent ──> PlayerBaseStats
@@ -258,7 +269,7 @@ scene; `practice1.tscn` stays `run/main_scene`):
 Island (island.gd: start facing north)
 ├── Ground (tinted Polygon2D per zone)
 ├── Coastline (4 static walls at ±2450)
-├── Wreckage (0,-185) · Suitcase (-48,40) · Beacon placeholder (0,2100)
+├── Wreckage (0,-185) · Suitcase (-48,40) · SignalBeacon (0,2100)
 ├── RiverEdges (9 RiverEdge, x=-950, y -1400..1400)
 ├── Player (group "player", (0,64)) + InventoryComponent + InteractorComponent
 ├── Camera2D / PhantomCameraHost / PhantomCamera2D (follow Player)
@@ -268,8 +279,8 @@ Island (island.gd: start facing north)
 ```
 
 The clock is not started by the scene: the `DayNightManager` autoload already
-`auto_start`s, exactly like `practice1.tscn`. The beacon is a placeholder with
-no Victory logic, and the 16 `night_spawn_point` markers are read by nothing yet.
+`auto_start`s, exactly like `practice1.tscn`. The beacon is wired with `SignalBeacon`
+and `EndgameController` for Victory logic, and the 16 `night_spawn_point` markers are read by `NightSpawner`.
 
 ---
 
@@ -376,6 +387,7 @@ Guidelines:
 ## 8. Testing and Verification
 
 - Unit tests use **GUT 9.x** and live in `tests/unit/`.
+- Scene-level integration tests live in `tests/integration/` and run against the real `src/levels/island/island.tscn`: `island_harness.gd` (preload, no `class_name`) instantiates the island, resolves the live components, creates `/root/DayNightManager` only when it is absent and frees it in teardown, then drives `clock.advance()` plus each node's public `tick()`. Scenarios: S1 wiring, S2 survival, S3 night, S4 death, S5 endgame, plus a 7-day soak at a 0.5 s step. Run them with `-gdir=res://tests/unit,res://tests/integration`.
 - `tests/unit/test_stats_component.gd` covers base stats, proficiency bonuses, modifiers, HP clamps, and dodge caps.
 - `tests/unit/test_game_clock.gd` covers durations, carry-over, dusk, Night Watch, `skip_time()`, final dawn, signal order, and remaining-time text.
 - `tests/unit/test_inventory_component.gd` covers 12-slot capacity, stacking order (top up first, then leftmost empty, never reorder), `max_stack` 1 and 20, full-inventory leftover, atomic `remove_item`, `has_item`/`count_of` across stacks, `move_slot` swap/merge, exact consume deltas for all seven consumables (including consume-when-full and rejecting non-consumables), armor modifier add/remove/replace, weapon replacement, TOOL ownership, `add_or_drop` spawning an `ItemPickup`, partial pickup plus `pickup_delay`, once-per-change signals, hotbar actions 1-5, `HotbarHUD` following `slot_changed(index)`, and `tests/unit/test_bag_panel.gd` covering the Tab/I toggle in `project.godot` `[input]`, the 12-slot grid with hotbar markers, tooltips, drag-drop swap/merge, right-click use, no pause, and the read-only equipment column.

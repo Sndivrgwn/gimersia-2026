@@ -182,13 +182,16 @@ func test_refuel_adds_180_seconds_and_relights() -> void:
 	assert_true(campfire.is_lit())
 
 
-func test_refuel_from_empty_relights_the_fire() -> void:
+func test_refuel_from_empty_does_not_relight_until_ignited() -> void:
 	campfire.set_fuel(0.0)
 	inventory.add_item(ItemCatalog.WOOD, 2)
 	watch_signals(campfire)
 
 	assert_true(campfire.refuel(interactor))
+	assert_false(campfire.is_lit(), "D3: refuel tidak menyalakan api yang sudah mati")
+	assert_true(campfire.needs_ignition())
 
+	assert_true(campfire.ignite())
 	assert_true(campfire.is_lit())
 	var params: Array = get_signal_parameters(campfire, "lit_changed", 0)
 	assert_eq(params[0], true)

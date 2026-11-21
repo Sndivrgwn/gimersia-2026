@@ -25,6 +25,8 @@ extends Resource
 @export var refuel_seconds: float = 180.0
 ## Lama hold-E untuk refuel (detik nyata).
 @export var refuel_hold_time: float = 0.5
+## D3: api yang mati harus dinyalakan ulang dengan minigame gesek batu.
+@export var manual_ignition_enabled: bool = true
 
 @export_group("Light")
 ## Radius cahaya saat menyala.

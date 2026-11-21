@@ -24,6 +24,8 @@ const PLACEHOLDER_SIZE := Vector2(44.0, 44.0)
 
 var _structure: CampStructure
 var _placeholder: Node2D
+var _enabled: bool = true
+var _disabled_reason: String = ""
 ## Cache hasil probe scene: instan hanya sekali per PackedScene.
 var _probed_scene: PackedScene
 var _probe_result: bool = false
@@ -60,9 +62,22 @@ func can_interact(interactor: Node) -> bool:
 	return true
 
 
+## D1: slot bisa dimatikan (mis. base belum ditentukan). Additive.
+func set_enabled(enabled: bool, reason: String = "") -> void:
+	_enabled = enabled
+	_disabled_reason = reason if not enabled else ""
+	_refresh_placeholder()
+
+
+func is_enabled() -> bool:
+	return _enabled
+
+
 func get_block_reason(interactor: Node) -> String:
 	if definition == null:
 		return ""
+	if not _enabled:
+		return _disabled_reason
 	if _structure != null:
 		return ALREADY_BUILT
 	# Scene hilang / bukan CampStructure: slot tidak boleh memakan bahan sama
@@ -142,6 +157,7 @@ func _spawn_structure() -> void:
 	parent.add_child(structure)
 	if structure is Node2D:
 		(structure as Node2D).global_position = global_position
+		(structure as Node2D).global_rotation = global_rotation
 	_structure = structure
 	structure.destroyed.connect(_on_structure_destroyed)
 	_refresh_placeholder()

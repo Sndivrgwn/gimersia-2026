@@ -16,10 +16,13 @@ signal structure_destroyed(id: StringName)
 
 var _structures: Dictionary = {}
 var _bound: Dictionary = {}
+var _anchor: CampAnchor
+const SLOT_DISABLED_REASON := "Tentukan lokasi base dulu (tekan B)"
 
 
 func _ready() -> void:
 	_collect_slots()
+	_bind_anchor()
 	for slot in slots:
 		if slot == null:
 			continue
@@ -86,6 +89,37 @@ func _collect_slots() -> void:
 
 func _sort_by_priority(a: CampStructure, b: CampStructure) -> bool:
 	return a.get_aggro_priority() < b.get_aggro_priority()
+
+
+## D1: tanpa CampAnchor di tree, slot tetap aktif (perilaku lama).
+func _bind_anchor() -> void:
+	_anchor = CampAnchor.find_anchor(self)
+	if _anchor == null:
+		return
+	global_position = _anchor.get_center()
+	if not _anchor.base_founded.is_connected(_on_base_founded):
+		_anchor.base_founded.connect(_on_base_founded)
+	_apply_anchor_state()
+
+
+func _apply_anchor_state() -> void:
+	var founded := _anchor != null and _anchor.is_founded()
+	_set_slots_enabled(founded, SLOT_DISABLED_REASON)
+
+
+func _on_base_founded(center: Vector2) -> void:
+	global_position = center
+	_apply_anchor_state()
+
+
+func _set_slots_enabled(enabled: bool, reason: String) -> void:
+	for slot in get_slots():
+		if slot != null:
+			slot.set_enabled(enabled, reason)
+
+
+func get_anchor() -> CampAnchor:
+	return _anchor
 
 
 func _on_slot_built(structure: CampStructure) -> void:

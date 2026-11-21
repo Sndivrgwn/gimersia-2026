@@ -13,6 +13,8 @@ const CAMPFIRE_SCENE := "res://src/entities/camp/campfire/campfire.tscn"
 const WORKBENCH_SCENE := "res://src/entities/camp/workbench/workbench.tscn"
 const CHEST_SCENE := "res://src/entities/camp/chest/chest.tscn"
 const TENT_SCENE := "res://src/entities/camp/tent/tent.tscn"
+const FENCE_SCENE := "res://src/entities/camp/fence/fence_segment.tscn"
+const FENCE_CONFIG_PATH := "res://src/data/configs/fence_config.tres"
 
 const STRUCTURES: Array[Dictionary] = [
 	{
@@ -43,6 +45,13 @@ const STRUCTURES: Array[Dictionary] = [
 		"repair": [[&"wood", 1], [&"fiber", 2]], "repair_hp": 60.0,
 		"pos": Vector2(0, -110),
 	},
+	{
+		"id": &"fence_segment", "name": "Pagar", "scene": FENCE_SCENE,
+		"hp": 60.0, "build": [[&"wood", 1], [&"fiber", 1]],
+		"build_time": 1.5, "aggro": 3,
+		"repair": [[&"wood", 1]], "repair_hp": 30.0,
+		"pos": Vector2.ZERO,
+	},
 ]
 
 
@@ -62,7 +71,17 @@ func _initialize() -> void:
 		print("generate_structures: %s (%s)" % [path, scene_note])
 
 	print("generate_structures: %d struktur disimpan." % saved)
+	_save_fence_config()
 	quit(0 if saved == STRUCTURES.size() else 1)
+
+
+func _save_fence_config() -> void:
+	var config := FenceConfig.new()
+	var err := ResourceSaver.save(config, FENCE_CONFIG_PATH)
+	if err != OK:
+		push_error("generate_structures: gagal menyimpan %s (err %d)" % [FENCE_CONFIG_PATH, err])
+		return
+	print("generate_structures: %s" % FENCE_CONFIG_PATH)
 
 
 func _build(data: Dictionary) -> StructureDefinition:

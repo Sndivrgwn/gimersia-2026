@@ -224,7 +224,7 @@ berry.consume_effect.hunger     # 12.0
 berry.consume_effect.fatigue    # 10.0
 ```
 
-`ItemCatalog` punya 22 konstanta (`WOOD`…`LEATHER_VEST`), array `ALL`, dan `get_by_id(id)`. Field `ItemDefinition`: `id`, `display_name`, `description`, `category` {RESOURCE, CONSUMABLE, WEAPON, TOOL, ARMOR, SPECIAL}, `max_stack`, `icon`, `consume_effect`, `equipment_slot` {NONE, WEAPON, TOOL, ARMOR}, `weapon_damage`, `weapon_range`, `armor_damage_reduction`, `armor_max_hp_bonus`. `ItemEffect`: `hunger`, `thirst`, `fatigue`, `hp`, `regen_hp_per_second`, `regen_duration`.
+`ItemCatalog` punya 23 konstanta (`WOOD`…`LEATHER_VEST`), array `ALL`, dan `get_by_id(id)`. Field `ItemDefinition`: `id`, `display_name`, `description`, `category` {RESOURCE, CONSUMABLE, WEAPON, TOOL, ARMOR, SPECIAL}, `max_stack`, `icon`, `consume_effect`, `equipment_slot` {NONE, WEAPON, TOOL, ARMOR}, `weapon_damage`, `weapon_range`, `armor_damage_reduction`, `armor_max_hp_bonus`. `ItemEffect`: `hunger`, `thirst`, `fatigue`, `hp`, `regen_hp_per_second`, `regen_duration`.
 
 **Penting soal `fatigue`:** field ini **bukan** delta Fatigue biasa.
 `InventoryComponent` menerapkannya lewat
@@ -360,6 +360,71 @@ HUD mencari Player lewat grup `player`; isi `@export player` kalau mau eksplisit
 
 ---
 
+## 14b. Base dinamis — `CampAnchor`, `BasePlacementController`, `BaseHUD`
+
+**Gunanya:** markas tidak lagi di titik mati; pemain mendirikannya sekali, lalu
+semua sistem membaca pusat/radius dari anchor.
+
+- `CampAnchor` (`src/core/managers/camp_anchor.gd`): `founded`, `get_center()`,
+  `get_ring_radius()`, statis `find_anchor(node)`, `camp_center(node)`,
+  `ring_radius(node)`. Bila belum ada anchor, statis mengembalikan
+  `Vector2.ZERO` / 180 px sehingga scene lama dan tes tetap sama.
+- `BasePlacementController` + `BaseHUD`: tekan **B**, ghost mengikuti kursor,
+  situs tidak valid diblokir dengan alasan Indonesia (air/sungai/pantai),
+  klik kiri mendirikan base (`base_founded(center, radius)`).
+- `CampController` mengikat anchor (`get_anchor()`), memindahkan/mengaktifkan
+  slot blueprint, dan mematikan slot saat base belum berdiri.
+- Konsumen yang ikut anchor: raid boar, radius Speed di `ProficiencyComponent`,
+  titik respawn `DeathController`, keep-out spawn `FaunaQuota`/`NightSpawner`
+  (`ring_radius + 100`).
+
+## 14c. Pagar — `FenceRing`, `FenceSegment`, `FenceConfig`
+
+**Gunanya:** ring pagar 200 px (≈20 segmen 66 px) yang menghalangi boar; boar
+menggit/mengunyah segmen yang menghalangi lalu bisa menerobos. Segmen memakai
+`PhysicsLayers.FENCE_LAYER` (bit 3 = 8) dan merupakan `CampStructure`, jadi bisa
+diperbaiki dengan R (1 wood → 30 hp). Celah pagar tetap valid; pemain tidak
+tertahan pagar.
+
+## 14d. Menyalakan api — `FireStarterController` + QTE
+
+**Gunanya:** campfire yang sudah mati (fuel 0) dan diisi bahan bakar tetap
+**COLD**; api harus dinyalakan dengan 3 gebrakan batu dalam 1.1 s.
+
+- `Campfire.needs_ignition()`, `can_ignite()`, `get_ignite_block_reason()`
+  (`Butuh Batu`), `ignite()`, `request_ignition()`.
+- `CampfireRefuel` menampilkan prompt sesuai state (isi bahan bakar vs nyalakan).
+- QTE batal bila pemain menjauh > 96 px; RNG di-inject agar tes deterministik.
+- **Perubahan perilaku:** refuel tidak lagi otomatis menyalakan api yang mati.
+
+## 14e. Juice tempur — `CombatFeedback` + `JuiceConfig`
+
+**Gunanya:** umpan balik visual murni, tanpa mengubah balance:
+
+- hit-stop lokal (`freeze_for` pada fauna yang dipukul), shake kamera lewat
+  `Camera2D.offset`, flash + squash, partikel satu-kali, `feedback_event(kind, position)`.
+- kematian memakai "jasad" visual terpisah; fauna tetap langsung dibebaskan agar
+  kuota/spawn/soak tidak bergeser.
+- boar menampilkan garis merah + tanda `!` saat telegraph dash.
+- input buffer: `CombatComponent.swing_buffer_time` (dari
+  `JuiceConfig.manual_swing_buffer`, 0.15 s) menyimpan ayunan yang ditekan saat cooldown.
+
+### Susunan node baru di `island.tscn`
+
+```text
+Island
+├── CampAnchor                (sebelum CampController)
+├── CampController
+│   └── FenceRing
+└── Player
+    ├── BasePlacementController
+    ├── FireStarterController
+    └── CombatFeedback
+CanvasLayer (HUD)
+├── BaseHUD
+└── FireStarterHUD
+```
+
 ## 15. Input Map — `project.godot`
 
 **Sumber kebenaran:** sebagian besar action ada di `project.godot` bagian `[input]`,
@@ -389,6 +454,8 @@ memakai `_unhandled_input`.
 | `attack_space` | Space | `CombatComponent` — ayunan manual ke arah `facing_direction` |
 | `debug_island_kill` | F11 | `GatherDebug` — HP 0 untuk menguji death screen (island saja) |
 | `debug_island_rescue` | F12 | `GatherDebug` — lompat fase sampai rescue/fajar Hari 7 (island saja) |
+| `base_place` | B | `BasePlacementController` — masuk/keluar mode pendirian base (didaftarkan `InputSetup`) |
+| `debug_fauna_labels` | Insert | `GatherDebug` — label temperament/HP fauna di atas kepala (island saja) |
 | `ui_cancel` (bawaan) | Esc | `BagPanel` — hanya menutup saat terbuka |
 | `debug_needs_toggle` | F1 | `NeedsDebug` (practice only) |
 | `debug_cycle_hunger` / `debug_cycle_thirst` / `debug_cycle_fatigue` | X / C / V | `NeedsDebug`, sandbox |
@@ -414,13 +481,44 @@ Export: `phantom_camera`, `normal_zoom`, `safe_zone_zoom`, `zoom_duration`, `slo
 
 ## 17. Tes dan sandbox
 
+### Uji manual Mission 6 (island)
+
+1. **Siang:** boar tidak menyerang walau pemain berdiri di area camp (label Insert
+   menunjukkan NEUTRAL); provokasi (klik) tetap membuatnya menyerang.
+2. **Base:** tekan B → ghost mengikuti kursor; klik di darat jauh dari air → base
+   berdiri, slot blueprint aktif. Klik di air/pantai → alasan blokir muncul.
+3. **Pagar:** setelah base berdiri, ring pagar terbentuk; biarkan boar mengejar —
+   ia berhenti di segmen, mengunyah, lalu menerobos saat segmen hancur. R memperbaiki.
+4. **Api:** biarkan campfire mati, isi 2 wood (tetap COLD, prompt `Butuh Batu`),
+   tahan E → 3 gebrakan batu dalam 1.1 s → api menyala.
+5. **Juice:** pukul boar (hit-stop + shake + percikan), perhatikan garis merah dan
+   `!` sebelum dash, dan animasi jasad saat boar mati.
+
+
 **Jalankan unit test:**
 
 ```bash
 D:\Programming\Gamedev\Godot_v4.7.2-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests/unit -gexit
 ```
 
-Tes ada di `tests/unit/`: clock, stats, needs (termasuk override rest), inventory/item, bag panel, crafting panel, item slot store, interaction, resource node, island, resep, crafting, struktur camp, blueprint slot, campfire, repair, peti, tenda, jaga malam, camp controller, health, player damage receiver, knockback, combat, fauna base, wild boar, island deer, night scaling, fauna quota, night spawner, ember snuff, proficiency, death controller, loot bag, signal beacon, endgame, restart clock, serta seam hit modifier/idle-regen. Saat ini **383/383 tes lulus** (2168 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
+Tes ada di `tests/unit/`: clock, stats, needs (termasuk override rest), inventory/item, bag panel, crafting panel, item slot store, interaction, resource node, island, resep, crafting, struktur camp, blueprint slot, campfire, repair, peti, tenda, jaga malam, camp controller, health, player damage receiver, knockback, combat, fauna base, wild boar, island deer, night scaling, fauna quota, night spawner, ember snuff, proficiency, death controller, loot bag, signal beacon, endgame, restart clock, serta seam hit modifier/idle-regen. Saat ini **386/386 tes unit lulus** (2178 assert); dengan integrasi total **393/393** (2327 assert). Tambah tes baru di folder yang sama dengan `extends GutTest`.
+
+**Tes integrasi (scene `island.tscn`):**
+
+```bash
+D:\Programming\Gamedev\Godot_v4.7.2-stable_win64_console.exe --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests/unit,res://tests/integration -gexit
+```
+
+`tests/integration/island_harness.gd` (preload, tanpa `class_name`) menaruh `island.tscn` di tree, mengambil komponen aslinya (`Player`, `StatsComponent`, `NeedsComponent`, `InventoryComponent`, `InteractorComponent`, `CraftingComponent`, `RepairComponent`, `CombatComponent`, `ProficiencyComponent`, `CampController`, `FaunaQuota`, `NightSpawner`, `DeathController`, `EndgameController`, `Beacon`), lalu menggerakkan waktu lewat `clock.advance(dt)` + `tick(dt)` publik tiap node. Autoload: bila `/root/DayNightManager` sudah ada (normal saat GUT berjalan) harness memakainya dan memanggil `restart()`; bila tidak ada, harness membuatnya dari scene, menamainya `DayNightManager`, dan membebaskannya di `teardown()`. Tidak ada input keyboard yang disimulasikan.
+
+| File | Cakupan |
+|---|---|
+| `test_island_wiring.gd` (S1) | 139 ResourceNode, 16 marker night spawn, 9 RiverEdge, 4 BlueprintSlot, EmergencySuitcase, SignalBeacon, tepat 1 node grup `player`, Interactor me-resolve stats/inventory/needs, Crafting/Repair menemukan inventory |
+| `test_island_survival.gd` (S2) | Bangun 4 struktur lewat BlueprintSlot (biaya habis, terdaftar di CampController), gather pohon dengan kapak, craft `stone_axe` di Workbench, masak + makan daging di Campfire menyala, tidur di Tenda (skip_time, plafon Fatigue naik) |
+| `test_island_night.gd` (S3) | NightSpawner >= 1 hostile dan <= max tabel (malam 1/4/7), boar jauh tidak raid, boar di camp menyerang struktur prioritas, Dazzled dekat Campfire, Ember Snuff hanya malam >= 5, aturan fajar <= 2 boar + rusa top-up 3 |
+| `test_island_death.gd` (S4) | LootBag di lokasi mati, tas kosong, equipment tetap, debuff, respawn 70% HP + 60/60/80 + (0,64), token 1-3 respawn, kematian 4 `game_over`, clock tetap berjalan saat mati |
+| `test_island_endgame.gd` (S5) | Beacon menolak sebelum rescue dan tanpa suar, victory sekali saat suar dipakai, rescue tetap aktif setelah mati + respawn |
+| `test_island_soak.gd` (B2) | Simulasi 7 hari penuh langkah 0.5 s: tanpa NaN, needs 0-100, HP 0..max, hostile <= max tabel, struktur >= 0 HP, rescue tercapai, pertumbuhan node <= 20% |
 
 **Sandbox manual** (`tests/sandbox/stats_sandbox.tscn`) untuk mencoba stat dan needs tanpa main game:
 
@@ -601,7 +699,7 @@ Island (Node2D, island.gd: pemain menghadap utara)
 ├── Coastline (StaticBody2D: 4 CollisionShape2D di ±2450)
 ├── Wreckage (StaticBody2D di (0,-185))
 ├── Suitcase (EmergencySuitcase di (-48,40))
-├── Beacon (Node2D placeholder di (0,2100), tanpa logika)
+├── Beacon (SignalBeacon di (0,2100): hold E 1.5 s saat rescue + `signal_flare`)
 ├── RiverEdges (9 RiverEdge, x=-950, y -1400..1400 tiap 350)
 ├── Player (group "player", (0,64))
 │   ├── InventoryComponent
@@ -609,13 +707,19 @@ Island (Node2D, island.gd: pemain menghadap utara)
 │   ├── CraftingComponent
 │   ├── RepairComponent
 │   ├── PlayerDamageReceiver
-│   └── CombatComponent
+│   ├── CombatComponent
+│   └── ProficiencyComponent
+│   (StatsComponent/NeedsComponent berasal dari player.tscn)
 ├── Camera2D + PhantomCameraHost + PhantomCamera2D (follow Player, zoom 3)
 ├── IslandBuilder (layout = island_layout.tres)
 ├── CampController (4 blueprint slot + NightWatchController)
 ├── Fauna (Node2D: semua Boar/Rusa)
 ├── FaunaQuota (2 Boar + 3 Deer, aturan fajar/rescue)
 ├── NightSpawner (spawn + scaling saat night_started)
+├── DeathController + DeathScreen (Respawn/Menu Utama)
+├── RunController (request_restart / request_main_menu)
+├── EndgameController + EndgameHUD (banner Hari 7, panah beacon, Victory + Mulai Baru/Menu Utama)
+├── GameOverScreen (kematian ke-4: Mulai Baru/Menu Utama)
 ├── DayNightVisual
 ├── TimeHUD / NeedsHUD / StatsHUD / HotbarHUD / InteractionHUD / BagPanel
 └── GatherDebug (F2 tools, F3 zona, F4 pagi, F5 kit, F6 Boar, F7 Rusa, F8 malam,
@@ -688,7 +792,7 @@ CAMPFIRE butuh Campfire yang menyala.
 
 **Sinyal:** `craft_started(recipe)`, `craft_progress(ratio)`,
 `craft_completed(recipe)`, `craft_cancelled(recipe, reason)`,
-`crafted(recipe, count)` (hook XP, belum ada XP), `stations_changed()`
+`crafted(recipe, count)` (dipakai `ProficiencyComponent` untuk XP craft), `stations_changed()`
 (stasiun dalam jangkauan berubah; UI memakai ini untuk membuka/mengunci resep).
 
 **Helper biaya bersama:** `ItemAmount.has_all(amounts, inventory)`,

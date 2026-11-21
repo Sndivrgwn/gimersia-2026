@@ -55,7 +55,8 @@ func _boars() -> Array[WildBoar]:
 func _kill_all_boars() -> void:
 	for boar in _boars():
 		boar.get_health().take_damage(9999.0, null)
-	await get_tree().process_frame
+	# D5: fauna menyelesaikan animasi mati 0.25 s sebelum dibebaskan.
+	await get_tree().create_timer(0.35).timeout
 
 
 func test_initial_quota_is_two_boars_and_three_deer() -> void:
