@@ -35,6 +35,9 @@ const DEBUG_ISLAND_KILL := &"debug_island_kill"
 const DEBUG_ISLAND_RESCUE := &"debug_island_rescue"
 ## Insert (island debug): tampilkan label temperament/state di atas setiap fauna.
 const DEBUG_FAUNA_LABELS := &"debug_fauna_labels"
+## F1 / Home (island debug): muat ulang art aset, tampilkan kotak slot aset.
+const DEBUG_RELOAD_ASSETS := &"debug_reload_assets"
+const DEBUG_ASSET_BOXES := &"debug_asset_boxes"
 ## B: tentukan lokasi base (BasePlacementController).
 const BASE_PLACE := &"base_place"
 
@@ -125,6 +128,11 @@ static func ensure_actions() -> void:
 
 	_ensure_action(DEBUG_FAUNA_LABELS)
 	_ensure_key(DEBUG_FAUNA_LABELS, KEY_INSERT)
+
+	_ensure_action(DEBUG_RELOAD_ASSETS)
+	_ensure_key(DEBUG_RELOAD_ASSETS, KEY_F1)
+	_ensure_action(DEBUG_ASSET_BOXES)
+	_ensure_key(DEBUG_ASSET_BOXES, KEY_HOME)
 
 	_ensure_action(BASE_PLACE)
 	_ensure_key(BASE_PLACE, KEY_B)

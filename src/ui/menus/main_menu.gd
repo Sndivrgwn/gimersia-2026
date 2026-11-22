@@ -13,6 +13,9 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build()
 	_ensure_settings_ui()
+	UiSkin.apply(self)
+	UiSkin.add_background(self, &"ui_bg_main_menu")
+	UiSkin.add_logo(self)
 
 
 ## Mission 7: panel pengaturan dipakai ulang di menu utama.

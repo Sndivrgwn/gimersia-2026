@@ -83,10 +83,27 @@ func _ready() -> void:
 	var player := get_node_or_null(player_path)
 	if player != null:
 		player.set("facing_direction", start_facing)
+	_attach_world_visuals()
 	_wire_endgame(player as Node2D)
 	_wire_pause_menu()
 	_wire_chest_panel(player)
 	_wire_hud(player)
+	UiSkin.apply_all(self)
+
+
+## Satu baris attach per slot world; tanpa art tidak ada yang berubah.
+func _attach_world_visuals() -> void:
+	var ground := get_node_or_null("Ground")
+	if ground != null:
+		VisualSlot.attach(ground, &"ground_forest", [ground.get_node_or_null("Forest")])
+		VisualSlot.attach(ground, &"ground_south_beach", [ground.get_node_or_null("SouthBeach")])
+		VisualSlot.attach(ground, &"ground_east_beach", [ground.get_node_or_null("EastBeach")])
+		VisualSlot.attach(ground, &"ground_west_cliffs", [ground.get_node_or_null("WestCliffs")])
+		VisualSlot.attach(ground, &"ground_river", [ground.get_node_or_null("River")])
+		VisualSlot.attach(ground, &"ground_camp", [ground.get_node_or_null("Camp")])
+	var wreckage := get_node_or_null("Wreckage")
+	if wreckage != null:
+		VisualSlot.attach(wreckage, &"plane_wreckage", [wreckage.get_node_or_null("Visual")])
 
 
 func _wire_endgame(player: Node2D) -> void:

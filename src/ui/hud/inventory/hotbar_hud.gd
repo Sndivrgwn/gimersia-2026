@@ -73,9 +73,10 @@ func _refresh_slot(index: int) -> void:
 
 	_names[index].text = item.display_name
 	_counts[index].text = "x%d" % count
-	_icons[index].visible = item.icon != null
-	if item.icon != null:
-		_icons[index].texture = item.icon
+	var icon := item.get_icon()
+	_icons[index].visible = icon != null
+	if icon != null:
+		_icons[index].texture = icon
 
 
 func _on_slot_changed(index: int) -> void:

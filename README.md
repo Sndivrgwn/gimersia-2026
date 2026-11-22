@@ -43,3 +43,9 @@ gimersia-2026/
 - [MVP checklist](docs/editable/MVP_CHECKLIST.md)
 - [Gameplay specification](docs/noneditable/spesifikasi_teknis_mekanisme_gameplay_V8.md)
 - [MVP scope & division work list](docs/noneditable/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md)
+
+## Panduan
+
+- `docs/editable/ASSET_GUIDE.md` — cara menaruh art (slot, nama file, fallback).
+- `docs/editable/CONFIG_GUIDE.md` — semua Resource `.tres` dan efek tuning-nya.
+- `docs/editable/PANDUAN_MODUL.md` — wiring modul, Input Map, sistem aset.

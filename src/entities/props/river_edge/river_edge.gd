@@ -16,6 +16,10 @@ const COOLDOWN_FORMAT := "Tunggu %d dtk"
 var _cooldowns: Dictionary = {}
 
 
+func _ready() -> void:
+	VisualSlot.attach(self, &"river_edge", [get_node_or_null("Visual")])
+
+
 func _process(delta: float) -> void:
 	advance_cooldowns(delta)
 

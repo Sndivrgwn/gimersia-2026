@@ -21,6 +21,10 @@ func get_state() -> int:
 	return state
 
 
+func visual_key() -> StringName:
+	return &"island_deer"
+
+
 func _update_behavior(delta: float) -> void:
 	var target := _find_player()
 	if target is Node2D:

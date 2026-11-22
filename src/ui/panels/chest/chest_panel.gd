@@ -25,6 +25,7 @@ func _ready() -> void:
 	layer = 21
 	visible = false
 	_build_ui()
+	UiSkin.apply_all(self)
 
 
 func _process(_delta: float) -> void:
@@ -112,11 +113,13 @@ func refresh() -> void:
 	for index in _chest_grid.get_child_count():
 		var button := _chest_grid.get_child(index) as Button
 		button.text = _slot_text(chest_slots, index)
+		button.icon = _slot_icon(chest_slots, index)
 	if inventory == null:
 		return
 	for index in _bag_grid.get_child_count():
 		var button := _bag_grid.get_child(index) as Button
 		button.text = _slot_text(inventory._slots, index)
+		button.icon = _slot_icon(inventory._slots, index)
 
 
 # --- Internal ---------------------------------------------------------------
@@ -134,6 +137,15 @@ func _slot_text(slots: Array, index: int) -> String:
 	if stack == null or stack.item == null or stack.count <= 0:
 		return "-"
 	return "%s x%d" % [stack.item.display_name, stack.count]
+
+
+func _slot_icon(slots: Array, index: int) -> Texture2D:
+	if index >= slots.size():
+		return null
+	var stack := slots[index] as ItemStack
+	if stack == null or stack.item == null or stack.count <= 0:
+		return null
+	return stack.item.get_icon()
 
 
 func _scan_chests() -> void:

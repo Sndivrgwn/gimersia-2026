@@ -47,6 +47,9 @@ func _ready() -> void:
 	if _visual != null:
 		_visual.color = tint_for(definition)
 
+	if definition != null:
+		VisualSlot.attach(self, definition.id, [_visual], null, ResourceVisual.new())
+
 	_connect_clock()
 	if definition != null and definition.chop_feedback_enabled:
 		var feedback := ChopFeedback.new()

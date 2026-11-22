@@ -104,6 +104,7 @@ func _build_visual() -> void:
 	_label.add_theme_font_size_override("font_size", 10)
 	_label.text = "Loot"
 	add_child(_label)
+	VisualSlot.attach(self, &"loot_bag", [visual])
 
 
 func _refresh_label() -> void:

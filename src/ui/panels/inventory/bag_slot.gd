@@ -37,8 +37,9 @@ func refresh() -> void:
 
 	_name.text = "" if empty else item.display_name
 	_count.text = "" if empty else "x%d" % count
-	_icon.texture = null if empty else item.icon
-	_icon.visible = not empty and item.icon != null
+	var icon: Texture2D = null if empty else item.get_icon()
+	_icon.texture = icon
+	_icon.visible = icon != null
 	tooltip_text = "" if empty else describe_item(item)
 
 
@@ -100,7 +101,7 @@ static func describe_effect(item: ItemDefinition) -> String:
 		_add_amount(parts, "HP", effect.hp)
 		if effect.regen_hp_per_second > 0.0:
 			parts.append(
-				"Regen +%.1f HP/dtk selama %d dtk (belum diterapkan)"
+				"Regen +%.1f HP/dtk selama %d dtk"
 				% [effect.regen_hp_per_second, int(roundf(effect.regen_duration))]
 			)
 

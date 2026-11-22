@@ -193,6 +193,9 @@ func _spawn_burst(position: Vector2, count: int, color: Color) -> void:
 	particles.gravity = Vector2(0.0, 200.0)
 	particles.color = color
 	particles.position = position
+	var spark := Assets.ui_texture(&"fx_hit_spark")
+	if spark != null:
+		particles.texture = spark
 	var host := get_parent() as Node2D
 	if host == null:
 		particles.queue_free()

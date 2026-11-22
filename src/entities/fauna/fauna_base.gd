@@ -351,6 +351,14 @@ func _ensure_visual() -> void:
 			Vector2(-12, -8), Vector2(12, -8), Vector2(14, 6), Vector2(-14, 6)
 		])
 		add_child(_visual)
+	var key := visual_key()
+	if not String(key).is_empty():
+		VisualSlot.attach(self, key, [_visual], null, FaunaVisual.new())
+
+
+## Kunci slot aset fauna; diisi subclass (wild_boar / island_deer).
+func visual_key() -> StringName:
+	return &""
 
 
 func _on_health_damaged(_amount: float, source: Node) -> void:
@@ -383,7 +391,10 @@ func _spawn_corpse() -> void:
 		return
 	var corpse := Node2D.new()
 	corpse.name = "FaunaCorpse"
-	if _visual != null:
+	var death_art := _death_art()
+	if death_art != null:
+		corpse.add_child(death_art)
+	elif _visual != null:
 		var copy := _visual.duplicate()
 		if copy is Node2D:
 			(copy as Node2D).position = Vector2.ZERO
@@ -397,6 +408,21 @@ func _spawn_corpse() -> void:
 	tween.tween_property(corpse, "rotation", rotation + TAU * 0.5, death_sequence_time)
 	tween.tween_property(corpse, "modulate:a", 0.0, death_sequence_time)
 	tween.chain().tween_callback(corpse.queue_free)
+
+
+## Art jasad: salinan node art dalam state death bila slot punya art.
+func _death_art() -> Node2D:
+	var slot := get_node_or_null("VisualSlot") as VisualSlot
+	if slot == null or not slot.is_showing_art() or not slot.has_state(&"death"):
+		return null
+	slot.set_state(&"death", slot.get_direction())
+	var art := slot.duplicate_art()
+	if art == null:
+		return null
+	art.position = Vector2.ZERO
+	art.rotation = 0.0
+	art.scale = Vector2.ONE
+	return art
 
 
 func _update_behavior(delta: float) -> void:

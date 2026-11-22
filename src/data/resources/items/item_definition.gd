@@ -43,3 +43,11 @@ enum EquipmentSlot { NONE, WEAPON, TOOL, ARMOR }
 
 func is_consumable() -> bool:
 	return category == Category.CONSUMABLE and consume_effect != null
+
+
+## Ikon untuk UI: field icon bila diisi, kalau tidak art dari
+## assets/icons/items/<id>.png. Null berarti UI memakai teks saja.
+func get_icon() -> Texture2D:
+	if icon != null:
+		return icon
+	return Assets.item_icon(id)

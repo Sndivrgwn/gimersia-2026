@@ -462,3 +462,37 @@ Additional project rules:
 | [`docs/editable/MVP_CHECKLIST.md`](MVP_CHECKLIST.md) | Actionable MVP checklist and current status |
 | [`docs/editable/PANDUAN_MODUL.md`](PANDUAN_MODUL.md) | How to use every implemented module |
 | `docs/editable/architecture.md` (this file) | Structure, ownership, dependency rules, and technical debt |
+
+## Mission 8 — Sistem aset, UI skin, status effects
+
+| Module | Files | Responsibility | Public contract | State |
+| --- | --- | --- | --- | --- |
+| **Assets** | `src/core/assets/assets.gd` | Satu-satunya jembatan file seni -> gameplay; cache, fallback chain, coverage | `resolve()`, `has_art()`, `item_icon()`, `ui_texture()`, `font()`, `coverage()`, `reload_assets()` (bukan `reload` — bentrok dengan `GDScript.reload`) | Implemented; static, bukan autoload |
+| **AssetRegistry / AssetSlotDefinition / AssetConfig** | `src/data/resources/assets/`, `src/data/assets/asset_registry.tres`, `src/data/configs/asset_config.tres` | Tabel slot + flag pixel-art/mirror/fps | `get_slot()`, `keys()`, slot fields | Implemented (registry digenerate) |
+| **VisualSlot** | `src/components/visual/visual_slot.gd` | Node art per entity; menyembunyikan placeholder saat art ada; meniru transform placeholder | `attach()`, `set_state()`, `play()`, `refresh()`, `animation_finished` | Implemented |
+| **Visual drivers** | `src/components/visual/*_visual.gd`, `visual_state_map.gd` | State gameplay -> nama animasi (murni + tipis) | `step()`, `VisualStateMap.*` | Implemented |
+| **UiSkin** | `src/ui/ui_skin.gd` | Theme dari art (font, 9-slice, bar, latar layar) | `theme()`, `apply()`, `apply_all()`, `add_background()` | Implemented; tanpa art = null |
+| **StatusEffectsComponent** | `src/components/status/status_effects_component.gd` | Efek berdurasi (regen HP) memakai waktu game | `apply()`, `tick()`, `get_effects()`, signal started/ended | Implemented |
+| **StatusEffectHUD** | `src/ui/hud/status/status_effect_hud.gd` | Daftar efek aktif (read-only) | `refresh()`, `get_text()` | Implemented |
+
+### Aturan dependensi (Mission 8)
+
+- Visual adalah **leaf**: entity tahu `VisualSlot`, gameplay tidak pernah membaca
+  node visual. Menghapus art tidak mengubah angka, hitbox, atau urutan tick.
+- `Assets` tidak bergantung pada scene/UI; `UiSkin` boleh bergantung pada `Assets`.
+- `StatusEffectsComponent` bergantung pada `InventoryComponent.item_used` dan
+  `StatsComponent.heal()`; tidak sebaliknya.
+
+### Test layout
+
+- `tests/unit/` — logika murni/komponen, tanpa scene berat; aset memakai gambar
+  sementara di `user://test_assets` (tidak ada biner di repo).
+- `tests/integration/` — boot `island.tscn`/harness (death, endgame, soak).
+- `tests/unit/test_docs_in_sync.gd` — docs-sync: panduan = hasil generator,
+  semua slot/.tres/generator/action terdokumentasi.
+
+### Known gaps (Mission 8)
+
+- `fx_slash` dan `fx_dust` belum punya node efek; slot disiapkan.
+- `ui_vignette_low_hp` dan `world_water` belum dipasang di scene.
+- `StatusEffectHUD` masih teks saja.

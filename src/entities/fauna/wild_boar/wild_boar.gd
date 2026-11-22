@@ -31,6 +31,10 @@ func _ready() -> void:
 	temperament = Temperament.HOSTILE if (forced_hostile or _is_night()) else Temperament.NEUTRAL
 
 
+func visual_key() -> StringName:
+	return &"wild_boar"
+
+
 func config_boar() -> BoarConfig:
 	return config as BoarConfig
 

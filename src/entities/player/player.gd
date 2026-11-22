@@ -30,6 +30,12 @@ func _ready() -> void:
 	motion_mode = MOTION_MODE_FLOATING
 	if stats == null:
 		push_error("Player: StatsComponent tidak ditemukan.")
+	VisualSlot.attach(self, &"player", [get_node_or_null("Visual")], null, PlayerVisual.new())
+
+
+## True saat pemain sedang sprint (dibaca driver visual).
+func is_sprinting() -> bool:
+	return _is_sprinting
 
 
 func _physics_process(_delta: float) -> void:

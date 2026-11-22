@@ -480,7 +480,11 @@ Island
     └── TimeHUD (show_survival_label = false)
 ```
 
-## 15. Input Map — `project.godot`
+## 15. Input Map
+
+> Tabel lengkap dan tunggal ada di §22. Tabel lama di bawah dipertahankan
+> sebagai riwayat; bila berbeda, §22 yang benar (semua action didaftarkan
+> `InputSetup.ensure_actions()`, bukan `project.godot`).
 
 **Sumber kebenaran:** sebagian besar action ada di `project.godot` bagian `[input]`,
 jadi terlihat dan bisa diubah di **Project Settings → Input Map**. Action yang
@@ -1124,3 +1128,111 @@ Perubahan scene lewat `_change_scene()` yang bisa ditimpa tes.
 ---
 
 Status kesiapan MVP: `docs/editable/MVP_CHECKLIST.md` · Keputusan arsitektur: `docs/editable/architecture.md`
+
+## 22. Tabel Input Map lengkap (satu-satunya)
+
+Semua action didaftarkan lewat `InputSetup.ensure_actions()`; tabel ini dibuat
+dari InputMap yang hidup, jadi tidak boleh berbeda dengan kode.
+
+| Action | Tombol |
+| --- | --- |
+| `attack_click` | Mouse 1 |
+| `attack_space` | Space |
+| `base_place` | B |
+| `debug_agi_down` | 4 |
+| `debug_agi_up` | 4 |
+| `debug_asset_boxes` | Home |
+| `debug_cycle_fatigue` | V |
+| `debug_cycle_hunger` | X |
+| `debug_cycle_thirst` | C |
+| `debug_eat` | M |
+| `debug_fauna_labels` | Insert |
+| `debug_heal` | H |
+| `debug_island_boar` | F6 |
+| `debug_island_deer` | F7 |
+| `debug_island_heal` | F9 |
+| `debug_island_kill` | F11 |
+| `debug_island_kit` | F5 |
+| `debug_island_morning` | F4 |
+| `debug_island_night` | F8 |
+| `debug_island_rescue` | F12 |
+| `debug_island_toggle` | F2 |
+| `debug_island_weapon` | F10 |
+| `debug_island_zone` | F3 |
+| `debug_mas_down` | 3 |
+| `debug_mas_up` | 3 |
+| `debug_needs_toggle` | F1 |
+| `debug_refill_needs` | B |
+| `debug_reload_assets` | F1 |
+| `debug_reset` | R |
+| `debug_set_hp` | J |
+| `debug_spd_down` | 2 |
+| `debug_spd_up` | 2 |
+| `debug_str_down` | 1 |
+| `debug_str_up` | 1 |
+| `debug_toggle_sprint` | T |
+| `debug_toggle_zirah` | Z |
+| `help_toggle` | H |
+| `hotbar_1` | 1 |
+| `hotbar_2` | 2 |
+| `hotbar_3` | 3 |
+| `hotbar_4` | 4 |
+| `hotbar_5` | 5 |
+| `interact` | E |
+| `inventory_toggle` | Tab, I |
+| `move_down` | S, Down |
+| `move_left` | A, Left |
+| `move_right` | D, Right |
+| `move_up` | W, Up |
+| `pause_toggle` | P |
+| `repair` | R |
+| `sprint` | Shift |
+
+## 23. Sistem aset — `Assets`, `VisualSlot`, `UiSkin`, `AssetRegistry`
+
+- **Pasang visual baru di kode** (satu baris di `_ready` entity):
+
+```gdscript
+VisualSlot.attach(self, &"campfire", [get_node_or_null("Visual"), get_node_or_null("Flame")], null, CampfireVisual.new())
+```
+
+  Placeholder tetap ada (hanya disembunyikan saat art ada), jadi tes lama dan
+  kode feedback (`modulate`, `position`) tidak berubah. VisualSlot meniru
+  transform placeholder pertama ke node art.
+
+- **Tambah slot**: edit tabel di `tools/generate_asset_registry.gd`, lalu
+  `GODOT --headless --path . -s tools/generate_asset_registry.gd`.
+  Jangan mengedit `src/data/assets/asset_registry.tres` dengan tangan.
+- **Cek file seni**: `GODOT --headless --path . -s tools/check_assets.gd`.
+- **Tes**: `tests/unit/test_assets_core.gd`, `test_visual_slot.gd`,
+  `test_visual_state_map.gd`, `test_visual_entities.gd`, `test_ui_skin.gd`.
+- **Panduan seni**: `docs/editable/ASSET_GUIDE.md`; angka resource:
+  `docs/editable/CONFIG_GUIDE.md`.
+
+## 24. `StatusEffectsComponent` — efek berdurasi (regen HP)
+
+`src/components/status/status_effects_component.gd`, child `Player` di
+`island.tscn`. Mendengarkan `InventoryComponent.item_used`; item dengan
+`consume_effect.regen_hp_per_second > 0` memulai efek ber-id item selama
+`regen_duration`. Durasi memakai waktu game (`delta x clock.get_time_scale()`),
+pemakaian ulang menyegarkan durasi (tidak menumpuk), dan efek berhenti saat
+pemain mati (`DeathController.died`). `StatusEffectHUD` menampilkan
+"Kaldu +1 HP/s 12s" (read-only).
+
+## 25. Tabel tombol debug (satu-satunya)
+
+| Tombol | Action | Fungsi |
+| --- | --- | --- |
+| F1 | `debug_reload_assets` | Muat ulang semua art tanpa restart |
+| Home | `debug_asset_boxes` | Tampilkan kotak slot aset + toast cakupan |
+| F2 | `debug_island_toggle` | Aktifkan/matikan GatherDebug |
+| F3 | `debug_island_zone` | Zona berikutnya |
+| F4 | `debug_island_morning` | Pagi berikutnya |
+| F5 | `debug_island_kit` | Kit bahan crafting |
+| F6/F7 | `debug_island_boar` / `debug_island_deer` | Spawn fauna |
+| F8 | `debug_island_night` | Lompat ke malam |
+| F9 | `debug_island_heal` | Heal pemain |
+| F10 | `debug_island_weapon` | Siklus senjata |
+| F11 | `debug_island_kill` | Matikan pemain |
+| F12 | `debug_island_rescue` | Lompat ke fajar Hari 7 |
+| Insert | `debug_fauna_labels` | Label temperament/state fauna |

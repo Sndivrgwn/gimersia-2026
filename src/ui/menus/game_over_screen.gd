@@ -22,6 +22,8 @@ func _ready() -> void:
 	layer = 30
 	_build()
 	hide_screen()
+	UiSkin.apply_all(self)
+	UiSkin.add_canvas_background(self, &"ui_bg_game_over")
 
 
 # --- API --------------------------------------------------------------------

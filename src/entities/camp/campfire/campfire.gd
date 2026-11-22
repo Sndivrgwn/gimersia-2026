@@ -37,7 +37,7 @@ var _cold: bool = false
 var _rest_timer: float = 0.0
 var _rest_players: Array[Node] = []
 var _light: PointLight2D
-var _light_texture: GradientTexture2D
+var _light_texture: Texture2D
 
 
 func _enter_tree() -> void:
@@ -53,6 +53,7 @@ func _ready() -> void:
 	_fuel = clampf(config.start_fuel, 0.0, config.max_fuel)
 	_ensure_light()
 	_refresh_light()
+	VisualSlot.attach(self, &"campfire", [get_node_or_null("Visual"), get_node_or_null("Flame")], null, CampfireVisual.new())
 
 
 func _process(delta: float) -> void:
@@ -366,6 +367,10 @@ func _ensure_light() -> void:
 	_light_texture.width = 256
 	_light_texture.height = 256
 
+	var art := Assets.ui_texture(&"light_campfire")
+	if art != null:
+		_light_texture = art
+
 	_light = PointLight2D.new()
 	_light.name = "Light"
 	_light.texture = _light_texture
@@ -378,6 +383,6 @@ func _refresh_light() -> void:
 	if _light == null or _light_texture == null:
 		return
 	var radius := get_light_radius()
-	var width := maxf(float(_light_texture.width), 1.0)
+	var width := maxf(float(_light_texture.get_width()), 1.0)
 	_light.texture_scale = (radius * 2.0) / width
 	_light.visible = true

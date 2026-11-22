@@ -28,6 +28,7 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	_bind()
+	VisualSlot.attach(self, &"signal_beacon", [get_node_or_null("Visual")], null, BeaconVisual.new())
 
 
 # --- Interactable -----------------------------------------------------------

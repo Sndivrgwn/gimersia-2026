@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=3]
+[gd_scene load_steps=42 format=3]
 
 [ext_resource type="Script" path="res://src/levels/island/island.gd" id="1_island"]
 [ext_resource type="PackedScene" path="res://src/entities/player/player.tscn" id="2_player"]
@@ -53,6 +53,9 @@
 [ext_resource type="Script" path="res://src/ui/hud/night/night_survival_hud.gd" id="51_survivalhud"]
 [ext_resource type="Script" path="res://src/ui/hud/respawn_recap/respawn_recap_hud.gd" id="52_recap"]
 [ext_resource type="Script" path="res://src/ui/hud/proficiency/proficiency_hud.gd" id="53_proficiencyhud"]
+[ext_resource type="Script" path="res://src/components/status/status_effects_component.gd" id="54_statuseffects"]
+[ext_resource type="Script" path="res://src/ui/hud/status/status_effect_hud.gd" id="55_statuseffecthud"]
+[ext_resource type="Script" path="res://src/core/assets/asset_debug.gd" id="56_assetdebug"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
 size = Vector2(5000, 100)
@@ -319,3 +322,12 @@ script = ExtResource("29_endgame")
 
 [node name="GatherDebug" type="Node" parent="."]
 script = ExtResource("16_gatherdebug")
+
+[node name="StatusEffects" type="Node" parent="Player"]
+script = ExtResource("54_statuseffects")
+
+[node name="StatusEffectHUD" type="CanvasLayer" parent="."]
+script = ExtResource("55_statuseffecthud")
+
+[node name="AssetDebug" type="Node" parent="."]
+script = ExtResource("56_assetdebug")

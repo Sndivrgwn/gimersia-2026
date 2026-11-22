@@ -18,3 +18,12 @@ var station_type: int = STATION_TYPE
 
 func is_station_active() -> bool:
 	return true
+
+
+func _ready() -> void:
+	super()
+	VisualSlot.attach(
+		self,
+		&"workbench",
+		[get_node_or_null("Top"), get_node_or_null("LegLeft"), get_node_or_null("LegRight")]
+	)

@@ -24,6 +24,8 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 25
 	_build()
+	UiSkin.apply_all(self)
+	UiSkin.add_canvas_background(self, &"ui_bg_victory")
 	_controller = get_tree().get_first_node_in_group(&"endgame_controller") as EndgameController
 	if _controller != null:
 		_controller.banner_shown.connect(_on_banner_shown)

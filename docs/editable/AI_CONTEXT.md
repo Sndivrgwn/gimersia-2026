@@ -4,37 +4,11 @@
 > repository. Read this file first, then the linked docs. **Code is the source of
 > truth** when a doc disagrees with it.
 
-Last verified: 2026-11-21, Godot 4.7.2, GUT 9.7.1, 393/393 tests passing (386 unit + 7 integration).
+Last verified: 2026-11-22, Godot 4.7.2, GUT 9.7.1 — 529/529 tests passing (522 unit + 7 integration), 3089 asserts; boots island/practice1/main_menu bersih.
 Spec cross-check: 2026-11-18 against spec V8. Gaps found are listed in §4
 (missing systems), §7.1-7.8 (spec details), §8 (revised build order) and §13
 (open design questions).
 
---- Integration Test Harness Status ---
-All 5 survival scenarios and the soak test are implemented and have dedicated test files:
-- S1 Wiring: test_island_wiring.gd (139 nodes, 16 markers, 9 river edges, 4 blueprint slots)
-- S2 Survival: test_island_survival.gd (4 blueprints, gathering, axe crafting, campfire cooking, tent sleeping)
-- S3 Night: test_island_night.gd (night scaling 1-7, dazzle, ember snuff, dawn fauna cleanup)
-- S4 Death: test_island_death.gd (lethal damage, loot bags, 3-token respawn limit, game_over)
-- S5 Endgame: test_island_endgame.gd (rescue, signal flare, victory, persistence across death)
-- B2 Soak: test_island_soak.gd (7-day loop with bounded node growth invariants)
-
---- Current Verified State ---
-| Check | Command | Result |
-|---|---|---|
-| Engine | — | Godot 4.7.2 (console) |
-| GUT | — | 9.7.1 installed in addons/gut |
-| Unit tests | see §9 | 386/386 passing, 2178 asserts, ~9 s |
-| Main scene boot | see §9 | practice1.tscn runs headless for 120 frames no errors |
-| Island boot | see §9 | island.tscn runs headless for 120 frames no errors |
-| Integration tests | see §9 | 7/7 passing (S1-S5 + 7-day soak); suite total 393/393, 2327 asserts, ~19 s |
-| Default clock config | — | cycle_duration 600 s (script default; .tres no longer overrides it) |
-| Dusk warning | — | 15 s before night |
-
-Known bugs still present:
-
-- `phase_changed` carries **only** `phase: int`. Do not connect a two-arg callback.
-
----
 
 ## 1. What this project is
 
@@ -53,6 +27,10 @@ Known bugs still present:
 ---
 
 ## 2. Read order
+
+Baca juga `docs/editable/ASSET_GUIDE.md` (pipeline seni) dan
+`docs/editable/CONFIG_GUIDE.md` (semua Resource `.tres`); keduanya digenerate
+oleh `tools/generate_guides.gd`.
 
 1. This file.
 2. `docs/editable/architecture.md` — structure, dependency rules, contracts.
@@ -119,9 +97,9 @@ Known bugs still present:
 | `PlayerBaseStats` | `src/data/stats/player_base_stats.gd` | Base numbers (no `.tres` instance yet; script defaults are used) |
 | `Player` | `src/entities/player/` | Top-down movement + sprint from `StatsComponent`; `can_sprint`, `facing_direction`, `sprint_state_changed`, additive `apply_knockback(direction, distance, duration)` + `knockback_multiplier` hook |
 | `CombatComponent` / `PlayerDamageReceiver` / `HealthComponent` | `src/components/combat/` | Player attacks: auto only targets HOSTILE/PROVOKED (`can_be_auto_targeted()`), manual swing (click/Space, 90° cone, shared cooldown) provokes NEUTRAL/PASSIVE; weapon damage/range from equipped WEAPON, fatigue 1.2/hit, bone spear bleed, floating damage text + flash; `swing_manual()`, `get_attack_range()`, `get_attack_damage()`, signals `hit_dealt`, `swing`, `enemy_killed`. Receiver: dodge roll (seeded RNG) -> `dodged` + "DODGE!", damage through `calc_incoming_damage()`, knockback, `damaged`. `HealthComponent` owns fauna HP + bleed, group `damageable`, signals `hp_changed`, `damaged`, `died`. `CombatConfig` in `src/data/configs/combat_config.tres`. Additive `register_hit_modifier(source_id, callable)` / `unregister_hit_modifier(source_id)` let passives alter damage in registration order |
-| `ProficiencyConfig` / `ProficiencyComponent` | `src/data/resources/proficiency/`, `src/data/configs/proficiency_config.tres`, `src/components/proficiency/` | XP, carry-over, `max_reached_level`, night combat bonus (1.5x), passives and the death debuff (§7.6). Levels are still written through `StatsComponent.strength_level` etc.; per-level stat effects stay in `StatsComponent`. XP sources are wired from existing signals (hit/kill/dodge/gather/craft/boar dash-miss) plus real player displacement for Speed; inside the 180 px camp radius Speed XP is 0. Passives: Heavy Strike (every 4th landed hit x1.3 via hit modifier), Sturdy (knockback x0.5), Second Wind (campfire idle-regen x1.25 via `set_idle_regen_multiplier`), Quick Reflex (+8% dodge below 40% HP), Swift Counter (next hit after a dodge x1.25). Light Footed stays in `StatsComponent` (not duplicated). Master Chef's +10 restore is **not applied** (no allowed consume hook); `get_campfire_restore_bonus()` exposes the value | Implemented; 11 tests |
+| `ProficiencyConfig` / `ProficiencyComponent` | `src/data/resources/proficiency/`, `src/data/configs/proficiency_config.tres`, `src/components/proficiency/` | XP, carry-over, `max_reached_level`, night combat bonus (1.5x), passives and the death debuff (§7.6). Levels are still written through `StatsComponent.strength_level` etc.; per-level stat effects stay in `StatsComponent`. XP sources are wired from existing signals (hit/kill/dodge/gather/craft/boar dash-miss) plus real player displacement for Speed; inside the 180 px camp radius Speed XP is 0. Passives: Heavy Strike (every 4th landed hit x1.3 via hit modifier), Sturdy (knockback x0.5), Second Wind (campfire idle-regen x1.25 via `set_idle_regen_multiplier`), Quick Reflex (+8% dodge below 40% HP), Swift Counter (next hit after a dodge x1.25). Light Footed stays in `StatsComponent` (not duplicated). Master Chef +10 restore diterapkan lewat bonus campfire (`get_campfire_restore_bonus()`); lihat §13 untuk status keputusan | Implemented; 11 tests |
 | `DeathController` / `LootBag` / `DeathScreen` | `src/core/managers/death_controller.gd`, `src/entities/props/loot_bag/`, `src/ui/menus/death_screen.gd/.tscn` | 3 respawn tokens via internal `RESPAWN_TOKENS` constant (PlayerBaseStats.max_respawn_tokens not read; 4th death = permanent game over), loot bag from all 12 bag slots at the death position (equipment kept), respawn at (0,64) with 70% HP and 60/60/80 needs, proficiency death debuff, player hidden + `PROCESS_MODE_DISABLED` while dead. The clock keeps running. `died(respawns_remaining)`, `respawned`, `game_over`; `respawn()`, `can_respawn()`, `get_last_loot_bag()`. `DeathScreen` only emits `respawn_requested`/`main_menu_requested`; `GameOverScreen` (`src/ui/menus/game_over_screen.gd/.tscn`, CanvasLayer + `PROCESS_MODE_ALWAYS`, buttons Mulai Baru / Menu Utama) emits `restart_requested`/`main_menu_requested` and `island.gd` shows it on `game_over` | Implemented; 5 + 3 + 1 screen tests |
-| `EndgameController` / `SignalBeacon` / `EndgameHUD` | `src/core/managers/endgame_controller.gd`, `src/entities/props/beacon/signal_beacon.gd`, `src/ui/hud/endgame/` | Day-7 banner (only on `day_started == max_days`), rescue banner, beacon direction/distance arrow, Victory when the beacon is used during rescue while holding `signal_flare`. Beacon: `Interactable`, hold 1.5 s, blocks with `Belum waktunya` / `Butuh Suar Darurat`; flare is not consumed. Anti-softlock boars are handled by `FaunaQuota.rescue_started` | Implemented; 4 tests; 3 beacon tests |
+| `EndgameController` / `SignalBeacon` / `EndgameHUD` | `src/core/managers/endgame_controller.gd`, `src/entities/props/beacon/signal_beacon.gd`, `src/ui/hud/endgame/` | Day-7 banner (only on `day_started == max_days`), rescue banner, beacon direction/distance arrow, Victory when the beacon is used during rescue while holding `signal_flare`. Beacon: `Interactable`, hold 1.5 s, blocks with `Belum waktunya` / `Butuh Suar Darurat`; flare is consumed on victory (keputusan Mission 7). Anti-softlock boars are handled by `FaunaQuota.rescue_started` | Implemented; 4 tests; 3 beacon tests |
 | `RunController` / `MainMenu` | `src/core/managers/run_controller.gd`, `src/ui/menus/main_menu.gd/.tscn` | `main_menu_requested` / `restart_requested`; freezes the clock with `set_time_scale(0.0)` before the menu and calls `DayNightManager.restart()` on a new run. Scene change goes through the overridable `_change_scene()`. `main_menu.tscn` is **not** the main scene | Implemented; boots headless
 | `FaunaBase` / `WildBoar` / `IslandDeer` | `src/entities/fauna/` | `FaunaBase` (CharacterBody2D, group `fauna`, layer 0/mask 1): HealthComponent child, temperament PASSIVE/NEUTRAL/HOSTILE, `provoke()`, `can_be_auto_targeted()`, speed/attack modifier dictionaries, `apply_night_scaling()` keeping HP ratio, `reset_night_scaling()`, Dazzled from lit Campfire (0.70 speed / 0.75 attack), wander, flee+despawn, `drop_loot()` via ItemPickup, `flash_hit()`. Boar: bite 12/50 px/1.2 s, dash 110–240 px with 0.8 s telegraph then 330 px/s (20 + 60 px knockback to player, 40 to structures), camp aggro (player <=140, raid_camp, priority structures), leash 380. Deer: 40 HP, always PASSIVE, flees 175 px/s for 5 s at 130 px or when hit. Configs `boar_config.tres` / `deer_config.tres` |
 | `FaunaQuota` / `NightSpawner` / `NightScalingConfig` | `src/core/managers/`, `src/data/resources/fauna/` | Quota: 2 Boar + 3 Deer at start, no mid-day respawn, dawn rule (extras flee, survivors NEUTRAL x1.0, top-up 2/3) for days 2-7, rescue rule (flee, >=2 boars, 45 s REAL respawn, max 4), spawn-point rule (>=600 px from player else farthest). Spawner: night start makes residents HOSTILE + scaled, one spawn immediately then per interval while hostile count < table max (timer x time_scale). Table 3/4/5/6/7/9/12, 45..15 s, x1.0..1.5 |
@@ -793,3 +771,22 @@ numbers in `.tres` so tuning stays cheap.
    code bug is left unfixed. Two doc-level gaps are recorded instead: no
    `ProficiencyHUD` exists anywhere in `src/` (nothing displays proficiency
    levels yet), and `PlayerBaseStats.max_respawn_tokens` stays unused (item 6).
+
+## 13. Keputusan yang sudah diambil
+
+- Deer guarantee **ON** (`FaunaQuota.guarantee_deer_at_rescue = true`).
+- Signal Flare **dikonsumsi** saat Victory.
+- Master Chef sederhana: bonus restore lewat campfire, tanpa hook konsumsi baru.
+- Batu hanya dihabiskan pada percobaan ignition yang gagal.
+- `small_tree` ada sebagai node resource tersendiri; starter camp memakai
+  hitungan di `island_builder.gd` (lihat `test_mission7_trees.gd`).
+- Aset: konvensi nama file di atas konfigurasi; tanpa art tampilan lama tetap.
+
+## 14. Masih terbuka
+
+- Pertanyaan "fajar Hari 7" untuk desain akhir (durasi/urutan banner).
+- Ketergantungan Workbench untuk resep Signal Flare (belum final).
+- Sign-off owner atas deviasi spec (mis. Dodge tanpa i-frame).
+- `PlayerBaseStats.max_respawn_tokens` belum dipakai kode.
+- Balance setelah playtest manual.
+- `fx_slash`/`fx_dust` sudah punya slot tetapi belum ada node efek pemakainya.

@@ -15,9 +15,21 @@ const ITEM_BOILED_WATER := preload("res://src/data/items/boiled_water.tres")
 const ITEM_COCKPIT_NOTES := preload("res://src/data/items/cockpit_notes.tres")
 
 var _looted: bool = false
+var _visual_slot: VisualSlot
 
 @onready var _visual: Polygon2D = get_node_or_null("Visual") as Polygon2D
+
+
+func _on_looted_visual() -> void:
+	if _visual_slot != null:
+		_visual_slot.set_state(&"open")
 @onready var _label: Label = get_node_or_null("Label") as Label
+
+
+func _ready() -> void:
+	_visual_slot = VisualSlot.attach(self, &"emergency_suitcase", [get_node_or_null("Visual")])
+	if not looted.is_connected(_on_looted_visual):
+		looted.connect(_on_looted_visual)
 
 
 func get_prompt(_interactor: Node) -> String:

@@ -122,7 +122,7 @@ func _start_fall() -> void:
 		var body := Node2D.new()
 		body.name = "TreeFall"
 		if _visual != null:
-			var copy := _visual.duplicate()
+			var copy := _duplicate_visual()
 			if copy is Node2D:
 				body.add_child(copy)
 		body.global_position = _target.global_position
@@ -150,6 +150,17 @@ func _spawn_stump(parent: Node) -> void:
 	_stump.global_position = _target.global_position
 	_stump.z_index = -1
 	parent.add_child(_stump)
+
+
+## Salinan art bila slot punya art; kalau tidak, polygon placeholder lama.
+func _duplicate_visual() -> Node:
+	if _target != null and is_instance_valid(_target):
+		var slot := _target.get_node_or_null("VisualSlot") as VisualSlot
+		if slot != null and slot.is_showing_art():
+			var art := slot.duplicate_art()
+			if art != null:
+				return art
+	return _visual.duplicate() if _visual != null else null
 
 
 func _regrow() -> void:
@@ -180,6 +191,9 @@ func _spawn_chips() -> void:
 	chips.initial_velocity_max = 70.0
 	chips.gravity = Vector2(0.0, 160.0)
 	chips.color = Color(0.6, 0.4, 0.2, 1.0)
+	var chip_texture := Assets.ui_texture(&"fx_chip")
+	if chip_texture != null:
+		chips.texture = chip_texture
 	chips.global_position = _target.global_position
 	parent.add_child(chips)
 	chips.finished.connect(chips.queue_free)

@@ -1,0 +1,1861 @@
+# Panduan Konfigurasi
+
+Dokumen ini untuk desainer: semua angka gameplay disimpan di Resource `.tres`
+supaya bisa diubah dari Inspector Godot tanpa menyentuh kode.
+
+## Mengapa Resource
+
+- Satu sumber angka: kode membaca `config.field`, tidak menyalin nilai.
+- Bisa di-tune di Inspector, lalu dijalankan ulang — tanpa rebuild.
+- Tes memakai nilai yang sama, jadi balance dan tes tidak bisa berbeda.
+
+## Mengedit `.tres` dengan aman
+
+1. Buka file `.tres` di Godot (double click) — Inspector menampilkan field.
+2. Ubah nilai, `Ctrl+S`. Jangan edit teks `.tres` dengan editor teks biasa
+   kecuali Anda paham formatnya (urutan properti dan id sub-resource bisa rusak).
+3. Jalankan tes terkait (kolom "Tes terkait") sebelum commit.
+
+## PERINGATAN: generator menimpa edit tangan
+
+Menjalankan `tools/generate_*.gd` MENULIS ULANG file yang dimilikinya. Jangan
+mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
+
+
+<!-- BEGIN GENERATED -->
+## Peta pemilik file
+
+| Generator | Perintah | File `.tres` yang ditulis |
+| --- | --- | --- |
+| `res://tools/generate_asset_registry.gd` | `GODOT --headless --path . -s tools/generate_asset_registry.gd` | res://src/data/assets/asset_registry.tres |
+| `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` | res://src/data/configs/combat_config.tres, res://src/data/configs/fauna/boar_config.tres, res://src/data/configs/fauna/deer_config.tres, res://src/data/configs/fauna/ember_snuff_config.tres, res://src/data/configs/fauna/night_scaling_config.tres |
+| `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` | — (tidak menulis .tres) |
+| `res://tools/generate_hints.gd` | `GODOT --headless --path . -s tools/generate_hints.gd` | — (tidak menulis .tres) |
+| `res://tools/generate_proficiency_data.gd` | `GODOT --headless --path . -s tools/generate_proficiency_data.gd` | res://src/data/configs/proficiency_config.tres |
+| `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` | — (tidak menulis .tres) |
+| `res://tools/generate_structures.gd` | `GODOT --headless --path . -s tools/generate_structures.gd` | res://src/data/configs/fence_config.tres |
+
+## src/data/assets
+
+### `res://src/data/assets/asset_registry.tres`
+
+- Kelas: `asset_registry.gd` (`res://src/data/resources/assets/asset_registry.gd`)
+- Tujuan: Daftar semua slot aset (digenerate).
+- Dipakai oleh: Assets, VisualSlot, UiSkin, check_assets
+- Pemilik: generator
+- Efek tuning: Menambah slot membuat visual baru bisa diganti art.
+- Tes terkait: test_assets_core.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `slots` | Array | [63 item] |
+
+
+## src/data/camp
+
+### `res://src/data/camp/campfire.tres`
+
+- Kelas: `structure_definition.gd` (`res://src/data/resources/camp/structure_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | campfire |
+| `display_name` | String | Api Unggun |
+| `scene` | Resource | (res://src/entities/camp/campfire/campfire.ts... |
+| `max_hp` | float | 250.00 |
+| `build_cost` | Array | [3 item] |
+| `build_time` | float | 2.50 |
+| `aggro_priority` | int | 0 |
+| `repair_cost` | Array | [2 item] |
+| `repair_hp` | float | 80.00 |
+| `slot_position` | Vector2 | 0.0 × 0.0 |
+
+### `res://src/data/camp/chest.tres`
+
+- Kelas: `structure_definition.gd` (`res://src/data/resources/camp/structure_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | chest |
+| `display_name` | String | Peti |
+| `scene` | Resource | (res://src/entities/camp/chest/chest.tscn):<P... |
+| `max_hp` | float | 200.00 |
+| `build_cost` | Array | [2 item] |
+| `build_time` | float | 2.50 |
+| `aggro_priority` | int | 1 |
+| `repair_cost` | Array | [1 item] |
+| `repair_hp` | float | 80.00 |
+| `slot_position` | Vector2 | 96.0 × -32.0 |
+
+### `res://src/data/camp/fence_segment.tres`
+
+- Kelas: `structure_definition.gd` (`res://src/data/resources/camp/structure_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | fence_segment |
+| `display_name` | String | Pagar |
+| `scene` | Resource | (res://src/entities/camp/fence/fence_segment.... |
+| `max_hp` | float | 60.00 |
+| `build_cost` | Array | [2 item] |
+| `build_time` | float | 1.50 |
+| `aggro_priority` | int | 3 |
+| `repair_cost` | Array | [1 item] |
+| `repair_hp` | float | 30.00 |
+| `slot_position` | Vector2 | 0.0 × 0.0 |
+
+### `res://src/data/camp/tent.tres`
+
+- Kelas: `structure_definition.gd` (`res://src/data/resources/camp/structure_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | tent |
+| `display_name` | String | Tenda Daun |
+| `scene` | Resource | (res://src/entities/camp/tent/tent.tscn):<Pac... |
+| `max_hp` | float | 120.00 |
+| `build_cost` | Array | [3 item] |
+| `build_time` | float | 4.00 |
+| `aggro_priority` | int | 2 |
+| `repair_cost` | Array | [2 item] |
+| `repair_hp` | float | 60.00 |
+| `slot_position` | Vector2 | 0.0 × -110.0 |
+
+### `res://src/data/camp/workbench.tres`
+
+- Kelas: `structure_definition.gd` (`res://src/data/resources/camp/structure_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | workbench |
+| `display_name` | String | Meja Kerja |
+| `scene` | Resource | (res://src/entities/camp/workbench/workbench.... |
+| `max_hp` | float | 180.00 |
+| `build_cost` | Array | [3 item] |
+| `build_time` | float | 3.00 |
+| `aggro_priority` | int | 1 |
+| `repair_cost` | Array | [2 item] |
+| `repair_hp` | float | 70.00 |
+| `slot_position` | Vector2 | -96.0 × -32.0 |
+
+
+## src/data/configs
+
+### `res://src/data/configs/asset_config.tres`
+
+- Kelas: `asset_config.gd` (`res://src/data/resources/assets/asset_config.gd`)
+- Tujuan: Filter pixel-art, fallback mirror, fps default animasi.
+- Dipakai oleh: Assets, VisualSlot
+- Pemilik: edit tangan
+- Efek tuning: Mematikan mirror membuat arah tanpa art jatuh ke placeholder.
+- Tes terkait: test_assets_core.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `pixel_art` | bool | true |
+| `mirror_fallback` | bool | true |
+| `default_fps` | Dictionary | {8 entri} |
+
+### `res://src/data/configs/combat_config.tres`
+
+- Kelas: `combat_config.gd` (`res://src/data/resources/combat/combat_config.gd`)
+- Tujuan: Damage, jangkauan, cooldown, knockback.
+- Dipakai oleh: CombatComponent, PlayerDamageReceiver
+- Pemilik: generator
+- Efek tuning: Rasa tempur: seberapa cepat dan keras serangan.
+- Tes terkait: test_combat_component.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `bare_range` | float | 45.00 |
+| `cone_angle_degrees` | float | 90.00 |
+| `fatigue_cost_per_hit` | float | 1.20 |
+| `knockback_distance` | float | 60.00 |
+| `knockback_duration` | float | 0.20 |
+| `bleed_dps` | float | 2.00 |
+| `bleed_duration` | float | 3.00 |
+| `bleed_weapon_ids` | Array | [1 item] |
+| `floating_text_lifetime` | float | 0.80 |
+
+### `res://src/data/configs/fence_config.tres`
+
+- Kelas: `fence_config.gd` (`res://src/data/resources/camp/fence_config.gd`)
+- Tujuan: Jumlah segmen, radius ring, dan daya tahan pagar.
+- Dipakai oleh: FenceRing, FenceSegment
+- Pemilik: generator
+- Efek tuning: Bentuk dan kekuatan pagar base.
+- Tes terkait: test_fence.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `ring_radius` | float | 200.00 |
+| `segment_count` | int | 20 |
+| `segment_length` | float | 66.00 |
+| `thickness` | float | 10.00 |
+| `hp` | float | 60.00 |
+| `build_time` | float | 1.50 |
+| `build_wood` | int | 1 |
+| `build_fiber` | int | 1 |
+| `repair_wood` | int | 1 |
+| `repair_hp` | float | 30.00 |
+| `aggro_priority` | int | 3 |
+| `blocks_player` | bool | false |
+
+### `res://src/data/configs/fire_starter_config.tres`
+
+- Kelas: `fire_starter_config.gd` (`res://src/data/resources/combat/fire_starter_config.gd`)
+- Tujuan: Minigame gesek batu untuk menyalakan api.
+- Dipakai oleh: FireStarterController
+- Pemilik: edit tangan
+- Efek tuning: Seberapa sulit menyalakan api COLD.
+- Tes terkait: test_fire_starter.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `strikes_per_attempt` | int | 3 |
+| `sweep_period` | float | 1.10 |
+| `perfect_zone` | float | 0.12 |
+| `good_zone` | float | 0.30 |
+| `miss_chance` | float | 0.10 |
+| `good_chance` | float | 0.45 |
+| `perfect_chance` | float | 0.80 |
+| `hold_time` | float | 0.30 |
+| `stone_cost` | int | 1 |
+| `consume_stone_on_fail_only` | bool | true |
+| `fail_cooldown` | float | 0.80 |
+| `cancel_distance` | float | 96.00 |
+
+### `res://src/data/configs/interaction_config.tres`
+
+- Kelas: `interaction_config.gd` (`res://src/data/resources/interaction/interaction_config.gd`)
+- Tujuan: Jarak interaksi dan waktu tahan E.
+- Dipakai oleh: InteractorComponent, Interactable
+- Pemilik: edit tangan
+- Efek tuning: Seberapa dekat pemain harus berdiri dan berapa lama menahan E.
+- Tes terkait: test_interactor_component.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `interaction_range` | float | 64.00 |
+| `scan_interval` | float | 0.10 |
+
+### `res://src/data/configs/inventory_config.tres`
+
+- Kelas: `inventory_config.gd` (`res://src/data/resources/items/inventory_config.gd`)
+- Tujuan: Ukuran tas, radius pickup, jeda pickup.
+- Dipakai oleh: InventoryComponent, ItemPickup
+- Pemilik: edit tangan
+- Efek tuning: Jumlah slot dan seberapa mudah item terambil.
+- Tes terkait: test_inventory_component.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `bag_size` | int | 12 |
+| `hotbar_size` | int | 5 |
+| `pickup_delay` | float | 0.50 |
+| `pickup_radius` | float | 24.00 |
+
+### `res://src/data/configs/island_layout.tres`
+
+- Kelas: `island_layout_config.gd` (`res://src/data/resources/island/island_layout_config.gd`)
+- Tujuan: Titik spawn resource, fauna, dan zona pulau.
+- Dipakai oleh: IslandBuilder, NightSpawner
+- Pemilik: edit tangan
+- Efek tuning: Isi dan kepadatan pulau.
+- Tes terkait: test_island_builder.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `seed` | int | 20260101 |
+| `half_size` | float | 2400.00 |
+| `coast_margin` | float | 150.00 |
+| `min_spacing` | float | 70.00 |
+| `keep_out_radius` | float | 140.00 |
+| `beacon_keep_out` | float | 150.00 |
+| `camp_ring_min` | float | 220.00 |
+| `camp_ring_max` | float | 700.00 |
+| `max_attempts` | int | 2000 |
+| `markers_min_distance` | float | 1100.00 |
+| `camp_starters_last_respawn_day` | int | 4 |
+| `camp_twig` | int | 10 |
+| `camp_small_rock` | int | 8 |
+| `camp_fiber_bush` | int | 5 |
+| `camp_berry_bush` | int | 4 |
+| `camp_small_tree` | int | 6 |
+| `south_coconut_palm` | int | 12 |
+| `west_small_rock` | int | 14 |
+| `west_big_rock` | int | 8 |
+| `river_bamboo` | int | 14 |
+| `forest_tree` | int | 30 |
+| `forest_fiber_bush` | int | 24 |
+| `forest_berry_bush` | int | 18 |
+| `night_spawn_markers` | int | 16 |
+
+### `res://src/data/configs/juice_config.tres`
+
+- Kelas: `juice_config.gd` (`res://src/data/resources/combat/juice_config.gd`)
+- Tujuan: Hit-stop, shake, flash, squash, intensitas efek.
+- Dipakai oleh: CombatFeedback
+- Pemilik: edit tangan
+- Efek tuning: Seberapa berat pukulan terasa (tanpa mengubah damage).
+- Tes terkait: test_combat_feedback.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `intensity` | float | 1.00 |
+| `screenshake_enabled` | bool | true |
+| `hit_stop_light` | float | 0.05 |
+| `hit_stop_heavy` | float | 0.09 |
+| `shake_light` | float | 3.00 |
+| `shake_light_time` | float | 0.12 |
+| `shake_heavy` | float | 6.00 |
+| `shake_heavy_time` | float | 0.18 |
+| `shake_kill` | float | 5.00 |
+| `shake_kill_time` | float | 0.15 |
+| `shake_player_hurt` | float | 7.00 |
+| `shake_player_hurt_time` | float | 0.22 |
+| `knockback_light` | float | 28.00 |
+| `knockback_heavy` | float | 45.00 |
+| `knockback_time` | float | 0.12 |
+| `squash_scale` | Vector2 | 1.25 × 0.8 |
+| `squash_time` | float | 0.12 |
+| `flash_color` | lain | (3.0, 3.0, 3.0, 1.0) |
+| `flash_time` | float | 0.06 |
+| `hit_spark_count` | int | 8 |
+| `kill_burst_count` | int | 18 |
+| `player_lunge` | float | 6.00 |
+| `player_lunge_time` | float | 0.06 |
+| `manual_swing_buffer` | float | 0.15 |
+| `low_hp_vignette_threshold` | float | 25.00 |
+| `death_sequence_time` | float | 0.25 |
+
+### `res://src/data/configs/needs_config.tres`
+
+- Kelas: `needs_config.gd` (`res://src/data/resources/needs/needs_config.gd`)
+- Tujuan: Laju Hunger/Thirst/Fatigue dan ambang tier.
+- Dipakai oleh: NeedsComponent, NeedsHUD
+- Pemilik: edit tangan
+- Efek tuning: Mengubah seberapa cepat kebutuhan turun dan kapan tier LOW/ZERO.
+- Tes terkait: test_needs_component.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `max_value` | float | 100.00 |
+| `start_value` | float | 100.00 |
+| `low_threshold` | float | 25.00 |
+| `zero_threshold` | float | 0.00 |
+| `sleep_min_value` | float | 1.00 |
+| `hunger_day_drain` | float | 0.16 |
+| `hunger_night_drain` | float | 0.20 |
+| `thirst_day_drain` | float | 0.24 |
+| `thirst_night_drain` | float | 0.18 |
+| `fatigue_sprint_drain` | float | 2.50 |
+| `fatigue_walk_drain` | float | 0.08 |
+| `fatigue_idle_regen` | float | 1.00 |
+| `fatigue_sprint_cap_drain` | float | 0.40 |
+| `fatigue_meal_cap_restore` | float | 10.00 |
+| `sleep_fatigue_cap_restore` | float | 25.00 |
+| `hunger_zero_hp_loss` | float | 1.50 |
+| `thirst_zero_hp_loss` | float | 2.00 |
+| `hunger_low_move_speed` | float | -0.15 |
+| `hunger_low_attack_damage` | float | -0.15 |
+| `thirst_low_sprint_fatigue_drain` | float | 0.30 |
+| `thirst_low_attack_speed` | float | -0.20 |
+| `fatigue_low_move_speed` | float | -0.20 |
+| `fatigue_gather_time` | float | 0.30 |
+| `fatigue_zero_move_speed` | float | -0.45 |
+| `fatigue_zero_attack_speed` | float | -0.50 |
+
+### `res://src/data/configs/proficiency_config.tres`
+
+- Kelas: `proficiency_config.gd` (`res://src/data/resources/proficiency/proficiency_config.gd`)
+- Tujuan: Ambang level proficiency dan debuff kematian.
+- Dipakai oleh: ProficiencyComponent, ProficiencyHUD
+- Pemilik: generator
+- Efek tuning: Kecepatan naik level dan besar penalti saat mati.
+- Tes terkait: test_proficiency_component.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `max_level` | int | 10 |
+| `xp_per_level_base` | float | 100.00 |
+| `night_xp_multiplier` | float | 1.50 |
+| `strength_hit_xp` | float | 10.00 |
+| `strength_tree_xp` | float | 15.00 |
+| `strength_rock_xp` | float | 15.00 |
+| `heavy_strike_level` | int | 3 |
+| `heavy_strike_every` | int | 4 |
+| `heavy_strike_multiplier` | float | 1.30 |
+| `sturdy_level` | int | 6 |
+| `sturdy_knockback_multiplier` | float | 0.50 |
+| `speed_camp_radius` | float | 180.00 |
+| `speed_walk_distance` | float | 100.00 |
+| `speed_walk_xp` | float | 1.00 |
+| `speed_sprint_xp_per_second` | float | 3.00 |
+| `light_footed_level` | int | 3 |
+| `light_footed_sprint_percent` | float | 0.10 |
+| `second_wind_level` | int | 6 |
+| `second_wind_regen_multiplier` | float | 1.25 |
+| `mastery_gather_xp` | float | 8.00 |
+| `mastery_craft_xp` | float | 25.00 |
+| `mastery_cook_xp` | float | 20.00 |
+| `resourceful_level` | int | 3 |
+| `resourceful_chance` | float | 0.20 |
+| `resourceful_bonus` | int | 1 |
+| `master_chef_level` | int | 6 |
+| `master_chef_bonus` | float | 10.00 |
+| `master_chef_hunger_items` | Array | [1 item] |
+| `master_chef_thirst_items` | Array | [2 item] |
+| `agility_dodge_xp` | float | 20.00 |
+| `agility_dodge_cooldown` | float | 3.00 |
+| `agility_dash_miss_xp` | float | 25.00 |
+| `agility_dash_miss_max_per_boar` | int | 2 |
+| `agility_kill_xp` | float | 30.00 |
+| `quick_reflex_level` | int | 3 |
+| `quick_reflex_dodge_percent` | float | 0.08 |
+| `quick_reflex_hp_threshold` | float | 0.40 |
+| `swift_counter_level` | int | 6 |
+| `swift_counter_multiplier` | float | 1.25 |
+| `death_debuff_levels` | int | 2 |
+| `first_passive_level` | int | 3 |
+
+
+## src/data/configs/environment
+
+### `res://src/data/configs/environment/day_night_debug_fast.tres`
+
+- Kelas: `day_night_config.gd` (`res://src/data/resources/environment/day_night_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `max_days` | int | 7 |
+| `cycle_duration` | float | 60.00 |
+| `time_scale` | float | 1.00 |
+| `periods` | Array | [3 item] |
+
+### `res://src/data/configs/environment/day_night_default.tres`
+
+- Kelas: `day_night_config.gd` (`res://src/data/resources/environment/day_night_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `max_days` | int | 7 |
+| `cycle_duration` | float | 600.00 |
+| `time_scale` | float | 1.00 |
+| `periods` | Array | [3 item] |
+
+### `res://src/data/configs/environment/day_night_visual_default.tres`
+
+- Kelas: `day_night_visual_config.gd` (`res://src/data/resources/environment/day_night_visual_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `transition_duration` | float | 9.50 |
+| `morning_color` | lain | (0.95, 0.8, 0.68, 1.0) |
+| `day_color` | lain | (1.0, 0.96, 0.88, 1.0) |
+| `evening_color` | lain | (1.0, 0.68, 0.45, 1.0) |
+| `night_color` | lain | (0.34, 0.42, 0.66, 1.0) |
+| `morning_light_intensity` | float | 0.82 |
+| `day_light_intensity` | float | 1.00 |
+| `evening_light_intensity` | float | 0.75 |
+| `night_light_intensity` | float | 0.62 |
+| `enable_environment_effects` | bool | true |
+| `enable_fireflies` | bool | true |
+| `firefly_amount` | int | 24 |
+| `firefly_color` | lain | (0.85, 1.0, 0.6, 1.0) |
+| `enable_day_motes` | bool | true |
+| `day_mote_amount` | int | 12 |
+| `day_mote_color` | lain | (1.0, 0.95, 0.82, 0.55) |
+
+
+## src/data/configs/fauna
+
+### `res://src/data/configs/fauna/boar_config.tres`
+
+- Kelas: `boar_config.gd` (`res://src/data/resources/fauna/boar_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `bite_damage` | float | 12.00 |
+| `bite_range` | float | 50.00 |
+| `bite_cooldown` | float | 1.20 |
+| `dash_min_distance` | float | 110.00 |
+| `dash_max_distance` | float | 240.00 |
+| `dash_telegraph` | float | 0.80 |
+| `dash_speed` | float | 330.00 |
+| `dash_cooldown_day` | float | 6.00 |
+| `dash_cooldown_night` | float | 4.00 |
+| `dash_player_damage` | float | 20.00 |
+| `dash_structure_damage` | float | 40.00 |
+| `dash_hit_radius` | float | 40.00 |
+| `detect_radius` | float | 300.00 |
+| `leash_radius` | float | 380.00 |
+| `provoke_calm_seconds` | float | 10.00 |
+| `camp_player_radius` | float | 140.00 |
+| `raid_camp_radius` | float | 500.00 |
+| `raid_clear_radius` | float | 650.00 |
+| `max_hp` | float | 80.00 |
+| `move_speed_day` | float | 115.00 |
+| `move_speed_night` | float | 150.00 |
+| `wander_speed_factor` | float | 0.50 |
+| `wander_radius` | float | 200.00 |
+| `wander_pause_min` | float | 2.00 |
+| `wander_pause_max` | float | 5.00 |
+| `flee_despawn_distance` | float | 600.00 |
+| `flee_despawn_timeout` | float | 8.00 |
+| `loot_ids` | Array | [] |
+| `loot_counts` | Array | [] |
+
+### `res://src/data/configs/fauna/deer_config.tres`
+
+- Kelas: `deer_config.gd` (`res://src/data/resources/fauna/deer_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `flee_speed` | float | 175.00 |
+| `flee_trigger_radius` | float | 130.00 |
+| `flee_duration` | float | 5.00 |
+| `max_hp` | float | 40.00 |
+| `move_speed_day` | float | 60.00 |
+| `move_speed_night` | float | 60.00 |
+| `wander_speed_factor` | float | 1.00 |
+| `wander_radius` | float | 200.00 |
+| `wander_pause_min` | float | 2.00 |
+| `wander_pause_max` | float | 5.00 |
+| `flee_despawn_distance` | float | 600.00 |
+| `flee_despawn_timeout` | float | 8.00 |
+| `loot_ids` | Array | [] |
+| `loot_counts` | Array | [] |
+
+### `res://src/data/configs/fauna/ember_snuff_config.tres`
+
+- Kelas: `ember_snuff_config.gd` (`res://src/data/resources/fauna/ember_snuff_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `first_day` | int | 5 |
+| `fuel_loss` | float | 8.00 |
+
+### `res://src/data/configs/fauna/night_scaling_config.tres`
+
+- Kelas: `night_scaling_config.gd` (`res://src/data/resources/fauna/night_scaling_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `max_enemies` | Array | [7 item] |
+| `spawn_interval` | Array | [7 item] |
+| `hp_damage_multiplier` | Array | [7 item] |
+
+
+## src/data/gathering
+
+### `res://src/data/gathering/bamboo_clump.tres`
+
+- Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | bamboo_clump |
+| `display_name` | String | Rumpun Bambu |
+| `item` | Resource | (res://src/data/items/bamboo.tres):<Resource#... |
+| `yield_min` | int | 2 |
+| `yield_max` | int | 2 |
+| `required_tool` | int | 0 |
+| `speed_tool` | int | 0 |
+| `speed_factor` | float | 1.00 |
+| `chop_feedback_enabled` | bool | false |
+| `gather_time` | float | 1.50 |
+| `fatigue_cost` | float | 2.00 |
+| `respawn_rule` | int | 0 |
+
+### `res://src/data/gathering/berry_bush.tres`
+
+- Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | berry_bush |
+| `display_name` | String | Semak Beri |
+| `item` | Resource | (res://src/data/items/berry.tres):<Resource#-... |
+| `yield_min` | int | 2 |
+| `yield_max` | int | 2 |
+| `required_tool` | int | 0 |
+| `speed_tool` | int | 0 |
+| `speed_factor` | float | 1.00 |
+| `chop_feedback_enabled` | bool | false |
+| `gather_time` | float | 0.80 |
+| `fatigue_cost` | float | 2.00 |
+| `respawn_rule` | int | 0 |
+
+### `res://src/data/gathering/big_rock.tres`
+
+- Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | big_rock |
+| `display_name` | String | Batu Besar |
+| `item` | Resource | (res://src/data/items/stone.tres):<Resource#-... |
+| `yield_min` | int | 3 |
+| `yield_max` | int | 3 |
+| `required_tool` | int | 2 |
+| `speed_tool` | int | 0 |
+| `speed_factor` | float | 1.00 |
+| `chop_feedback_enabled` | bool | false |
+| `gather_time` | float | 3.00 |
+| `fatigue_cost` | float | 2.00 |
+| `respawn_rule` | int | 0 |
+
+### `res://src/data/gathering/coconut_palm.tres`
+
+- Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | coconut_palm |
+| `display_name` | String | Pohon Kelapa |
+| `item` | Resource | (res://src/data/items/coconut.tres):<Resource... |
+| `yield_min` | int | 1 |
+| `yield_max` | int | 2 |
+| `required_tool` | int | 0 |
+| `speed_tool` | int | 0 |
+| `speed_factor` | float | 1.00 |
+| `chop_feedback_enabled` | bool | false |
+| `gather_time` | float | 1.20 |
+| `fatigue_cost` | float | 2.00 |
+| `respawn_rule` | int | 1 |
+
+### `res://src/data/gathering/fiber_bush.tres`
+
+- Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | fiber_bush |
+| `display_name` | String | Semak Serat |
+| `item` | Resource | (res://src/data/items/fiber.tres):<Resource#-... |
+| `yield_min` | int | 2 |
+| `yield_max` | int | 2 |
+| `required_tool` | int | 0 |
+| `speed_tool` | int | 0 |
+| `speed_factor` | float | 1.00 |
+| `chop_feedback_enabled` | bool | false |
+| `gather_time` | float | 1.00 |
+| `fatigue_cost` | float | 2.00 |
+| `respawn_rule` | int | 0 |
+
+### `res://src/data/gathering/small_rock.tres`
+
+- Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | small_rock |
+| `display_name` | String | Batu Kecil |
+| `item` | Resource | (res://src/data/items/stone.tres):<Resource#-... |
+| `yield_min` | int | 1 |
+| `yield_max` | int | 1 |
+| `required_tool` | int | 0 |
+| `speed_tool` | int | 0 |
+| `speed_factor` | float | 1.00 |
+| `chop_feedback_enabled` | bool | false |
+| `gather_time` | float | 1.50 |
+| `fatigue_cost` | float | 2.00 |
+| `respawn_rule` | int | 0 |
+
+### `res://src/data/gathering/small_tree.tres`
+
+- Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | small_tree |
+| `display_name` | String | Pohon Kecil |
+| `item` | Resource | (res://src/data/items/wood.tres):<Resource#-9... |
+| `yield_min` | int | 2 |
+| `yield_max` | int | 2 |
+| `required_tool` | int | 0 |
+| `speed_tool` | int | 1 |
+| `speed_factor` | float | 0.50 |
+| `chop_feedback_enabled` | bool | true |
+| `gather_time` | float | 4.00 |
+| `fatigue_cost` | float | 3.00 |
+| `respawn_rule` | int | 0 |
+
+### `res://src/data/gathering/tree.tres`
+
+- Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | tree |
+| `display_name` | String | Pohon |
+| `item` | Resource | (res://src/data/items/wood.tres):<Resource#-9... |
+| `yield_min` | int | 3 |
+| `yield_max` | int | 3 |
+| `required_tool` | int | 1 |
+| `speed_tool` | int | 0 |
+| `speed_factor` | float | 1.00 |
+| `chop_feedback_enabled` | bool | true |
+| `gather_time` | float | 2.50 |
+| `fatigue_cost` | float | 2.00 |
+| `respawn_rule` | int | 0 |
+
+### `res://src/data/gathering/twig.tres`
+
+- Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | twig |
+| `display_name` | String | Ranting |
+| `item` | Resource | (res://src/data/items/wood.tres):<Resource#-9... |
+| `yield_min` | int | 1 |
+| `yield_max` | int | 1 |
+| `required_tool` | int | 0 |
+| `speed_tool` | int | 0 |
+| `speed_factor` | float | 1.00 |
+| `chop_feedback_enabled` | bool | false |
+| `gather_time` | float | 1.00 |
+| `fatigue_cost` | float | 2.00 |
+| `respawn_rule` | int | 0 |
+
+
+## src/data/hints
+
+### `res://src/data/hints/base_place.tres`
+
+- Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | base_place |
+| `text` | String | Tekan B untuk menentukan lokasi base. |
+
+### `res://src/data/hints/campfire_cold.tres`
+
+- Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | campfire_cold |
+| `text` | String | Api padam. Tahan E lalu tekan E tepat waktu u... |
+
+### `res://src/data/hints/crafting.tres`
+
+- Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | crafting |
+| `text` | String | Buka Tab atau I, lalu tab Crafting untuk memb... |
+
+### `res://src/data/hints/dusk.tres`
+
+- Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | dusk |
+| `text` | String | Malam hampir tiba. Nyalakan api unggun dan si... |
+
+### `res://src/data/hints/fence.tres`
+
+- Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | fence |
+| `text` | String | Bangun pagar di sekitar base. |
+
+### `res://src/data/hints/gather.tres`
+
+- Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | gather |
+| `text` | String | Tahan E untuk mengumpulkan. |
+
+### `res://src/data/hints/need_low.tres`
+
+- Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | need_low |
+| `text` | String | Makan atau minum sebelum terlalu lemah. |
+
+### `res://src/data/hints/neutral_hit.tres`
+
+- Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | neutral_hit |
+| `text` | String | Menyerang hewan netral membuatnya menyerang b... |
+
+### `res://src/data/hints/repair.tres`
+
+- Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | repair |
+| `text` | String | Tahan R untuk memperbaiki struktur. |
+
+
+## src/data/items
+
+### `res://src/data/items/bamboo.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | bamboo |
+| `display_name` | String | Bambu |
+| `description` | String | Bambu ringan dari tepi sungai. |
+| `category` | int | 0 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/berry.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | berry |
+| `display_name` | String | Beri |
+| `description` | String | Buah beri hutan. +12 Hunger, +10 Fatigue. |
+| `category` | int | 1 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | (res://src/data/items/berry.tres::Resource_ef... |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/boiled_water.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | boiled_water |
+| `display_name` | String | Air Matang |
+| `description` | String | Air rebusan. +60 Thirst tanpa penalti Hunger. |
+| `category` | int | 1 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | (res://src/data/items/boiled_water.tres::Reso... |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/bone.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | bone |
+| `display_name` | String | Tulang |
+| `description` | String | Tulang hewan; bahan senjata dan kaldu. |
+| `category` | int | 0 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/bone_broth.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | bone_broth |
+| `display_name` | String | Kaldu Tulang |
+| `description` | String | Kaldu hangat. +35 Hunger, +40 Thirst, +1 HP/d... |
+| `category` | int | 1 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | (res://src/data/items/bone_broth.tres::Resour... |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/bone_spear.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | bone_spear |
+| `display_name` | String | Tombak Tulang |
+| `description` | String | Tombak bermata tulang. Menyebabkan Bleed (bel... |
+| `category` | int | 2 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 1 |
+| `weapon_damage` | float | 30.00 |
+| `weapon_range` | float | 85.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/cockpit_notes.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | cockpit_notes |
+| `display_name` | String | Catatan Kokpit |
+| `description` | String | Catatan pilot tentang penerbangan yang gagal ... |
+| `category` | int | 5 |
+| `max_stack` | int | 1 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/coconut.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | coconut |
+| `display_name` | String | Kelapa |
+| `description` | String | Kelapa segar. +10 Hunger, +30 Thirst, +10 Fat... |
+| `category` | int | 1 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | (res://src/data/items/coconut.tres::Resource_... |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/cooked_meat.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | cooked_meat |
+| `display_name` | String | Daging Matang |
+| `description` | String | Daging panggang. +45 Hunger, +15 HP. |
+| `category` | int | 1 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | (res://src/data/items/cooked_meat.tres::Resou... |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/fiber.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | fiber |
+| `display_name` | String | Serat |
+| `description` | String | Serat tumbuhan untuk ikatan dan kain. |
+| `category` | int | 0 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/herbal_bandage.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | herbal_bandage |
+| `display_name` | String | Perban Herbal |
+| `description` | String | Perban dari serat dan beri. +35 HP. |
+| `category` | int | 1 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | (res://src/data/items/herbal_bandage.tres::Re... |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/hide.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | hide |
+| `display_name` | String | Kulit |
+| `description` | String | Kulit hewan; bahan armor dan wadah air. |
+| `category` | int | 0 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/leather_vest.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | leather_vest |
+| `display_name` | String | Rompi Kulit |
+| `description` | String | Rompi kulit: -20% damage diterima, +15 max HP. |
+| `category` | int | 4 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 3 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.20 |
+| `armor_max_hp_bonus` | float | 15.00 |
+
+### `res://src/data/items/raw_meat.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | raw_meat |
+| `display_name` | String | Daging Mentah |
+| `description` | String | Daging mentah. +15 Hunger, -10 Thirst. Masak ... |
+| `category` | int | 1 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | (res://src/data/items/raw_meat.tres::Resource... |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/signal_flare.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | signal_flare |
+| `display_name` | String | Suar Darurat |
+| `description` | String | Suar untuk memanggil kapal penyelamat di Hari... |
+| `category` | int | 5 |
+| `max_stack` | int | 1 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/stone.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | stone |
+| `display_name` | String | Batu |
+| `description` | String | Batu keras untuk alat dan struktur. |
+| `category` | int | 0 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/stone_axe.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | stone_axe |
+| `display_name` | String | Kapak Batu |
+| `description` | String | Alat untuk menebang pohon. Hanya kepemilikan;... |
+| `category` | int | 3 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 2 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/stone_pickaxe.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | stone_pickaxe |
+| `display_name` | String | Beliung Batu |
+| `description` | String | Alat untuk menambang batu. Hanya kepemilikan;... |
+| `category` | int | 3 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 2 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/stone_spear.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | stone_spear |
+| `display_name` | String | Tombak Batu |
+| `description` | String | Tombak bermata batu. |
+| `category` | int | 2 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 1 |
+| `weapon_damage` | float | 28.00 |
+| `weapon_range` | float | 85.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/torch.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | torch |
+| `display_name` | String | Obor |
+| `description` | String | Obor untuk memperluas cahaya pemain. Perilaku... |
+| `category` | int | 5 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/waterskin.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | waterskin |
+| `display_name` | String | Kantung Air Kulit |
+| `description` | String | Wadah air dari kulit. Isi ulang di sungai. Pe... |
+| `category` | int | 5 |
+| `max_stack` | int | 1 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/wood.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | wood |
+| `display_name` | String | Kayu |
+| `description` | String | Batang kayu untuk membangun dan membuat alat. |
+| `category` | int | 0 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/wooden_spear.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | wooden_spear |
+| `display_name` | String | Tombak Kayu |
+| `description` | String | Tombak kayu sederhana. |
+| `category` | int | 2 |
+| `max_stack` | int | 20 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | — |
+| `equipment_slot` | int | 1 |
+| `weapon_damage` | float | 18.00 |
+| `weapon_range` | float | 75.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+
+## src/data/recipes
+
+### `res://src/data/recipes/boiled_water.tres`
+
+- Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | boiled_water |
+| `display_name` | String | Air Matang |
+| `result` | Resource | (res://src/data/items/boiled_water.tres):<Res... |
+| `result_count` | int | 1 |
+| `ingredients` | Array | [1 item] |
+| `station` | int | 2 |
+| `craft_time` | float | 2.00 |
+
+### `res://src/data/recipes/bone_broth.tres`
+
+- Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | bone_broth |
+| `display_name` | String | Kaldu Tulang |
+| `result` | Resource | (res://src/data/items/bone_broth.tres):<Resou... |
+| `result_count` | int | 1 |
+| `ingredients` | Array | [2 item] |
+| `station` | int | 2 |
+| `craft_time` | float | 2.50 |
+
+### `res://src/data/recipes/bone_spear.tres`
+
+- Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | bone_spear |
+| `display_name` | String | Tombak Tulang |
+| `result` | Resource | (res://src/data/items/bone_spear.tres):<Resou... |
+| `result_count` | int | 1 |
+| `ingredients` | Array | [3 item] |
+| `station` | int | 1 |
+| `craft_time` | float | 3.00 |
+
+### `res://src/data/recipes/cooked_meat.tres`
+
+- Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | cooked_meat |
+| `display_name` | String | Daging Matang |
+| `result` | Resource | (res://src/data/items/cooked_meat.tres):<Reso... |
+| `result_count` | int | 1 |
+| `ingredients` | Array | [1 item] |
+| `station` | int | 2 |
+| `craft_time` | float | 2.00 |
+
+### `res://src/data/recipes/herbal_bandage.tres`
+
+- Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | herbal_bandage |
+| `display_name` | String | Perban Herbal |
+| `result` | Resource | (res://src/data/items/herbal_bandage.tres):<R... |
+| `result_count` | int | 1 |
+| `ingredients` | Array | [2 item] |
+| `station` | int | 0 |
+| `craft_time` | float | 1.50 |
+
+### `res://src/data/recipes/leather_vest.tres`
+
+- Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | leather_vest |
+| `display_name` | String | Rompi Kulit |
+| `result` | Resource | (res://src/data/items/leather_vest.tres):<Res... |
+| `result_count` | int | 1 |
+| `ingredients` | Array | [2 item] |
+| `station` | int | 1 |
+| `craft_time` | float | 3.00 |
+
+### `res://src/data/recipes/signal_flare.tres`
+
+- Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | signal_flare |
+| `display_name` | String | Suar Darurat |
+| `result` | Resource | (res://src/data/items/signal_flare.tres):<Res... |
+| `result_count` | int | 1 |
+| `ingredients` | Array | [4 item] |
+| `station` | int | 1 |
+| `craft_time` | float | 4.00 |
+
+### `res://src/data/recipes/stone_axe.tres`
+
+- Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | stone_axe |
+| `display_name` | String | Kapak Batu |
+| `result` | Resource | (res://src/data/items/stone_axe.tres):<Resour... |
+| `result_count` | int | 1 |
+| `ingredients` | Array | [3 item] |
+| `station` | int | 1 |
+| `craft_time` | float | 2.50 |
+
+### `res://src/data/recipes/stone_pickaxe.tres`
+
+- Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | stone_pickaxe |
+| `display_name` | String | Beliung Batu |
+| `result` | Resource | (res://src/data/items/stone_pickaxe.tres):<Re... |
+| `result_count` | int | 1 |
+| `ingredients` | Array | [3 item] |
+| `station` | int | 1 |
+| `craft_time` | float | 2.50 |
+
+### `res://src/data/recipes/stone_spear.tres`
+
+- Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | stone_spear |
+| `display_name` | String | Tombak Batu |
+| `result` | Resource | (res://src/data/items/stone_spear.tres):<Reso... |
+| `result_count` | int | 1 |
+| `ingredients` | Array | [3 item] |
+| `station` | int | 1 |
+| `craft_time` | float | 3.00 |
+
+### `res://src/data/recipes/torch.tres`
+
+- Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | torch |
+| `display_name` | String | Obor |
+| `result` | Resource | (res://src/data/items/torch.tres):<Resource#-... |
+| `result_count` | int | 1 |
+| `ingredients` | Array | [2 item] |
+| `station` | int | 0 |
+| `craft_time` | float | 1.50 |
+
+### `res://src/data/recipes/waterskin.tres`
+
+- Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | waterskin |
+| `display_name` | String | Kantung Air Kulit |
+| `result` | Resource | (res://src/data/items/waterskin.tres):<Resour... |
+| `result_count` | int | 1 |
+| `ingredients` | Array | [2 item] |
+| `station` | int | 1 |
+| `craft_time` | float | 2.50 |
+
+### `res://src/data/recipes/wooden_spear.tres`
+
+- Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | wooden_spear |
+| `display_name` | String | Tombak Kayu |
+| `result` | Resource | (res://src/data/items/wooden_spear.tres):<Res... |
+| `result_count` | int | 1 |
+| `ingredients` | Array | [2 item] |
+| `station` | int | 0 |
+| `craft_time` | float | 2.00 |
+
+
+## Resource tanpa `.tres` (nilai default di script)
+
+Kelas berikut hanya punya default di kode; ubah lewat kode atau dengan membuat `.tres` baru.
+
+| Kelas | Default | Catatan |
+| --- | --- | --- |
+| `PlayerBaseStats` | `src/data/stats/player_base_stats.gd` | Stat dasar pemain; dipakai `StatsComponent.base_stats` bila tidak diisi. |
+| `AssetConfig` | `src/data/configs/asset_config.tres` | Ada `.tres`; nilai default script jadi cadangan. |
+
+## Generator di `tools/`
+
+| Generator | Perintah |
+| --- | --- |
+| `res://tools/generate_asset_registry.gd` | `GODOT --headless --path . -s tools/generate_asset_registry.gd` |
+| `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` |
+| `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` |
+| `res://tools/generate_hints.gd` | `GODOT --headless --path . -s tools/generate_hints.gd` |
+| `res://tools/generate_proficiency_data.gd` | `GODOT --headless --path . -s tools/generate_proficiency_data.gd` |
+| `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` |
+| `res://tools/generate_structures.gd` | `GODOT --headless --path . -s tools/generate_structures.gd` |
+
+<!-- END GENERATED -->

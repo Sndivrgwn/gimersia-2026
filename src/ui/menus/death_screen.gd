@@ -23,6 +23,8 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 30
 	_build()
+	UiSkin.apply_all(self)
+	UiSkin.add_canvas_background(self, &"ui_bg_death")
 	hide_screen()
 
 

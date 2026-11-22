@@ -17,6 +17,7 @@ const PICKUP_SCENE: PackedScene = preload("res://src/entities/props/item_pickup.
 func _ready() -> void:
 	super()
 	destroyed.connect(_drop_contents)
+	VisualSlot.attach(self, &"chest", [get_node_or_null("Body"), get_node_or_null("Lid")], null, ChestVisual.new())
 
 
 func get_component() -> ChestComponent:

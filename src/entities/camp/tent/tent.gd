@@ -40,6 +40,7 @@ func _ready() -> void:
 		config = TentConfig.new()
 	if clock == null:
 		clock = get_node_or_null("/root/DayNightManager")
+	VisualSlot.attach(self, &"tent", [get_node_or_null("Body"), get_node_or_null("Door")], null, TentVisual.new())
 
 
 # --- Interactable API (dipakai TentInteract) --------------------------------
