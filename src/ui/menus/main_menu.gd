@@ -1,5 +1,7 @@
 extends Control
 
+const ScreenFade := preload("res://src/ui/fx/screen_fade.gd")
+
 ## Menu Utama placeholder. Scene ini BUKAN main scene (project tetap memakai
 ## practice1.tscn); dibuka dari DeathScreen / RunController.
 ##
@@ -16,6 +18,7 @@ func _ready() -> void:
 	UiSkin.apply(self)
 	UiSkin.add_background(self, &"ui_bg_main_menu")
 	UiSkin.add_logo(self)
+	ScreenFade.fade_in(self)
 
 
 ## Mission 7: panel pengaturan dipakai ulang di menu utama.
@@ -88,7 +91,8 @@ func _start_game() -> void:
 	var clock := get_node_or_null("/root/DayNightManager")
 	if clock != null and clock.has_method(&"restart"):
 		clock.restart()
-	get_tree().change_scene_to_file(GAME_SCENE)
+	var tree := get_tree()
+	ScreenFade.fade_out_then(tree, func() -> void: tree.change_scene_to_file(GAME_SCENE))
 
 
 func _quit() -> void:

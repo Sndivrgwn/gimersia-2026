@@ -1,4 +1,4 @@
-[gd_scene load_steps=42 format=3]
+[gd_scene load_steps=52 format=3]
 
 [ext_resource type="Script" path="res://src/levels/island/island.gd" id="1_island"]
 [ext_resource type="PackedScene" path="res://src/entities/player/player.tscn" id="2_player"]
@@ -56,6 +56,16 @@
 [ext_resource type="Script" path="res://src/components/status/status_effects_component.gd" id="54_statuseffects"]
 [ext_resource type="Script" path="res://src/ui/hud/status/status_effect_hud.gd" id="55_statuseffecthud"]
 [ext_resource type="Script" path="res://src/core/assets/asset_debug.gd" id="56_assetdebug"]
+[ext_resource type="Script" path="res://src/levels/components/environment/ambient_life.gd" id="60_ambient"]
+[ext_resource type="Script" path="res://src/components/camera/camera_feel.gd" id="61_camerafeel"]
+[ext_resource type="Script" path="res://src/ui/fx/low_hp_vignette.gd" id="62_lowhp"]
+[ext_resource type="Script" path="res://src/ui/hud/hints/opening_sequence.gd" id="63_opening"]
+[ext_resource type="Script" path="res://src/ui/hud/compass/camp_arrow.gd" id="64_camparrow"]
+[ext_resource type="Script" path="res://src/ui/fx/death_fx.gd" id="65_deathfx"]
+[ext_resource type="Script" path="res://src/ui/fx/victory_fx.gd" id="66_victoryfx"]
+[ext_resource type="Script" path="res://src/ui/hud/toast/toast_hud.gd" id="67_toast"]
+[ext_resource type="Script" path="res://src/ui/hud/fx/damage_numbers.gd" id="68_damage"]
+[ext_resource type="Script" path="res://src/ui/hud/fx/hit_direction.gd" id="69_hitdir"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
 size = Vector2(5000, 100)
@@ -331,3 +341,25 @@ script = ExtResource("55_statuseffecthud")
 
 [node name="AssetDebug" type="Node" parent="."]
 script = ExtResource("56_assetdebug")
+
+[node name="AmbientLife" type="Node2D" parent="."]
+script = ExtResource("60_ambient")
+[node name="CameraFeel" type="Node" parent="."]
+script = ExtResource("61_camerafeel")
+[node name="LowHpVignette" type="CanvasLayer" parent="."]
+script = ExtResource("62_lowhp")
+[node name="OpeningSequence" type="Node" parent="."]
+script = ExtResource("63_opening")
+[node name="CampArrow" type="CanvasLayer" parent="."]
+script = ExtResource("64_camparrow")
+[node name="DeathFX" type="Node" parent="."]
+script = ExtResource("65_deathfx")
+[node name="VictoryFX" type="Node" parent="."]
+script = ExtResource("66_victoryfx")
+
+[node name="ToastHUD" type="CanvasLayer" parent="."]
+script = ExtResource("67_toast")
+[node name="DamageNumbers" type="CanvasLayer" parent="."]
+script = ExtResource("68_damage")
+[node name="HitDirection" type="CanvasLayer" parent="."]
+script = ExtResource("69_hitdir")

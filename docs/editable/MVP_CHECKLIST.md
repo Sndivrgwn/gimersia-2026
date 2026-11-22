@@ -493,3 +493,29 @@ Panduan lengkap: `docs/editable/ASSET_GUIDE.md`.
 ### Definition of Done
 
 - [ ] **Definition of Done**: needs manual playtest — belum ada sesi playtest owner.
+
+## 25. Polish pass (Mission 9)
+
+Rasa/feedback, bukan fitur baru. Semua butir terverifikasi lewat
+`tests/unit/test_polish.gd` (9 tes) dan boot island.
+
+- [x] Fade antar scene (`RunController`, menu → island) + fade masuk island/menu.
+- [x] Kilat putih saat Victory dan slow-mo singkat saat kematian (mengikuti setelan Guncangan layar).
+- [x] Vignette merah berdenyut saat HP < 25% (slot art `ui_vignette_low_hp` opsional).
+- [x] Bar Needs bergerak halus; panel tas/peti muncul dengan animasi; slot hotbar "pop".
+- [x] Debu siang + kunang-kunang malam mengikuti pemain.
+- [x] Kamera look-ahead + zoom siang/malam.
+- [x] 3 prompt pembuka lewat saluran HintManager yang sama, berprioritas di atas hint gameplay (tidak bisa dipotong gather/low-need), sekali per sesi, bisa dilewati.
+- [x] Penunjuk arah camp saat jauh dari base (anchor viewport, bukan piksel tetap).
+- [x] Baris "Layar penuh" di Pengaturan (disimpan di `user://settings.cfg`).
+- [x] Binding gamepad dasar (stik kiri, A/X/Y/START/RB, D-pad hotbar 1–4).
+- [ ] Uji rasa secara manual: fade, slow-mo, vignette, ambience — needs manual playtest.
+
+## 26. Feedback channel (Mission 10)
+
+- [x] Toast channel tunggal: tas penuh, crafting batal, api padam, bahan bakar hampir habis.
+- [x] Angka damage melayang (warna berbeda untuk heavy; kill memakai penanda `KO`, bukan 0).
+- [x] Busur merah di tepi layar saat pemain terkena serangan.
+- [x] Sinyal `InventoryComponent.add_blocked` (additive) supaya kegagalan tidak senyap.
+- [x] Tes: `tests/unit/test_feedback_hud.gd` (7 tes).
+- [ ] Uji rasa manual: toast saat tas penuh, angka damage saat berburu, busur saat diserang malam.

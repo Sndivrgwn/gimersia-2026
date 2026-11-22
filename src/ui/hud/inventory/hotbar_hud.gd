@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
+
 ## Read-only hotbar HUD: 5 slot pertama InventoryComponent.
 ##
 ## HUD hanya membaca slot dan mendengar `slot_changed`; tidak menyimpan atau
@@ -81,6 +83,9 @@ func _refresh_slot(index: int) -> void:
 
 func _on_slot_changed(index: int) -> void:
 	_refresh_slot(index)
+	if index < 0 or index >= SLOT_PATHS.size():
+		return
+	UiMotion.pop(get_node_or_null(SLOT_PATHS[index]) as Control)
 
 
 func _find_inventory() -> InventoryComponent:

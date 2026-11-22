@@ -146,6 +146,26 @@ static func ensure_actions() -> void:
 		_ensure_action(HOTBAR_ACTIONS[index])
 		_ensure_key(HOTBAR_ACTIONS[index], HOTBAR_KEYS[index])
 
+	_ensure_gamepad()
+
+
+## Gamepad (Mission 9 polish): stik kiri untuk gerak, A interaksi, X serang,
+## Y tas, START jeda, RB sprint, D-pad untuk hotbar 1-4.
+static func _ensure_gamepad() -> void:
+	_ensure_joy_axis(MOVE_LEFT, JOY_AXIS_LEFT_X, -1.0)
+	_ensure_joy_axis(MOVE_RIGHT, JOY_AXIS_LEFT_X, 1.0)
+	_ensure_joy_axis(MOVE_UP, JOY_AXIS_LEFT_Y, -1.0)
+	_ensure_joy_axis(MOVE_DOWN, JOY_AXIS_LEFT_Y, 1.0)
+	_ensure_joy_button(SPRINT, JOY_BUTTON_RIGHT_SHOULDER)
+	_ensure_joy_button(INTERACT, JOY_BUTTON_A)
+	_ensure_joy_button(ATTACK_SPACE, JOY_BUTTON_X)
+	_ensure_joy_button(INVENTORY_TOGGLE, JOY_BUTTON_Y)
+	_ensure_joy_button(PAUSE_TOGGLE, JOY_BUTTON_START)
+	_ensure_joy_button(HOTBAR_ACTIONS[0], JOY_BUTTON_DPAD_UP)
+	_ensure_joy_button(HOTBAR_ACTIONS[1], JOY_BUTTON_DPAD_DOWN)
+	_ensure_joy_button(HOTBAR_ACTIONS[2], JOY_BUTTON_DPAD_LEFT)
+	_ensure_joy_button(HOTBAR_ACTIONS[3], JOY_BUTTON_DPAD_RIGHT)
+
 
 ## True bila salah satu action gerak sedang ditekan (polling, bukan event).
 static func is_movement_pressed() -> bool:
@@ -167,6 +187,27 @@ static func _ensure_key(action: StringName, key: Key) -> void:
 	var event := InputEventKey.new()
 	event.physical_keycode = key
 	InputMap.action_add_event(action, event)
+
+
+static func _ensure_joy_button(action: StringName, button: JoyButton) -> void:
+	for event in InputMap.action_get_events(action):
+		var joy_event := event as InputEventJoypadButton
+		if joy_event != null and joy_event.button_index == button:
+			return
+	var created := InputEventJoypadButton.new()
+	created.button_index = button
+	InputMap.action_add_event(action, created)
+
+
+static func _ensure_joy_axis(action: StringName, axis: JoyAxis, value: float) -> void:
+	for event in InputMap.action_get_events(action):
+		var motion := event as InputEventJoypadMotion
+		if motion != null and motion.axis == axis and is_equal_approx(motion.axis_value, value):
+			return
+	var created := InputEventJoypadMotion.new()
+	created.axis = axis
+	created.axis_value = value
+	InputMap.action_add_event(action, created)
 
 
 static func _ensure_mouse_button(action: StringName, button: MouseButton) -> void:

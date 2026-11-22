@@ -32,6 +32,11 @@ var _timer: float = 0.0
 var _base_timer: float = 0.0
 var _base_checked: bool = false
 var _was_night: bool = false
+## Teks bebas (OpeningSequence) ikut antrean hint yang sama supaya tidak tumpang tindih.
+var _texts: Dictionary = {}
+var _durations: Dictionary = {}
+## Antrean prioritas: prompt pembuka selalu didahulukan dari hint gameplay.
+var _priority: Array[StringName] = []
 
 
 func _ready() -> void:
@@ -54,7 +59,7 @@ func tick(delta: float) -> void:
 			_hide_current()
 	_tick_base_hint(delta)
 	_tick_night()
-	if _current == &"" and not _queue.is_empty():
+	if _current == &"" and has_pending():
 		_pump()
 
 
@@ -68,9 +73,41 @@ func trigger(id: StringName) -> void:
 		_pump()
 
 
+## Tampilkan teks bebas di saluran hint yang sama (satu hint pada satu waktu).
+## `priority` = true (default) menaruhnya di antrean prioritas, sehingga hint
+## gameplay yang masuk di tengah urutan tidak bisa memotong prompt pembuka.
+func show_text(id: StringName, text: String, duration: float = SHOW_TIME, priority: bool = true) -> void:
+	if not is_enabled() or _current == id:
+		return
+	_texts[id] = text
+	_durations[id] = maxf(duration, 0.1)
+	var bucket := _priority if priority else _queue
+	if not bucket.has(id):
+		bucket.append(id)
+	if _current == &"":
+		_pump()
+
+
+## True bila masih ada hint (prioritas maupun gameplay) yang menunggu.
+func has_pending() -> bool:
+	return not _priority.is_empty() or not _queue.is_empty()
+
+
+## Tutup hint yang tampil sekarang lalu lanjut ke antrean berikutnya.
+func skip_current() -> void:
+	if _current == &"":
+		return
+	_hide_current()
+	if _current == &"" and has_pending():
+		_pump()
+
+
 func reset() -> void:
 	_shown.clear()
 	_queue.clear()
+	_priority.clear()
+	_texts.clear()
+	_durations.clear()
 	_current = &""
 	_timer = 0.0
 	_base_timer = 0.0
@@ -94,8 +131,9 @@ func get_current() -> StringName:
 	return _current
 
 
+## Jumlah hint yang menunggu (prioritas + gameplay).
 func get_queue_size() -> int:
-	return _queue.size()
+	return _priority.size() + _queue.size()
 
 
 func has_shown(id: StringName) -> bool:
@@ -103,6 +141,8 @@ func has_shown(id: StringName) -> bool:
 
 
 func get_text(id: StringName) -> String:
+	if _texts.has(id):
+		return String(_texts[id])
 	return "" if not _definitions.has(id) else String(_definitions[id])
 
 
@@ -205,11 +245,11 @@ func _tick_night() -> void:
 
 
 func _pump() -> void:
-	if _queue.is_empty() or not is_enabled():
+	if not has_pending() or not is_enabled():
 		return
-	_current = _queue.pop_front()
+	_current = _priority.pop_front() if not _priority.is_empty() else _queue.pop_front()
 	_shown[_current] = true
-	_timer = SHOW_TIME
+	_timer = float(_durations.get(_current, SHOW_TIME))
 	if label != null:
 		label.text = get_text(_current)
 		label.visible = true

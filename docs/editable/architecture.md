@@ -496,3 +496,59 @@ Additional project rules:
 - `fx_slash` dan `fx_dust` belum punya node efek; slot disiapkan.
 - `ui_vignette_low_hp` dan `world_water` belum dipasang di scene.
 - `StatusEffectHUD` masih teks saja.
+
+## Mission 9 — Polish pass
+
+| Module | Files | Responsibility | Public contract | State |
+| --- | --- | --- | --- | --- |
+| **ScreenFade** | `src/ui/fx/screen_fade.gd` | Transisi layar (fade out/in, flash) | `is_visual_disabled()`, `fade_out_then(tree, callable)`, `fade_in(root)`, `flash(root, color, hold)` | Implemented; di-preload, bukan `class_name` |
+| **UiMotion** | `src/ui/fx/ui_motion.gd` | Animasi UI kecil | `tween_bar()`, `pop_in()`, `pop()`, `is_instant()` | Implemented; no-op di headless |
+| **LowHpVignette** | `src/ui/fx/low_hp_vignette.gd` | Feedback HP rendah | `get_strength()`, `get_overlay()` | Implemented |
+| **AmbientLife** | `src/levels/components/environment/ambient_life.gd` | Partikel suasana siang/malam | `is_night_mode()` | Implemented |
+| **CameraFeel** | `src/components/camera/camera_feel.gd` | Look-ahead + zoom siang/malam | `get_offset()`, `find_pcam()` | Implemented |
+| **DeathFX / VictoryFX** | `src/ui/fx/death_fx.gd`, `victory_fx.gd` | Urutan kematian dan kemenangan | — (mendengar sinyal) | Implemented |
+| **OpeningSequence** | `src/ui/hud/hints/opening_sequence.gd` | 3 prompt pembuka lewat saluran HintManager | `is_running()`, `reset_played()` | Implemented; satu kanal + antrean prioritas `HintManager.show_text(priority: true)` |
+| **CampArrow** | `src/ui/hud/compass/camp_arrow.gd` | Penunjuk arah camp (anchor viewport) | `get_text()`, `get_label()`, `find_anchor()` | Implemented |
+
+### Aturan dependensi (Mission 9)
+
+- Semua node polish adalah **leaf pasif**: hanya membaca komponen gameplay dan
+  menulis properti presentasi (kamera, modulate, particle, label).
+- Tidak ada state gameplay yang disimpan di komponen polish, jadi menghapus
+  node-nya tidak mengubah simulasi.
+- Efek visual memakai `DisplayServer.get_name() == "headless"` sebagai saklar
+  no-op, sehingga GUT tetap deterministik (tanpa tween/timing tersembunyi).
+- Fade memakai callback `Tween.finished`, bukan `await`, supaya method
+  `RunController._change_scene()` tetap sinkron dan dapat ditimpa tes.
+- `SettingsService` tetap satu-satunya pemilik preferensi; kunci baru:
+  `fullscreen` (diterapkan lewat `DisplayServer`, bukan `project.godot`).
+
+### Penyederhanaan setelah review
+
+- `ScreenFade` memakai satu helper `_spawn()` untuk fade in/out/flash (tidak ada
+  tiga blok pembuatan layer yang sama).
+- `CameraFeel` hanya punya satu jalur zoom (`_apply_zoom`) dan field `_pcam`
+  dicari sekali; tidak ada `_zoom` ganda.
+- `DeathFX`/`VictoryFX` menemukan controller sebagai sibling (`get_parent()`),
+  bukan lewat grup; `DeathFX` mematikan `_process` saat tidak sekarat.
+- Prompt pembuka tidak lagi punya label/timer sendiri: seluruh tampilan dan
+  durasi milik `HintManager`.
+
+## Mission 10 — Feedback channel
+
+| Module | Files | Responsibility | Public contract | State |
+| --- | --- | --- | --- | --- |
+| **ToastHUD** | `src/ui/hud/toast/toast_hud.gd` | Satu saluran pesan kegagalan | `show_toast(text)`, `get_visible_texts()`, `bind_player(player)`, `tick(delta)` | Implemented; maks 3 baris, dedupe 0.4 s |
+| **DamageNumbers** | `src/ui/hud/fx/damage_numbers.gd` | Angka damage melayang | `show_damage(world, amount, color)`, `get_active_count()`, `get_last_text()`, `bind_player()`, `tick()` | Implemented; pool maks 20 label |
+| **HitDirection** | `src/ui/hud/fx/hit_direction.gd` | Busur arah sumber serangan | `show_direction(angle)`, `show_from(player, source)`, `is_active()`, `get_angle()`, `bind_player()`, `tick()` | Implemented |
+| **InventoryComponent (sinyal baru)** | `src/components/inventory/inventory_component.gd` | Kabar item tidak muat | `signal add_blocked(item, remaining)` | Additive; dipancarkan hanya bila ada sisa |
+
+Aturan:
+
+- Semua node feedback hanya **membaca** sinyal gameplay; menghapusnya tidak
+  mengubah simulasi.
+- `ToastHUD` menyambung campfire dinamis lewat `SceneTree.node_added` karena
+  struktur camp lahir saat runtime.
+- World → screen untuk angka damage memakai
+  `get_viewport().get_canvas_transform()`, bukan offset tetap, sehingga aman
+  terhadap zoom kamera.

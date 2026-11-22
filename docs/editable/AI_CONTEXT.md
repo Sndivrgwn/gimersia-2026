@@ -4,7 +4,7 @@
 > repository. Read this file first, then the linked docs. **Code is the source of
 > truth** when a doc disagrees with it.
 
-Last verified: 2026-11-22, Godot 4.7.2, GUT 9.7.1 — 529/529 tests passing (522 unit + 7 integration), 3089 asserts; boots island/practice1/main_menu bersih.
+Last verified: 2026-11-22, Godot 4.7.2, GUT 9.7.1 — 563/563 tests (556 unit + 7 integration), 3237 asserts, 70 scripts; boots island/practice1/main_menu bersih.
 Spec cross-check: 2026-11-18 against spec V8. Gaps found are listed in §4
 (missing systems), §7.1-7.8 (spec details), §8 (revised build order) and §13
 (open design questions).
@@ -790,3 +790,33 @@ numbers in `.tres` so tuning stays cheap.
 - `PlayerBaseStats.max_respawn_tokens` belum dipakai kode.
 - Balance setelah playtest manual.
 - `fx_slash`/`fx_dust` sudah punya slot tetapi belum ada node efek pemakainya.
+
+## 15. Polish pass (Mission 9)
+
+- Node baru di `island.tscn`: `AmbientLife`, `CameraFeel`, `LowHpVignette`,
+  `OpeningSequence`, `CampArrow`, `DeathFX`, `VictoryFX`. Semua read-only.
+- `ScreenFade` & `UiMotion` sengaja **tanpa** `class_name` (cache global tidak
+  diperbarui headless) — dipakai lewat `const ... := preload(...)`.
+- Efek visual no-op saat `DisplayServer.get_name() == "headless"`; fade memakai
+  callback `Tween.finished`, bukan `await`.
+- Prompt pembuka memakai `HintManager.show_text(..., priority: true)`/`skip_current()`
+  — satu kanal hint dengan antrean prioritas, jadi hint gameplay tidak bisa memotong intro.
+- `CampArrow` memakai anchor Control (pojok kanan-atas), bukan posisi piksel.
+- `DeathFX` menghormati setelan "Guncangan layar": bila OFF, slow-mo + zoom
+  kematian dilewati (tes: `test_death_slow_mo_respects_screenshake_setting`).
+- `SettingsService` kunci baru `fullscreen` (DisplayServer runtime, bukan project.godot).
+- Gamepad terdaftar di `InputSetup.ensure_actions()`.
+- `FenceGeometry.first_blocking_segment` kini bertipe `-> Node2D`; sebelumnya
+  tanpa tipe sehingga `test_fence.gd` gagal parse dan 9 tesnya tidak pernah jalan.
+
+## 16. Feedback channel (Mission 10)
+
+- `ToastHUD`, `DamageNumbers`, `HitDirection` di `island.tscn`, disambung oleh
+  `island.gd::_wire_feedback_hud(player)`.
+- `InventoryComponent` menambah sinyal `add_blocked(item, remaining)`; itu satu-
+  satunya perubahan pada komponen gameplay (additive, tanpa ubah perilaku).
+- `ToastHUD` mendengar `SceneTree.node_added` untuk campfire yang dibangun
+  runtime; pesan low-fuel memakai meta `toast_low_fuel`.
+- Kill memakai penanda `KO` (`DamageNumbers.KILL_TEXT`), bukan angka 0.
+- Tes: `tests/unit/test_feedback_hud.gd` (10 tes: toast cap/dedupe/expire,
+  wiring craft-cancel, wiring campfire fuel, angka damage, kill marker, busur arah).

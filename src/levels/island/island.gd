@@ -1,5 +1,7 @@
 extends Node2D
 
+const ScreenFade := preload("res://src/ui/fx/screen_fade.gd")
+
 ## Root scene pulau minimum.
 ##
 ## Clock tidak diurus di sini: autoload DayNightManager sudah `auto_start`
@@ -42,6 +44,14 @@ func _wire_hud(player: Node) -> void:
 	var prof_hud := find_child("ProficiencyHUD", true, false) as ProficiencyHUD
 	if death != null and prof_hud != null and death.has_signal(&"debuff_applied"):
 		death.debuff_applied.connect(prof_hud.flash_rows)
+
+
+## Mission 10: toast, angka damage, dan busur arah serangan (semua read-only).
+func _wire_feedback_hud(player: Node) -> void:
+	for node_name in ["ToastHUD", "DamageNumbers", "HitDirection"]:
+		var hud := get_node_or_null(node_name)
+		if hud != null and hud.has_method(&"bind_player"):
+			hud.call(&"bind_player", player)
 
 
 func _wire_chest_panel(player: Node) -> void:
@@ -88,7 +98,9 @@ func _ready() -> void:
 	_wire_pause_menu()
 	_wire_chest_panel(player)
 	_wire_hud(player)
+	_wire_feedback_hud(player)
 	UiSkin.apply_all(self)
+	ScreenFade.fade_in(self)
 
 
 ## Satu baris attach per slot world; tanpa art tidak ada yang berubah.

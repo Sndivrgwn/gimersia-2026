@@ -1,6 +1,7 @@
 class_name ChestPanel
 extends CanvasLayer
 
+
 ## Mission 7: panel peti 24 slot + cermin tas 12 slot. Tidak mem-pause.
 
 signal closed

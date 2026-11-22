@@ -1236,3 +1236,78 @@ pemain mati (`DeathController.died`). `StatusEffectHUD` menampilkan
 | F11 | `debug_island_kill` | Matikan pemain |
 | F12 | `debug_island_rescue` | Lompat ke fajar Hari 7 |
 | Insert | `debug_fauna_labels` | Label temperament/state fauna |
+
+## 26. Polish pass (Mission 9) — rasa, bukan aturan
+
+Semua komponen di bawah **hanya membaca** state gameplay. Tidak ada hitbox,
+angka balance, atau urutan tick yang berubah. Di headless (tes GUT) efek visual
+otomatis no-op supaya deterministik.
+
+| Komponen | File | Fungsi |
+| --- | --- | --- |
+| `ScreenFade` (const `preload`) | `src/ui/fx/screen_fade.gd` | Fade keluar sebelum ganti scene, fade masuk di `island`/`main_menu`, kilat putih saat Victory. Memakai callback (bukan `await`) agar `RunController._change_scene()` tetap sinkron dan bisa ditimpa tes. |
+| `UiMotion` (const `preload`) | `src/ui/fx/ui_motion.gd` | `tween_bar()` untuk NeedsHUD, `pop_in()` untuk BagPanel/ChestPanel, `pop()` untuk slot hotbar. |
+| `LowHpVignette` | `src/ui/fx/low_hp_vignette.gd` | Vignette merah berdenyut bila HP < `threshold_percent` (25%). Shader dibuat runtime; art `ui_vignette_low_hp` opsional. |
+| `AmbientLife` | `src/levels/components/environment/ambient_life.gd` | Debu siang + kunang-kunang malam; mengikuti pemain, toggle lewat sinyal `day_started`/`night_started`. Tekstur titik dibuat runtime (tanpa biner). |
+| `CameraFeel` | `src/components/camera/camera_feel.gd` | Look-ahead 11 px ke arah gerak (`follow_offset`) + zoom 3.0 siang / 2.75 malam. |
+| `DeathFX` | `src/ui/fx/death_fx.gd` | Saat `DeathController.died`: slow-mo 0.25× selama 0.18 s + zoom 3.55, pulih otomatis saat HP > 0. **Dilewati bila setelan "Guncangan layar" dimatikan** (`is_slow_mo_enabled()`). |
+| `VictoryFX` | `src/ui/fx/victory_fx.gd` | Saat `EndgameController.victory`: kilat putih + zoom 2.6. |
+| `OpeningSequence` | `src/ui/hud/hints/opening_sequence.gd` | 3 prompt pembuka (gerak, gather, tas) yang **memakai saluran HintManager yang sama**; masuk **antrean prioritas** (`show_text(..., priority: true)`) sehingga hint gather/low-need tidak bisa memotong urutan intro; sekali per sesi. |
+| `CampArrow` | `src/ui/hud/compass/camp_arrow.gd` | Penunjuk arah + jarak ke `CampAnchor` bila > 340 px; label di-anchor ke pojok kanan-atas viewport (bukan piksel tetap). |
+
+Catatan integrasi:
+
+- `HintManager` menambah `show_text(id, text, duration, priority)` dan `skip_current()`;
+  teks bebas ikut antrean yang sama, satu hint pada satu waktu.
+- Semua node sudah terpasang di `island.tscn` (`AmbientLife`, `CameraFeel`,
+  `LowHpVignette`, `OpeningSequence`, `CampArrow`, `DeathFX`, `VictoryFX`);
+  urutan `_ready` tidak penting karena tiap node mencari dependensinya sendiri.
+- `SettingsService` menambah kunci `fullscreen` (disimpan di `user://settings.cfg`).
+  Mode jendela diubah lewat `DisplayServer` saat runtime — `project.godot` tidak
+  disentuh. Panel Pengaturan punya baris "Layar penuh".
+- Gamepad (didaftarkan `InputSetup.ensure_actions()`, idempotent):
+
+| Aksi | Gamepad |
+| --- | --- |
+| Gerak 8 arah | Stik kiri (`JOY_AXIS_LEFT_X/Y`) |
+| Sprint | RB (`RIGHT_SHOULDER`) |
+| Interaksi (tahan) | A |
+| Serang | X |
+| Tas | Y |
+| Jeda | START |
+| Hotbar 1–4 | D-pad atas/bawah/kiri/kanan |
+
+- Pixel-snap 2D **tidak** diaktifkan: belum ada art pixel dan `project.godot`
+  tidak boleh diubah di repo ini. Saat art masuk, aktifkan di project settings.
+
+## 27. Feedback channel (Mission 10) — toast, angka damage, arah serangan
+
+Tiga node baru di `island.tscn`, semuanya read-only dan disambungkan oleh
+`island.gd::_wire_feedback_hud()`:
+
+| Node | File | Sumber sinyal | Tampilan |
+| --- | --- | --- | --- |
+| `ToastHUD` (CanvasLayer 17) | `src/ui/hud/toast/toast_hud.gd` | `InventoryComponent.add_blocked`, `CraftingComponent.craft_cancelled`, `Campfire.fuel_depleted`/`fuel_changed` | Maks 3 baris di kiri-bawah, 2.8 s, fade 0.3 s; pesan identik beruntun di-dedupe 0.4 s |
+| `DamageNumbers` (CanvasLayer 11) | `src/ui/hud/fx/damage_numbers.gd` | `CombatComponent.hit_dealt`, `enemy_killed` | Angka melayang 26 px selama 0.6 s; warna beda untuk damage >= 8; kill memakai penanda `KO` merah (bukan angka 0) |
+| `HitDirection` (CanvasLayer 18) | `src/ui/hud/fx/hit_direction.gd` | `PlayerDamageReceiver.damaged` | Busur merah di tepi layar ke arah sumber, span ±0.5 rad, 0.65 s |
+
+Pesan toast (bahasa Indonesia, di kode):
+
+- `Tas penuh: <nama item> (sisa N)` — dari sinyal baru
+  `InventoryComponent.add_blocked(item, remaining)`.
+- `Crafting batal: <alasan>` — alasan datang dari `craft_cancelled`.
+- `Api unggun padam — isi bahan bakar` — `fuel_depleted`.
+- `Bahan bakar api hampir habis` — `fuel_changed <= 60` s, sekali per siklus
+  (flag `toast_low_fuel` di meta campfire; reset saat fuel > 120).
+
+Catatan:
+
+- Campfire bisa lahir setelah blueprint dibangun, jadi `ToastHUD` menyambung
+  lewat `SceneTree.node_added` (filter `has_signal("fuel_depleted")`) plus
+  pemindaian awal.
+- Angka damage diproyeksikan ke layar dengan
+  `get_viewport().get_canvas_transform() * world_position`, jadi tetap benar
+  saat kamera zoom 2.6–3.55.
+- Tidak ada perubahan damage, hitbox, atau urutan tick; `test_feedback_hud.gd`
+  menutup toast (cap/dedupe/expire), sinyal inventory penuh, angka damage, dan
+  busur arah.

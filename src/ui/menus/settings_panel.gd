@@ -8,11 +8,13 @@ signal closed
 const LABEL_INTENSITY := "Intensitas efek"
 const LABEL_SHAKE := "Guncangan layar"
 const LABEL_HINTS := "Tampilkan petunjuk"
+const LABEL_FULLSCREEN := "Layar penuh"
 
 var service: SettingsService
 var _slider: HSlider
 var _shake: CheckBox
 var _hints: CheckBox
+var _fullscreen: CheckBox
 var _building: bool = false
 
 
@@ -51,6 +53,7 @@ func refresh() -> void:
 	_slider.value = service.get_juice_intensity()
 	_shake.button_pressed = service.is_screenshake_enabled()
 	_hints.button_pressed = service.are_hints_enabled()
+	_fullscreen.button_pressed = service.is_fullscreen()
 
 
 func get_slider() -> HSlider:
@@ -63,6 +66,10 @@ func get_screenshake_toggle() -> CheckBox:
 
 func get_hints_toggle() -> CheckBox:
 	return _hints
+
+
+func get_fullscreen_toggle() -> CheckBox:
+	return _fullscreen
 
 
 func _build() -> void:
@@ -98,6 +105,13 @@ func _build() -> void:
 	_hints.toggled.connect(_on_hints_toggled)
 	box.add_child(_hints)
 
+	_fullscreen = CheckBox.new()
+	_fullscreen.name = "Fullscreen"
+	_fullscreen.text = LABEL_FULLSCREEN
+	_fullscreen.button_pressed = false
+	_fullscreen.toggled.connect(_on_fullscreen_toggled)
+	box.add_child(_fullscreen)
+
 	var back := Button.new()
 	back.text = "Kembali"
 	back.pressed.connect(close)
@@ -117,3 +131,8 @@ func _on_shake_toggled(pressed: bool) -> void:
 func _on_hints_toggled(pressed: bool) -> void:
 	if service != null:
 		service.set_value(&"hints_enabled", pressed)
+
+
+func _on_fullscreen_toggled(pressed: bool) -> void:
+	if service != null:
+		service.set_value(&"fullscreen", pressed)

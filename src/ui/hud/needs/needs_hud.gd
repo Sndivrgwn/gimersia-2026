@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
+
 ## Read-only HUD untuk Hunger/Thirst/Fatigue.
 ##
 ## Hanya membaca NeedsComponent (lewat sinyal dan getter) dan tidak menyimpan
@@ -104,7 +106,7 @@ func _refresh(need: int, value: float, tier: int) -> void:
 	var is_warning := tier != NeedsComponent.Tier.NORMAL
 	var text_color := WARNING_TEXT if is_warning else NORMAL_TEXT
 
-	_bars[need].value = value
+	UiMotion.tween_bar(_bars[need], value)
 	var themed := _bars[need].get_theme_stylebox(StringName("fill_%s" % NEED_SLUGS[need]))
 	if themed != null:
 		_bars[need].add_theme_stylebox_override("fill", themed)

@@ -1,6 +1,8 @@
 class_name RunController
 extends Node
 
+const ScreenFade := preload("res://src/ui/fx/screen_fade.gd")
+
 ## Titik masuk untuk alur antar-scene (Menu Utama / Mulai Baru).
 ##
 ## Perubahan scene sesungguhnya lewat `_change_scene()` supaya tes bisa
@@ -37,10 +39,12 @@ func request_restart() -> void:
 
 
 ## Bisa ditimpa tes agar tidak benar-benar mengganti scene.
+## Fade keluar memakai callback, bukan await, jadi tanda tangan tetap sinkron.
 func _change_scene(path: String) -> void:
 	var tree := get_tree()
-	if tree != null:
-		tree.change_scene_to_file(path)
+	if tree == null:
+		return
+	ScreenFade.fade_out_then(tree, func() -> void: tree.change_scene_to_file(path))
 
 
 func _freeze_clock() -> void:

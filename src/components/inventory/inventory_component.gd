@@ -24,6 +24,8 @@ signal slot_changed(index: int)
 signal equipment_changed(slot: int)
 ## Isi inventory berubah (sekali per aksi, bukan per slot).
 signal inventory_changed()
+## Mission 10: dipancarkan bila sebagian/semua item tidak muat (umpan ToastHUD).
+signal add_blocked(item: ItemDefinition, remaining: int)
 
 const DEFAULT_CONFIG: InventoryConfig = preload("res://src/data/configs/inventory_config.tres")
 const ARMOR_SOURCE_ID := &"equip_armor"
@@ -157,10 +159,15 @@ func add_item(item: ItemDefinition, count: int = 1) -> int:
 	var remaining := ItemSlotStore.add(_slots, item, count, touched)
 
 	if touched.is_empty():
-		return remaining
+		if remaining > 0:
+			add_blocked.emit(item, remaining)
+			return remaining
+		return 0
 	for index in touched:
 		slot_changed.emit(index)
 	inventory_changed.emit()
+	if remaining > 0:
+		add_blocked.emit(item, remaining)
 	return remaining
 
 

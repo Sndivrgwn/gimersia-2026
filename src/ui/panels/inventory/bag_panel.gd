@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
+
 ## Panel tas interaktif (Step 2B): 12 slot tas + kolom equipment.
 ##
 ## Bukan HUD: panel ini menerima mouse dan memanggil `move_slot()` /
@@ -132,6 +134,8 @@ func get_armor_text() -> String:
 
 func _apply_visible(value: bool) -> void:
 	_root.visible = value
+	if value:
+		UiMotion.pop_in(_root)
 
 
 func _build_slots() -> void:

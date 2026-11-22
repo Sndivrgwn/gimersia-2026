@@ -14,6 +14,7 @@ const DEFAULTS := {
 	&"juice_intensity": 1.0,
 	&"screenshake_enabled": true,
 	&"hints_enabled": true,
+	&"fullscreen": false,
 }
 
 var _values: Dictionary = DEFAULTS.duplicate()
@@ -25,6 +26,7 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	load_settings()
+	apply_display()
 
 
 static func find_service(node: Node) -> SettingsService:
@@ -48,6 +50,8 @@ func set_value(key: StringName, value: Variant) -> void:
 	if _values.get(key) == sanitized:
 		return
 	_values[key] = sanitized
+	if key == &"fullscreen":
+		apply_display()
 	changed.emit(key, sanitized)
 	save_settings()
 
@@ -62,6 +66,18 @@ func is_screenshake_enabled() -> bool:
 
 func are_hints_enabled() -> bool:
 	return bool(get_value(&"hints_enabled"))
+
+
+func is_fullscreen() -> bool:
+	return bool(get_value(&"fullscreen"))
+
+
+## Mode jendela hanya diubah di runtime; file project.godot tidak disentuh.
+func apply_display() -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	var mode := DisplayServer.WINDOW_MODE_FULLSCREEN if is_fullscreen() else DisplayServer.WINDOW_MODE_WINDOWED
+	DisplayServer.window_set_mode(mode)
 
 
 func reset_defaults() -> void:
