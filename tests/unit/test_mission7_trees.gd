@@ -163,6 +163,62 @@ func test_chop_feedback_shake_and_chips() -> void:
 	assert_true(chips, "serpihan muncul tiap 0.25 s")
 
 
+func _chip_count(node: ResourceNode) -> int:
+	var count := 0
+	for child in node.get_parent().get_children():
+		if child.name == "ChopChips":
+			count += 1
+	return count
+
+
+## Mission 9 (fix): bergetar hanya saat menebang, bukan sekadar berdiri dekat.
+func test_chop_feedback_stays_still_when_player_is_just_near() -> void:
+	var node := _make_node(SMALL_TREE)
+	var player := _make_player(false)
+	var interactor := player.get_node("InteractorComponent") as InteractorComponent
+	var feedback := node.get_node("ChopFeedback") as ChopFeedback
+	var visual := node.get_node("Visual") as Polygon2D
+	feedback.tick(0.01)
+	interactor.target_changed.emit(node)
+	feedback.tick(1.0)
+	assert_true(feedback.is_targeted(), "pemain memang menargetkan pohon")
+	assert_false(feedback.is_chopping(), "tidak ada progres = tidak bergetar")
+	assert_eq(visual.position, Vector2.ZERO, "visual tidak bergeser")
+
+
+## Ayunan berirama: getaran pendek lalu diam, bukan berkelanjutan.
+func test_chop_feedback_shakes_in_short_bursts() -> void:
+	var node := _make_node(SMALL_TREE)
+	var player := _make_player(false)
+	var interactor := player.get_node("InteractorComponent") as InteractorComponent
+	var feedback := node.get_node("ChopFeedback") as ChopFeedback
+	var visual := node.get_node("Visual") as Polygon2D
+	feedback.tick(0.01)
+	interactor.target_changed.emit(node)
+	interactor.progress_changed.emit(0.4)
+	feedback.tick(ChopFeedback.SHAKE_BURST * 0.5)
+	assert_true(feedback.is_chopping())
+	assert_false(is_equal_approx(visual.position.x, 0.0), "bergetar selama ayunan")
+	feedback.tick(ChopFeedback.SHAKE_BURST)
+	assert_eq(visual.position, Vector2.ZERO, "diam di antara ayunan")
+
+
+## Melepas tombol menebang langsung menghentikan getaran.
+func test_chop_feedback_stops_when_hold_released() -> void:
+	var node := _make_node(SMALL_TREE)
+	var player := _make_player(false)
+	var interactor := player.get_node("InteractorComponent") as InteractorComponent
+	var feedback := node.get_node("ChopFeedback") as ChopFeedback
+	feedback.tick(0.01)
+	interactor.target_changed.emit(node)
+	interactor.progress_changed.emit(0.4)
+	feedback.tick(0.05)
+	assert_true(feedback.is_chopping())
+	interactor.progress_changed.emit(0.0)
+	assert_false(feedback.is_chopping(), "progres 0 = berhenti bergetar")
+	assert_eq((node.get_node("Visual") as Polygon2D).position, Vector2.ZERO)
+
+
 func test_chop_feedback_stops_on_other_target() -> void:
 	var node := _make_node(SMALL_TREE)
 	var player := _make_player(false)

@@ -19,3 +19,17 @@ extends Resource
 @export_group("Jatuhan")
 @export var loot_ids: Array[StringName] = []
 @export var loot_counts: Array[int] = []
+
+@export_group("Tabrakan")
+## Mission 9: fauna dengan blocks_player true berada di layer FAUNA_BODY,
+## sehingga pemain (mask memuat FAUNA_BODY) tidak bisa menembusnya.
+@export var blocks_player: bool = false
+## Pengali perpindahan knockback yang diterima fauna (1.0 = penuh).
+@export var knockback_resistance: float = 1.0
+## Jarak henti tambahan di atas jumlah radius badan (px) saat mengejar target.
+@export var contact_stop_extra: float = 2.0
+
+
+## Jarak pusat-ke-pusat saat fauna mengejar target sudah dianggap menempel.
+func get_contact_distance(target_radius: float, self_radius: float) -> float:
+	return self_radius + target_radius + maxf(contact_stop_extra, 0.0)

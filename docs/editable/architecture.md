@@ -552,3 +552,27 @@ Aturan:
 - World → screen untuk angka damage memakai
   `get_viewport().get_canvas_transform()`, bukan offset tetap, sehingga aman
   terhadap zoom kamera.
+
+## Mission 9 — Balance & Feel, pass 2 (fase 1-3)
+
+| Modul | File | Peran | Kontrak | Catatan |
+| --- | --- | --- | --- | --- |
+| **RaidDirector** | `src/core/managers/raid_director.gd` | Penjadwal raid malam | `tick(delta)`, `trigger_raid_now()`, `is_raid_active()`, sinyal `raid_warning`/`raid_started`/`raid_ended` | Grup `raid_director`; clock/RNG/fauna/spawner bisa di-inject; tanpa autoload |
+| **RaidConfig** | `src/data/resources/fauna/raid_config.gd` | Angka raid + cap | `mode`, `raids_per_night`, `warning_seconds`, `night_active_hostile_cap`, `day_boar_cap`, `day_deer_cap`, `global_pressure_multiplier` | `.tres` digenerate `tools/generate_combat_data.gd` |
+| **FreezeController** | `src/core/managers/freeze_controller.gd` | Beku berbasis alasan | `request(reason)`, `release(reason)`, `is_frozen()`, `get_reasons()` | Grup `game_freeze`; skala waktu dipulihkan persis |
+| **HealthRegenComponent** | `src/components/needs/health_regen_component.gd` | Regen HP lambat | `tick(delta)`, `get_multiplier()` | Anak `Player`; sampel kurva min(Hunger, Thirst) |
+| **RunConfig** | `src/data/resources/run/run_config.gd` | Angka perlindungan respawn | `respawn_protection_seconds`, `protection_ignored_by_enemies`, `protection_ends_on_attack` | `.tres` digenerate `tools/generate_balance_data.gd` |
+| **PlayerDamageReceiver (proteksi)** | `src/components/combat/player_damage_receiver.gd` | Kebal pasca-respawn | `start_protection()`, `stop_protection()`, `is_protected()`, sinyal `protection_started`/`protection_ended` | `receive_hit()` mengembalikan `false` saat terlindungi |
+| **RaidWarningHUD / ProtectionHUD** | `src/ui/hud/night/`, `src/ui/hud/protection/` | Teks status | `show_warning(seconds)`, `set_protection(seconds)` | Read-only, no-op di headless |
+| **SneakConfig / WadingConfig** | `src/data/resources/movement/` | Angka mode gerak fase 4 | `speed_multiplier`, `detection_multiplier` / `blocks_sprint` | `.tres` digenerate `tools/generate_balance_data.gd` |
+| **WadingComponent** | `src/components/movement/wading_component.gd` | Deteksi zona sungai | `tick()`, `is_in_water()` | Anak `Player`; hanya memanggil `set_wading()` |
+| **MotionTell** | `src/components/movement/motion_tell.gd` | Tell visual mode gerak | `tick()`, `get_text()`, `is_showing()` | Label runtime, read-only; `AlertMark` "!" di rusa memakai pola sama |
+
+Aturan:
+
+- Raid tidak pernah memanggil spawner di luar `NightSpawner`; cap dibaca dari
+  `RaidConfig` dan hanya menahan spawn baru.
+- Massa fauna dipilih lewat `FaunaConfig.blocks_player`, bukan tipe kelas, supaya
+  rusa dan babi berbagi satu jalur fisika.
+- `needs_config.tres` menyimpan multiplier balans; `NeedsComponent` tidak
+  menyimpan angka sendiri.

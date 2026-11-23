@@ -9,6 +9,8 @@ const TARGETS: Array[Dictionary] = [
 	{"path": "res://src/data/configs/fauna/deer_config.tres", "script": "res://src/data/resources/fauna/deer_config.gd", "loot": [&"raw_meat", &"hide"], "counts": [2, 1], "deer": true},
 	{"path": "res://src/data/configs/fauna/night_scaling_config.tres", "script": "res://src/data/resources/fauna/night_scaling_config.gd"},
 	{"path": "res://src/data/configs/fauna/ember_snuff_config.tres", "script": "res://src/data/resources/fauna/ember_snuff_config.gd"},
+	# Mission 9: raid sebagai event + batas populasi + mass babi.
+	{"path": "res://src/data/configs/fauna/raid_config.tres", "script": "res://src/data/resources/fauna/raid_config.gd"},
 ]
 
 

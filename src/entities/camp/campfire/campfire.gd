@@ -7,8 +7,10 @@ extends CampStructure
 ## `DayNightManager.get_time_scale()` (0 saat final dawn membekukan fuel).
 ## Clock bisa di-inject lewat `clock` untuk tes.
 ##
-## Menyala = fuel > 0. Saat habis, api menjadi ember (cahaya 80 px) dan
-## `fuel_depleted` dipancarkan; struktur tetap berdiri sampai dihancurkan.
+## Menyala = fuel > 0 dan tidak COLD. Mission 9: bangunan baru menaruh dasar api
+## (COLD) dengan bahan bakar tersimpan; api dinyalakan minigame gesek batu.
+## Saat bahan bakar habis, api menjadi ember (cahaya 80 px) dan `fuel_depleted`
+## dipancarkan; struktur tetap berdiri sampai dihancurkan.
 ##
 ## Bonus rest: pemain dalam `rest_radius` mendapat override idle regen
 ## `&"campfire"` sebesar `rest_regen`, dicek tiap `rest_check_interval`.
@@ -32,8 +34,10 @@ const REST_SOURCE := &"campfire"
 
 var _fuel: float = 0.0
 ## D3: api mati (fuel 0) tetap COLD setelah diisi bahan bakar sampai
-## dinyalakan dengan minigame gesek batu.
+## dinyalakan dengan minigame gesek batu. Mission 9: bangunan baru juga COLD.
 var _cold: bool = false
+## Mission 9: pernah menyala? Ember hanya muncul setelah api pernah menyala.
+var has_been_lit: bool = false
 var _rest_timer: float = 0.0
 var _rest_players: Array[Node] = []
 var _light: PointLight2D
@@ -50,7 +54,9 @@ func _ready() -> void:
 	_ensure_config()
 	if clock == null:
 		clock = get_node_or_null("/root/DayNightManager")
-	_fuel = clampf(config.start_fuel, 0.0, config.max_fuel)
+	_fuel = clampf(config.initial_fuel_seconds, 0.0, config.max_fuel)
+	_cold = not config.start_lit
+	has_been_lit = config.start_lit and _fuel > 0.0
 	_ensure_light()
 	_refresh_light()
 	VisualSlot.attach(self, &"campfire", [get_node_or_null("Visual"), get_node_or_null("Flame")], null, CampfireVisual.new())
@@ -100,6 +106,7 @@ func ignite() -> bool:
 	if not can_ignite():
 		return false
 	_cold = false
+	has_been_lit = true
 	_refresh_light()
 	lit_changed.emit(true)
 	return true
@@ -131,9 +138,12 @@ func get_max_fuel() -> float:
 	return config.max_fuel if config != null else 600.0
 
 
+## Mission 9: belum pernah menyala = `unlit_light_radius` (0 = gelap).
 func get_light_radius() -> float:
 	if is_lit():
 		return config.lit_light_radius
+	if not has_been_lit:
+		return config.unlit_light_radius
 	return config.ember_light_radius
 
 
@@ -257,6 +267,8 @@ func _set_fuel(value: float) -> void:
 	fuel_changed.emit(_fuel)
 	_refresh_light()
 	var now_lit := is_lit()
+	if now_lit:
+		has_been_lit = true
 	if was_lit and not now_lit:
 		lit_changed.emit(false)
 		fuel_depleted.emit()
@@ -385,4 +397,4 @@ func _refresh_light() -> void:
 	var radius := get_light_radius()
 	var width := maxf(float(_light_texture.get_width()), 1.0)
 	_light.texture_scale = (radius * 2.0) / width
-	_light.visible = true
+	_light.visible = radius > 0.0

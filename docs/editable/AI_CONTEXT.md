@@ -50,8 +50,8 @@ in `docs/editable/` is maintained by the project.
 | Engine | — | `D:\Programming\Gamedev\Godot_v4.7.2-stable_win64.exe` (console variant exists) |
 | GUT | — | **9.7.1 installed** in `addons/gut` (docs saying otherwise are stale) |
 | Unit tests | see §9 | included in the combined suite below (~35 s) |
-| Integration tests | see §9 | **7/7 passing** (S1-S5 + 7-day soak); whole suite **475/475**, 2732 asserts, ~70 s |
-| Verified on | — | 21 Nov 2026 |
+| Integration tests | see §9 | **7/7 passing** (S1-S5 + 7-day soak); whole suite **671/671**, 3700 asserts, ~80 s |
+| Verified on | — | 23 Nov 2026 (Mission 9 pass 2, fase 0-4) |
 | Main scene boot | see §9 | `practice1.tscn` runs headless for 120 frames with **no errors** |
 | Island boot | see §9 | `src/levels/island/island.tscn` runs headless for 120 frames with **no errors** |
 | Default clock config | — | `cycle_duration` **600 s** (script default; `.tres` no longer overrides it) |
@@ -72,7 +72,25 @@ Known bugs still present:
 | `DayNightVisual` / `DayNightVisualConfig` | `src/levels/components/environment/`, `src/data/resources/environment/` | World tint via one `CanvasModulate`, dawn/dusk transitions, particles |
 | `TimeHUD` | `src/ui/hud/time/` | Read-only day/phase/remaining/progress/night-survival label |
 | `StatsComponent` / `StatModifier` | `src/components/stats/` | Derived stats, proficiency, modifier stacking, HP, `hp_changed`, `stats_changed` |
-| `NeedsComponent` / `NeedsConfig` | `src/components/needs/`, `src/data/resources/needs/` | Owns Hunger/Thirst/Fatigue (0..100) plus a Fatigue cap that sprint lowers and food/sleep restores. `get_value()`, `set_value()`, `add()`, `spend_fatigue()`, `get_tier()`, `get_fatigue_cap()`, `restore_fatigue_capacity()`, `set_idle_regen_override(source_id, per_second)`, `clear_idle_regen_override(source_id)`, `get_idle_regen()` (max of base and overrides), `tick(delta)`; signals `value_changed(need, value)`, `tier_changed(need, tier)`, `fatigue_cap_changed(cap)`. Tiers NORMAL/LOW/ZERO apply stats via `&"lapar"`/`&"haus"`/`&"lelah"`. Drains via `get_time_scale()`; no own clock |
+| `NeedsComponent` / `NeedsConfig` | `src/components/needs/`, `src/data/resources/needs/` | Owns Hunger/Thirst/Fatigue (0..100) plus a Fatigue cap that sprint lowers and food/sleep restores. `get_value()`, `set_value()`, `add()`, `spend_fatigue()`, `get_tier()`, `get_fatigue_cap()`, `restore_fatigue_capacity()`, `set_idle_regen_override(source_id, per_second)`, `clear_idle_regen_override(source_id)`, `get_idle_regen()` (max of base and overrides), `tick(delta)`; signals `value_changed(need, value)`, `tier_changed(need, tier)`, `fatigue_cap_changed(cap)`. Tiers NORMAL/LOW/ZERO apply stats via `&"lapar"`/`&"haus"`/`&"lelah"`. Drains via `get_time_scale()`; no own clock. Mission 9: drain dikali `global_drain_multiplier` x `hunger/thirst_drain_multiplier` x `drain_multiplier_by_day`; Hunger <= 30 menambah sprint block `&"hunger"` |
+| `HealthRegenComponent` / `HealthRegenConfig` | `src/components/needs/`, `src/data/resources/needs/` | Mission 9. Regen HP pasif `tick(delta)` waktu game; jeda `out_of_combat_delay` sejak HP turun; multiplier = min kurva Hunger/Thirst (`sample_curve()` murni); nol saat tier ZERO. `.tres`: `src/data/configs/health_regen_config.tres` |
+| `RaidDirector` / `RaidConfig` | `src/core/managers/raid_director.gd`, `src/data/resources/fauna/raid_config.gd` | Mission 9. Raid sebagai event: jadwal per malam dari `raids_per_night` x `global_pressure_multiplier`, peringatan `warning_seconds`, raider terdekat ke pusat base, tanda `is_raider` dilepas saat raid selesai/fajar. Sinyal `raid_warning`, `raid_started`, `raid_ended`. Node di `island.tscn`, bukan autoload |
+| `NightSpawner` (cap) / `FaunaQuota` (cap siang) | `src/core/managers/` | Mission 9: `NightSpawner.get_hostile_cap()` = `RaidConfig.night_active_hostile_cap` (kosong = tabel spec), `spawn_raid_boar()` additive; `FaunaQuota.get_day_boar_cap()/get_day_deer_cap()` = `day_boar_cap`/`day_deer_cap`. Cap hanya membatasi spawn baru, tidak pernah membunuh boar |
+| `FreezeController` | `src/core/managers/freeze_controller.gd` | Mission 9. Beku berbasis alasan (`&"pause"`, `&"death"`), grup `&"game_freeze"`, `request()`/`release()`, skala waktu dipulihkan persis (x2 Jaga Malam, 0 final dawn). `PauseMenu` memakainya bila ada |
+| `PlayerDamageReceiver` (protection) | `src/components/combat/player_damage_receiver.gd` | Mission 9. `start_protection()/stop_protection()/is_protected()/tick()` detik nyata, sinyal `protection_started/ended`, kedip visual, tidak ada damage/knockback. `FaunaBase._find_player()` mengabaikan pemain terlindungi bila `protection_ignored_by_enemies` |
+| `RunConfig` | `src/data/resources/run/run_config.gd` | Mission 9. `respawn_protection_seconds`, `protection_ignored_by_enemies`, `protection_ends_on_attack`, `protection_blink_hz`. `.tres`: `src/data/configs/run_config.tres` (generator `tools/generate_balance_data.gd`) |
+| `RaidWarningHUD` / `ProtectionHUD` | `src/ui/hud/night/`, `src/ui/hud/protection/` | Mission 9, read-only. Banner "Babi hutan mendekati base!" dan label "Perlindungan N dtk" |
+| `SneakConfig` / `WadingConfig` | `src/data/resources/movement/`, `src/data/configs/*.tres` | Mission 9 fase 4. `SneakConfig`: `speed_multiplier` 0.55, `detection_multiplier` 0.6, `blocks_sprint`. `WadingConfig`: `speed_multiplier` 0.55, `blocks_sprint`. Digenerate `tools/generate_balance_data.gd` |
+| `WadingComponent` | `src/components/movement/wading_component.gd` | Mission 9 fase 4. Anak `Player` di `player.tscn`; `tick()` membaca `IslandZones.zone_at()` dan memanggil `Player.set_wading()`. Tidak menyimpan pengali |
+| `MotionTell` | `src/components/movement/motion_tell.gd` | Tell visual fase 4: label runtime "JONGKOK"/"AIR"/"JONGKOK + AIR" di atas pemain. `tick()`, `get_text()`, `is_showing()`; hanya membaca state |
+| `Player` (mode gerak) | `src/entities/player/player.gd` | `set_sneaking()/is_sneaking()/get_stealth_multiplier()`, `set_wading()/is_wading()`, `get_move_speed_multiplier()` (jongkok x air), sinyal `movement_mode_changed`; blokir sprint lewat `add_sprint_block(&"sneak"/&"wading")` |
+| `IslandDeer` (waspada) | `src/entities/fauna/island_deer/island_deer.gd` | Mission 9 fase 4. `State.ALERT` + sinyal `alerted` sebelum kabur, `get_effective_detect_radius()` = radius kabur x stealth pemain. Art waspada memakai `idle` (tanpa state registry baru) |
+| `FaunaBase.get_detection_multiplier()` | `src/entities/fauna/fauna_base.gd` | Jalur bersama rusa + babi: pemain jongkok = radius deteksi x 0.6 |
+| `PauseMenu` (UI) | `src/ui/menus/pause_menu.gd` | Menu Jeda sekarang punya isi: panel + 4 tombol (Lanjutkan, Pengaturan, Bantuan, Menu Utama). Dibangun runtime, Esc/P menutup. Sebelumnya CanvasLayer kosong |
+| `BagPanel` (tab Profisiensi) | `src/ui/panels/inventory/bag_panel.gd` | Tab ketiga di panel Tab/I: level + XP + passive Kekuatan/Kecepatan/Penguasaan/Kelincahan. `get_proficiency_tab()`, `refresh_proficiency()` |
+| `PlaceholderLabels` | `src/ui/hud/placeholder/placeholder_labels.gd` | Overlay HUD: nama slot untuk art yang masih kosong, dekat pemain, kolam `MAX_LABELS` 12, pindai 0.25 s, `ground_*` dilewati. Dipasang di `island.tscn`. Sengaja memakai kolam label bersama, bukan satu `Label` per slot, supaya jumlah Control tidak tumbuh bersama jumlah resource |
+| `ChopFeedback` (fix) | `src/entities/props/resource_node/chop_feedback.gd` | Getaran hanya saat progres menebang berjalan (bukan sekadar dekat), berirama: `CHOP_INTERVAL` 0.22 s, `SHAKE_BURST` 0.12 s |
+| `InputGuideGenerator` | `src/core/docs/input_guide_generator.gd`, `tools/generate_input_guide.gd` | Menulis `docs/editable/PANDUAN_INPUT.md` dari InputMap hidup + `PURPOSES`; action tanpa tujuan menggagalkan tes |
 | `NeedsHUD` | `src/ui/hud/needs/` | Read-only Hunger/Thirst/Fatigue bars, warning color at tier <= LOW |
 | `StatsHUD` | `src/ui/hud/stats/` | Read-only readout of HP, speeds, attack, gather time, sprint drain, Fatigue value/cap and the three need tiers; makes ZERO-tier effects visible |
 | `InventoryComponent` | `src/components/inventory/` | Owns 12 bag slots (0-4 = hotbar) of `ItemStack`, plus WEAPON/ARMOR equipment and TOOL ownership. `add_item() -> int` (leftover), atomic `remove_item() -> bool`, `has_item()`, `count_of()`, `get_slot()`/`get_slot_item()`/`get_slot_count()`, `is_full()`, `move_slot()`, `use_slot()`, `add_or_drop()`, `equip()`/`unequip()`/`has_tool()`, `get_capacity()`, `get_hotbar_size()`, `clear()`; `slot_changed(index)`, `equipment_changed(slot)`, `inventory_changed()`. Keys 1-5 use slots; effects via `NeedsComponent.add()` / `StatsComponent` / `restore_fatigue_capacity()`; armor modifiers use `&"equip_armor"` |
@@ -640,6 +658,16 @@ requires `can_be_auto_targeted()`), the player founds a dynamic base (B), a fenc
 ring exists, campfires need an ignition QTE when they were never lit, and combat
 has visual juice. None of it changes balance numbers.
 
+### Mission 9 — Balance & Feel, pass 2 (23 Nov 2026)
+
+Fase 0-4 dikerjakan (fase 5-6 belum): raid menjadi event terjadwal dengan
+peringatan + cap populasi, babi punya massa (tidak bisa ditembus/didorong),
+api unggun dibangun COLD lalu dinyalakan QTE, kematian membekukan game dengan
+perlindungan respawn, needs dikalibrasi ulang (Hunger <= 30 mengunci sprint, HP
+pulih lebih lambat saat lapar/haus), pemain bisa jongkok (Ctrl) dengan deteksi
+fauna 0.6x, rusa waspada dulu sebelum kabur, dan air sungai memperlambat serta
+memblokir sprint. Rincian angka: `CONFIG_GUIDE` dan laporan misi.
+
 ### Spec deviations approved by the owner
 
 - Fence ring is a separate ring of segments, not 4 extra blueprint slots.
@@ -651,6 +679,34 @@ has visual juice. None of it changes balance numbers.
   small_tree 6; total 153); fire-start stone is consumed only on a failed
   attempt; the signal flare is consumed at the Beacon; Master Chef is implemented
   simply (+10 to the related need); deer guarantee at rescue is ON.
+- Mission 9: raid adalah EVENT terjadwal (`RaidConfig.mode = EVENT_ONLY`) dengan
+  cap populasi (`night_active_hostile_cap` 2/3/3/4/5/6/8, `day_boar_cap` 2,
+  `day_deer_cap` 3); boar hostile lama di atas cap tidak pernah dicull.
+- Mission 9: babi punya badan fisik (`PhysicsLayers.FAUNA_BODY`/`PLAYER_BODY`)
+  sehingga pemain tidak bisa menembus/mendorongnya; rusa tetap bisa ditembus.
+- Mission 9: api unggun dibangun COLD (`CampfireConfig.start_lit = false`),
+  bahan bakar tersimpan tidak mengalir, cahaya 0 sampai pernah menyala.
+- Mission 9: kematian membekukan game (jam berhenti selama layar mati); ini
+  menggantikan aturan lama "jam tetap berjalan saat mati".
+- Mission 9: perlindungan respawn 5 dtk nyata (musuh mengabaikan pemain,
+  kedip visual, bisa dimatikan lewat `RunConfig`).
+- Mission 9: kebutuhan dikalibrasi ulang (Hunger/Thirst 0.6/0.57 x drain spec),
+  Hunger <= 30 mengunci sprint dan regen HP berskala min(Hunger, Thirst).
+- Mission 9 fase 4: jongkok `Ctrl` (0.55 kecepatan, 0.6 radius deteksi, tanpa
+  sprint); rusa waspada 1.25x radius kabur selama 0.45 dtk sebelum kabur; air
+  sungai 0.55 kecepatan tanpa sprint. Angka air/jongkok tidak ada di spec V8
+  (tuning awal, dicatat di laporan).
+- Mission 9 fase 4: state waspada rusa memakai art `idle`; registry aset tidak
+  berubah dan tidak ada state animasi baru.
+- Mission 9 fase 4: tell mode gerak = `Label` runtime (`MotionTell` di bawah
+  `Player`, `AlertMark` "!" di rusa). Tidak ada aset/state baru; hilang otomatis
+  saat mode berakhir.
+- Mission 9 fase 4: `test_sneak.gd` membuktikan kecepatan nyata (velocity dan
+  jarak tempuh di frame fisika dengan `Input.action_press`), bukan cuma config.
+- Mission 9 feedback pemain: getaran pohon hanya saat menebang (dulu ikut
+  bergetar hanya karena berdiri dekat), menu Jeda punya tombol, daftar
+  profisiensi pindah ke tab tas, dan art yang masih kosong diberi label nama
+  slot. Panduan tombol lengkap: `docs/editable/PANDUAN_INPUT.md`.
 
 ## 9. Commands & upkeep
 
@@ -730,10 +786,11 @@ All of these must be true in one playable session:
 
 Full acceptance detail: `docs/editable/MVP_CHECKLIST.md` §15.
 
-## 13. Open design questions & balance flags
+## 13. Open design questions & balance flags (riwayat)
 
 Found while cross-checking spec V8. Confirm with the design owner; keep the
-numbers in `.tres` so tuning stays cheap.
+numbers in `.tres` so tuning stays cheap. Beberapa butir sudah selesai; lihat
+"Keputusan yang sudah diambil" di bawah.
 
 1. **Day-1 material bottleneck.** Zone 1 yields only 6 wood and 4 stone on Day 1.
    Campfire (4 wood + 3 stone) + Workbench (5 wood + 2 stone) needs 9 wood and
@@ -753,24 +810,24 @@ numbers in `.tres` so tuning stays cheap.
    before crafting. Make sure Zone 1 materials or stock cover this.
 5. **P1b assumptions implemented (confirm with design).** The dawn rule runs for
    days 2-7 (question 3 treated as "same rule"). The Deer guarantee flag
-   `FaunaQuota.guarantee_deer_at_rescue` exists but stays OFF (question 2 still
-   open). Resident boars count toward the night maximum. Night spawner spawns one
-   boar immediately at night start. The first ember-snuff hit on nights >= 5 also
-   removes fuel on top of the normal structure damage.
+   `FaunaQuota.guarantee_deer_at_rescue` is **ON** in `island.tscn` (question 2
+   resolved). Resident boars count toward the night maximum. Night spawner spawns
+   one boar immediately at night start. The first ember-snuff hit on nights >= 5
+   also removes fuel on top of the normal structure damage.
 6. **P1c/P2 assumptions implemented (confirm with design).** Speed sprint XP uses
    real delta (spec gives "per second" without saying game time). Resourceful
-   grants the extra item via `inventory.add_or_drop`. The Signal Flare is **not**
-   consumed at the Beacon (spec does not say it is). The 3 respawn tokens are a
-   `DeathController` constant; `PlayerBaseStats.max_respawn_tokens` is still
-   unused. "Master Chef" (+10 Campfire food/drink restore) is **not applied**:
-   `InventoryComponent.use_slot()` is not an allowed edit, so only
-   `get_campfire_restore_bonus()` exists. A manual swing that displaces the player
+   grants the extra item via `inventory.add_or_drop`. The Signal Flare **is**
+   consumed at the Beacon (`src/entities/props/beacon/signal_beacon.gd`). The 3
+   respawn tokens are a `DeathController` constant; `PlayerBaseStats.max_respawn_tokens`
+   is still unused. "Master Chef" (+10 Campfire food/drink restore) **is applied**
+   lewat `ProficiencyComponent.get_campfire_restore_bonus()` + jalur
+   `InventoryComponent.item_used`. A manual swing that displaces the player
    by more than 200 px in one tick (debug teleport) is ignored for Speed XP.
    `practice1.tscn` is not wired for proficiency/death/endgame; `island.tscn` is.
 7. **Mission 5 leftovers (no open code bugs).** Every Part A/B check passed, so no
-   code bug is left unfixed. Two doc-level gaps are recorded instead: no
-   `ProficiencyHUD` exists anywhere in `src/` (nothing displays proficiency
-   levels yet), and `PlayerBaseStats.max_respawn_tokens` stays unused (item 6).
+   code bug is left unfixed. `ProficiencyHUD` **ada** (`src/ui/hud/proficiency/`)
+   dan dipasang di `island.tscn`. Satu sisa nyata:
+   `PlayerBaseStats.max_respawn_tokens` belum dipakai (item 6).
 
 ## 13. Keputusan yang sudah diambil
 
@@ -790,6 +847,9 @@ numbers in `.tres` so tuning stays cheap.
 - `PlayerBaseStats.max_respawn_tokens` belum dipakai kode.
 - Balance setelah playtest manual.
 - `fx_slash`/`fx_dust` sudah punya slot tetapi belum ada node efek pemakainya.
+- Mission 9 fase 5-6 belum dikerjakan: sweep arah matahari + tab Profil (5),
+  SpriteFrames-first + data audio (6). `AUDIO_GUIDE.md` belum ada karena fase 6
+  tidak jalan.
 
 ## 15. Polish pass (Mission 9)
 

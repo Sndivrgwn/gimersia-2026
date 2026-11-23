@@ -9,10 +9,13 @@ extends Node
 
 const BOAR_SCENE: PackedScene = preload("res://src/entities/fauna/wild_boar/wild_boar.tscn")
 const DEFAULT_SCALING: NightScalingConfig = preload("res://src/data/configs/fauna/night_scaling_config.tres")
+const DEFAULT_RAID_CONFIG: RaidConfig = preload("res://src/data/configs/fauna/raid_config.tres")
 
 @export var clock: Node
 @export var fauna_parent: Node2D
 @export var night_scaling: NightScalingConfig = DEFAULT_SCALING
+## Mission 9: batas hostile malam + pengali interval spawn.
+@export var raid_config: RaidConfig = DEFAULT_RAID_CONFIG
 
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
@@ -45,12 +48,34 @@ func tick(delta: float) -> void:
 	if not _active or delta <= 0.0:
 		return
 	_timer += delta * _time_scale()
-	if _timer < night_scaling.get_spawn_interval(_night):
+	if _timer < get_spawn_interval():
 		return
 	_timer = 0.0
-	if get_hostile_count() >= night_scaling.get_max_enemies(_night):
+	if get_hostile_count() >= get_hostile_cap():
 		return
 	_spawn_boar()
+
+
+## Batas hostile hidup malam ini (Mission 9: RaidConfig menimpa tabel spec).
+func get_hostile_cap() -> int:
+	if raid_config != null:
+		return raid_config.get_night_hostile_cap(_night)
+	return night_scaling.get_max_enemies(_night)
+
+
+func get_spawn_interval() -> float:
+	var base := night_scaling.get_spawn_interval(_night)
+	if raid_config == null:
+		return base
+	return base * raid_config.get_spawn_interval_multiplier()
+
+
+## Mission 9: RaidDirector minta boar tambahan untuk satu raid (batas hostile
+## tetap dihormati).
+func spawn_raid_boar() -> WildBoar:
+	if get_hostile_count() >= get_hostile_cap():
+		return null
+	return _spawn_boar()
 
 
 func _process(delta: float) -> void:

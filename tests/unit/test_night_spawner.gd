@@ -62,11 +62,11 @@ func test_interval_spawns_until_cap() -> void:
 	_clock.night_started.emit(1)
 	_spawner.tick(45.0)
 	assert_eq(_boars(), 2)
+	# Mission 9 (R4): batas hostile malam 1 turun dari 3 (tabel spec) ke 2
+	# (RaidConfig night_active_hostile_cap).
 	_spawner.tick(45.0)
-	assert_eq(_boars(), 3)
-	_spawner.tick(45.0)
-	assert_eq(_boars(), 3, "batas malam 1 = 3")
-	assert_eq(_spawner.get_hostile_count(), 3)
+	assert_eq(_boars(), 2, "batas malam 1 = 2")
+	assert_eq(_spawner.get_hostile_count(), 2)
 
 
 func test_time_scale_is_applied() -> void:

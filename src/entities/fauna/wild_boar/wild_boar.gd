@@ -8,16 +8,24 @@ signal dash_ended(hit: bool)
 
 enum State { WANDER, CHASE, BITE, DASH_TELEGRAPH, DASH, RECOVER, FLEE }
 
+const DEFAULT_RAID_CONFIG: RaidConfig = preload("res://src/data/configs/fauna/raid_config.tres")
 const CAMP_CENTER := Vector2.ZERO
 const RECOVER_TIME := 0.3
 ## Spesifikasi §7.2: knockback dash 60 px (durasi 0.2 s di CombatConfig).
 const DASH_KNOCKBACK_DISTANCE := 60.0
+
+## Mission 9: mode raid + tanda raider (ditulis RaidDirector secara additive).
+@export var raid_config: RaidConfig = DEFAULT_RAID_CONFIG
+var is_raider: bool = false
 
 var state: int = State.WANDER
 
 var _bite_cooldown: float = 0.0
 var _dash_cooldown: float = 0.0
 var _telegraph_remaining: float = 0.0
+## Anggaran waktu dash (Mission 9 fase 4): dash yang terhalang dinding/pagar tidak
+## boleh macet di state DASH selamanya.
+var _dash_remaining: float = 0.0
 var _recover_remaining: float = 0.0
 var _dash_target: Vector2 = Vector2.ZERO
 var _dash_hit: bool = false
@@ -37,6 +45,31 @@ func visual_key() -> StringName:
 
 func config_boar() -> BoarConfig:
 	return config as BoarConfig
+
+
+# --- Raid (Mission 9) -------------------------------------------------------
+
+## Tandai boar sebagai raider (menyerang struktur) atau bukan.
+func set_raider(value: bool) -> void:
+	is_raider = value
+	if not value:
+		raid_camp = false
+
+
+func get_raid_mode() -> int:
+	if raid_config == null:
+		raid_config = DEFAULT_RAID_CONFIG
+	return raid_config.mode
+
+
+## Struktur boleh diserang: ALWAYS (perilaku lama) atau raider di EVENT_ONLY.
+func can_attack_structures() -> bool:
+	var mode := get_raid_mode()
+	if mode == RaidConfig.Mode.OFF:
+		return false
+	if mode == RaidConfig.Mode.ALWAYS:
+		return true
+	return is_raider
 
 
 func get_state() -> int:
@@ -100,6 +133,10 @@ func _update_behavior(delta: float) -> void:
 
 	state = State.CHASE
 	face(chosen_position - global_position)
+	# Mission 9: jangan menekan pemain; berhenti di jarak kontak.
+	if chosen == target and distance <= get_contact_distance_to_player():
+		move_in_direction(Vector2.ZERO, 0.0, delta)
+		return
 	move_in_direction(chosen_position - global_position, get_move_speed(), delta)
 
 
@@ -145,6 +182,11 @@ func _update_raid_flag(target: Node, boar: BoarConfig) -> void:
 	if not can_be_auto_targeted():
 		raid_camp = false
 		return
+	# Mission 9: EVENT_ONLY hanya raider yang menyerang struktur; OFF tidak pernah.
+	var mode := get_raid_mode()
+	if mode != RaidConfig.Mode.ALWAYS:
+		raid_camp = is_raider and can_attack_structures()
+		return
 	if nearest_structure() == null:
 		raid_camp = false
 		return
@@ -155,7 +197,7 @@ func _update_raid_flag(target: Node, boar: BoarConfig) -> void:
 	if target == null or not (target is Node2D):
 		return
 	var target_position := (target as Node2D).global_position
-	if global_position.distance_to(target_position) > boar.detect_radius:
+	if global_position.distance_to(target_position) > boar.detect_radius * get_detection_multiplier(target):
 		return
 	if target_position.distance_to(center) <= boar.raid_camp_radius:
 		raid_camp = true
@@ -171,13 +213,13 @@ func _choose_target(target: Node, boar: BoarConfig) -> Node:
 		var distance := global_position.distance_to(player_node.global_position)
 		if distance <= boar.camp_player_radius:
 			return target
-	if raid_camp:
+	if raid_camp and can_attack_structures():
 		var structure := nearest_structure()
 		if structure != null:
 			return structure
 	if player_node != null and _player_alive():
 		var distance := global_position.distance_to(player_node.global_position)
-		if distance <= boar.detect_radius and can_be_auto_targeted():
+		if distance <= boar.detect_radius * get_detection_multiplier(target) and can_be_auto_targeted():
 			return target
 	return null
 
@@ -259,22 +301,32 @@ func _tick_telegraph(delta: float, boar: BoarConfig) -> void:
 		return
 	_clear_telegraph()
 	state = State.DASH
+	_dash_remaining = maxf(_dash_target.distance_to(global_position) / maxf(boar.dash_speed, 1.0), 0.05) * 2.0 + 0.1
 	_dash_cooldown = boar.dash_cooldown_night if _is_night() else boar.dash_cooldown_day
 	if _visual != null:
 		_visual.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 
 func _tick_dash(delta: float, boar: BoarConfig) -> void:
+	_dash_remaining = maxf(_dash_remaining - delta, 0.0)
 	var offset := _dash_target - global_position
-	if offset.length() <= 6.0:
-		_finish_dash()
-		return
-	move_in_direction(offset, boar.dash_speed, delta)
+	if offset.length_squared() > 0.0001:
+		face(offset)
+	# Mission 9 fase 4: langkah memakai delta eksplisit lewat move_and_collide,
+	# bukan velocity + move_and_slide (yang memakai delta fisika mesin). Jarak
+	# dash jadi sama di frame lambat maupun di tes, dan dinding tetap dihormati.
+	var step := maxf(boar.dash_speed, 0.0) * delta
+	var arrived := offset.length() <= maxf(step, 6.0)
+	if not arrived:
+		move_and_collide(offset.normalized() * step)
+		offset = _dash_target - global_position
 	if _dash_hit:
 		return
 	# Tabrakan jarak: pemain atau struktur terdekat dalam radius dash.
 	var hit_target := _dash_contact(boar)
 	if hit_target == null:
+		if arrived or offset.length() <= 6.0 or _dash_remaining <= 0.0:
+			_finish_dash()
 		return
 	_dash_hit = true
 	if hit_target.has_method(&"receive_hit"):
@@ -290,7 +342,9 @@ func _tick_dash(delta: float, boar: BoarConfig) -> void:
 		)
 	else:
 		_deal_damage(hit_target, boar.dash_player_damage, boar.dash_structure_damage, Vector2.ZERO, 0.0)
-	_finish_dash()
+	# Jangan lewat `_finish_dash()` di sini: fungsi itu memancarkan
+	# `dash_ended(false)`, sehingga satu tabrakan mengirim dua sinyal.
+	move_in_direction(Vector2.ZERO, 0.0, 0.0)
 	state = State.RECOVER
 	_recover_remaining = RECOVER_TIME
 	dash_ended.emit(true)
@@ -303,6 +357,8 @@ func _dash_contact(boar: BoarConfig) -> Node:
 	if target is Node2D and _player_alive():
 		if global_position.distance_to((target as Node2D).global_position) <= boar.dash_hit_radius:
 			return _fence_or(target, boar)
+	if not can_attack_structures():
+		return null
 	var structure := nearest_structure()
 	if structure != null and global_position.distance_to(structure.global_position) <= boar.dash_hit_radius:
 		return _fence_or(structure, boar)

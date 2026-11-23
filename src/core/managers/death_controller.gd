@@ -5,8 +5,10 @@ extends Node
 ##
 ## Pemilik `respawns_remaining` (3 token; kematian keempat = game over).
 ## HP tetap milik StatsComponent; komponen ini hanya memanggil set_hp().
-## Saat mati pemain disembunyikan dan process_mode-nya DISABLED, tetapi clock
-## game TIDAK dihentikan (spec: fajar Hari 7 tetap harus terjadi di layar mati).
+## Mission 9 (keputusan owner): saat mati seluruh game DIBEKUKAN lewat
+## FreezeController alasan &"death"; jam game berhenti selama layar mati.
+## Layar/popup tetap jalan karena process_mode ALWAYS. Logika rescue untuk
+## kematian saat fajar Hari 7 tetap berlaku.
 ##
 ## Loot bag dijatuhkan di posisi mati dari seluruh 12 slot tas; equipment tetap
 ## terpasang. Debuff memakai `ProficiencyComponent.apply_death_debuff()`.
@@ -28,12 +30,15 @@ const RESPAWN_HUNGER := 60.0
 const RESPAWN_THIRST := 60.0
 const RESPAWN_FATIGUE := 80.0
 const LOOT_BAG_SCENE: PackedScene = preload("res://src/entities/props/loot_bag/loot_bag.tscn")
+const DAMAGE_RECEIVER_NAME := "PlayerDamageReceiver"
 
 @export var stats: StatsComponent
 @export var player: Node
 @export var needs: NeedsComponent
 @export var inventory: InventoryComponent
 @export var proficiency: ProficiencyComponent
+## Mission 9: lama perlindungan respawn (null = angka bawaan RunConfig).
+@export var run_config: RunConfig
 
 var respawns_remaining: int = RESPAWN_TOKENS
 var is_dead: bool = false
@@ -104,6 +109,8 @@ func respawn() -> bool:
 			})
 		debuff_applied.emit(_last_debuff_changes)
 
+	_release_freeze()
+	_start_protection()
 	respawned.emit()
 	return true
 
@@ -140,6 +147,10 @@ func _on_hp_changed(current: float, _max_value: float) -> void:
 func _die() -> void:
 	is_dead = true
 	respawns_remaining -= 1
+	# Mission 9: beku sebelum layar mati tampil (jam berhenti).
+	var freezer := FreezeController.find_controller(self)
+	if freezer != null:
+		freezer.request(FreezeController.REASON_DEATH)
 	_drop_loot()
 	_disable_player()
 	died.emit(respawns_remaining)
@@ -154,6 +165,24 @@ func _disable_player() -> void:
 	if player is Node2D:
 		(player as Node2D).velocity = Vector2.ZERO
 		(player as Node2D).visible = false
+
+
+func _release_freeze() -> void:
+	var freezer := FreezeController.find_controller(self)
+	if freezer != null:
+		freezer.release(FreezeController.REASON_DEATH)
+
+
+## Mission 9: perlindungan respawn (timer nyata, mulai setelah beku dilepas).
+func _start_protection() -> void:
+	if player == null:
+		return
+	var receiver := player.get_node_or_null(DAMAGE_RECEIVER_NAME) as PlayerDamageReceiver
+	if receiver == null:
+		return
+	if run_config != null:
+		receiver.run_config = run_config
+	receiver.start_protection()
 
 
 func _restore_player() -> void:

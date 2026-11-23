@@ -25,12 +25,19 @@ const ITEM_HINT := "src/data/items/*.tres"
 
 # --- ASSET_GUIDE ------------------------------------------------------------
 
+## Mission 9 (7b): teks panduan selalu LF di memori. String literal GDScript
+## mewarisi akhir baris file sumber, jadi normalisasi eksplisit di sini; disk
+## ditulis CRLF oleh `write_file()`.
+func _lf(text: String) -> String:
+	return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
 func build_asset_guide() -> String:
 	var text := _asset_intro()
 	text += "\n" + BEGIN + "\n"
 	text += _asset_tables()
 	text += END + "\n"
-	return text
+	return _lf(text)
 
 
 func _asset_intro() -> String:
@@ -158,7 +165,7 @@ func build_config_guide() -> String:
 	text += "\n" + BEGIN + "\n"
 	text += _config_tables()
 	text += END + "\n"
-	return text
+	return _lf(text)
 
 
 func _config_intro() -> String:
@@ -395,11 +402,23 @@ func _group_paths(files: PackedStringArray) -> Dictionary:
 	return sorted_groups
 
 
+## Generator yang path tujuannya dibangun dinamis ("%s/%s.tres") tidak punya
+## literal res:// di sumbernya. Peta direktori kecil ini menutup celah tersebut;
+## isinya dicek tes (tidak boleh ada generator ber-ResourceSaver.save yang
+## "tidak menulis .tres").
+const TOOL_DIRECTORIES: Dictionary = {
+	"res://tools/generate_recipes.gd": "res://src/data/recipes/",
+	"res://tools/generate_hints.gd": "res://src/data/hints/",
+	"res://tools/generate_structures.gd": "res://src/data/camp/",
+}
+
+
 func _scan_tools() -> Array:
 	var result: Array = []
 	var dir := DirAccess.open("res://tools")
 	if dir == null:
 		return result
+	var files := _collect_tres()
 	var names: Array = dir.get_files()
 	names.sort()
 	for name in names:
@@ -422,6 +441,11 @@ func _scan_tools() -> Array:
 				var candidate := line.substr(start, end - start)
 				if candidate.ends_with(".tres") and not owns.has(candidate):
 					owns.append(candidate)
+		var owned_dir: String = TOOL_DIRECTORIES.get(path, "")
+		if not owned_dir.is_empty():
+			for tres_path in files:
+				if String(tres_path).begins_with(owned_dir) and not owns.has(tres_path):
+					owns.append(tres_path)
 		owns.sort()
 		result.append({
 			"path": path,
@@ -505,11 +529,14 @@ func _type_text(type_id: int) -> String:
 			return "lain"
 
 
+## Panduan ditulis dengan SATU gaya akhir baris: CRLF, sama seperti dokumen
+## tangan lain di docs/editable. Tes membandingkan setelah normalisasi ke LF.
 static func write_file(path: String, text: String) -> bool:
 	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		return false
-	file.store_string(text)
+	var normalized := text.replace("\r\n", "\n").replace("\n", "\r\n")
+	file.store_string(normalized)
 	file.close()
 	return true

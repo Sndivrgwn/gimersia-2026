@@ -514,7 +514,8 @@ memakai `_unhandled_input`.
 | `debug_island_kill` | F11 | `GatherDebug` — HP 0 untuk menguji death screen (island saja) |
 | `debug_island_rescue` | F12 | `GatherDebug` — lompat fase sampai rescue/fajar Hari 7 (island saja) |
 | `base_place` | B | `BasePlacementController` — masuk/keluar mode pendirian base (didaftarkan `InputSetup`) |
-| `debug_fauna_labels` | Insert | `GatherDebug` — label temperament/HP fauna di atas kepala (island saja) |
+| `debug_fauna_labels` | Insert | `GatherDebug` — label temperament/HP fauna di atas kepala (island saja), termasuk tanda RAIDER/normal |
+| `debug_raid` | J | `GatherDebug` — picu satu raid sekarang lewat `RaidDirector` (island saja) |
 | `pause_toggle` | P | `PauseMenu` — buka/tutup pause (didaftarkan `InputSetup`) |
 | `help_toggle` | H | `HelpPanel` — buka/tutup daftar kontrol (didaftarkan `InputSetup`) |
 | `ui_cancel` (bawaan) | Esc | `BagPanel` — hanya menutup saat terbuka |
@@ -1131,6 +1132,10 @@ Status kesiapan MVP: `docs/editable/MVP_CHECKLIST.md` · Keputusan arsitektur: `
 
 ## 22. Tabel Input Map lengkap (satu-satunya)
 
+> Arti tiap tombol ("Tab untuk apa, F2 untuk apa") ada di
+> [`PANDUAN_INPUT.md`](PANDUAN_INPUT.md), yang dibuat dari Input Map hidup oleh
+> `tools/generate_input_guide.gd`. Tabel di bawah hanya daftar tombol.
+
 Semua action didaftarkan lewat `InputSetup.ensure_actions()`; tabel ini dibuat
 dari InputMap yang hidup, jadi tidak boleh berbeda dengan kode.
 
@@ -1162,8 +1167,9 @@ dari InputMap yang hidup, jadi tidak boleh berbeda dengan kode.
 | `debug_mas_down` | 3 |
 | `debug_mas_up` | 3 |
 | `debug_needs_toggle` | F1 |
+| `debug_raid` | J |
 | `debug_refill_needs` | B |
-| `debug_reload_assets` | F1 |
+| `debug_reload_assets` | Backtick (`) |
 | `debug_reset` | R |
 | `debug_set_hp` | J |
 | `debug_spd_down` | 2 |
@@ -1186,6 +1192,7 @@ dari InputMap yang hidup, jadi tidak boleh berbeda dengan kode.
 | `move_up` | W, Up |
 | `pause_toggle` | P |
 | `repair` | R |
+| `sneak` | Ctrl (tahan) |
 | `sprint` | Shift |
 
 ## 23. Sistem aset — `Assets`, `VisualSlot`, `UiSkin`, `AssetRegistry`
@@ -1223,7 +1230,8 @@ pemain mati (`DeathController.died`). `StatusEffectHUD` menampilkan
 
 | Tombol | Action | Fungsi |
 | --- | --- | --- |
-| F1 | `debug_reload_assets` | Muat ulang semua art tanpa restart |
+| Backtick (`) | `debug_reload_assets` | Muat ulang semua art tanpa restart (pindah dari F1: F1 dipakai `debug_needs_toggle` di practice) |
+| J | `debug_raid` | Picu raid sekarang (island) |
 | Home | `debug_asset_boxes` | Tampilkan kotak slot aset + toast cakupan |
 | F2 | `debug_island_toggle` | Aktifkan/matikan GatherDebug |
 | F3 | `debug_island_zone` | Zona berikutnya |
@@ -1236,6 +1244,56 @@ pemain mati (`DeathController.died`). `StatusEffectHUD` menampilkan
 | F11 | `debug_island_kill` | Matikan pemain |
 | F12 | `debug_island_rescue` | Lompat ke fajar Hari 7 |
 | Insert | `debug_fauna_labels` | Label temperament/state fauna |
+
+## 25b. Balance pass 2 (Mission 9, fase 1-3) — aturan yang berubah
+
+Enam perubahan perilaku. Semua angka hidup di `.tres` yang punya generator, jadi
+tuning tidak perlu menyentuh kode.
+
+| # | Perubahan | File angka | Tes |
+| --- | --- | --- | --- |
+| 1 | **Raid adalah event.** `RaidDirector` (node di `island.tscn`, bukan autoload) menjadwalkan raid per malam, memperingatkan `warning_seconds` lebih dulu (`RaidWarningHUD`: "Babi hutan mendekati base!"), menandai boar terdekat sebagai raider (`WildBoar.is_raider`), lalu melepas tanda itu saat raid selesai/fajar. Mode `EVENT_ONLY` = hostile malam hanya datang lewat raid; `ALWAYS`/`OFF` tetap tersedia untuk tes. | `src/data/configs/fauna/raid_config.tres` (`RaidConfig`) | `test_raid_director.gd` |
+| 2 | **Cap populasi.** `NightSpawner.get_hostile_cap()` memakai `night_active_hostile_cap` (kosong = tabel spec lama). `FaunaQuota.get_day_boar_cap()/get_day_deer_cap()` membatasi boar/rusa siang. Cap hanya menahan **spawn baru**; boar yang sudah hostile tidak pernah dibunuh paksa. | sama (`RaidConfig`) | `test_night_spawner.gd`, `test_fauna_quota.gd` |
+| 3 | **Babi punya massa.** Fauna dengan `blocks_player = true` masuk `PhysicsLayers.FAUNA_BODY`; pemain (`collision_mask` termasuk `FAUNA_BODY`) tidak bisa menembusnya. Dorongan saat dipukul memakai `move_and_collide()` (bukan `global_position +=`) dan diskalakan `knockback_resistance`. Rusa (`blocks_player = false`) tetap bisa ditembus. | `boar_config.gd`/`deer_config.gd` + `.tres` fauna | `test_boar_mass.gd`, `test_fauna_base.gd` |
+| 4 | **Api unggun lahir COLD.** `CampfireConfig.start_lit = false`, `initial_fuel_seconds = 240`, `unlit_light_radius = 0`: bahan bakar tidak mengalir, cahaya mati sampai pernah dinyalakan (QTE `FireStarterController`). Hint `campfire_cold` muncul begitu ada unggun dingin. | `src/data/configs/campfire_config.tres` | `test_campfire_cold.gd` |
+| 5 | **Kematian membekukan game.** `FreezeController` (grup `game_freeze`) membeku berbasis alasan (`&"pause"`, `&"death"`); `PauseMenu` memakainya bila ada. Skala waktu lama dipulihkan persis (termasuk x2 Jaga Malam dan 0 saat final dawn). | — | `test_freeze_controller.gd`, `test_island_death.gd` |
+| 6 | **Perlindungan respawn + balans needs.** Setelah respawn pemain kebal 5 dtk nyata (kedip, tanpa damage/knockback, fauna berhenti mengejar), berakhir lebih awal bila pemain menyerang. Hunger/Thirst memakai multiplier 0.6/0.57 di atas drain spec; Hunger <= 30 mengunci sprint (`Player.add_sprint_block(&"hunger")`, hint `hunger_sprint_lock`); HP pulih lambat (`HealthRegenComponent`, jeda 6 dtk, skala min(Hunger, Thirst)). | `run_config.tres`, `needs_config.tres`, `health_regen_config.tres` | `test_needs_balance.gd`, `test_sprint_blocks.gd`, `test_health_regen.gd`, `test_respawn_protection.gd` |
+
+Catatan wiring:
+
+- Node baru di `island.tscn`: `RaidDirector`, `RaidWarningHUD`, `FreezeController`,
+  `ProtectionHUD`, dan `HealthRegenComponent` (anak `Player`). Semuanya mencari
+  dependensi lewat grup/`get_node_or_null`, jadi urutan `_ready` tidak penting.
+- `WildBoar.set_raider(true)` itu satu-satunya cara menjadi raider; `get_raid_mode()`
+  mengembalikan mode dari `RaidConfig`.
+- Debug (island): `J` = picu raid sekarang, `` ` `` = muat ulang aset (F1 lama
+  dipakai `debug_needs_toggle`).
+- Fase 4 (sneak, waspada rusa, mengarungi sungai) ada di §25c. Fase 5-6
+  (sweep matahari, tab Profil, SpriteFrames-first, data audio) **belum**
+  dikerjakan.
+
+## 25c. Fase 4 — jongkok, waspada rusa, air sungai
+
+| Fitur | Cara kerja | Angka | Tes |
+| --- | --- | --- | --- |
+| **Jongkok (sneak)** | Tahan `Ctrl` (gamepad: klik stik kiri). Kecepatan x `speed_multiplier`, sprint diblokir lewat sumber `&"sneak"`, dan fauna mendeteksi pemain dari radius x `detection_multiplier`. `Player.set_sneaking()`, `is_sneaking()`, `get_stealth_multiplier()`, `get_move_speed_multiplier()` | `sneak_config.tres`: 0.55 kecepatan, 0.6 deteksi | `test_sneak.gd` |
+| **Waspada rusa** | Rusa berhenti (`IslandDeer.State.ALERT`, sinyal `alerted`, art `idle`) saat pemain masuk radius waspada = radius kabur x `alert_radius_factor`, baru kabur bila masuk radius kabur. Radius kabur ikut mengecil saat pemain jongkok | `deer_config.gd`: `alert_radius_factor` 1.25, `alert_time` 0.45 dtk | `test_deer_alert.gd` |
+| **Air sungai (wading)** | `WadingComponent` (anak `Player`) membaca `IslandZones.zone_at()`; di zona `RIVER` pemain diperlambat dan sprint diblokir (`&"wading"`). Berlaku juga untuk babi: `detect_radius` ikut dikali stealth | `wading_config.tres`: 0.55 kecepatan | `test_wading.gd` |
+| **Tell visual** | `MotionTell` (anak `Player`) menulis label "JONGKOK" / "AIR" / "JONGKOK + AIR" di atas kepala pemain; rusa waspada memasang label "!" (`AlertMark`) yang hilang begitu rusa kabur atau pemain pergi. Label dibuat runtime (tanpa aset biner, tanpa state art baru), hanya membaca state | — | `test_sneak.gd`, `test_wading.gd`, `test_deer_alert.gd` |
+
+Catatan:
+
+- Satu sumber angka: `Player.sneak_config` dan `Player.wading_config` (default
+  `preload` `.tres`). `WadingComponent` hanya melaporkan `set_wading()`, tidak
+  menyimpan pengali.
+- Radius deteksi fauna dibaca lewat `FaunaBase.get_detection_multiplier(target)`,
+  jadi rusa dan babi memakai jalur yang sama.
+- `sneak` + air bisa aktif bersama: 0.55 x 0.55 = 0.3025 kecepatan, dua sumber
+  blokir sprint.
+- Tidak ada state art baru (registry aset tidak berubah): waspada memakai `idle`,
+  tell memakai `Label` runtime.
+- Bukti lambat: `test_sneak.gd` mengukur velocity **dan** jarak tempuh nyata di
+  frame fisika dengan input sungguhan (rasio 0.55), bukan hanya angka config.
 
 ## 26. Polish pass (Mission 9) — rasa, bukan aturan
 

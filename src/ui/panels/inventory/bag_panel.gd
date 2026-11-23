@@ -14,6 +14,16 @@ const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
 const PLAYER_GROUP := &"player"
 const INVENTORY_NAME := "InventoryComponent"
 const CRAFTING_NAME := "CraftingComponent"
+const PROFICIENCY_NAME := "ProficiencyComponent"
+## Tab profisiensi (Mission 9): daftar level + XP + passive di panel tas.
+const PROF_TAB_NAME := "Profisiensi"
+const PROF_NAMES: Array[String] = ["Kekuatan", "Kecepatan", "Penguasaan", "Kelincahan"]
+const PROF_PASSIVES: Array = [
+	[[3, "Heavy Strike"], [6, "Sturdy"]],
+	[[3, "Light Footed"], [6, "Second Wind"]],
+	[[3, "Resourceful"], [6, "Master Chef"]],
+	[[3, "Quick Reflex"], [6, "Swift Counter"]],
+]
 const CRAFTING_TAB_PATH := "Root/Frame/Margin/VBox/Tabs/Crafting"
 const TOGGLE_ACTION := &"inventory_toggle"
 ## Esc hanya menutup panel; tidak membukanya.
@@ -50,6 +60,8 @@ var _crafting_progress: ProgressBar
 var _crafting_status: Label
 var _crafting_cancel: Button
 var _crafting_rows: Array[CraftingRow] = []
+var _proficiency: ProficiencyComponent
+var _prof_rows: Array[Dictionary] = []
 
 
 func _ready() -> void:
@@ -73,6 +85,8 @@ func _ready() -> void:
 	_build_crafting_tab()
 	_connect_crafting()
 	refresh_crafting()
+
+	_build_proficiency_tab()
 
 	_apply_visible(open_on_start)
 
@@ -136,6 +150,7 @@ func _apply_visible(value: bool) -> void:
 	_root.visible = value
 	if value:
 		UiMotion.pop_in(_root)
+		refresh_proficiency()
 
 
 func _build_slots() -> void:
@@ -405,3 +420,115 @@ func _on_craft_cancelled(recipe: RecipeDefinition, reason: String) -> void:
 func _on_stations_changed() -> void:
 	if is_open():
 		refresh_crafting()
+
+
+# --- Profisiensi (Mission 9) -------------------------------------------------
+
+## Tab di sebelah Tas/Crafting: level, XP ke level berikut, dan passive.
+func _build_proficiency_tab() -> void:
+	if _tabs == null:
+		return
+	_proficiency = _find_proficiency_component()
+
+	var page := VBoxContainer.new()
+	page.name = PROF_TAB_NAME
+	page.add_theme_constant_override("separation", 6)
+
+	var header := Label.new()
+	header.text = "Level naik dari aktivitas: memukul, berjalan, memanen, mengolah."
+	header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	header.add_theme_font_size_override("font_size", 10)
+	header.add_theme_color_override("font_color", Color(0.75, 0.8, 0.75, 1.0))
+	page.add_child(header)
+
+	var rows := VBoxContainer.new()
+	rows.name = "Rows"
+	rows.add_theme_constant_override("separation", 8)
+	page.add_child(rows)
+
+	for prof in PROF_NAMES.size():
+		var row := VBoxContainer.new()
+		row.name = "Prof%d" % prof
+		var title := Label.new()
+		title.add_theme_font_size_override("font_size", 13)
+		row.add_child(title)
+		var bar := ProgressBar.new()
+		bar.show_percentage = false
+		bar.custom_minimum_size = Vector2(0, 8)
+		bar.max_value = 100.0
+		row.add_child(bar)
+		var passive := Label.new()
+		passive.add_theme_font_size_override("font_size", 10)
+		passive.add_theme_color_override("font_color", Color(0.78, 0.82, 0.78, 1.0))
+		row.add_child(passive)
+		rows.add_child(row)
+		_prof_rows.append({"title": title, "bar": bar, "passive": passive})
+
+	_tabs.add_child(page)
+	refresh_proficiency()
+
+
+func refresh_proficiency() -> void:
+	if _proficiency == null and _prof_rows.is_empty():
+		return
+	if _proficiency == null:
+		for row in _prof_rows:
+			(row["title"] as Label).text = "Profisiensi tidak tersedia"
+			(row["bar"] as ProgressBar).visible = false
+			(row["passive"] as Label).text = ""
+		return
+	if not is_instance_valid(_proficiency):
+		_proficiency = _find_proficiency_component()
+		if _proficiency == null:
+			return
+
+	var config := _proficiency.config
+	var max_level: int = config.max_level if config != null else 10
+	var xp_base: float = config.xp_per_level_base if config != null else 100.0
+
+	for prof in _prof_rows.size():
+		var row: Dictionary = _prof_rows[prof]
+		var level: int = _proficiency.get_level(prof)
+		var title := row["title"] as Label
+		var bar := row["bar"] as ProgressBar
+		var passive := row["passive"] as Label
+		var name: String = PROF_NAMES[prof] if prof < PROF_NAMES.size() else "Profisiensi"
+
+		if level >= max_level:
+			title.text = "%s  Lv %d (maks)" % [name, level]
+			bar.value = bar.max_value
+		else:
+			bar.max_value = maxf(xp_base * level, 1.0)
+			bar.value = clampf(_proficiency.get_xp(prof), 0.0, bar.max_value)
+			title.text = "%s  Lv %d   %d/%d XP" % [
+				name, level, int(bar.value), int(bar.max_value),
+			]
+		passive.text = _passive_text(prof, level)
+
+
+func _passive_text(prof: int, level: int) -> String:
+	if prof < 0 or prof >= PROF_PASSIVES.size():
+		return ""
+	var parts := PackedStringArray()
+	for entry in PROF_PASSIVES[prof]:
+		var unlock: int = entry[0]
+		var passive_name: String = entry[1]
+		var state := "terbuka" if level >= unlock else "Lv %d" % unlock
+		parts.append("%s (%s)" % [passive_name, state])
+	return "Passive: " + ", ".join(parts)
+
+
+func get_proficiency_tab() -> Node:
+	if _tabs == null:
+		return null
+	return _tabs.get_node_or_null(PROF_TAB_NAME)
+
+
+func _find_proficiency_component() -> ProficiencyComponent:
+	var tree := get_tree()
+	if tree == null:
+		return null
+	var player := tree.get_first_node_in_group(PLAYER_GROUP)
+	if player == null:
+		return null
+	return player.get_node_or_null(PROFICIENCY_NAME) as ProficiencyComponent

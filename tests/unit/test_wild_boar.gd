@@ -128,7 +128,9 @@ func test_boar_targets_camp_structure_when_raiding() -> void:
 	boar.global_position = Vector2(80.0, 0.0)
 	var player := setup[1] as StubPlayer
 	player.global_position = Vector2(900.0, 0.0)
-	boar.raid_camp = true
+	# Mission 9 (R4): struktur hanya diserang raider (EVENT_ONLY) atau saat mode
+	# ALWAYS; tes lama mengasumsikan semua boar hostile menyerang struktur.
+	boar.set_raider(true)
 	var before: float = structure.get_current_hp()
 	boar.tick(0.01)
 	assert_lt(structure.get_current_hp(), before)

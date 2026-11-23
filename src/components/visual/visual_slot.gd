@@ -127,6 +127,7 @@ func get_placeholder_nodes() -> Array[CanvasItem]:
 	return _placeholders
 
 
+
 func get_first_placeholder() -> CanvasItem:
 	return _placeholders[0] if not _placeholders.is_empty() else null
 

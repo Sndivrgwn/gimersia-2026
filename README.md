@@ -40,6 +40,7 @@ gimersia-2026/
 
 - [Architecture & conventions](docs/editable/architecture.md)
 - [Module usage guide](docs/editable/PANDUAN_MODUL.md)
+- [AI context (status terverifikasi)](docs/editable/AI_CONTEXT.md)
 - [MVP checklist](docs/editable/MVP_CHECKLIST.md)
 - [Gameplay specification](docs/noneditable/spesifikasi_teknis_mekanisme_gameplay_V8.md)
 - [MVP scope & division work list](docs/noneditable/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md)
@@ -49,3 +50,13 @@ gimersia-2026/
 - `docs/editable/ASSET_GUIDE.md` — cara menaruh art (slot, nama file, fallback).
 - `docs/editable/CONFIG_GUIDE.md` — semua Resource `.tres` dan efek tuning-nya.
 - `docs/editable/PANDUAN_MODUL.md` — wiring modul, Input Map, sistem aset.
+- `docs/editable/PANDUAN_INPUT.md` — arti setiap tombol (Tab, I, P, F1-F12, J, Esc, ...), dibuat dari Input Map yang hidup.
+
+## Status
+
+Mission 9 "Balance & Feel, pass 2" fase 0-4 selesai (raid event, massa babi,
+api unggun COLD, freeze kematian + perlindungan respawn, balans needs, jongkok,
+waspada rusa, mengarungi sungai). Build headless bersih di `island.tscn`,
+`practice1.tscn`, dan `main_menu.tscn`. Fase 5-6 (sweep matahari, tab Profil,
+SpriteFrames, data audio) belum dikerjakan; detail di
+`docs/editable/AI_CONTEXT.md` §15.

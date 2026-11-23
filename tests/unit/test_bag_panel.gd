@@ -265,9 +265,11 @@ func test_equipment_drops_are_not_accepted() -> void:
 
 func test_crafting_tab_hosts_code_built_ui_instead_of_placeholder() -> void:
 	var tabs := panel.get_node(TABS_PATH) as TabContainer
-	assert_eq(tabs.get_tab_count(), 2)
+	# Mission 9: tab ketiga (Profisiensi) ditambahkan di sebelah Tas dan Crafting.
+	assert_eq(tabs.get_tab_count(), 3)
 	assert_eq(tabs.get_tab_title(0), "Tas")
 	assert_eq(tabs.get_tab_title(1), "Crafting")
+	assert_eq(tabs.get_tab_title(2), "Profisiensi")
 
 	var tab := panel.get_node(CRAFTING_TAB_PATH) as Control
 	assert_not_null(tab.find_child("CraftingBox", true, false), "isi tab dibuat saat runtime")

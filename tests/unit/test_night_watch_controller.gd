@@ -44,6 +44,8 @@ func before_each() -> void:
 	campfire.clock = clock
 	add_child_autofree(campfire)
 	campfire.set_process(false)
+	# Mission 9 (R4): bangunan baru COLD, tes jaga malam butuh api menyala.
+	campfire.ignite()
 
 	controller = NightWatchController.new()
 	controller.clock = clock

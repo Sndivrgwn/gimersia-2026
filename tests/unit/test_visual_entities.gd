@@ -25,6 +25,8 @@ func test_campfire_art_hides_placeholders_and_keeps_light_radius() -> void:
 	_write_image("props/campfire/lit.png", 64, 64)
 	var fire := CAMPFIRE_SCENE.instantiate() as Campfire
 	add_child_autofree(fire)
+	# Mission 9 (R4): api baru COLD; art "lit" hanya dipakai saat menyala.
+	fire.ignite()
 	fire.tick(0.016)
 
 	var slot := fire.get_node_or_null("VisualSlot") as VisualSlot

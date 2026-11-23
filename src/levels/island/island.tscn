@@ -1,4 +1,4 @@
-[gd_scene load_steps=52 format=3]
+[gd_scene load_steps=58 format=3]
 
 [ext_resource type="Script" path="res://src/levels/island/island.gd" id="1_island"]
 [ext_resource type="PackedScene" path="res://src/entities/player/player.tscn" id="2_player"]
@@ -66,6 +66,13 @@
 [ext_resource type="Script" path="res://src/ui/hud/toast/toast_hud.gd" id="67_toast"]
 [ext_resource type="Script" path="res://src/ui/hud/fx/damage_numbers.gd" id="68_damage"]
 [ext_resource type="Script" path="res://src/ui/hud/fx/hit_direction.gd" id="69_hitdir"]
+[ext_resource type="Script" path="res://src/core/managers/raid_director.gd" id="70_raid"]
+[ext_resource type="Script" path="res://src/ui/hud/night/raid_warning_hud.gd" id="71_raidhud"]
+[ext_resource type="Resource" path="res://src/data/configs/fauna/raid_config.tres" id="72_raidconfig"]
+[ext_resource type="Script" path="res://src/core/managers/freeze_controller.gd" id="73_freeze"]
+[ext_resource type="Script" path="res://src/ui/hud/protection/protection_hud.gd" id="74_protection"]
+[ext_resource type="Script" path="res://src/ui/hud/placeholder/placeholder_labels.gd" id="75_placeholder"]
+[ext_resource type="Script" path="res://src/components/needs/health_regen_component.gd" id="75_regen"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
 size = Vector2(5000, 100)
@@ -218,6 +225,9 @@ script = ExtResource("36_baseplace")
 [node name="FireStarterController" type="Node" parent="Player"]
 script = ExtResource("41_firestarter")
 
+[node name="HealthRegenComponent" type="Node" parent="Player"]
+script = ExtResource("75_regen")
+
 [node name="CombatFeedback" type="Node" parent="Player"]
 script = ExtResource("43_feedback")
 
@@ -260,6 +270,9 @@ config = ExtResource("40_fenceconf")
 [node name="SettingsService" type="Node" parent="."]
 script = ExtResource("44_settings")
 
+[node name="FreezeController" type="Node" parent="."]
+script = ExtResource("73_freeze")
+
 [node name="PauseMenu" type="CanvasLayer" parent="."]
 script = ExtResource("45_pause")
 
@@ -276,10 +289,18 @@ script = ExtResource("48_hints")
 script = ExtResource("25_quota")
 fauna_parent = NodePath("../Fauna")
 guarantee_deer_at_rescue = true
+raid_config = ExtResource("72_raidconfig")
 
 [node name="NightSpawner" type="Node" parent="." node_paths=PackedStringArray("fauna_parent")]
 script = ExtResource("26_spawner")
 fauna_parent = NodePath("../Fauna")
+raid_config = ExtResource("72_raidconfig")
+
+[node name="RaidDirector" type="Node" parent="." node_paths=PackedStringArray("spawner", "fauna_parent")]
+script = ExtResource("70_raid")
+spawner = NodePath("../NightSpawner")
+fauna_parent = NodePath("../Fauna")
+config = ExtResource("72_raidconfig")
 
 [node name="DayNightVisual" parent="." instance=ExtResource("9_daynight")]
 
@@ -300,6 +321,9 @@ script = ExtResource("49_chestpanel")
 [node name="NightBanner" type="Control" parent="."]
 script = ExtResource("50_nightbanner")
 
+[node name="RaidWarningHUD" type="Control" parent="."]
+script = ExtResource("71_raidhud")
+
 [node name="NightSurvivalHUD" type="Control" parent="."]
 script = ExtResource("51_survivalhud")
 
@@ -308,6 +332,12 @@ script = ExtResource("52_recap")
 
 [node name="ProficiencyHUD" type="Control" parent="."]
 script = ExtResource("53_proficiencyhud")
+
+[node name="ProtectionHUD" type="Control" parent="."]
+script = ExtResource("74_protection")
+
+[node name="PlaceholderLabels" type="Control" parent="."]
+script = ExtResource("75_placeholder")
 
 [node name="BagPanel" parent="." instance=ExtResource("14_bagpanel")]
 

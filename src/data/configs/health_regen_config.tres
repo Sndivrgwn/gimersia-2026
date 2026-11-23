@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="HealthRegenConfig" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/needs/health_regen_config.gd" id="1_7pwpl"]
+
+[resource]
+script = ExtResource("1_7pwpl")
+regen_hunger_curve = PackedVector2Array(0, 0, 30, 0.3, 60, 0.75, 100, 1)
+regen_thirst_curve = PackedVector2Array(0, 0, 30, 0.3, 60, 0.75, 100, 1)

@@ -19,6 +19,12 @@ extends FaunaConfig
 @export var dash_structure_damage: float = 40.0
 @export var dash_hit_radius: float = 40.0
 
+## Mission 9: babi memblokir pemain dan tahan sebagian knockback.
+func _init() -> void:
+	blocks_player = true
+	knockback_resistance = 0.35
+
+
 @export_group("Persepsi")
 @export var detect_radius: float = 300.0
 @export var leash_radius: float = 380.0

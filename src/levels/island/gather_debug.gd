@@ -96,6 +96,8 @@ func _process(_delta: float) -> void:
 		_kill_player()
 	elif Input.is_action_just_pressed(InputSetup.DEBUG_ISLAND_RESCUE):
 		_jump_to_rescue()
+	elif Input.is_action_just_pressed(InputSetup.DEBUG_RAID):
+		_trigger_raid()
 
 
 func is_debug_enabled() -> bool:
@@ -163,10 +165,26 @@ func _fauna_label_text(fauna: FaunaBase) -> String:
 	if fauna.forced_hostile:
 		temperament_name += "(forced)"
 	var state_name := "-"
+	var raid_tag := ""
 	if fauna is WildBoar:
-		var state_value: int = (fauna as WildBoar).get_state()
+		var boar := fauna as WildBoar
+		var state_value: int = boar.get_state()
 		state_name = BOAR_STATE_NAMES[clampi(state_value, 0, BOAR_STATE_NAMES.size() - 1)]
-	return "%s | %s | provoked=%s" % [temperament_name, state_name, "yes" if fauna.is_provoked() else "no"]
+		raid_tag = " | RAIDER" if boar.is_raider else " | normal"
+	return "%s | %s | provoked=%s%s" % [temperament_name, state_name, "yes" if fauna.is_provoked() else "no", raid_tag]
+
+
+## Mission 9 (debug island): picu raid sekarang lewat RaidDirector.
+func _trigger_raid() -> int:
+	var tree := get_tree()
+	if tree == null:
+		return 0
+	var director := tree.get_first_node_in_group(RaidDirector.GROUP) as RaidDirector
+	if director == null:
+		return 0
+	var count := director.trigger_raid_now()
+	refresh_fauna_labels()
+	return count
 
 
 func _build_hint() -> void:

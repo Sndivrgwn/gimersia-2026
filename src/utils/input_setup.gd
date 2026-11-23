@@ -10,6 +10,8 @@ const MOVE_RIGHT := &"move_right"
 const MOVE_UP := &"move_up"
 const MOVE_DOWN := &"move_down"
 const SPRINT := &"sprint"
+## Mission 9 fase 4: tahan Ctrl untuk jongkok (lebih lambat, lebih samar).
+const SNEAK := &"sneak"
 const INVENTORY_TOGGLE := &"inventory_toggle"
 ## Hold E untuk gather/bangun/loot/beacon (InteractorComponent).
 const INTERACT := &"interact"
@@ -35,8 +37,11 @@ const DEBUG_ISLAND_KILL := &"debug_island_kill"
 const DEBUG_ISLAND_RESCUE := &"debug_island_rescue"
 ## Insert (island debug): tampilkan label temperament/state di atas setiap fauna.
 const DEBUG_FAUNA_LABELS := &"debug_fauna_labels"
-## F1 / Home (island debug): muat ulang art aset, tampilkan kotak slot aset.
+## Mission 9: backtick / Home (island debug): muat ulang art aset, tampilkan kotak slot
+## aset. Pindah dari F1 karena F1 sudah dipakai debug_needs_toggle (practice).
 const DEBUG_RELOAD_ASSETS := &"debug_reload_assets"
+## Mission 9: J (island debug): picu raid sekarang juga.
+const DEBUG_RAID := &"debug_raid"
 const DEBUG_ASSET_BOXES := &"debug_asset_boxes"
 ## B: tentukan lokasi base (BasePlacementController).
 const BASE_PLACE := &"base_place"
@@ -87,6 +92,9 @@ static func ensure_actions() -> void:
 	_ensure_action(SPRINT)
 	_ensure_key(SPRINT, KEY_SHIFT)
 
+	_ensure_action(SNEAK)
+	_ensure_key(SNEAK, KEY_CTRL)
+
 	_ensure_action(INVENTORY_TOGGLE)
 	for key in INVENTORY_TOGGLE_KEYS:
 		_ensure_key(INVENTORY_TOGGLE, key)
@@ -129,8 +137,11 @@ static func ensure_actions() -> void:
 	_ensure_action(DEBUG_FAUNA_LABELS)
 	_ensure_key(DEBUG_FAUNA_LABELS, KEY_INSERT)
 
+	_ensure_action(DEBUG_RAID)
+	_ensure_key(DEBUG_RAID, KEY_J)
+
 	_ensure_action(DEBUG_RELOAD_ASSETS)
-	_ensure_key(DEBUG_RELOAD_ASSETS, KEY_F1)
+	_ensure_key(DEBUG_RELOAD_ASSETS, KEY_QUOTELEFT)
 	_ensure_action(DEBUG_ASSET_BOXES)
 	_ensure_key(DEBUG_ASSET_BOXES, KEY_HOME)
 
@@ -157,6 +168,7 @@ static func _ensure_gamepad() -> void:
 	_ensure_joy_axis(MOVE_UP, JOY_AXIS_LEFT_Y, -1.0)
 	_ensure_joy_axis(MOVE_DOWN, JOY_AXIS_LEFT_Y, 1.0)
 	_ensure_joy_button(SPRINT, JOY_BUTTON_RIGHT_SHOULDER)
+	_ensure_joy_button(SNEAK, JOY_BUTTON_LEFT_STICK)
 	_ensure_joy_button(INTERACT, JOY_BUTTON_A)
 	_ensure_joy_button(ATTACK_SPACE, JOY_BUTTON_X)
 	_ensure_joy_button(INVENTORY_TOGGLE, JOY_BUTTON_Y)

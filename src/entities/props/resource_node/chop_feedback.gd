@@ -3,12 +3,20 @@ extends Node2D
 
 ## Mission 7: umpan balik menebang pohon (tanpa audio).
 ## Menempel sebagai child ResourceNode hanya untuk definisi chop_feedback_enabled.
+##
+## Mission 9 (fix): getaran HANYA saat progres menebang benar-benar berjalan
+## (tombol tahan ditekan), bukan saat pemain sekadar berdiri dekat pohon.
+## Getaran juga berirama: satu getaran pendek setiap `CHOP_INTERVAL`, bukan
+## berkelanjutan, supaya terasa seperti ayunan kapak.
 
 signal feedback_event(kind: StringName, position: Vector2)
 
 const SHAKE_PX := 2.0
-const SHAKE_HZ := 12.0
-const CHIP_INTERVAL := 0.25
+const SHAKE_HZ := 18.0
+## Jeda antar ayunan: serpihan + getaran pendek.
+const CHOP_INTERVAL := 0.22
+## Lama satu getaran; sisanya diam menunggu ayunan berikutnya.
+const SHAKE_BURST := 0.12
 const FALL_TIME := 0.6
 const FALL_DEGREES := 85.0
 const REGROW_TIME := 0.5
@@ -18,9 +26,13 @@ const STUMP_SIZE := Vector2(16.0, 6.0)
 var _target: Node
 var _interactor: InteractorComponent
 var _visual: Node2D
+## Pemain sedang menargetkan pohon ini (hanya dekat, belum tentu menebang).
+var _targeted: bool = false
+## Progres menebang sedang berjalan untuk pohon ini.
 var _active: bool = false
 var _shake_phase: float = 0.0
-var _chip_timer: float = 0.0
+var _interval_timer: float = 0.0
+var _burst_remaining: float = 0.0
 var _fallen: bool = false
 var _stump: Polygon2D
 
@@ -41,20 +53,31 @@ func tick(delta: float) -> void:
 	_poll_depleted()
 	if _interactor == null:
 		_bind_interactor()
-	if not _active or _fallen:
+	if _fallen or not _active:
 		return
-	_shake_phase += delta
-	if _visual != null:
-		_visual.position = Vector2(sin(_shake_phase * TAU * SHAKE_HZ) * SHAKE_PX, 0.0)
-	_chip_timer += delta
-	if _chip_timer >= CHIP_INTERVAL:
-		_chip_timer = 0.0
+
+	_interval_timer += delta
+	if _interval_timer >= CHOP_INTERVAL:
+		_interval_timer = 0.0
+		_burst_remaining = SHAKE_BURST
 		_spawn_chips()
 		feedback_event.emit(&"chop_hit", global_position)
+
+	if _burst_remaining <= 0.0:
+		return
+	_burst_remaining = maxf(_burst_remaining - delta, 0.0)
+	_shake_phase += delta
+	if _visual != null:
+		var offset := sin(_shake_phase * TAU * SHAKE_HZ) * SHAKE_PX
+		_visual.position = Vector2(offset, 0.0) if _burst_remaining > 0.0 else Vector2.ZERO
 
 
 func is_chopping() -> bool:
 	return _active and not _fallen
+
+
+func is_targeted() -> bool:
+	return _targeted
 
 
 func is_fallen() -> bool:
@@ -84,20 +107,34 @@ func _bind_interactor() -> void:
 
 
 func _on_target_changed(target: Interactable) -> void:
-	_active = target == _target
-	if not _active:
-		_stop_shake()
+	_targeted = target == _target
+	if not _targeted:
+		_deactivate()
 
 
+## Progres 0 berarti tombol dilepas/batal: getaran berhenti walau masih dekat.
 func _on_progress_changed(ratio: float) -> void:
-	if _active and ratio > 0.0:
+	var active := _targeted and ratio > 0.0 and not _fallen
+	if active == _active:
 		return
+	if active:
+		_activate()
+	else:
+		_deactivate()
+
+
+func _activate() -> void:
+	_active = true
+	_interval_timer = CHOP_INTERVAL
+	_burst_remaining = SHAKE_BURST
+	_shake_phase = 0.0
+
+
+func _deactivate() -> void:
 	_active = false
-	_stop_shake()
-
-
-func _stop_shake() -> void:
-	_chip_timer = 0.0
+	_interval_timer = 0.0
+	_burst_remaining = 0.0
+	_shake_phase = 0.0
 	if _visual != null:
 		_visual.position = Vector2.ZERO
 
@@ -116,7 +153,7 @@ func _poll_depleted() -> void:
 
 func _start_fall() -> void:
 	_fallen = true
-	_stop_shake()
+	_deactivate()
 	var parent := _target.get_parent()
 	if parent != null:
 		var body := Node2D.new()

@@ -28,12 +28,14 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | Generator | Perintah | File `.tres` yang ditulis |
 | --- | --- | --- |
 | `res://tools/generate_asset_registry.gd` | `GODOT --headless --path . -s tools/generate_asset_registry.gd` | res://src/data/assets/asset_registry.tres |
-| `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` | res://src/data/configs/combat_config.tres, res://src/data/configs/fauna/boar_config.tres, res://src/data/configs/fauna/deer_config.tres, res://src/data/configs/fauna/ember_snuff_config.tres, res://src/data/configs/fauna/night_scaling_config.tres |
+| `res://tools/generate_balance_data.gd` | `GODOT --headless --path . -s tools/generate_balance_data.gd` | res://src/data/configs/health_regen_config.tres, res://src/data/configs/needs_config.tres, res://src/data/configs/run_config.tres, res://src/data/configs/sneak_config.tres, res://src/data/configs/wading_config.tres |
+| `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` | res://src/data/configs/combat_config.tres, res://src/data/configs/fauna/boar_config.tres, res://src/data/configs/fauna/deer_config.tres, res://src/data/configs/fauna/ember_snuff_config.tres, res://src/data/configs/fauna/night_scaling_config.tres, res://src/data/configs/fauna/raid_config.tres |
 | `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` | — (tidak menulis .tres) |
-| `res://tools/generate_hints.gd` | `GODOT --headless --path . -s tools/generate_hints.gd` | — (tidak menulis .tres) |
+| `res://tools/generate_hints.gd` | `GODOT --headless --path . -s tools/generate_hints.gd` | res://src/data/hints/base_place.tres, res://src/data/hints/campfire_cold.tres, res://src/data/hints/crafting.tres, res://src/data/hints/dusk.tres, res://src/data/hints/fence.tres, res://src/data/hints/gather.tres, res://src/data/hints/hunger_sprint_lock.tres, res://src/data/hints/need_low.tres, res://src/data/hints/neutral_hit.tres, res://src/data/hints/repair.tres |
+| `res://tools/generate_input_guide.gd` | `GODOT --headless --path . -s tools/generate_input_guide.gd` | — (tidak menulis .tres) |
 | `res://tools/generate_proficiency_data.gd` | `GODOT --headless --path . -s tools/generate_proficiency_data.gd` | res://src/data/configs/proficiency_config.tres |
-| `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` | — (tidak menulis .tres) |
-| `res://tools/generate_structures.gd` | `GODOT --headless --path . -s tools/generate_structures.gd` | res://src/data/configs/fence_config.tres |
+| `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` | res://src/data/recipes/boiled_water.tres, res://src/data/recipes/bone_broth.tres, res://src/data/recipes/bone_spear.tres, res://src/data/recipes/cooked_meat.tres, res://src/data/recipes/herbal_bandage.tres, res://src/data/recipes/leather_vest.tres, res://src/data/recipes/signal_flare.tres, res://src/data/recipes/stone_axe.tres, res://src/data/recipes/stone_pickaxe.tres, res://src/data/recipes/stone_spear.tres, res://src/data/recipes/torch.tres, res://src/data/recipes/waterskin.tres, res://src/data/recipes/wooden_spear.tres |
+| `res://tools/generate_structures.gd` | `GODOT --headless --path . -s tools/generate_structures.gd` | res://src/data/camp/campfire.tres, res://src/data/camp/chest.tres, res://src/data/camp/fence_segment.tres, res://src/data/camp/tent.tres, res://src/data/camp/workbench.tres, res://src/data/configs/campfire_config.tres, res://src/data/configs/fence_config.tres |
 
 ## src/data/assets
 
@@ -59,7 +61,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `structure_definition.gd` (`res://src/data/resources/camp/structure_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -82,7 +84,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `structure_definition.gd` (`res://src/data/resources/camp/structure_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -105,7 +107,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `structure_definition.gd` (`res://src/data/resources/camp/structure_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -128,7 +130,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `structure_definition.gd` (`res://src/data/resources/camp/structure_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -151,7 +153,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `structure_definition.gd` (`res://src/data/resources/camp/structure_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -187,6 +189,37 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `pixel_art` | bool | true |
 | `mirror_fallback` | bool | true |
 | `default_fps` | Dictionary | {8 entri} |
+
+### `res://src/data/configs/campfire_config.tres`
+
+- Kelas: `campfire_config.gd` (`res://src/data/resources/camp/campfire_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `start_lit` | bool | false |
+| `initial_fuel_seconds` | float | 240.00 |
+| `unlit_light_radius` | float | 0.00 |
+| `start_fuel` | float | 240.00 |
+| `max_fuel` | float | 600.00 |
+| `day_drain` | float | 0.25 |
+| `night_drain` | float | 1.00 |
+| `full_threshold` | float | 580.00 |
+| `refuel_wood_cost` | int | 2 |
+| `refuel_seconds` | float | 180.00 |
+| `refuel_hold_time` | float | 0.50 |
+| `manual_ignition_enabled` | bool | true |
+| `lit_light_radius` | float | 240.00 |
+| `ember_light_radius` | float | 80.00 |
+| `dazzle_radius` | float | 180.00 |
+| `rest_radius` | float | 120.00 |
+| `rest_regen` | float | 5.00 |
+| `rest_check_interval` | float | 0.25 |
 
 ### `res://src/data/configs/combat_config.tres`
 
@@ -259,6 +292,23 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `consume_stone_on_fail_only` | bool | true |
 | `fail_cooldown` | float | 0.80 |
 | `cancel_distance` | float | 96.00 |
+
+### `res://src/data/configs/health_regen_config.tres`
+
+- Kelas: `health_regen_config.gd` (`res://src/data/resources/needs/health_regen_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `base_regen_per_second` | float | 0.50 |
+| `out_of_combat_delay` | float | 6.00 |
+| `regen_hunger_curve` | lain | [(0.0, 0.0), (30.0, 0.3), (60.0, 0.75), (100.... |
+| `regen_thirst_curve` | lain | [(0.0, 0.0), (30.0, 0.3), (60.0, 0.75), (100.... |
 
 ### `res://src/data/configs/interaction_config.tres`
 
@@ -373,7 +423,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `needs_config.gd` (`res://src/data/resources/needs/needs_config.gd`)
 - Tujuan: Laju Hunger/Thirst/Fatigue dan ambang tier.
 - Dipakai oleh: NeedsComponent, NeedsHUD
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: Mengubah seberapa cepat kebutuhan turun dan kapan tier LOW/ZERO.
 - Tes terkait: test_needs_component.gd
 
@@ -395,6 +445,11 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `fatigue_sprint_cap_drain` | float | 0.40 |
 | `fatigue_meal_cap_restore` | float | 10.00 |
 | `sleep_fatigue_cap_restore` | float | 25.00 |
+| `global_drain_multiplier` | float | 1.00 |
+| `hunger_drain_multiplier` | float | 0.60 |
+| `thirst_drain_multiplier` | float | 0.57 |
+| `drain_multiplier_by_day` | Array | [7 item] |
+| `hunger_sprint_lock_threshold` | float | 30.00 |
 | `hunger_zero_hp_loss` | float | 1.50 |
 | `thirst_zero_hp_loss` | float | 2.00 |
 | `hunger_low_move_speed` | float | -0.15 |
@@ -459,6 +514,54 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `swift_counter_multiplier` | float | 1.25 |
 | `death_debuff_levels` | int | 2 |
 | `first_passive_level` | int | 3 |
+
+### `res://src/data/configs/run_config.tres`
+
+- Kelas: `run_config.gd` (`res://src/data/resources/run/run_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `respawn_protection_seconds` | float | 5.00 |
+| `protection_ignored_by_enemies` | bool | true |
+| `protection_ends_on_attack` | bool | false |
+| `protection_blink_hz` | float | 6.00 |
+
+### `res://src/data/configs/sneak_config.tres`
+
+- Kelas: `sneak_config.gd` (`res://src/data/resources/movement/sneak_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `speed_multiplier` | float | 0.55 |
+| `detection_multiplier` | float | 0.60 |
+| `blocks_sprint` | bool | true |
+
+### `res://src/data/configs/wading_config.tres`
+
+- Kelas: `wading_config.gd` (`res://src/data/resources/movement/wading_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `speed_multiplier` | float | 0.55 |
+| `blocks_sprint` | bool | true |
 
 
 ## src/data/configs/environment
@@ -570,6 +673,9 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `flee_despawn_timeout` | float | 8.00 |
 | `loot_ids` | Array | [] |
 | `loot_counts` | Array | [] |
+| `blocks_player` | bool | true |
+| `knockback_resistance` | float | 0.35 |
+| `contact_stop_extra` | float | 2.00 |
 
 ### `res://src/data/configs/fauna/deer_config.tres`
 
@@ -586,6 +692,8 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `flee_speed` | float | 175.00 |
 | `flee_trigger_radius` | float | 130.00 |
 | `flee_duration` | float | 5.00 |
+| `alert_radius_factor` | float | 1.25 |
+| `alert_time` | float | 0.45 |
 | `max_hp` | float | 40.00 |
 | `move_speed_day` | float | 60.00 |
 | `move_speed_night` | float | 60.00 |
@@ -597,6 +705,9 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `flee_despawn_timeout` | float | 8.00 |
 | `loot_ids` | Array | [] |
 | `loot_counts` | Array | [] |
+| `blocks_player` | bool | false |
+| `knockback_resistance` | float | 1.00 |
+| `contact_stop_extra` | float | 2.00 |
 
 ### `res://src/data/configs/fauna/ember_snuff_config.tres`
 
@@ -628,6 +739,35 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_enemies` | Array | [7 item] |
 | `spawn_interval` | Array | [7 item] |
 | `hp_damage_multiplier` | Array | [7 item] |
+
+### `res://src/data/configs/fauna/raid_config.tres`
+
+- Kelas: `raid_config.gd` (`res://src/data/resources/fauna/raid_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `mode` | int | 0 |
+| `raids_per_night` | Array | [7 item] |
+| `raiders_per_raid` | Array | [7 item] |
+| `first_raid_delay_min` | float | 45.00 |
+| `first_raid_delay_max` | float | 120.00 |
+| `raid_duration` | float | 40.00 |
+| `raid_gap_min` | float | 70.00 |
+| `warning_seconds` | float | 8.00 |
+| `day_raids_enabled` | bool | false |
+| `day_raids_per_day` | Array | [7 item] |
+| `day_raiders_per_raid` | Array | [7 item] |
+| `global_pressure_multiplier` | float | 1.00 |
+| `day_boar_cap` | int | 2 |
+| `day_deer_cap` | int | 3 |
+| `night_active_hostile_cap` | Array | [7 item] |
+| `spawn_interval_multiplier` | float | 1.00 |
 
 
 ## src/data/gathering
@@ -865,7 +1005,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -880,7 +1020,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -888,14 +1028,14 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
 | `id` | StringName | campfire_cold |
-| `text` | String | Api padam. Tahan E lalu tekan E tepat waktu u... |
+| `text` | String | Api unggun belum menyala. Tahan E, lalu tekan... |
 
 ### `res://src/data/hints/crafting.tres`
 
 - Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -910,7 +1050,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -925,7 +1065,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -940,7 +1080,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -950,12 +1090,27 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `id` | StringName | gather |
 | `text` | String | Tahan E untuk mengumpulkan. |
 
+### `res://src/data/hints/hunger_sprint_lock.tres`
+
+- Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | hunger_sprint_lock |
+| `text` | String | Lapar: kamu tidak bisa sprint dan HP pulih le... |
+
 ### `res://src/data/hints/need_low.tres`
 
 - Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -970,7 +1125,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -985,7 +1140,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `hint_definition.gd` (`res://src/data/resources/hints/hint_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1581,7 +1736,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1601,7 +1756,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1621,7 +1776,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1641,7 +1796,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1661,7 +1816,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1681,7 +1836,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1701,7 +1856,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1721,7 +1876,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1741,7 +1896,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1761,7 +1916,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1781,7 +1936,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1801,7 +1956,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1821,7 +1976,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `recipe_definition.gd` (`res://src/data/resources/crafting/recipe_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1851,9 +2006,11 @@ Kelas berikut hanya punya default di kode; ubah lewat kode atau dengan membuat `
 | Generator | Perintah |
 | --- | --- |
 | `res://tools/generate_asset_registry.gd` | `GODOT --headless --path . -s tools/generate_asset_registry.gd` |
+| `res://tools/generate_balance_data.gd` | `GODOT --headless --path . -s tools/generate_balance_data.gd` |
 | `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` |
 | `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` |
 | `res://tools/generate_hints.gd` | `GODOT --headless --path . -s tools/generate_hints.gd` |
+| `res://tools/generate_input_guide.gd` | `GODOT --headless --path . -s tools/generate_input_guide.gd` |
 | `res://tools/generate_proficiency_data.gd` | `GODOT --headless --path . -s tools/generate_proficiency_data.gd` |
 | `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` |
 | `res://tools/generate_structures.gd` | `GODOT --headless --path . -s tools/generate_structures.gd` |

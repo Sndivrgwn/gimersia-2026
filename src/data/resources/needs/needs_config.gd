@@ -47,6 +47,35 @@ extends Resource
 ## Tidur (time_skipped) memulihkan plafon Fatigue sebesar ini.
 @export var sleep_fatigue_cap_restore: float = 25.0
 
+@export_group("Balance (Mission 9)")
+## Pengali semua drain Hunger/Thirst (1.0 = angka spesifikasi).
+@export var global_drain_multiplier: float = 1.0
+## Pengali drain Hunger. 0.6 = siklus pertama berakhir ~35 (target 30..45).
+@export var hunger_drain_multiplier: float = 0.6
+## Pengali drain Thirst. 0.57 = siklus pertama berakhir ~28 (target 15..35).
+@export var thirst_drain_multiplier: float = 0.57
+## Pengali tambahan per hari (indeks 0 = hari 1); 1.0 = tidak berubah.
+@export var drain_multiplier_by_day: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+## Hunger <= nilai ini memblokir sprint (source &"hunger").
+@export var hunger_sprint_lock_threshold: float = 30.0
+
+
+## Pengali drain Hunger efektif untuk `day` (1..7).
+func hunger_drain_scale(day: int) -> float:
+	return maxf(global_drain_multiplier, 0.0) * maxf(hunger_drain_multiplier, 0.0) * _day_scale(day)
+
+
+## Pengali drain Thirst efektif untuk `day` (1..7).
+func thirst_drain_scale(day: int) -> float:
+	return maxf(global_drain_multiplier, 0.0) * maxf(thirst_drain_multiplier, 0.0) * _day_scale(day)
+
+
+func _day_scale(day: int) -> float:
+	if drain_multiplier_by_day.is_empty():
+		return 1.0
+	return maxf(drain_multiplier_by_day[clampi(day - 1, 0, drain_multiplier_by_day.size() - 1)], 0.0)
+
+
 @export_group("Zero Tier HP Loss Per Second")
 ## HP hilang per detik game saat Hunger ZERO.
 @export var hunger_zero_hp_loss: float = 1.5

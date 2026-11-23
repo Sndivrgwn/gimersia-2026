@@ -5,4 +5,4 @@
 [resource]
 script = ExtResource("1_xl5ng")
 id = &"campfire_cold"
-text = "Api padam. Tahan E lalu tekan E tepat waktu untuk menggesek batu."
+text = "Api unggun belum menyala. Tahan E, lalu tekan E tepat di zona hijau untuk menggesek batu."

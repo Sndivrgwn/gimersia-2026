@@ -26,6 +26,8 @@ const PLAYER_GROUP := &"player"
 ## Mission 7: jaminan rusa saat rescue (min 2, respawn 45 s nyata, max 4).
 @export var rescue_min_deer: int = 2
 @export var rescue_max_extra_deer_respawns: int = 4
+## Mission 9: batas populasi siang. Null = pakai boar_target/deer_target.
+@export var raid_config: RaidConfig
 
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
@@ -81,10 +83,20 @@ func spawn_initial() -> void:
 	if _initial_spawned:
 		return
 	_initial_spawned = true
-	for index in boar_target:
+	for index in get_day_boar_cap():
 		_spawn_boar()
-	for index in deer_target:
+	for index in get_day_deer_cap():
 		_spawn_deer()
+
+
+## Batas populasi boar siang (Mission 9: RaidConfig.day_boar_cap).
+func get_day_boar_cap() -> int:
+	return raid_config.day_boar_cap if raid_config != null else boar_target
+
+
+## Batas populasi rusa siang (Mission 9: RaidConfig.day_deer_cap).
+func get_day_deer_cap() -> int:
+	return raid_config.day_deer_cap if raid_config != null else deer_target
 
 
 func get_boar_count() -> int:
@@ -226,18 +238,20 @@ func _apply_dawn_rule() -> void:
 		if boar != null and not boar.is_fleeing():
 			boars.append(boar)
 
-	# Sisa malam kabur sampai paling banyak 2 Boar tersisa.
-	for index in range(boar_target, boars.size()):
+	var boar_cap := get_day_boar_cap()
+	var deer_cap := get_day_deer_cap()
+	# Sisa malam kabur sampai paling banyak `boar_cap` Boar tersisa.
+	for index in range(boar_cap, boars.size()):
 		boars[index].begin_flee(player_position, flee_duration)
 
 	# Survivor kembali NEUTRAL dengan multiplier 1.0.
-	for index in mini(boar_target, boars.size()):
+	for index in mini(boar_cap, boars.size()):
 		boars[index].reset_night_scaling()
 		boars[index].set_temperament(FaunaBase.Temperament.NEUTRAL)
 
-	while get_boar_count() < boar_target:
+	while get_boar_count() < boar_cap:
 		_spawn_boar()
-	while get_deer_count() < deer_target:
+	while get_deer_count() < deer_cap:
 		_spawn_deer()
 
 
@@ -250,14 +264,14 @@ func _on_rescue_started() -> void:
 		var fauna := node as FaunaBase
 		if fauna == null:
 			continue
-		if fauna is WildBoar and get_boar_count() <= boar_target and not fauna.is_fleeing():
+		if fauna is WildBoar and get_boar_count() <= get_day_boar_cap() and not fauna.is_fleeing():
 			# Boar yang dijamin tetap ada; jangan disuruh kabur.
 			fauna.reset_night_scaling()
 			fauna.set_temperament(FaunaBase.Temperament.NEUTRAL)
 			continue
 		fauna.begin_flee(player_position, flee_duration)
 
-	while get_boar_count() < boar_target:
+	while get_boar_count() < get_day_boar_cap():
 		var boar := _spawn_boar()
 		if boar != null:
 			boar.set_temperament(FaunaBase.Temperament.NEUTRAL)

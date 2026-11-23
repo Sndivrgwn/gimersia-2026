@@ -37,11 +37,15 @@ static func boar_state(value: int, moving: bool) -> StringName:
 			return &"walk" if moving else &"idle"
 
 
-## IslandDeer.State: 0 WANDER, 1 FLEE.
+## IslandDeer.State: 0 WANDER, 1 FLEE, 2 ALERT.
+## Waspada (2) memakai art `idle`: rusa berhenti dengan kepala terangkat, sama
+## seperti diam. Tidak ada state art baru supaya registry aset tidak berubah.
 static func deer_state(value: int, moving: bool) -> StringName:
 	match value:
 		1:
 			return &"flee"
+		2:
+			return &"idle"
 		_:
 			return &"walk" if moving else &"idle"
 

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="HintDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/hints/hint_definition.gd" id="1_0xu5o"]
+
+[resource]
+script = ExtResource("1_0xu5o")
+id = &"hunger_sprint_lock"
+text = "Lapar: kamu tidak bisa sprint dan HP pulih lebih lambat."

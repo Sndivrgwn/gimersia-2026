@@ -8,6 +8,7 @@ signal hint_hidden(id: StringName)
 
 const SHOW_TIME := 5.0
 const BASE_HINT_DELAY := 3.0
+const DEFAULT_NEEDS: NeedsConfig = preload("res://src/data/configs/needs_config.tres")
 const HINT_PATHS: Array[String] = [
 	"res://src/data/hints/base_place.tres",
 	"res://src/data/hints/gather.tres",
@@ -18,6 +19,7 @@ const HINT_PATHS: Array[String] = [
 	"res://src/data/hints/crafting.tres",
 	"res://src/data/hints/fence.tres",
 	"res://src/data/hints/neutral_hit.tres",
+	"res://src/data/hints/hunger_sprint_lock.tres",
 ]
 
 @export var label: Label
@@ -32,6 +34,7 @@ var _timer: float = 0.0
 var _base_timer: float = 0.0
 var _base_checked: bool = false
 var _was_night: bool = false
+var _cold_fire_checked: bool = false
 ## Teks bebas (OpeningSequence) ikut antrean hint yang sama supaya tidak tumpang tindih.
 var _texts: Dictionary = {}
 var _durations: Dictionary = {}
@@ -59,6 +62,7 @@ func tick(delta: float) -> void:
 			_hide_current()
 	_tick_base_hint(delta)
 	_tick_night()
+	_tick_cold_fire()
 	if _current == &"" and has_pending():
 		_pump()
 
@@ -112,6 +116,7 @@ func reset() -> void:
 	_timer = 0.0
 	_base_timer = 0.0
 	_base_checked = false
+	_cold_fire_checked = false
 	if label != null:
 		label.text = ""
 		label.visible = false
@@ -191,6 +196,7 @@ func _wire() -> void:
 		var needs := player.get_node_or_null("NeedsComponent") as NeedsComponent
 		if needs != null:
 			needs.tier_changed.connect(_on_tier_changed)
+			needs.value_changed.connect(_on_need_value_changed)
 		var combat := player.get_node_or_null("CombatComponent") as CombatComponent
 		if combat != null:
 			combat.hit_dealt.connect(_on_hit_dealt)
@@ -202,6 +208,14 @@ func _wire() -> void:
 func _on_target_changed(target: Interactable) -> void:
 	if target != null:
 		trigger(&"gather")
+
+
+## Mission 9: Hunger <= 30 memblokir sprint dan memperlambat regen HP.
+func _on_need_value_changed(need: int, value: float) -> void:
+	if need != NeedsComponent.Need.HUNGER:
+		return
+	if value <= DEFAULT_NEEDS.hunger_sprint_lock_threshold:
+		trigger(&"hunger_sprint_lock")
 
 
 func _on_tier_changed(_need: int, tier: int) -> void:
@@ -229,6 +243,25 @@ func _tick_base_hint(delta: float) -> void:
 	if _base_timer >= BASE_HINT_DELAY:
 		_base_checked = true
 		trigger(&"base_place")
+
+
+## Mission 9: api unggun baru dibangun COLD, jadi hint muncul begitu ada api
+## dingin (dengan atau tanpa bahan bakar), bukan hanya setelah api padam.
+func _tick_cold_fire() -> void:
+	if _cold_fire_checked:
+		return
+	var tree := get_tree()
+	if tree == null:
+		return
+	for node in tree.get_nodes_in_group(&"camp_structure"):
+		var fire := node as Campfire
+		if fire == null or not is_instance_valid(fire):
+			continue
+		if not fire.is_cold():
+			continue
+		_cold_fire_checked = true
+		trigger(&"campfire_cold")
+		return
 
 
 func _tick_night() -> void:

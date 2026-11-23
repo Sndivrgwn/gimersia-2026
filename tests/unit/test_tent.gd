@@ -124,9 +124,11 @@ func test_sleep_calls_skip_time_once_and_needs_reacts() -> void:
 	assert_eq(clock.skip_calls, 1, "Tenda hanya memanggil skip_time sekali")
 	assert_almost_eq(clock.last_skip, 45.0, 0.001)
 	assert_almost_eq(needs.get_value(NeedsComponent.Need.FATIGUE), 100.0, 0.001, "Fatigue penuh")
+	# Mission 9 (R4): drain sekarang dikali pengali balance NeedsConfig.
+	var config := needs.get_config()
 	assert_almost_eq(
 		needs.get_value(NeedsComponent.Need.HUNGER),
-		hunger_before - 0.16 * 45.0,
+		hunger_before - 0.16 * 45.0 * config.hunger_drain_scale(1),
 		0.01,
 		"Hunger ikut terkuras lewat time_skipped"
 	)

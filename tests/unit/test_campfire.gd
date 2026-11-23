@@ -54,11 +54,15 @@ func before_each() -> void:
 	campfire.clock = clock
 	add_child_autofree(campfire)
 	campfire.set_process(false)
+	# Mission 9 (R4): bangunan baru COLD. Tes-tes lama di file ini menguji api
+	# yang sudah menyala, jadi api dinyalakan lewat jalur resmi (gesek batu).
+	campfire.ignite()
 
 
 # --- Status awal ------------------------------------------------------------
 
 func test_starts_lit_with_240_seconds() -> void:
+	assert_true(campfire.has_been_lit)
 	assert_true(campfire.is_lit())
 	assert_almost_eq(campfire.get_fuel(), 240.0, 0.001)
 	assert_eq(campfire.get_max_fuel(), 600.0)

@@ -519,3 +519,29 @@ Rasa/feedback, bukan fitur baru. Semua butir terverifikasi lewat
 - [x] Sinyal `InventoryComponent.add_blocked` (additive) supaya kegagalan tidak senyap.
 - [x] Tes: `tests/unit/test_feedback_hud.gd` (7 tes).
 - [ ] Uji rasa manual: toast saat tas penuh, angka damage saat berburu, busur saat diserang malam.
+
+## 27. Balance pass 2 (Mission 9, fase 1-3)
+
+Fase 0-3 jalan; fase 4-6 belum (lihat bagian terpisah di bawah).
+
+- [x] Raid sebagai event terjadwal (`RaidDirector` + `RaidConfig`), peringatan sebelum raid, raider dipilih dari boar terdekat ke base.
+- [x] Cap populasi malam dan siang dibaca dari `RaidConfig`; cap tidak pernah membunuh fauna yang sudah ada.
+- [x] Boar punya massa: pemain tidak bisa menembus/mendorongnya; knockback memakai `move_and_collide` x `knockback_resistance`.
+- [x] Api unggun dibangun COLD; bahan bakar diam, cahaya 0 sampai pernah dinyalakan, hint `campfire_cold` muncul otomatis.
+- [x] Kematian membekukan game (`FreezeController`); jeda menu memakai jalur yang sama.
+- [x] Perlindungan respawn 5 dtk (kebal, kedip, fauna berhenti mengejar, batal bila menyerang).
+- [x] Needs dikalibrasi ulang (Hunger/Thirst 0.6/0.57), Hunger <= 30 mengunci sprint + hint, HP pulih lambat dengan jeda.
+- [x] Tes baru: `test_raid_director.gd`, `test_boar_mass.gd`, `test_campfire_cold.gd`, `test_freeze_controller.gd`, `test_respawn_protection.gd`, `test_needs_balance.gd`, `test_sprint_blocks.gd`, `test_health_regen.gd`.
+- [x] Fase 4: jongkok (Ctrl) memperlambat + menyamarkan + memblokir sprint; rusa waspada dulu sebelum kabur dan radius deteksinya mengecil saat pemain jongkok; air sungai memperlambat dan memblokir sprint (`WadingComponent`). Tes: `test_sneak.gd`, `test_deer_alert.gd`, `test_wading.gd`.
+- [ ] Fase 5: sweep arah matahari + tab Profil.
+- [ ] Fase 6: SpriteFrames-first + data audio (`AUDIO_GUIDE.md` belum ada).
+- [ ] Uji rasa manual: berat raid, rasa lapar, jeda regen — needs playtest.
+
+## 28. Umpan balik pemain (Mission 9 lanjutan)
+
+- [x] Pohon hanya bergetar saat benar-benar ditebang, berirama 0.22 s (getaran 0.12 s), bukan saat pemain hanya berjalan dekat.
+- [x] Menu Jeda berisi tombol Lanjutkan / Pengaturan / Bantuan / Menu Utama (sebelumnya CanvasLayer kosong).
+- [x] Daftar profisiensi ada di panel Tab/I sebagai tab ketiga (level, XP, passive).
+- [x] Overlay `PlaceholderLabels` menampilkan nama slot yang art-nya masih kosong di dekat pemain (maks 12 label, dipindai tiap 0,25 s).
+- [x] `docs/editable/PANDUAN_INPUT.md` — arti setiap tombol, dibuat dari Input Map hidup.
+- [ ] Verifikasi rasa: getaran pohon dan tampilan menu jeda — needs playtest.
