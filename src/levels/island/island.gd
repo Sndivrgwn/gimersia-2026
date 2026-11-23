@@ -63,11 +63,42 @@ func _wire_chest_panel(player: Node) -> void:
 	panel.bag_panel = find_child("BagPanel", true, false)
 
 
+## Mission 10: E pada stasiun membuka StationPanel (struktur dibangun belakangan).
+func _wire_station_panel() -> void:
+	var panel := get_node_or_null("StationPanel") as StationPanel
+	if panel == null:
+		return
+	var camp := get_node_or_null("CampController") as CampController
+	if camp == null:
+		return
+	if not camp.structure_built.is_connected(_on_station_structure_built):
+		camp.structure_built.connect(_on_station_structure_built)
+	for structure in camp.get_structures():
+		_connect_station(panel, structure)
+
+
+func _on_station_structure_built(_id: StringName) -> void:
+	var panel := get_node_or_null("StationPanel") as StationPanel
+	var camp := get_node_or_null("CampController") as CampController
+	if panel == null or camp == null:
+		return
+	for structure in camp.get_structures():
+		_connect_station(panel, structure)
+
+
+func _connect_station(panel: StationPanel, structure: Node) -> void:
+	if structure == null or not structure.has_signal(&"interaction_requested"):
+		return
+	var callback := Callable(panel, &"open")
+	if not structure.interaction_requested.is_connected(callback):
+		structure.interaction_requested.connect(callback)
+
+
 func _wire_pause_menu() -> void:
 	var menu := get_node_or_null("PauseMenu") as PauseMenu
 	if menu == null:
 		return
-	var names := ["BaseHUD", "FireStarterHUD", "BagPanel", "ChestPanel", "DeathScreen", "GameOverScreen", "EndgameHUD"]
+	var names := ["BaseHUD", "FireStarterHUD", "BagPanel", "ChestPanel", "StationPanel", "DeathScreen", "GameOverScreen", "EndgameHUD"]
 	var blockers: Array[Node] = []
 	for node_name in names:
 		var node := find_child(node_name, true, false)
@@ -96,6 +127,7 @@ func _ready() -> void:
 	_attach_world_visuals()
 	_wire_endgame(player as Node2D)
 	_wire_pause_menu()
+	_wire_station_panel()
 	_wire_chest_panel(player)
 	_wire_hud(player)
 	_wire_feedback_hud(player)

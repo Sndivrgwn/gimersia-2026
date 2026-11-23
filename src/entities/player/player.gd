@@ -41,6 +41,7 @@ func _ready() -> void:
 	motion_mode = MOTION_MODE_FLOATING
 	if stats == null:
 		push_error("Player: StatsComponent tidak ditemukan.")
+	BodyProfileApplier.apply(self, load("res://src/data/configs/physics/body_player.tres") as BodyProfile)
 	VisualSlot.attach(self, &"player", [get_node_or_null("Visual")], null, PlayerVisual.new())
 
 

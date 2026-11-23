@@ -96,6 +96,14 @@ func test_panel_does_not_pause_the_game() -> void:
 	assert_false(get_tree().paused, "game tetap berjalan saat panel terbuka")
 
 
+func test_header_hint_names_the_three_tabs() -> void:
+	var hint: String = panel.get_tabs_hint_text()
+	assert_string_contains(hint, "Tab / I")
+	assert_string_contains(hint, "Crafting")
+	assert_string_contains(hint, "Profisiensi", "pemain harus tahu Profisiensi ada di panel tas")
+	assert_string_contains(hint, "Esc")
+
+
 func test_panel_and_slots_block_mouse_and_avoid_focus() -> void:
 	var root := panel.get_node("Root") as Control
 	assert_eq(root.mouse_filter, Control.MOUSE_FILTER_STOP, "root panel menelan mouse")

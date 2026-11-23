@@ -12,3 +12,6 @@ extends Resource
 @export var pickup_delay: float = 0.5
 ## Radius area pickup dalam piksel.
 @export var pickup_radius: float = 24.0
+## Mission 10 Phase 3: true = angka 1-5 memilih item (dipakai use_held);
+## false = perilaku lama (angka 1-5 langsung memakai item).
+@export var hotbar_select_mode: bool = true

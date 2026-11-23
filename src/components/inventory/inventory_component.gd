@@ -343,6 +343,9 @@ func clear() -> void:
 func _process(_delta: float) -> void:
 	if not hotbar_input_enabled or not _bound:
 		return
+	# Mission 10: mode pilih-item menggantikan "tekan angka = pakai".
+	if _config().hotbar_select_mode:
+		return
 	for index in HOTBAR_ACTIONS.size():
 		if Input.is_action_just_pressed(HOTBAR_ACTIONS[index]):
 			use_slot(index)

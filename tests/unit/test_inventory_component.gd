@@ -377,12 +377,16 @@ func test_hotbar_actions_use_slots_without_touching_needs_debug_keys() -> void:
 	needs.set_value(NeedsComponent.Need.THIRST, 20.0)
 	inventory.add_item(ItemCatalog.BOILED_WATER)
 
+	# Mission 10 (R4): default hotbar kini MEMILIH item. Tes ini menguji jalur
+	# lama "tekan angka = pakai", jadi flag kompatibilitas dinyalakan di sini.
+	inventory.get_config().hotbar_select_mode = false
 	Input.action_press(&"hotbar_1")
 	inventory._process(0.0)
 	Input.action_release(&"hotbar_1")
 
 	assert_almost_eq(needs.get_value(NeedsComponent.Need.THIRST), 80.0, 0.001)
 	assert_true(inventory.is_slot_empty(0))
+	inventory.get_config().hotbar_select_mode = true
 
 
 func test_hotbar_hud_reflects_slots_and_counts() -> void:

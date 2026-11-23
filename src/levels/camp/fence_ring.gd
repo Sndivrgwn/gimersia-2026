@@ -24,26 +24,45 @@ func _ready() -> void:
 		build_ring(_anchor.get_center())
 
 
+## Satu sumber geometri ring: dipakai builder DAN preview base (Mission 10).
+static func layout(center: Vector2, fence_config: FenceConfig) -> Array[Dictionary]:
+	var rules := fence_config if fence_config != null else FenceConfig.new()
+	var count := maxi(rules.segment_count, 3)
+	var step := TAU / float(count)
+	var result: Array[Dictionary] = []
+	for index in count:
+		var angle := step * float(index)
+		result.append({
+			"position": center + Vector2(cos(angle), sin(angle)) * rules.ring_radius,
+			"rotation": angle + PI * 0.5,
+		})
+	return result
+
+
 func build_ring(center: Vector2) -> void:
 	_clear_slots()
 	if definition == null:
 		push_warning("FenceRing: definition pagar kosong.")
 		return
-	var rules := config if config != null else FenceConfig.new()
-	var count := maxi(rules.segment_count, 3)
-	var radius := rules.ring_radius
-	var step := TAU / float(count)
-	for index in count:
-		var angle := step * float(index)
+	var index := 0
+	for entry in layout(center, config):
 		var slot := BlueprintSlot.new()
 		slot.name = "FenceSlot%d" % index
 		slot.definition = definition
 		add_child(slot)
-		slot.global_position = center + Vector2(cos(angle), sin(angle)) * radius
+		# Koordinat LOKAL: ring ikut transform camp, bukan dobel offset pusat base.
+		# to_local() aman baik ring sudah di dalam tree maupun belum.
+		var local_pos: Vector2 = entry["position"] as Vector2
+		if is_inside_tree():
+			local_pos = to_local(entry["position"] as Vector2)
+		else:
+			local_pos -= center
+		slot.position = local_pos
 		# Tangen ring: segmen menyambung satu sama lain.
-		slot.global_rotation = angle + PI * 0.5
+		slot.rotation = float(entry["rotation"])
 		slot.built.connect(_on_slot_built.bind(index))
 		_slots.append(slot)
+		index += 1
 
 
 func get_slots() -> Array[BlueprintSlot]:

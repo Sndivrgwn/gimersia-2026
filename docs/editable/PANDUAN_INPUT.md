@@ -2,19 +2,27 @@
 
 Dokumen ini menjawab satu pertanyaan: **tombol ini fungsinya apa?**
 
+## Menu, tab, dan panel
+
+| Yang dibuka | Tombol | Isi |
+| --- | --- | --- |
+| Panel tas | Tab atau I (gamepad Y) | Tab 1 **Tas** (12 slot + senjata/alat/armor), Tab 2 **Crafting** (resep tersedia dan terkunci), Tab 3 **Profisiensi** (level, XP, dan passive Kekuatan/Kecepatan/Penguasaan/Kelincahan) |
+| Menu Jeda | P (gamepad Start) | Lanjutkan, Pengaturan, Bantuan, Menu Utama |
+| Panel bantuan | H | Ringkasan kontrol di layar (pemain, panel/menu, debug pulau) |
+| Tutup panel | Esc | Menutup tas, peti, bantuan, dan menu Jeda |
+| Debug pulau | F2 | F2 mode debug on/off; F3 zona, F4 pagi, F5 kit bahan, F6 babi, F7 rusa, F8 malam, F9 heal, F10 siklus senjata, F11 mati, F12 rescue |
+
+## Cara membaca tabel di bawah
+
 - Tabel di bawah DIBUAT dari Input Map yang hidup (`InputSetup.ensure_actions()`),
   jadi tombolnya tidak bisa berbeda dengan kode. Jangan edit bagian di antara
   penanda GENERATED: ubah `src/utils/input_setup.gd` (tombol) atau
-  `PURPOSES` di `tools/generate_input_guide.gd` (fungsi), lalu jalankan
+  `PURPOSES` di `src/core/docs/input_guide_generator.gd` (fungsi), lalu jalankan
   `GODOT --headless --path . -s tools/generate_input_guide.gd`.
 - Tombol memakai `physical_keycode`, jadi posisi tombol sama di keyboard
   QWERTY/AZERTY.
-- Panel tas dibuka dengan Tab atau I. Di dalamnya ada tiga tab: **Tas**
-  (12 slot + alat/weapon/armor), **Crafting** (resep tersedia dan terkunci), dan
-  **Profisiensi** (level, XP, dan passive Kekuatan/Kecepatan/Penguasaan/Kelincahan).
-- Menu Jeda dibuka dengan P (Esc juga menutupnya). Isinya Lanjutkan,
-  Pengaturan, Bantuan, dan Menu Utama.
-- Aksi `ui_cancel` adalah Esc bawaan Godot; dipakai untuk menutup panel.
+- Aksi `ui_cancel` adalah Esc; dipakai untuk menutup panel yang sedang terbuka.
+- Kelompok debug hanya berguna saat menguji; pemain biasa tidak perlu tombolnya.
 
 <!-- BEGIN GENERATED: PANDUAN_INPUT -->
 
@@ -28,11 +36,13 @@ Tombol yang dipakai pemain sehari-hari. Action ini didaftarkan `InputSetup.ensur
 | `attack_space` | Space, Gamepad X | Serang ke arah hadap (gamepad: X). |
 | `base_place` | B | Tentukan lokasi base saat fase penentuan base (sekali). |
 | `help_toggle` | H | Buka/tutup panel bantuan (daftar kontrol dan alur main). |
-| `hotbar_1` | 1, Gamepad D-pad atas | Pakai slot hotbar 1. |
-| `hotbar_2` | 2, Gamepad D-pad bawah | Pakai slot hotbar 2. |
-| `hotbar_3` | 3, Gamepad D-pad kiri | Pakai slot hotbar 3. |
-| `hotbar_4` | 4, Gamepad D-pad kanan | Pakai slot hotbar 4. |
-| `hotbar_5` | 5 | Pakai slot hotbar 5. |
+| `hotbar_1` | 1, Gamepad D-pad atas | Pilih slot hotbar 1 (item dibawa, tidak langsung dipakai). |
+| `hotbar_2` | 2, Gamepad D-pad bawah | Pilih slot hotbar 2 (item dibawa, tidak langsung dipakai). |
+| `hotbar_3` | 3, Gamepad D-pad kiri | Pilih slot hotbar 3 (item dibawa, tidak langsung dipakai). |
+| `hotbar_4` | 4, Gamepad D-pad kanan | Pilih slot hotbar 4 (item dibawa, tidak langsung dipakai). |
+| `hotbar_5` | 5 | Pilih slot hotbar 5 (item dibawa, tidak langsung dipakai). |
+| `hotbar_next` | Mouse 5 | Pilih slot hotbar berikutnya (scroll bawah). |
+| `hotbar_prev` | Mouse 4 | Pilih slot hotbar sebelumnya (scroll atas). |
 | `interact` | E, Gamepad A | Tahan untuk memanen, membangun, membuka koper, minum di sungai, menyalakan api (QTE), dan interaksi lain. |
 | `inventory_toggle` | Tab, I, Gamepad Y | Buka/tutup panel tas: Tab 1 (Tas + alat + tas), Tab 2 (Crafting), Tab 3 (Profisiensi). |
 | `move_down` | S, Down, Stik kiri (atas/bawah) | Jalan ke bawah (S / panah bawah). |
@@ -43,7 +53,8 @@ Tombol yang dipakai pemain sehari-hari. Action ini didaftarkan `InputSetup.ensur
 | `repair` | R | Tahan untuk memperbaiki struktur camp yang rusak. |
 | `sneak` | Ctrl, Gamepad klik stik kiri | Tahan untuk jongkok: gerak 0.55x, deteksi fauna 0.6x, sprint terkunci. Label JONGKOK muncul di atas pemain. |
 | `sprint` | Shift, Gamepad RB | Lari selama fatigue masih ada; dikunci saat Fatigue rendah, Hunger <= 30, jongkok, atau di air. |
-| `ui_cancel` | — (belum ada tombol) | Tutup panel yang sedang terbuka (tas, peti, bantuan, jeda). |
+| `ui_cancel` | Escape | Tutup panel yang sedang terbuka (tas, peti, bantuan, jeda). |
+| `use_held` | F, Mouse 2 | Pakai item di slot terpilih (klik kanan / F); hanya consumable. |
 
 ## Debug pulau (`island.tscn`)
 

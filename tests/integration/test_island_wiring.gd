@@ -61,6 +61,20 @@ func test_s1_wiring_counts_and_links() -> void:
 	assert_not_null(_harness.interactor.get_inventory(), "InteractorComponent harus menyelesaikan InventoryComponent")
 	assert_not_null(_harness.interactor.get_needs(), "InteractorComponent harus menyelesaikan NeedsComponent")
 
-	# 8. CraftingComponent and RepairComponent find inventory
+	# 8. Pause menu bisa dibuka walau hint base (HUD, bukan modal) terlihat.
+	var menu := _harness.island.get_node("PauseMenu") as PauseMenu
+	assert_not_null(menu, "PauseMenu harus ada")
+	var base_hud := _harness.island.get_node("BaseHUD") as BaseHUD
+	assert_true(base_hud.is_showing(), "hint base tampil di awal permainan")
+	assert_true(menu.can_open(), "hint HUD tidak boleh mengunci menu Jeda")
+	var pause_event := InputEventAction.new()
+	pause_event.action = InputSetup.PAUSE_TOGGLE
+	pause_event.pressed = true
+	menu._unhandled_input(pause_event)
+	assert_true(menu.is_open(), "P membuka menu Jeda di pulau")
+	menu.close()
+	assert_false(menu.is_open())
+
+	# 9. CraftingComponent and RepairComponent find inventory
 	assert_eq(_harness.crafting.inventory, _harness.inventory, "CraftingComponent harus terhubung ke InventoryComponent")
 	assert_eq(_harness.repair.inventory, _harness.inventory, "RepairComponent harus terhubung ke InventoryComponent")

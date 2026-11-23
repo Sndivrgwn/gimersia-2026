@@ -33,6 +33,8 @@ var _active: bool = false
 var _shake_phase: float = 0.0
 var _interval_timer: float = 0.0
 var _burst_remaining: float = 0.0
+## Rasio hold terakhir dari InteractorComponent (0 = tidak menebang).
+var _ratio: float = 0.0
 var _fallen: bool = false
 var _stump: Polygon2D
 
@@ -53,6 +55,9 @@ func tick(delta: float) -> void:
 	_poll_depleted()
 	if _interactor == null:
 		_bind_interactor()
+	# Dicek tiap frame: getaran berhenti seketika progres menebang berakhir,
+	# walau sinyal progres tidak sempat terkirim.
+	_refresh_active()
 	if _fallen or not _active:
 		return
 
@@ -114,13 +119,31 @@ func _on_target_changed(target: Interactable) -> void:
 
 ## Progres 0 berarti tombol dilepas/batal: getaran berhenti walau masih dekat.
 func _on_progress_changed(ratio: float) -> void:
-	var active := _targeted and ratio > 0.0 and not _fallen
+	_ratio = clampf(ratio, 0.0, 1.0)
+	_refresh_active()
+
+
+func _refresh_active() -> void:
+	var active := _is_chopping_now()
 	if active == _active:
 		return
 	if active:
 		_activate()
 	else:
 		_deactivate()
+
+
+## Pohon hanya bergetar bila progres menebang MILIK pohon ini sedang berjalan:
+## ditargetkan, progres > 0, tombol belum dilepas, dan target aktif bukan pohon lain.
+func _is_chopping_now() -> bool:
+	if _fallen or not _targeted or _ratio <= 0.0:
+		return false
+	if _interactor == null or not is_instance_valid(_interactor):
+		return false
+	if _interactor.is_waiting_for_release():
+		return false
+	var current := _interactor.get_target()
+	return current == null or current == _target
 
 
 func _activate() -> void:

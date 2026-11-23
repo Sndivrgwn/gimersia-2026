@@ -25,11 +25,14 @@ const PURPOSES: Dictionary = {
 	"attack_space": ["main", "Serang ke arah hadap (gamepad: X)."],
 	"attack_click": ["main", "Serang ke arah kursor mouse."],
 	"inventory_toggle": ["main", "Buka/tutup panel tas: Tab 1 (Tas + alat + tas), Tab 2 (Crafting), Tab 3 (Profisiensi)."],
-	"hotbar_1": ["main", "Pakai slot hotbar 1."],
-	"hotbar_2": ["main", "Pakai slot hotbar 2."],
-	"hotbar_3": ["main", "Pakai slot hotbar 3."],
-	"hotbar_4": ["main", "Pakai slot hotbar 4."],
-	"hotbar_5": ["main", "Pakai slot hotbar 5."],
+	"hotbar_1": ["main", "Pilih slot hotbar 1 (item dibawa, tidak langsung dipakai)."],
+	"hotbar_2": ["main", "Pilih slot hotbar 2 (item dibawa, tidak langsung dipakai)."],
+	"hotbar_3": ["main", "Pilih slot hotbar 3 (item dibawa, tidak langsung dipakai)."],
+	"hotbar_4": ["main", "Pilih slot hotbar 4 (item dibawa, tidak langsung dipakai)."],
+	"hotbar_5": ["main", "Pilih slot hotbar 5 (item dibawa, tidak langsung dipakai)."],
+	"hotbar_next": ["main", "Pilih slot hotbar berikutnya (scroll bawah)."],
+	"hotbar_prev": ["main", "Pilih slot hotbar sebelumnya (scroll atas)."],
+	"use_held": ["main", "Pakai item di slot terpilih (klik kanan / F); hanya consumable."],
 	"base_place": ["main", "Tentukan lokasi base saat fase penentuan base (sekali)."],
 	"pause_toggle": ["main", "Buka/tutup menu Jeda (Lanjutkan, Pengaturan, Bantuan, Menu Utama)."],
 	"help_toggle": ["main", "Buka/tutup panel bantuan (daftar kontrol dan alur main)."],
@@ -123,19 +126,27 @@ func _intro() -> String:
 
 Dokumen ini menjawab satu pertanyaan: **tombol ini fungsinya apa?**
 
+## Menu, tab, dan panel
+
+| Yang dibuka | Tombol | Isi |
+| --- | --- | --- |
+| Panel tas | Tab atau I (gamepad Y) | Tab 1 **Tas** (12 slot + senjata/alat/armor), Tab 2 **Crafting** (resep tersedia dan terkunci), Tab 3 **Profisiensi** (level, XP, dan passive Kekuatan/Kecepatan/Penguasaan/Kelincahan) |
+| Menu Jeda | P (gamepad Start) | Lanjutkan, Pengaturan, Bantuan, Menu Utama |
+| Panel bantuan | H | Ringkasan kontrol di layar (pemain, panel/menu, debug pulau) |
+| Tutup panel | Esc | Menutup tas, peti, bantuan, dan menu Jeda |
+| Debug pulau | F2 | F2 mode debug on/off; F3 zona, F4 pagi, F5 kit bahan, F6 babi, F7 rusa, F8 malam, F9 heal, F10 siklus senjata, F11 mati, F12 rescue |
+
+## Cara membaca tabel di bawah
+
 - Tabel di bawah DIBUAT dari Input Map yang hidup (`InputSetup.ensure_actions()`),
   jadi tombolnya tidak bisa berbeda dengan kode. Jangan edit bagian di antara
   penanda GENERATED: ubah `src/utils/input_setup.gd` (tombol) atau
-  `PURPOSES` di `tools/generate_input_guide.gd` (fungsi), lalu jalankan
+  `PURPOSES` di `src/core/docs/input_guide_generator.gd` (fungsi), lalu jalankan
   `GODOT --headless --path . -s tools/generate_input_guide.gd`.
 - Tombol memakai `physical_keycode`, jadi posisi tombol sama di keyboard
   QWERTY/AZERTY.
-- Panel tas dibuka dengan Tab atau I. Di dalamnya ada tiga tab: **Tas**
-  (12 slot + alat/weapon/armor), **Crafting** (resep tersedia dan terkunci), dan
-  **Profisiensi** (level, XP, dan passive Kekuatan/Kecepatan/Penguasaan/Kelincahan).
-- Menu Jeda dibuka dengan P (Esc juga menutupnya). Isinya Lanjutkan,
-  Pengaturan, Bantuan, dan Menu Utama.
-- Aksi `ui_cancel` adalah Esc bawaan Godot; dipakai untuk menutup panel.
+- Aksi `ui_cancel` adalah Esc; dipakai untuk menutup panel yang sedang terbuka.
+- Kelompok debug hanya berguna saat menguji; pemain biasa tidak perlu tombolnya.
 """
 
 

@@ -21,3 +21,11 @@ func _init() -> void:
 @export var alert_radius_factor: float = 1.25
 ## Lama berhenti waspada sebelum memutuskan kabur/ kembali mengembara.
 @export var alert_time: float = 0.45
+
+@export_group("Startle (Mission 10 Phase 4)")
+## Lama rusa terpaku setelah waspada: jaminan minimal satu serangan.
+@export var startle_seconds: float = 0.9
+## Ramp kecepatan kabur (0 -> penuh) supaya masih bisa dikejar sesaat.
+@export var flee_accel_seconds: float = 0.5
+## Lantai radius deteksi saat pemain jongkok (tidak pernah 0).
+@export var sneak_notice_floor_px: float = 24.0

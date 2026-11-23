@@ -14,6 +14,15 @@ const RIVER_MAX_X := -850.0
 const RIVER_HALF_Y := 1400.0
 
 
+## Radius ring efektif: FenceConfig adalah satu-satunya sumber angka.
+static func ring_radius(config: BaseSiteConfig) -> float:
+	if config == null:
+		return FenceConfig.new().ring_radius
+	if config.fence_config != null:
+		return config.fence_config.ring_radius
+	return config.ring_radius
+
+
 static func evaluate(center: Vector2, config: BaseSiteConfig, locked: bool = false) -> Dictionary:
 	if locked:
 		return {"valid": false, "reason": REASON_LOCKED}
@@ -31,7 +40,7 @@ static func evaluate(center: Vector2, config: BaseSiteConfig, locked: bool = fal
 
 	if zone == IslandZones.Zone.RIVER:
 		return {"valid": false, "reason": REASON_RIVER}
-	if distance_to_river(center) < rules.ring_radius + rules.river_clearance:
+	if distance_to_river(center) < ring_radius(rules) + rules.river_clearance:
 		return {"valid": false, "reason": REASON_RIVER}
 
 	return {"valid": true, "reason": ""}

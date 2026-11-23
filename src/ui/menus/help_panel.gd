@@ -6,16 +6,28 @@ extends Control
 signal toggled_open(is_open: bool)
 
 const HELP_LINES: Array[String] = [
+	"PEMAIN",
 	"WASD - bergerak",
 	"Shift - sprint",
+	"Ctrl - jongkok",
 	"E (tahan) - kumpulkan / gunakan",
 	"R (tahan) - perbaiki struktur",
 	"B - tentukan lokasi base",
-	"Tab / I - buka tas",
 	"1-5 - hotbar",
 	"Space / klik kiri - serang",
-	"P - pause",
+	"",
+	"PANEL & MENU",
+	"Tab / I - panel tas: Tas | Crafting | Profisiensi",
+	"P - pause (Lanjutkan, Pengaturan, Bantuan, Menu Utama)",
 	"H - bantuan ini",
+	"Esc - tutup panel yang terbuka",
+	"",
+	"DEBUG PULAU (island)",
+	"F2 - mode debug on/off",
+	"F3 - zona berikutnya, F4 - pagi, F5 - kit bahan",
+	"F6 - babi, F7 - rusa, F8 - malam, F9 - heal",
+	"F10 - siklus senjata, F11 - mati, F12 - rescue",
+	"J - raid sekarang, Insert - label fauna",
 ]
 
 var _label: Label

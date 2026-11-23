@@ -21,11 +21,14 @@ const SLOT_PATHS: Array[String] = [
 
 ## Opsional; bila kosong dicari lewat grup "player" -> InventoryComponent.
 @export var inventory: InventoryComponent
+@export var selection: HotbarSelectionComponent
 
 var _keys: Array[Label] = []
 var _names: Array[Label] = []
 var _counts: Array[Label] = []
 var _icons: Array[TextureRect] = []
+var _held_label: Label
+var _selected_index: int = 0
 
 
 func _ready() -> void:
@@ -39,12 +42,71 @@ func _ready() -> void:
 
 	if not inventory.slot_changed.is_connected(_on_slot_changed):
 		inventory.slot_changed.connect(_on_slot_changed)
+	if selection == null and inventory.get_parent() != null:
+		selection = inventory.get_parent().get_node_or_null("HotbarSelectionComponent") as HotbarSelectionComponent
+	if selection != null and not selection.selected_changed.is_connected(_on_selection_changed):
+		selection.selected_changed.connect(_on_selection_changed)
 	refresh()
 
 
 func refresh() -> void:
 	for index in _keys.size():
 		_refresh_slot(index)
+	_refresh_selection()
+
+
+## Mission 10 Phase 3: sorot slot terpilih + label nama/jumlah item di atas.
+func _refresh_selection() -> void:
+	if selection == null and inventory != null:
+		set_selection(inventory.get_parent().get_node_or_null("HotbarSelectionComponent") as HotbarSelectionComponent)
+	if _held_label == null:
+		_build_held_label()
+	for index in _icons.size():
+		var selected := selection != null and selection.selected_index == index
+		_icons[index].modulate = Color(1, 1, 1, 1) if selected else Color(1, 1, 1, 0.55)
+	var text := ""
+	if selection != null:
+		var stack := selection.get_held_stack()
+		if stack != null and stack.item != null:
+			text = "%s x%d" % [stack.item.display_name, stack.count]
+	if _held_label != null:
+		_held_label.text = text
+		_held_label.visible = not text.is_empty()
+		_selected_index = selection.selected_index if selection != null else 0
+
+
+func set_selection(value: HotbarSelectionComponent) -> void:
+	if value == null:
+		return
+	selection = value
+	if not selection.selected_changed.is_connected(_on_selection_changed):
+		selection.selected_changed.connect(_on_selection_changed)
+	_refresh_selection()
+
+
+func _on_selection_changed(_index: int, _stack: ItemStack) -> void:
+	_refresh_selection()
+
+
+func get_held_label_text() -> String:
+	return "" if _held_label == null else _held_label.text
+
+
+func get_selected_index() -> int:
+	return _selected_index
+
+
+func _build_held_label() -> void:
+	_held_label = Label.new()
+	_held_label.name = "HeldLabel"
+	_held_label.add_theme_font_size_override("font_size", 10)
+	_held_label.add_theme_color_override("font_color", Color(0.95, 0.9, 0.7, 1.0))
+	_held_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_held_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	_held_label.offset_top = -16.0
+	_held_label.offset_bottom = -2.0
+	_held_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_held_label)
 
 
 func _collect_slots() -> void:

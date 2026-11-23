@@ -14,6 +14,7 @@ var blockers: Array[Node] = []
 
 const TITLE_TEXT := "JEDA"
 const HINT_TEXT := "Esc atau P untuk lanjut"
+const ESC_HINT_TEXT := "Esc: Jeda"
 const PANEL_SIZE := Vector2(320.0, 260.0)
 const PANEL_COLOR := Color(0.10, 0.12, 0.10, 0.96)
 const DIM_COLOR := Color(0.0, 0.0, 0.0, 0.55)
@@ -23,6 +24,8 @@ var _paused_by_menu: bool = false
 var _panel: Control
 var _settings_panel: Node
 var _help_panel: Node
+var _esc_hint: Label
+var _esc_button: Button
 
 
 func _ready() -> void:
@@ -34,6 +37,7 @@ func _ready() -> void:
 		clock = get_node_or_null("/root/DayNightManager")
 	if _panel == null:
 		_build_ui()
+	_refresh_discoverability()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -41,9 +45,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		toggle()
 		get_viewport().set_input_as_handled()
 		return
-	if is_open() and event.is_action_pressed(&"ui_cancel"):
-		close()
-		get_viewport().set_input_as_handled()
+	# Mission 10 Phase 5: Esc menutup UI paling atas; bila tidak ada, buka Jeda.
+	if event.is_action_pressed(&"ui_cancel"):
+		if is_open():
+			close()
+			get_viewport().set_input_as_handled()
+			return
+		if UiBackStack.close_top(self):
+			get_viewport().set_input_as_handled()
+			return
+		if open():
+			get_viewport().set_input_as_handled()
 
 
 # --- UI (Mission 9: menu jeda yang benar-benar terlihat) --------------------
@@ -97,6 +109,67 @@ func _build_ui() -> void:
 	hint.add_theme_color_override("font_color", Color(0.75, 0.78, 0.72, 1.0))
 	box.add_child(hint)
 
+	# Discoverability (Mission 10): label sudut + tombol II.
+	_esc_hint = Label.new()
+	_esc_hint.name = "EscHint"
+	_esc_hint.text = ESC_HINT_TEXT
+	_esc_hint.add_theme_font_size_override("font_size", 10)
+	_esc_hint.add_theme_color_override("font_color", Color(0.78, 0.82, 0.76, 0.7))
+	_esc_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_esc_hint.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_esc_hint.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_esc_hint.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_esc_hint.offset_left = -120.0
+	_esc_hint.offset_top = -28.0
+	_esc_hint.offset_right = -8.0
+	_esc_hint.offset_bottom = -8.0
+	add_child(_esc_hint)
+
+	_esc_button = Button.new()
+	_esc_button.name = "PauseButton"
+	_esc_button.text = "II"
+	_esc_button.focus_mode = Control.FOCUS_NONE
+	_esc_button.mouse_filter = Control.MOUSE_FILTER_STOP
+	_esc_button.add_theme_font_size_override("font_size", 12)
+	_esc_button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_esc_button.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_esc_button.offset_left = -40.0
+	_esc_button.offset_top = 8.0
+	_esc_button.offset_right = -8.0
+	_esc_button.offset_bottom = 34.0
+	_esc_button.pressed.connect(toggle)
+	add_child(_esc_button)
+
+
+func _process(_delta: float) -> void:
+	_refresh_discoverability()
+
+
+## Label "Esc: Jeda" + tombol II: tersembunyi saat Jeda/layar mati tampil.
+func _refresh_discoverability() -> void:
+	var show := not is_open()
+	if show:
+		for node in blockers:
+			if node != null and is_instance_valid(node) and node.has_method(&"is_showing") and node.is_showing():
+				show = false
+				break
+	if _esc_hint != null:
+		_esc_hint.visible = show
+	if _esc_button != null:
+		_esc_button.visible = show
+
+
+func get_esc_hint_label() -> Label:
+	return _esc_hint
+
+
+func get_pause_button() -> Button:
+	return _esc_button
+
+
+func get_title_text() -> String:
+	return TITLE_TEXT
+
 
 func _add_button(parent: Node, text: String, handler: Callable) -> Button:
 	var button := Button.new()
@@ -143,9 +216,13 @@ func can_open() -> bool:
 	return true
 
 
+## Node boleh menentukan sendiri apakah ia memblokir jeda (`blocks_pause()`);
+## HUD petunjuk yang selalu terlihat tidak boleh mengunci menu Jeda.
 func _is_blocking(node: Node) -> bool:
 	if node == null or not is_instance_valid(node):
 		return false
+	if node.has_method(&"blocks_pause"):
+		return bool(node.call(&"blocks_pause"))
 	if node.has_method(&"is_showing") and node.is_showing():
 		return true
 	if node.has_method(&"is_open") and node.is_open():

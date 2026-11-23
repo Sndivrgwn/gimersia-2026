@@ -29,12 +29,15 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | --- | --- | --- |
 | `res://tools/generate_asset_registry.gd` | `GODOT --headless --path . -s tools/generate_asset_registry.gd` | res://src/data/assets/asset_registry.tres |
 | `res://tools/generate_balance_data.gd` | `GODOT --headless --path . -s tools/generate_balance_data.gd` | res://src/data/configs/health_regen_config.tres, res://src/data/configs/needs_config.tres, res://src/data/configs/run_config.tres, res://src/data/configs/sneak_config.tres, res://src/data/configs/wading_config.tres |
+| `res://tools/generate_body_profiles.gd` | `GODOT --headless --path . -s tools/generate_body_profiles.gd` | res://src/data/configs/physics/body_island_deer.tres, res://src/data/configs/physics/body_player.tres, res://src/data/configs/physics/body_wild_boar.tres |
 | `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` | res://src/data/configs/combat_config.tres, res://src/data/configs/fauna/boar_config.tres, res://src/data/configs/fauna/deer_config.tres, res://src/data/configs/fauna/ember_snuff_config.tres, res://src/data/configs/fauna/night_scaling_config.tres, res://src/data/configs/fauna/raid_config.tres |
 | `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` | — (tidak menulis .tres) |
+| `res://tools/generate_held_item_data.gd` | `GODOT --headless --path . -s tools/generate_held_item_data.gd` | res://src/data/configs/held_item_config.tres |
 | `res://tools/generate_hints.gd` | `GODOT --headless --path . -s tools/generate_hints.gd` | res://src/data/hints/base_place.tres, res://src/data/hints/campfire_cold.tres, res://src/data/hints/crafting.tres, res://src/data/hints/dusk.tres, res://src/data/hints/fence.tres, res://src/data/hints/gather.tres, res://src/data/hints/hunger_sprint_lock.tres, res://src/data/hints/need_low.tres, res://src/data/hints/neutral_hit.tres, res://src/data/hints/repair.tres |
 | `res://tools/generate_input_guide.gd` | `GODOT --headless --path . -s tools/generate_input_guide.gd` | — (tidak menulis .tres) |
 | `res://tools/generate_proficiency_data.gd` | `GODOT --headless --path . -s tools/generate_proficiency_data.gd` | res://src/data/configs/proficiency_config.tres |
 | `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` | res://src/data/recipes/boiled_water.tres, res://src/data/recipes/bone_broth.tres, res://src/data/recipes/bone_spear.tres, res://src/data/recipes/cooked_meat.tres, res://src/data/recipes/herbal_bandage.tres, res://src/data/recipes/leather_vest.tres, res://src/data/recipes/signal_flare.tres, res://src/data/recipes/stone_axe.tres, res://src/data/recipes/stone_pickaxe.tres, res://src/data/recipes/stone_spear.tres, res://src/data/recipes/torch.tres, res://src/data/recipes/waterskin.tres, res://src/data/recipes/wooden_spear.tres |
+| `res://tools/generate_station_data.gd` | `GODOT --headless --path . -s tools/generate_station_data.gd` | res://src/data/configs/station_config.tres |
 | `res://tools/generate_structures.gd` | `GODOT --headless --path . -s tools/generate_structures.gd` | res://src/data/camp/campfire.tres, res://src/data/camp/chest.tres, res://src/data/camp/fence_segment.tres, res://src/data/camp/tent.tres, res://src/data/camp/workbench.tres, res://src/data/configs/campfire_config.tres, res://src/data/configs/fence_config.tres |
 
 ## src/data/assets
@@ -310,6 +313,29 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `regen_hunger_curve` | lain | [(0.0, 0.0), (30.0, 0.3), (60.0, 0.75), (100.... |
 | `regen_thirst_curve` | lain | [(0.0, 0.0), (30.0, 0.3), (60.0, 0.75), (100.... |
 
+### `res://src/data/configs/held_item_config.tres`
+
+- Kelas: `held_item_config.gd` (`res://src/data/resources/items/held_item_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `hand_offset_down` | Vector2 | 10.0 × -2.0 |
+| `hand_offset_up` | Vector2 | -10.0 × -8.0 |
+| `hand_offset_left` | Vector2 | -10.0 × -2.0 |
+| `hand_offset_right` | Vector2 | 10.0 × -2.0 |
+| `hand_size` | Vector2 | 14.0 × 14.0 |
+| `walk_bob` | float | 1.00 |
+| `swing_arc_degrees` | float | 70.00 |
+| `swing_seconds` | float | 0.12 |
+| `use_bob_seconds` | float | 0.25 |
+| `show_tool_while_gathering` | bool | true |
+
 ### `res://src/data/configs/interaction_config.tres`
 
 - Kelas: `interaction_config.gd` (`res://src/data/resources/interaction/interaction_config.gd`)
@@ -341,6 +367,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `hotbar_size` | int | 5 |
 | `pickup_delay` | float | 0.50 |
 | `pickup_radius` | float | 24.00 |
+| `hotbar_select_mode` | bool | true |
 
 ### `res://src/data/configs/island_layout.tres`
 
@@ -548,6 +575,24 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `detection_multiplier` | float | 0.60 |
 | `blocks_sprint` | bool | true |
 
+### `res://src/data/configs/station_config.tres`
+
+- Kelas: `station_config.gd` (`res://src/data/resources/camp/station_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `open_hold_time` | float | 0.10 |
+| `use_range` | float | 140.00 |
+| `panel_close_distance` | float | 160.00 |
+| `bag_tab_hand_only` | bool | true |
+| `campfire_opens_panel` | bool | true |
+
 ### `res://src/data/configs/wading_config.tres`
 
 - Kelas: `wading_config.gd` (`res://src/data/resources/movement/wading_config.gd`)
@@ -694,6 +739,9 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `flee_duration` | float | 5.00 |
 | `alert_radius_factor` | float | 1.25 |
 | `alert_time` | float | 0.45 |
+| `startle_seconds` | float | 0.90 |
+| `flee_accel_seconds` | float | 0.50 |
+| `sneak_notice_floor_px` | float | 24.00 |
 | `max_hp` | float | 40.00 |
 | `move_speed_day` | float | 60.00 |
 | `move_speed_night` | float | 60.00 |
@@ -768,6 +816,81 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `day_deer_cap` | int | 3 |
 | `night_active_hostile_cap` | Array | [7 item] |
 | `spawn_interval_multiplier` | float | 1.00 |
+
+
+## src/data/configs/physics
+
+### `res://src/data/configs/physics/body_island_deer.tres`
+
+- Kelas: `body_profile.gd` (`res://src/data/resources/physics/body_profile.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | island_deer |
+| `mass_class` | int | 1 |
+| `radius` | float | 12.00 |
+| `collision_layer` | int | 4 |
+| `collision_mask` | int | 3 |
+| `blocks_player` | bool | true |
+| `pushable_by_others` | bool | false |
+| `knockback_taken_multiplier` | float | 0.60 |
+| `contact_stop_extra` | float | 2.00 |
+| `separation_speed` | float | 60.00 |
+| `max_overlap_px` | float | 2.00 |
+
+### `res://src/data/configs/physics/body_player.tres`
+
+- Kelas: `body_profile.gd` (`res://src/data/resources/physics/body_profile.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | player |
+| `mass_class` | int | 1 |
+| `radius` | float | 10.00 |
+| `collision_layer` | int | 1 |
+| `collision_mask` | int | 6 |
+| `blocks_player` | bool | true |
+| `pushable_by_others` | bool | false |
+| `knockback_taken_multiplier` | float | 1.00 |
+| `contact_stop_extra` | float | 2.00 |
+| `separation_speed` | float | 60.00 |
+| `max_overlap_px` | float | 2.00 |
+
+### `res://src/data/configs/physics/body_wild_boar.tres`
+
+- Kelas: `body_profile.gd` (`res://src/data/resources/physics/body_profile.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | wild_boar |
+| `mass_class` | int | 2 |
+| `radius` | float | 14.00 |
+| `collision_layer` | int | 2 |
+| `collision_mask` | int | 5 |
+| `blocks_player` | bool | true |
+| `pushable_by_others` | bool | false |
+| `knockback_taken_multiplier` | float | 0.35 |
+| `contact_stop_extra` | float | 2.00 |
+| `separation_speed` | float | 60.00 |
+| `max_overlap_px` | float | 2.00 |
 
 
 ## src/data/gathering
@@ -2007,12 +2130,15 @@ Kelas berikut hanya punya default di kode; ubah lewat kode atau dengan membuat `
 | --- | --- |
 | `res://tools/generate_asset_registry.gd` | `GODOT --headless --path . -s tools/generate_asset_registry.gd` |
 | `res://tools/generate_balance_data.gd` | `GODOT --headless --path . -s tools/generate_balance_data.gd` |
+| `res://tools/generate_body_profiles.gd` | `GODOT --headless --path . -s tools/generate_body_profiles.gd` |
 | `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` |
 | `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` |
+| `res://tools/generate_held_item_data.gd` | `GODOT --headless --path . -s tools/generate_held_item_data.gd` |
 | `res://tools/generate_hints.gd` | `GODOT --headless --path . -s tools/generate_hints.gd` |
 | `res://tools/generate_input_guide.gd` | `GODOT --headless --path . -s tools/generate_input_guide.gd` |
 | `res://tools/generate_proficiency_data.gd` | `GODOT --headless --path . -s tools/generate_proficiency_data.gd` |
 | `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` |
+| `res://tools/generate_station_data.gd` | `GODOT --headless --path . -s tools/generate_station_data.gd` |
 | `res://tools/generate_structures.gd` | `GODOT --headless --path . -s tools/generate_structures.gd` |
 
 <!-- END GENERATED -->

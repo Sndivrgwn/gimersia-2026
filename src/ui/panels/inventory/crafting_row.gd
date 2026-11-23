@@ -17,6 +17,8 @@ var recipe: RecipeDefinition
 var crafting: CraftingComponent
 var inventory: InventoryComponent
 var locked: bool = false
+## Mission 10: stasiun pemanggil (null = tab tas, perilaku lama).
+var station: Node
 
 var _name_label: Label
 var _time_label: Label
@@ -178,4 +180,4 @@ func _build() -> void:
 func _on_craft_pressed() -> void:
 	if crafting == null or recipe == null:
 		return
-	crafting.start_craft(recipe)
+	crafting.start_craft(recipe, station)

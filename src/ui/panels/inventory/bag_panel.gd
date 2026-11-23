@@ -25,6 +25,9 @@ const PROF_PASSIVES: Array = [
 	[[3, "Quick Reflex"], [6, "Swift Counter"]],
 ]
 const CRAFTING_TAB_PATH := "Root/Frame/Margin/VBox/Tabs/Crafting"
+const VBOX_PATH := "Root/Frame/Margin/VBox"
+## Ditampilkan di bawah judul: pemain perlu tahu Profisiensi ada di tab ketiga.
+const TABS_HINT := "Tab / I: buka-tutup · tab panel: Tas · Crafting · Profisiensi · Esc: tutup"
 const TOGGLE_ACTION := &"inventory_toggle"
 ## Esc hanya menutup panel; tidak membukanya.
 const CLOSE_ACTION := &"ui_cancel"
@@ -62,6 +65,8 @@ var _crafting_cancel: Button
 var _crafting_rows: Array[CraftingRow] = []
 var _proficiency: ProficiencyComponent
 var _prof_rows: Array[Dictionary] = []
+var _tabs_hint: Label
+var _crafting_dirty: bool = false
 
 
 func _ready() -> void:
@@ -71,6 +76,7 @@ func _ready() -> void:
 
 	if inventory == null:
 		inventory = _find_inventory()
+	_build_tabs_hint()
 	_build_slots()
 
 	if inventory == null:
@@ -123,6 +129,9 @@ func is_open() -> bool:
 func toggle_panel() -> void:
 	if _locked:
 		return
+	# Mission 10: panel stasiun / UI lain yang terbuka menahan tas.
+	if not is_open() and UiBackStack.has_open(self, self):
+		return
 	_apply_visible(not is_open())
 
 
@@ -131,6 +140,10 @@ func get_slots() -> Array[BagSlot]:
 
 
 # --- Teks equipment (dipakai tes) -------------------------------------------
+
+func get_tabs_hint_text() -> String:
+	return "" if _tabs_hint == null else _tabs_hint.text
+
 
 func get_weapon_text() -> String:
 	return _weapon_value.text
@@ -149,8 +162,30 @@ func get_armor_text() -> String:
 func _apply_visible(value: bool) -> void:
 	_root.visible = value
 	if value:
+		UiBackStack.register(self)
 		UiMotion.pop_in(_root)
+		refresh()
 		refresh_proficiency()
+		# Mission 10: daftar resep dihitung ulang saat dibuka supaya stasiun
+		# yang baru dibangun tidak tetap tampil "Butuh Meja Kerja".
+		refresh_crafting()
+	else:
+		UiBackStack.unregister(self)
+
+
+## Satu baris petunjuk di bawah judul TAS (Profisiensi ada di tab ketiga).
+func _build_tabs_hint() -> void:
+	var vbox := get_node_or_null(VBOX_PATH) as VBoxContainer
+	if vbox == null:
+		return
+	_tabs_hint = Label.new()
+	_tabs_hint.name = "TabsHint"
+	_tabs_hint.text = TABS_HINT
+	_tabs_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tabs_hint.add_theme_font_size_override("font_size", 10)
+	_tabs_hint.add_theme_color_override("font_color", Color(0.78, 0.82, 0.78, 1.0))
+	vbox.add_child(_tabs_hint)
+	vbox.move_child(_tabs_hint, 1)
 
 
 func _build_slots() -> void:
@@ -350,8 +385,15 @@ func refresh_crafting() -> void:
 		_crafting_status.text = "Crafting tidak tersedia (CraftingComponent tidak ditemukan)."
 		return
 
+	var hand_only := crafting_component.get_station_config().bag_tab_hand_only
 	for recipe in crafting_component.get_available_recipes():
+		if hand_only and recipe.station != RecipeDefinition.Station.HAND:
+			continue
 		_add_crafting_row(recipe, false)
+
+	if hand_only:
+		_add_station_info()
+		return
 
 	var locked := crafting_component.get_locked_recipes()
 	if not locked.is_empty():
@@ -367,6 +409,24 @@ func refresh_crafting() -> void:
 	if not crafting_component.is_crafting():
 		_crafting_progress.visible = false
 		_crafting_cancel.visible = false
+
+
+## Mission 10: info read-only resep stasiun di tab tas (tanpa tombol craft).
+func _add_station_info() -> void:
+	var header := Label.new()
+	header.name = "StationInfo"
+	header.text = "Dibuka lewat E di Meja Kerja / Api Unggun"
+	header.add_theme_font_size_override("font_size", 10)
+	header.add_theme_color_override("font_color", Color(0.72, 0.78, 0.72, 1.0))
+	_crafting_list.add_child(header)
+
+	for type in [RecipeDefinition.Station.WORKBENCH, RecipeDefinition.Station.CAMPFIRE]:
+		for recipe in crafting_component.get_recipes_for(type):
+			var line := Label.new()
+			line.text = "%s - %s" % [recipe.display_name, recipe.get_station_name()]
+			line.add_theme_font_size_override("font_size", 10)
+			line.add_theme_color_override("font_color", Color(0.62, 0.66, 0.62, 1.0))
+			_crafting_list.add_child(line)
 
 
 func _add_crafting_row(recipe: RecipeDefinition, locked: bool) -> void:
@@ -420,6 +480,8 @@ func _on_craft_cancelled(recipe: RecipeDefinition, reason: String) -> void:
 func _on_stations_changed() -> void:
 	if is_open():
 		refresh_crafting()
+	else:
+		_crafting_dirty = true
 
 
 # --- Profisiensi (Mission 9) -------------------------------------------------

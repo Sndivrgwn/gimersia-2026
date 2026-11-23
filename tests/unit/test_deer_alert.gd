@@ -51,6 +51,10 @@ func test_deer_flees_when_inside_trigger_radius() -> void:
 	var setup := _setup(Vector2(120.0, 0.0))
 	var deer := setup[0] as IslandDeer
 	deer.tick(0.1)
+	# Mission 10: ALERT -> STARTLE dulu, baru FLEE setelah timer startle habis.
+	assert_true(deer.is_alerted())
+	for _i in 20:
+		deer.tick(0.1)
 	assert_true(deer.is_fleeing())
 	assert_eq(deer.get_state(), IslandDeer.State.FLEE)
 
@@ -72,7 +76,12 @@ func test_sneaking_player_still_flees_when_too_close() -> void:
 	var player := setup[1] as StubPlayer
 	player.stealth = 0.6
 	deer.tick(0.1)
-	assert_true(deer.is_fleeing(), "70 px masih di dalam radius kabur 78")
+	# Mission 10: tertangkap di radius kabur kini masuk ALERT/STARTLE dulu.
+	var state := deer.get_state()
+	assert_true(
+		state == IslandDeer.State.ALERT or state == IslandDeer.State.STARTLE,
+		"70 px terdeteksi (waspada/startle) sebelum kabur"
+	)
 
 
 func test_effective_detect_radius_follows_stealth() -> void:
@@ -112,6 +121,9 @@ func test_alert_mark_hides_when_fleeing() -> void:
 	var setup := _setup(Vector2(120.0, 0.0))
 	var deer := setup[0] as IslandDeer
 	deer.tick(0.1)
+	assert_true(deer.is_alerted(), "120 px masih waspada (jaminan first hit)")
+	for _i in 20:
+		deer.tick(0.1)
 	assert_true(deer.is_fleeing())
 	assert_false(deer.is_alert_mark_visible(), "tidak ada \"!\" saat sudah kabur")
 

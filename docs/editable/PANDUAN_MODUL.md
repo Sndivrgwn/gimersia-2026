@@ -504,6 +504,8 @@ memakai `_unhandled_input`.
 | `move_left` / `move_right` / `move_up` / `move_down` | A/D/W/S + panah | `Player` |
 | `sprint` | Shift | `Player` |
 | `hotbar_1` … `hotbar_5` | 1–5 | `InventoryComponent` |
+| `hotbar_next` / `hotbar_prev` | scroll bawah / atas | `HotbarSelectionComponent` |
+| `use_held` | klik kanan / F | `HotbarSelectionComponent` |
 | `inventory_toggle` | Tab / I | `BagPanel` (`_unhandled_input`) |
 | `interact` | E (tahan) | `InteractorComponent` — didaftarkan `InputSetup` |
 | `repair` | R (tahan) | `RepairComponent` — didaftarkan `InputSetup` |
@@ -1184,6 +1186,9 @@ dari InputMap yang hidup, jadi tidak boleh berbeda dengan kode.
 | `hotbar_3` | 3 |
 | `hotbar_4` | 4 |
 | `hotbar_5` | 5 |
+| `hotbar_next` | Scroll bawah |
+| `hotbar_prev` | Scroll atas |
+| `use_held` | Klik kanan, F |
 | `interact` | E |
 | `inventory_toggle` | Tab, I |
 | `move_down` | S, Down |

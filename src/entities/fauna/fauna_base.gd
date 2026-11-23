@@ -66,7 +66,22 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	_apply_body_profile()
 	ensure_ready()
+
+
+## Mission 10 Phase 4: profil massa per spesies (satu baris, additive).
+func _apply_body_profile() -> void:
+	var profile_id: StringName = &""
+	if self is IslandDeer:
+		profile_id = &"island_deer"
+	elif self is WildBoar:
+		profile_id = &"wild_boar"
+	if profile_id == &"":
+		return
+	var path := "res://src/data/configs/physics/body_%s.tres" % profile_id
+	if ResourceLoader.exists(path):
+		BodyProfileApplier.apply(self, load(path) as BodyProfile)
 
 
 func _physics_process(delta: float) -> void:

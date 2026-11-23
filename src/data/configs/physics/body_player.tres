@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="BodyProfile" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/physics/body_profile.gd" id="1_7dtof"]
+
+[resource]
+script = ExtResource("1_7dtof")
+id = &"player"
+radius = 10.0
+collision_mask = 6

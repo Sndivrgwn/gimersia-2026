@@ -46,6 +46,11 @@ const DEBUG_ASSET_BOXES := &"debug_asset_boxes"
 ## B: tentukan lokasi base (BasePlacementController).
 const BASE_PLACE := &"base_place"
 
+## Mission 10 Phase 3: hotbar memilih item; use_held memakainya.
+const HOTBAR_NEXT := &"hotbar_next"
+const HOTBAR_PREV := &"hotbar_prev"
+const USE_HELD := &"use_held"
+
 ## Serangan manual: klik kiri (arah kursor) dan Space (arah hadap).
 const ATTACK_CLICK := &"attack_click"
 const ATTACK_SPACE := &"attack_space"
@@ -111,6 +116,11 @@ static func ensure_actions() -> void:
 	_ensure_action(HELP_TOGGLE)
 	_ensure_key(HELP_TOGGLE, KEY_H)
 
+	# Esc bawaan Godot hanya punya keycode, bukan physical_keycode. Didaftarkan
+	# eksplisit supaya "tutup panel" tetap sama di semua layout keyboard.
+	_ensure_action(&"ui_cancel")
+	_ensure_key(&"ui_cancel", KEY_ESCAPE)
+
 	_ensure_action(DEBUG_ISLAND_TOGGLE)
 	_ensure_key(DEBUG_ISLAND_TOGGLE, KEY_F2)
 	_ensure_action(DEBUG_ISLAND_ZONE)
@@ -152,6 +162,14 @@ static func ensure_actions() -> void:
 	_ensure_key(ATTACK_SPACE, KEY_SPACE)
 	_ensure_action(ATTACK_CLICK)
 	_ensure_mouse_button(ATTACK_CLICK, MOUSE_BUTTON_LEFT)
+
+	_ensure_action(HOTBAR_NEXT)
+	_ensure_mouse_button(HOTBAR_NEXT, MOUSE_BUTTON_WHEEL_DOWN)
+	_ensure_action(HOTBAR_PREV)
+	_ensure_mouse_button(HOTBAR_PREV, MOUSE_BUTTON_WHEEL_UP)
+	_ensure_action(USE_HELD)
+	_ensure_key(USE_HELD, KEY_F)
+	_ensure_mouse_button(USE_HELD, MOUSE_BUTTON_RIGHT)
 
 	for index in HOTBAR_ACTIONS.size():
 		_ensure_action(HOTBAR_ACTIONS[index])

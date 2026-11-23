@@ -19,8 +19,11 @@ signal fuel_changed(seconds: float)
 signal lit_changed(is_lit: bool)
 signal fuel_depleted
 
+signal interaction_requested(station: Node, interactor: Node)
+
 const STATION_GROUP := &"crafting_station"
 const STATION_TYPE := RecipeDefinition.Station.CAMPFIRE
+const PROMPT := "E: Api Unggun"
 const PLAYER_GROUP := &"player"
 const NEEDS_NAME := "NeedsComponent"
 const REST_SOURCE := &"campfire"
@@ -57,6 +60,10 @@ func _ready() -> void:
 	_fuel = clampf(config.initial_fuel_seconds, 0.0, config.max_fuel)
 	_cold = not config.start_lit
 	has_been_lit = config.start_lit and _fuel > 0.0
+	var link := StationInteractable.new()
+	link.name = "StationInteractable"
+	link.station = self
+	add_child(link)
 	_ensure_light()
 	_refresh_light()
 	VisualSlot.attach(self, &"campfire", [get_node_or_null("Visual"), get_node_or_null("Flame")], null, CampfireVisual.new())
@@ -76,6 +83,14 @@ func _exit_tree() -> void:
 
 ## `station_type` dibaca CraftingComponent lewat properti dinamis.
 var station_type: int = STATION_TYPE
+
+
+func get_interaction_prompt() -> String:
+	return PROMPT
+
+
+func request_station_panel(interactor: Node) -> void:
+	interaction_requested.emit(self, interactor)
 
 
 func is_station_active() -> bool:

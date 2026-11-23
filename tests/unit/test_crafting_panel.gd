@@ -41,6 +41,13 @@ func before_each() -> void:
 	crafting.input_enabled = false
 	player.add_child(crafting)
 	crafting.set_process(false)
+	# Mission 10 (R4): tab Crafting bag kini hand-only. Tes ini menguji tampilan
+	# lama (semua resep + bagian terkunci), jadi pakai duplikat config dengan
+	# flag kompatibilitas dimatikan (tidak bocor ke tes lain).
+	if crafting.station_config != null:
+		var legacy_station: StationConfig = crafting.station_config.duplicate()
+		legacy_station.bag_tab_hand_only = false
+		crafting.station_config = legacy_station
 
 	# Panel menemukan InventoryComponent + CraftingComponent lewat grup player.
 	panel = BAG_PANEL_SCENE.instantiate()

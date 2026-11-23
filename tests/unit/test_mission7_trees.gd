@@ -234,6 +234,26 @@ func test_chop_feedback_stops_on_other_target() -> void:
 	assert_false(feedback.is_chopping(), "berhenti saat target berubah")
 
 
+## Progres milik pohon LAIN tidak boleh menggetarkan pohon ini walau flag
+## target-nya basi (mis. pemain pindah ke pohon sebelah).
+func test_chop_feedback_ignores_progress_of_another_tree() -> void:
+	var node := _make_node(SMALL_TREE)
+	var other := _make_node(SMALL_TREE)
+	var player := _make_player(false)
+	var interactor := player.get_node("InteractorComponent") as InteractorComponent
+	var feedback := node.get_node("ChopFeedback") as ChopFeedback
+	var visual := node.get_node("Visual") as Polygon2D
+	feedback.tick(0.01)
+
+	interactor._set_target(other)
+	interactor.progress_changed.emit(0.5)
+	interactor.target_changed.emit(node)
+	feedback.tick(0.2)
+
+	assert_false(feedback.is_chopping(), "progres milik pohon lain tidak menggetarkan pohon ini")
+	assert_eq(visual.position, Vector2.ZERO, "visual tetap diam")
+
+
 func test_chop_feedback_fall_stump_and_regrow() -> void:
 	var node := _make_node(SMALL_TREE)
 	var player := _make_player(false)

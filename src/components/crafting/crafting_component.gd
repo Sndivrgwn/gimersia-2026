@@ -54,6 +54,8 @@ const RECIPE_FILES: Array[String] = [
 
 ## Jarak maksimum stasiun dari pemain.
 @export var station_range: float = CRAFT_STATION_RANGE
+## Mission 10: tuning panel stasiun (satu sumber angka, lihat StationConfig).
+@export var station_config: StationConfig = preload("res://src/data/configs/station_config.tres")
 ## Daftar resep. Kosong = memuat `RECIPE_FILES`.
 @export var recipes: Array[RecipeDefinition] = []
 ## Opsional; diisi otomatis dari parent (Player) bila kosong.
@@ -70,6 +72,8 @@ var _last_ratio: float = 0.0
 var _hp_at_start: float = -1.0
 var _loaded: bool = false
 var _station_key: String = ""
+## Stasiun yang dipakai craft berjalan (null = perilaku lama).
+var _active_station: Node
 
 
 func _ready() -> void:
@@ -191,11 +195,15 @@ func count_available(item: ItemDefinition) -> int:
 
 # --- Kontrol ----------------------------------------------------------------
 
-func start_craft(recipe: RecipeDefinition) -> bool:
+## Station opsional: craft hanya sah selama stasiun itu aktif dan dekat.
+func start_craft(recipe: RecipeDefinition, station: Node = null) -> bool:
 	if _recipe != null:
+		return false
+	if station != null and not _station_valid(station, recipe):
 		return false
 	if not can_craft(recipe):
 		return false
+	_active_station = station
 	_recipe = recipe
 	_elapsed = 0.0
 	_last_ratio = 0.0
@@ -227,7 +235,11 @@ func tick(delta: float) -> void:
 	if _hp_dropped():
 		cancel_craft(REASON_DAMAGED)
 		return
-	if not _station_available(_recipe.station):
+	if _active_station != null:
+		if not _station_valid(_active_station, _recipe):
+			cancel_craft(REASON_STATION_LOST)
+			return
+	elif not _station_available(_recipe.station):
 		cancel_craft(REASON_STATION_LOST)
 		return
 
@@ -243,6 +255,8 @@ func tick(delta: float) -> void:
 # --- Internal ---------------------------------------------------------------
 
 func _bind() -> void:
+	if station_config != null and is_equal_approx(station_range, CRAFT_STATION_RANGE):
+		station_range = station_config.use_range
 	if player == null:
 		player = get_parent()
 	if inventory == null and player != null:
@@ -261,6 +275,42 @@ func _ensure_recipes() -> void:
 		if recipe != null:
 			recipes.append(recipe)
 	_loaded = true
+
+
+func get_station_config() -> StationConfig:
+	if station_config == null:
+		station_config = StationConfig.new()
+	return station_config
+
+
+## Resep milik satu jenis stasiun (WORKBENCH/CAMPFIRE/HAND).
+func get_recipes_for(station_type: int) -> Array[RecipeDefinition]:
+	_ensure_recipes()
+	var result: Array[RecipeDefinition] = []
+	for recipe in recipes:
+		if recipe != null and recipe.station == station_type:
+			result.append(recipe)
+	return result
+
+
+## Stasiun valid untuk resep ini: hidup, jenis sama, dan dalam jangkauan.
+func _station_valid(station: Node, recipe: RecipeDefinition) -> bool:
+	if station == null or recipe == null or not is_instance_valid(station):
+		return false
+	if not station.is_inside_tree() or recipe.station == RecipeDefinition.Station.HAND:
+		return false
+	if not _is_station_usable(station):
+		return false
+	if not ("station_type" in station) or int(station.get("station_type")) != recipe.station:
+		return false
+	var node := station as Node2D
+	if node == null:
+		return false
+	return _origin().distance_to(node.global_position) <= get_station_config().use_range
+
+
+func get_active_station() -> Node:
+	return _active_station
 
 
 func _origin() -> Vector2:
@@ -359,6 +409,7 @@ func _complete() -> void:
 
 func _clear_state() -> void:
 	_recipe = null
+	_active_station = null
 	_elapsed = 0.0
 	_duration = 0.0
 	_hp_at_start = -1.0
