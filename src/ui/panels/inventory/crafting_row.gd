@@ -17,6 +17,8 @@ var recipe: RecipeDefinition
 var crafting: CraftingComponent
 var inventory: InventoryComponent
 var locked: bool = false
+## Alasan khusus saat terkunci (mis. api unggun masih dingin).
+var locked_reason: String = ""
 ## Mission 10: stasiun pemanggil (null = tab tas, perilaku lama).
 var station: Node
 
@@ -51,6 +53,12 @@ func get_recipe() -> RecipeDefinition:
 
 func is_locked() -> bool:
 	return locked
+
+
+## Ganti alasan terkunci; dipakai panel stasiun untuk status "Api dingin".
+func set_locked_reason(reason: String) -> void:
+	locked_reason = reason
+	refresh()
 
 
 func get_block_reason() -> String:
@@ -98,7 +106,7 @@ func refresh() -> void:
 	_time_label.text = "%.1f s" % recipe.craft_time
 
 	if locked:
-		_block_reason = recipe.get_station_block_reason()
+		_block_reason = locked_reason if not locked_reason.is_empty() else recipe.get_station_block_reason()
 	else:
 		_block_reason = "" if crafting == null else crafting.get_block_reason(recipe)
 

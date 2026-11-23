@@ -11,7 +11,8 @@ const PLAYER_GROUP := &"player"
 const CRAFTING_NAME := "CraftingComponent"
 const WORKBENCH_TYPE := RecipeDefinition.Station.WORKBENCH
 const CAMPFIRE_TYPE := RecipeDefinition.Station.CAMPFIRE
-const COLD_REASON := "Api belum menyala"
+const COLD_REASON := "Api dingin - gesek batu dulu"
+const FLINT_HINT := "Gesek batu: tekan E saat penanda di zona hijau"
 const FUEL_TEXT := "Bahan bakar: %d/%d dtk"
 const REFUEL_LABEL := "Isi Bahan Bakar (2 Kayu)"
 const FLINT_LABEL := "Gesek Batu"
@@ -36,6 +37,8 @@ var _fuel_bar: ProgressBar
 var _refuel: Button
 var _flint: Button
 var _is_open: bool = false
+var _last_cold: bool = false
+var _connected_crafting: CraftingComponent
 
 
 func _ready() -> void:
@@ -60,8 +63,11 @@ func open(p_station: Node, p_interactor: Node = null) -> bool:
 	_is_open = true
 	visible = true
 	_root.visible = true
+	_status.text = ""
 	_set_player_locked(true)
 	UiBackStack.register(self)
+	_connect_crafting()
+	_connect_station_signals()
 	rebuild()
 	opened.emit(station)
 	return true
@@ -78,6 +84,7 @@ func close() -> void:
 	UiBackStack.unregister(self)
 	if crafting != null and crafting.get_active_station() == station:
 		crafting.cancel_craft("Panel ditutup")
+	_progress.visible = false
 	closed.emit(station)
 
 
@@ -123,9 +130,21 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not _is_open:
 		return
+	# Saat QTE gesek batu aktif, E adalah tombol strike dan Esc membatalkan
+	# QTE di FireStarterController; jangan tutup panelnya dari sini.
+	if _ignition_active() and (event.is_action_pressed(InputSetup.INTERACT) or event.is_action_pressed(&"ui_cancel")):
+		return
 	if event.is_action_pressed(&"ui_cancel") or event.is_action_pressed(InputSetup.INTERACT):
 		close()
 		get_viewport().set_input_as_handled()
+
+
+func _ignition_active() -> bool:
+	var tree := get_tree()
+	if tree == null:
+		return false
+	var controller := tree.get_first_node_in_group(FireStarterController.GROUP) as FireStarterController
+	return controller != null and controller.is_active()
 
 
 # --- Read API (tes) ---------------------------------------------------------
@@ -160,6 +179,7 @@ func refuel_pressed() -> void:
 	var ok: bool = bool(station.call(&"refuel", interactor))
 	_status.text = "Bahan bakar ditambah" if ok else _refuel_reason()
 	_refresh_runtime()
+	refresh_rows()
 
 
 func flint_pressed() -> void:
@@ -169,8 +189,11 @@ func flint_pressed() -> void:
 	if not reason.is_empty():
 		_status.text = reason
 		return
-	close()
-	station.call(&"request_ignition", interactor)
+	# Panel tetap terbuka: QTE berjalan di HUD layer lebih atas. Setelah api
+	# menyala, `lit_changed` membangun ulang baris sehingga resep langsung aktif.
+	var started: bool = bool(station.call(&"request_ignition", interactor))
+	_status.text = FLINT_HINT if started else "Tidak bisa menyalakan api"
+	_refresh_runtime()
 
 
 ## Bangun ulang daftar resep stasiun ini.
@@ -186,15 +209,94 @@ func rebuild() -> void:
 	_state.text = _state_text()
 	_refresh_campfire_ui()
 	var cold := _is_cold()
+	_last_cold = cold
 	for recipe in crafting.get_recipes_for(_station_type()):
 		var row := ROW_SCENE_SCRIPT.new()
 		row.station = station
 		_rows_box.add_child(row)
 		row.setup(recipe, crafting, crafting.inventory, cold)
+		if cold:
+			row.set_locked_reason(COLD_REASON)
 		_rows.append(row)
+	var active := crafting != null and crafting.is_crafting()
+	_progress.visible = active
+	if active:
+		_progress.value = crafting.get_progress_ratio()
 
 
 # --- Internal ---------------------------------------------------------------
+
+## Sambungkan sekali per CraftingComponent supaya panel ikut progres/isi tas.
+func _connect_crafting() -> void:
+	if crafting == null:
+		return
+	if not crafting.craft_started.is_connected(_on_craft_started):
+		crafting.craft_started.connect(_on_craft_started)
+	if not crafting.craft_progress.is_connected(_on_craft_progress):
+		crafting.craft_progress.connect(_on_craft_progress)
+	if not crafting.craft_completed.is_connected(_on_craft_completed):
+		crafting.craft_completed.connect(_on_craft_completed)
+	if not crafting.craft_cancelled.is_connected(_on_craft_cancelled):
+		crafting.craft_cancelled.connect(_on_craft_cancelled)
+	var inventory := crafting.inventory
+	if inventory != null and not inventory.inventory_changed.is_connected(_on_inventory_changed):
+		inventory.inventory_changed.connect(_on_inventory_changed)
+	_connected_crafting = crafting
+
+
+func _connect_station_signals() -> void:
+	if station == null:
+		return
+	var callback := Callable(self, &"_on_station_state_changed")
+	for signal_name in [&"lit_changed", &"fuel_changed"]:
+		if station.has_signal(signal_name) and not station.is_connected(signal_name, callback):
+			station.connect(signal_name, callback)
+
+
+func refresh_rows() -> void:
+	for row in _rows:
+		if row != null and is_instance_valid(row):
+			row.refresh()
+
+
+func _on_craft_started(recipe: RecipeDefinition) -> void:
+	_progress.visible = true
+	_progress.value = 0.0
+	_status.text = "Membuat %s..." % recipe.display_name
+	refresh_rows()
+
+
+func _on_craft_progress(ratio: float) -> void:
+	_progress.visible = true
+	_progress.value = clampf(ratio, 0.0, 1.0)
+
+
+func _on_craft_completed(recipe: RecipeDefinition) -> void:
+	_progress.visible = false
+	_progress.value = 0.0
+	_status.text = "Selesai: %s x%d" % [recipe.display_name, maxi(recipe.result_count, 1)]
+	refresh_rows()
+
+
+func _on_craft_cancelled(recipe: RecipeDefinition, reason: String) -> void:
+	_progress.visible = false
+	_progress.value = 0.0
+	_status.text = "Batal: %s%s" % [recipe.display_name, " (" + reason + ")" if not reason.is_empty() else ""]
+	refresh_rows()
+
+
+func _on_inventory_changed() -> void:
+	if _is_open:
+		refresh_rows()
+
+
+func _on_station_state_changed(_value: Variant = null) -> void:
+	if not _is_open:
+		return
+	if not _is_cold():
+		_status.text = "Api menyala"
+	rebuild()
+
 
 func _station_type() -> int:
 	if station != null and ("station_type" in station):
@@ -235,12 +337,12 @@ func _refuel_reason() -> String:
 
 
 func _flint_reason() -> String:
-	if station != null and station.has_method(&"get_ignite_block_reason"):
-		var reason := String(station.call(&"get_ignite_block_reason", interactor))
-		if not reason.is_empty():
-			return reason
-	if station != null and not bool(station.call(&"needs_ignition")):
-		return "Tambah bahan bakar dulu"
+	if station == null or not station.has_method(&"needs_ignition"):
+		return ""
+	if not bool(station.call(&"needs_ignition")):
+		return "Api sudah menyala" if not _is_cold() else "Tambah bahan bakar dulu"
+	if station.has_method(&"get_ignite_block_reason"):
+		return String(station.call(&"get_ignite_block_reason", interactor))
 	return ""
 
 
@@ -262,6 +364,14 @@ func _refresh_runtime() -> void:
 	if station == null or not is_instance_valid(station):
 		return
 	_state.text = _state_text()
+	if crafting != null and crafting.is_crafting():
+		_progress.visible = true
+		_progress.value = crafting.get_progress_ratio()
+	var cold := _is_cold()
+	if cold != _last_cold:
+		_last_cold = cold
+		rebuild()
+		return
 	var max_fuel := 1.0
 	if station.has_method(&"get_max_fuel"):
 		max_fuel = maxf(float(station.call(&"get_max_fuel")), 1.0)

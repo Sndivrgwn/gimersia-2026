@@ -11,6 +11,8 @@ enum State { WANDER, CHASE, BITE, DASH_TELEGRAPH, DASH, RECOVER, FLEE }
 const DEFAULT_RAID_CONFIG: RaidConfig = preload("res://src/data/configs/fauna/raid_config.tres")
 const CAMP_CENTER := Vector2.ZERO
 const RECOVER_TIME := 0.3
+## Gigitan ditahan beberapa frame supaya animasi `bite` benar-benar terlihat.
+const BITE_TIME := 0.22
 ## Spesifikasi §7.2: knockback dash 60 px (durasi 0.2 s di CombatConfig).
 const DASH_KNOCKBACK_DISTANCE := 60.0
 
@@ -21,6 +23,7 @@ var is_raider: bool = false
 var state: int = State.WANDER
 
 var _bite_cooldown: float = 0.0
+var _bite_remaining: float = 0.0
 var _dash_cooldown: float = 0.0
 var _telegraph_remaining: float = 0.0
 ## Anggaran waktu dash (Mission 9 fase 4): dash yang terhalang dinding/pagar tidak
@@ -93,6 +96,12 @@ func _update_behavior(delta: float) -> void:
 		return
 	if state == State.DASH:
 		_tick_dash(delta, boar)
+		return
+	if state == State.BITE:
+		_bite_remaining -= delta
+		move_in_direction(Vector2.ZERO, 0.0, delta)
+		if _bite_remaining <= 0.0:
+			state = State.CHASE
 		return
 	if state == State.RECOVER:
 		_recover_remaining -= delta
@@ -172,6 +181,7 @@ func _calm_down() -> void:
 	state = State.WANDER
 	_telegraph_remaining = 0.0
 	_recover_remaining = 0.0
+	_bite_remaining = 0.0
 	_dash_target = Vector2.ZERO
 	_dash_hit = false
 	if _visual != null:
@@ -238,10 +248,25 @@ func _player_alive() -> bool:
 
 func _bite(target: Node, boar: BoarConfig) -> void:
 	state = State.BITE
+	_bite_remaining = BITE_TIME
 	move_in_direction(Vector2.ZERO, 0.0, 0.0)
 	_bite_cooldown = boar.bite_cooldown
 	_deal_damage(target, boar.bite_damage, boar.bite_damage, Vector2.ZERO, 0.0)
-	state = State.CHASE
+	_lunge_visual(target)
+
+
+## Sentakan kecil ke arah target: terbaca walau belum ada art state `bite`.
+func _lunge_visual(target: Node) -> void:
+	if _visual == null or not is_instance_valid(_visual) or not (target is Node2D):
+		return
+	var offset := (target as Node2D).global_position - global_position
+	if offset.length_squared() <= 0.0001:
+		return
+	var direction := offset.normalized()
+	var tween := _visual.create_tween()
+	_visual.position = Vector2.ZERO
+	tween.tween_property(_visual, "position", direction * 6.0, 0.07)
+	tween.tween_property(_visual, "position", Vector2.ZERO, 0.15)
 
 
 func _begin_telegraph(locked_position: Vector2, boar: BoarConfig) -> void:

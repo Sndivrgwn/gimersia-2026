@@ -80,6 +80,7 @@ func notify_hit(target: Node, _damage: float, heavy: bool = false) -> void:
 	_squash_time = config.squash_time
 	if target != null and target.has_method(&"freeze_for"):
 		target.freeze_for(_hit_stop)
+	_punch_target(target)
 	_spawn_burst(position, config.hit_spark_count, Color(1.0, 0.85, 0.4, 1.0))
 	feedback_event.emit(_last_kind, position)
 
@@ -124,22 +125,63 @@ func _on_enemy_killed(target: Node) -> void:
 	feedback_event.emit(&"kill", position)
 
 
-func _on_swing(_aim: Vector2, _hits: int) -> void:
+## Ayunan: dorong badan ke arah serangan + stretch singkat. Arah mengikuti
+## kursor/facing, bukan selalu ke kanan seperti versi lama.
+func _on_swing(aim: Vector2, _hits: int) -> void:
 	if player == null:
 		return
 	var visual := player.get_node_or_null("Visual") as Node2D
 	if visual == null:
 		return
+	var direction := aim.normalized() if aim.length_squared() > 0.0001 else Vector2.RIGHT
+	var lunge := direction * config.player_lunge
+	var stretch := Vector2(1.12, 0.9) if absf(direction.x) >= absf(direction.y) else Vector2(0.9, 1.12)
 	var tween := create_tween()
 	visual.position = Vector2.ZERO
-	tween.tween_property(visual, "position", Vector2(config.player_lunge, 0.0), config.player_lunge_time)
+	visual.scale = Vector2.ONE
+	tween.tween_property(visual, "position", lunge, config.player_lunge_time)
+	tween.parallel().tween_property(visual, "scale", stretch, config.player_lunge_time)
 	tween.tween_property(visual, "position", Vector2.ZERO, config.player_lunge_time)
+	tween.parallel().tween_property(visual, "scale", Vector2.ONE, config.player_lunge_time)
+
+
+## Sasaran memantul (squash) saat kena. Tanpa art, placeholder Polygon2D tetap
+## terlihat berubah bentuk; dengan art, VisualSlot menyalin scale placeholder.
+func _punch_target(target: Node) -> void:
+	if target == null or not is_instance_valid(target) or not target is Node2D:
+		return
+	var visual := (target as Node2D).get_node_or_null("Visual") as Node2D
+	if visual == null or not is_instance_valid(visual):
+		return
+	var base := visual.scale
+	# Jaga tanda scale.x: fauna menghadap kiri memakai scale.x negatif. Scale.x 0
+	# (mis. placeholder kosong) jangan sampai membuat sasaran menghilang.
+	var facing := signf(base.x)
+	if is_zero_approx(facing):
+		facing = 1.0
+	var squash := Vector2(config.squash_scale.x * facing, config.squash_scale.y)
+	var punch := visual.create_tween()
+	punch.tween_property(visual, "scale", squash, 0.05)
+	punch.tween_property(visual, "scale", base, 0.10)
 
 
 func _on_receiver_damaged(_amount: float, _source: Node) -> void:
 	_last_kind = &"player_hurt"
 	_start_shake(config.shake_player_hurt, config.shake_player_hurt_time)
+	_flash_player()
 	feedback_event.emit(&"player_hurt", player.global_position if player != null else Vector2.ZERO)
+
+
+## Kilat merah singkat saat pemain kena; tetap terbaca dengan placeholder polos.
+func _flash_player() -> void:
+	if player == null or not is_instance_valid(player):
+		return
+	var visual := player.get_node_or_null("Visual") as CanvasItem
+	if visual == null:
+		return
+	visual.modulate = Color(1.6, 0.55, 0.55, 1.0)
+	var flash := visual.create_tween()
+	flash.tween_property(visual, "modulate", Color.WHITE, 0.18)
 
 
 func _on_dodged(_source: Node) -> void:

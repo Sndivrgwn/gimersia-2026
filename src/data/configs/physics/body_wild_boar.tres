@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="BodyProfile" format=3]
+[gd_resource type="Resource" script_class="BodyProfile" format=3 uid="uid://d1cembimt6xt4"]
 
-[ext_resource type="Script" path="res://src/data/resources/physics/body_profile.gd" id="1_ewd7h"]
+[ext_resource type="Script" uid="uid://bq83wgnbde64f" path="res://src/data/resources/physics/body_profile.gd" id="1_ewd7h"]
 
 [resource]
 script = ExtResource("1_ewd7h")

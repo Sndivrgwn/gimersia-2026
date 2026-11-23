@@ -187,6 +187,23 @@ func remove_item(item: Variant, count: int = 1) -> bool:
 	return true
 
 
+## Buang dari slot tertentu saja (dipakai transfer peti -> tas). Berbeda dari
+## `remove_item()` yang mencari id dari slot terakhir, ini tidak menggeser isi
+## slot lain saat pemain mengklik satu slot.
+func remove_from_slot(index: int, count: int = 1) -> bool:
+	if count <= 0 or not _is_valid_slot(index):
+		return false
+	var stack := _slots[index]
+	if stack == null or stack.is_empty() or stack.count < count:
+		return false
+	stack.count -= count
+	if stack.count <= 0:
+		_slots[index] = null
+	slot_changed.emit(index)
+	inventory_changed.emit()
+	return true
+
+
 ## Tambah sebanyak yang muat; sisa dijatuhkan sebagai ItemPickup di posisi
 ## pemilik (parent = current scene). Mengembalikan jumlah yang dijatuhkan.
 func add_or_drop(item: ItemDefinition, count: int = 1) -> int:

@@ -1,11 +1,11 @@
-[gd_resource type="Resource" script_class="StructureDefinition" format=3]
+[gd_resource type="Resource" script_class="StructureDefinition" format=3 uid="uid://hcd3gtkx7k3m"]
 
-[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_lpqks"]
+[ext_resource type="Script" uid="uid://cqvbhuloggkye" path="res://src/data/resources/items/item_amount.gd" id="1_lpqks"]
 [ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_t23l7"]
 [ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="3_wnpn2"]
 [ext_resource type="Resource" path="res://src/data/items/bamboo.tres" id="4_k7jc5"]
 [ext_resource type="PackedScene" path="res://src/entities/camp/tent/tent.tscn" id="5_mxjak"]
-[ext_resource type="Script" path="res://src/data/resources/camp/structure_definition.gd" id="6_u4u2g"]
+[ext_resource type="Script" uid="uid://dmmnac668xs34" path="res://src/data/resources/camp/structure_definition.gd" id="6_u4u2g"]
 
 [sub_resource type="Resource" id="Resource_htwfb"]
 script = ExtResource("1_lpqks")

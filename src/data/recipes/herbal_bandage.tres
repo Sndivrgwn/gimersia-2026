@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3 uid="uid://cr7eg7q3as62"]
 
-[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_wc1ev"]
+[ext_resource type="Script" uid="uid://cqvbhuloggkye" path="res://src/data/resources/items/item_amount.gd" id="1_wc1ev"]
 [ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="2_cvw17"]
-[ext_resource type="Resource" path="res://src/data/items/berry.tres" id="3_e30vy"]
-[ext_resource type="Resource" path="res://src/data/items/herbal_bandage.tres" id="4_dypfv"]
-[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="5_ihy1f"]
+[ext_resource type="Resource" uid="uid://b240mdc3iugqd" path="res://src/data/items/berry.tres" id="3_e30vy"]
+[ext_resource type="Resource" uid="uid://dt58t4ws5774d" path="res://src/data/items/herbal_bandage.tres" id="4_dypfv"]
+[ext_resource type="Script" uid="uid://cbccgqc2noef3" path="res://src/data/resources/crafting/recipe_definition.gd" id="5_ihy1f"]
 
 [sub_resource type="Resource" id="Resource_qf2ip"]
 script = ExtResource("1_wc1ev")

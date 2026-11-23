@@ -6,8 +6,18 @@ extends GutTest
 
 const PLAYER_SCENE: PackedScene = preload("res://src/entities/player/player.tscn")
 const WORKBENCH_SCENE: PackedScene = preload("res://src/entities/camp/workbench/workbench.tscn")
+const CAMPFIRE_SCENE: PackedScene = preload("res://src/entities/camp/campfire/campfire.tscn")
+const CAMPFIRE_DEF: StructureDefinition = preload("res://src/data/camp/campfire.tres")
 const InventoryComponentScript = preload("res://src/components/inventory/inventory_component.gd")
 const CraftingComponentScript = preload("res://src/components/crafting/crafting_component.gd")
+
+
+## Interactor asli juga Node biasa (bukan Node2D); panel hanya butuh inventory.
+class StubInteractor extends Node:
+	var inventory: InventoryComponent
+
+	func get_inventory() -> InventoryComponent:
+		return inventory
 
 var player: Player
 var inventory: InventoryComponent
@@ -61,6 +71,8 @@ func test_open_locks_movement_and_crafting_works() -> void:
 	assert_false(row.is_craft_disabled(), "bahan lengkap: tombol Craft aktif")
 	row.press_craft()
 	assert_true(crafting.is_crafting(), "craft mulai dari panel")
+	assert_true(panel.get_progress().visible, "progress craft terlihat")
+	assert_string_contains(panel.get_status_text(), "Membuat")
 
 	var elapsed := 0.0
 	while elapsed < 20.0 and crafting.is_crafting():
@@ -68,11 +80,49 @@ func test_open_locks_movement_and_crafting_works() -> void:
 		elapsed += 0.5
 
 	assert_false(crafting.is_crafting(), "craft selesai")
+	assert_false(panel.get_progress().visible, "progress disembunyikan setelah selesai")
+	assert_string_contains(panel.get_status_text(), "Selesai")
 	assert_lt(inventory.count_of(ItemCatalog.WOOD), wood_before, "bahan terkonsumsi")
 
 	panel.close()
 	assert_false(panel.is_open())
 	assert_false(player.is_input_locked(), "gerak kembali setelah panel ditutup")
+
+
+func test_campfire_panel_stays_open_and_unlocks_after_ignition() -> void:
+	var fire := CAMPFIRE_SCENE.instantiate() as Campfire
+	fire.definition = CAMPFIRE_DEF
+	add_child_autofree(fire)
+	fire.set_process(false)
+	fire.global_position = player.global_position
+	inventory.add_item(ItemCatalog.STONE, 5)
+
+	var interactor := StubInteractor.new()
+	interactor.name = "StubInteractor"
+	interactor.inventory = inventory
+	player.add_child(interactor)
+	var starter := FireStarterController.new()
+	starter.name = "FireStarterController"
+	player.add_child(starter)
+	starter.set_process(false)
+	starter.roll_override = 0.0
+
+	assert_true(panel.open(fire, interactor), "panel api unggun terbuka")
+	assert_gt(panel.get_rows().size(), 0, "resep api unggun tampil")
+	var cold_row = panel.get_rows()[0]
+	assert_true(cold_row.is_locked(), "resep terkunci saat api dingin")
+	assert_eq(cold_row.get_block_reason(), StationPanel.COLD_REASON)
+
+	panel.flint_pressed()
+	assert_true(panel.is_open(), "panel tetap terbuka saat QTE")
+	assert_true(starter.is_active(), "gesek batu mulai")
+	starter.set_marker(0.5)
+	starter.strike()
+
+	assert_true(fire.is_lit(), "api menyala setelah QTE berhasil")
+	assert_true(panel.is_open(), "panel tetap terbuka setelah api menyala")
+	var warm_row = panel.get_rows()[0]
+	assert_false(warm_row.is_locked(), "resep langsung aktif tanpa membuka ulang panel")
 
 
 func test_chest_panel_does_not_listen_to_stations() -> void:

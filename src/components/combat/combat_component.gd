@@ -14,7 +14,7 @@ signal enemy_killed(target: Node)
 
 const DEFAULT_CONFIG: CombatConfig = preload("res://src/data/configs/combat_config.tres")
 const DAMAGEABLE_GROUP := &"damageable"
-const SLASH_VISIBLE_TIME := 0.1
+const SLASH_VISIBLE_TIME := 0.18
 const BAG_PANEL_NAME := "BagPanel"
 
 @export var combat_config: CombatConfig = DEFAULT_CONFIG
@@ -421,24 +421,33 @@ func _show_slash(aim: Vector2) -> void:
 	if _slash == null:
 		_slash = Polygon2D.new()
 		_slash.name = "SlashArc"
-		_slash.color = Color(1.0, 0.95, 0.7, 0.45)
+		_slash.color = Color(1.0, 0.95, 0.7, 0.55)
 		_slash.z_index = 5
-		var range_px := get_attack_range()
-		var points := PackedVector2Array([Vector2.ZERO])
-		var steps := 8
-		for index in steps + 1:
-			var angle := deg_to_rad(-get_cone_angle() * 0.5 + get_cone_angle() * float(index) / float(steps))
-			points.append(Vector2(cos(angle), sin(angle)) * range_px)
-		_slash.polygon = points
 		add_child(_slash)
+	# Poligon dihitung ulang supaya senjata dengan jangkauan lebih panjang
+	# (tombak) mendapat busur yang sesuai.
+	var range_px := get_attack_range()
+	var points := PackedVector2Array([Vector2.ZERO])
+	var steps := 10
+	for index in steps + 1:
+		var angle := deg_to_rad(-get_cone_angle() * 0.5 + get_cone_angle() * float(index) / float(steps))
+		points.append(Vector2(cos(angle), sin(angle)) * range_px)
+	_slash.polygon = points
 	_slash.rotation = aim.angle()
+	_slash.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	_slash.scale = Vector2(0.82, 0.82)
 	_slash.visible = true
 	_slash_timer = SLASH_VISIBLE_TIME
 
 
+## Busur memudar + melebar singkat supaya ayunan terbaca tanpa art pemain.
 func _tick_slash(delta: float) -> void:
 	if _slash == null or not _slash.visible:
 		return
 	_slash_timer -= delta
+	var ratio := clampf(_slash_timer / SLASH_VISIBLE_TIME, 0.0, 1.0)
+	_slash.modulate.a = ratio
+	_slash.scale = Vector2.ONE * lerpf(0.95, 1.15, 1.0 - ratio)
 	if _slash_timer <= 0.0:
 		_slash.visible = false
+		_slash.modulate.a = 0.0
