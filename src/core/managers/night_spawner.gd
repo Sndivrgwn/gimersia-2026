@@ -13,6 +13,8 @@ const DEFAULT_RAID_CONFIG: RaidConfig = preload("res://src/data/configs/fauna/ra
 
 @export var clock: Node
 @export var fauna_parent: Node2D
+## Mission 10 Phase 4: jarak bersih minimum ke pemain/badan fauna lain.
+@export var min_body_clearance: float = 60.0
 @export var night_scaling: NightScalingConfig = DEFAULT_SCALING
 ## Mission 9: batas hostile malam + pengali interval spawn.
 @export var raid_config: RaidConfig = DEFAULT_RAID_CONFIG
@@ -161,6 +163,9 @@ func _spawn_position() -> Vector2:
 			continue
 		raw.append(marker.global_position)
 		if base_clear > 0.0 and marker.global_position.distance_to(base_center) < base_clear:
+			continue
+		# Mission 10: jangan menumpuk dengan pemain/badan fauna yang sudah ada.
+		if not SpawnClearance.is_clear(tree, marker.global_position, min_body_clearance):
 			continue
 		all.append(marker.global_position)
 		if marker.global_position.distance_to(player_position) >= 600.0:

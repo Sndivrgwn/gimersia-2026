@@ -105,6 +105,8 @@ func tick(delta: float) -> void:
 	health.tick(delta)
 	_tick_flash(delta)
 	_update_dazzle()
+	# Mission 10 Phase 4: jaring pengaman anti-tumpuk, dihormati dinding/sungai.
+	BodySeparation.apply(self, delta, _find_player())
 
 	if _flee_remaining > 0.0:
 		_tick_flee(delta)
@@ -267,7 +269,9 @@ func apply_knockback(direction: Vector2, distance: float, duration: float) -> vo
 	if is_knockback_ignored():
 		return
 	ensure_ready()
-	var scaled := distance * maxf(config.knockback_resistance, 0.0)
+	# Profil massa (Mission 10) adalah sumber utama; config tetap jadi cadangan.
+	var multiplier := BodyProfileApplier.knockback_multiplier(self, config.knockback_resistance)
+	var scaled := distance * maxf(multiplier, 0.0)
 	if scaled <= 0.0:
 		return
 	_knockback_remaining = duration
@@ -617,7 +621,11 @@ func get_player_receiver() -> PlayerDamageReceiver:
 ## Jarak menempel ke pemain (radius badan fauna + radius pemain + extra).
 func get_contact_distance_to_player() -> float:
 	ensure_ready()
-	return config.get_contact_distance(_radius_of(_find_player()), get_body_radius())
+	var extra := config.contact_stop_extra
+	var profile := BodyProfileApplier.profile_of(self)
+	if profile != null:
+		extra = profile.contact_stop_extra
+	return _radius_of(_find_player()) + get_body_radius() + maxf(extra, 0.0)
 
 
 ## Satu jalur radius untuk fauna ini maupun target lain (pemain).

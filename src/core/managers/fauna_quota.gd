@@ -18,6 +18,8 @@ const PLAYER_GROUP := &"player"
 @export var boar_target: int = 2
 @export var deer_target: int = 3
 @export var min_spawn_distance: float = 600.0
+## Mission 10 Phase 4: jarak bersih minimum ke pemain/badan fauna lain.
+@export var min_body_clearance: float = 60.0
 @export var flee_duration: float = 8.0
 @export var rescue_respawn_delay: float = 45.0
 @export var rescue_max_extra_respawns: int = 4
@@ -146,6 +148,9 @@ func get_spawn_position() -> Vector2:
 		raw.append(marker.global_position)
 		if base_clear > 0.0 and marker.global_position.distance_to(base_center) < base_clear:
 			continue
+		# Mission 10: jangan menumpuk dengan pemain/badan fauna yang sudah ada.
+		if not SpawnClearance.is_clear(tree, marker.global_position, min_body_clearance):
+			continue
 		all.append(marker.global_position)
 		if marker.global_position.distance_to(player_position) >= min_spawn_distance:
 			far.append(marker.global_position)
@@ -204,6 +209,8 @@ func _forest_spawn_position() -> Vector2:
 		if base_clear > 0.0 and marker.global_position.distance_to(base_center) < base_clear:
 			continue
 		if marker.global_position.distance_to(player_position) < min_spawn_distance:
+			continue
+		if not SpawnClearance.is_clear(tree, marker.global_position, min_body_clearance):
 			continue
 		forest.append(marker.global_position)
 	if forest.is_empty():

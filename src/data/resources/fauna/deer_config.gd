@@ -3,11 +3,11 @@ extends FaunaConfig
 
 ## Rusa pulau (spesifikasi §7.3). Selalu PASSIVE, tidak menyerang.
 
-## Mission 9: rusa tidak memblokir pemain (tetap bisa ditembus) dan menerima
-## knockback penuh.
+## Mission 10 Phase 4: rusa kini badan padat yang memblokir pemain dan menerima
+## knockback 0.6 (profil massa menimpa angka ini bila terpasang).
 func _init() -> void:
-	blocks_player = false
-	knockback_resistance = 1.0
+	blocks_player = true
+	knockback_resistance = 0.6
 
 
 @export_group("Kabur")
@@ -29,3 +29,5 @@ func _init() -> void:
 @export var flee_accel_seconds: float = 0.5
 ## Lantai radius deteksi saat pemain jongkok (tidak pernah 0).
 @export var sneak_notice_floor_px: float = 24.0
+## Lama rusa terpaku setelah kena serangan pertama (jendela serangan kedua).
+@export var hit_stun: float = 0.35

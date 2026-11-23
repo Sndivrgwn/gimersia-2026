@@ -51,12 +51,9 @@ func build_ring(center: Vector2) -> void:
 		slot.definition = definition
 		add_child(slot)
 		# Koordinat LOKAL: ring ikut transform camp, bukan dobel offset pusat base.
-		# to_local() aman baik ring sudah di dalam tree maupun belum.
-		var local_pos: Vector2 = entry["position"] as Vector2
-		if is_inside_tree():
-			local_pos = to_local(entry["position"] as Vector2)
-		else:
-			local_pos -= center
+		# Jangan pakai to_local(): transform induk belum tentu sudah diperbarui
+		# pada frame yang sama saat anchor.found() memanggil build_ring().
+		var local_pos: Vector2 = (entry["position"] as Vector2) - center
 		slot.position = local_pos
 		# Tangen ring: segmen menyambung satu sama lain.
 		slot.rotation = float(entry["rotation"])

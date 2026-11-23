@@ -464,6 +464,9 @@ mengunci toggle BagPanel selama terbuka.
 ring camp dan hilang permanen setelah hari 4. `ChopFeedback` hanya menempel pada
 definisi dengan `chop_feedback_enabled`: goyang visual, serpihan tiap 0.25 s,
 tumbang 85° / 0.6 s, tunggul sampai respawn, lalu tumbuh lagi 0.3 → 1.0 / 0.5 s.
+Syarat goyang (Mission 10 fix): progres > 0, tombol tahan belum dilepas, DAN
+`InteractorComponent.get_target()` benar-benar pohon ini (target `null` tidak lagi
+dianggap milik pohon — dulu lubang yang hanya lolos di tes).
 
 ### Susunan node baru Mission 7 (island)
 

@@ -134,12 +134,16 @@ func test_d_melee_knockback_is_scaled_by_knockback_resistance() -> void:
 	assert_almost_eq(moved, 40.0 * 0.35, 1.0)
 
 
-func test_d2_deer_keeps_full_knockback() -> void:
+## Mission 10 Phase 4 (R4): rusa kini badan padat dan menerima knockback 0.6
+## lewat BodyProfile, bukan lagi menembus pemain dengan knockback penuh.
+func test_d2_deer_blocks_and_takes_reduced_knockback() -> void:
 	var deer := FaunaConfig.new()
 	assert_eq(deer.knockback_resistance, 1.0)
+	var deer_config := DeerConfig.new()
+	assert_true(deer_config.blocks_player, "rusa memblokir pemain")
+	assert_almost_eq(deer_config.knockback_resistance, 0.6, 0.01)
 	var boar := BoarConfig.new()
 	assert_true(boar.blocks_player, "babi memblokir pemain")
-	assert_false(deer.blocks_player, "rusa tidak memblokir pemain")
 
 
 # --- Tidak tersangkut & tidak menumpuk -------------------------------------

@@ -99,3 +99,15 @@ func test_rescue_guarantees_two_boars_and_respawns_after_45s() -> void:
 func test_spawn_position_prefers_markers_at_least_600px_away() -> void:
 	var point: Vector2 = _quota.get_spawn_position()
 	assert_gte(point.distance_to(Vector2.ZERO), 600.0)
+
+func test_spawn_position_keeps_60px_clear_of_player_and_fauna() -> void:
+	for offset in [2000.0, 2100.0]:
+		var marker := Marker2D.new()
+		marker.add_to_group(&"night_spawn_point")
+		add_child_autofree(marker)
+		marker.global_position = Vector2(offset, 300.0)
+	var point: Vector2 = _quota.get_spawn_position()
+	assert_gte(point.distance_to(Vector2.ZERO), 60.0, "jauh dari pemain")
+	for child in _parent.get_children():
+		if child is FaunaBase:
+			assert_gte(point.distance_to((child as Node2D).global_position), 60.0, "jauh dari badan fauna")

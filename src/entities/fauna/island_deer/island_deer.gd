@@ -15,6 +15,11 @@ enum State { WANDER, FLEE, ALERT, STARTLE }
 var state: int = State.WANDER
 var _alert_remaining: float = 0.0
 var _startle_remaining: float = 0.0
+## Mission 10 Phase 4: serangan pertama memaku rusa sesaat (jendela hit kedua).
+var _hit_stun_remaining: float = 0.0
+var _flee_speed_now: float = 0.0
+## Waktu gerak kabur (hit-stun tidak dihitung) untuk ramp kecepatan.
+var _flee_accel_elapsed: float = 0.0
 ## Tell waspada: "!" di atas kepala rusa, dibuat runtime (tanpa aset).
 var _alert_mark: Label
 
@@ -76,6 +81,8 @@ func _update_behavior(delta: float) -> void:
 	state = State.WANDER
 	_alert_remaining = 0.0
 	_startle_remaining = 0.0
+	_flee_speed_now = 0.0
+	clear_provoke()
 	_set_alert_mark(false)
 	_wander(delta)
 
@@ -119,6 +126,15 @@ func get_startle_remaining() -> float:
 	return _startle_remaining
 
 
+func get_hit_stun_remaining() -> float:
+	return _hit_stun_remaining
+
+
+## Kecepatan kabur saat ini (0 di awal FLEE, lalu naik linear sampai penuh).
+func get_current_flee_speed() -> float:
+	return _flee_speed_now
+
+
 func _ensure_alert_mark() -> void:
 	if _alert_mark != null:
 		return
@@ -141,12 +157,24 @@ func _deer_config() -> DeerConfig:
 	return deer if deer != null else DeerConfig.new()
 
 
+## Damage di WANDER/ALERT/STARTLE langsung ke FLEE + hit-stun singkat, sehingga
+## serangan kedua masih bisa mendarat sebelum rusa benar-benar berlari.
+## Setiap mulai kabur, ramp dimulai dari nol lagi.
+func begin_flee(from_position: Vector2, duration: float) -> void:
+	super(from_position, duration)
+	_flee_accel_elapsed = 0.0
+
+
 func _on_provoked(source: Node) -> void:
 	var from := global_position
 	if source is Node2D:
 		from = (source as Node2D).global_position
-	begin_flee(from, _deer_config().flee_duration)
+	var deer := _deer_config()
+	begin_flee(from, deer.flee_duration)
 	state = State.FLEE
+	_hit_stun_remaining = maxf(deer.hit_stun, 0.0)
+	_flee_speed_now = 0.0
+	_set_alert_mark(false)
 
 
 func _tick_flee(delta: float) -> void:
@@ -160,6 +188,21 @@ func _tick_flee(delta: float) -> void:
 	if far_enough or _flee_elapsed >= config.flee_despawn_timeout:
 		despawn()
 		return
-	move_in_direction(_flee_direction, deer.flee_speed, delta)
+	# Hit-stun: terpaku dulu, jadi serangan kedua masih dalam jangkauan.
+	if _hit_stun_remaining > 0.0:
+		_hit_stun_remaining = maxf(_hit_stun_remaining - delta, 0.0)
+		_flee_speed_now = 0.0
+		move_in_direction(Vector2.ZERO, 0.0, delta)
+		return
+	# Ramp linear 0 -> flee_speed selama flee_accel_seconds.
+	_flee_accel_elapsed += delta
+	var ramp := 1.0
+	if deer.flee_accel_seconds > 0.0:
+		ramp = clampf(_flee_accel_elapsed / deer.flee_accel_seconds, 0.0, 1.0)
+	_flee_speed_now = deer.flee_speed * ramp
+	move_in_direction(_flee_direction, _flee_speed_now, delta)
 	if _flee_remaining <= 0.0:
 		state = State.WANDER
+		_hit_stun_remaining = 0.0
+		_flee_speed_now = 0.0
+		clear_provoke()

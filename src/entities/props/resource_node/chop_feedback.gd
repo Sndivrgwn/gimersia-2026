@@ -142,8 +142,10 @@ func _is_chopping_now() -> bool:
 		return false
 	if _interactor.is_waiting_for_release():
 		return false
-	var current := _interactor.get_target()
-	return current == null or current == _target
+	# Mission 10 (fix): target aktif HARUS pohon ini. Dulu `null` dianggap
+	# "milik pohon ini", sehingga getaran tetap jalan saat target sudah lepas
+	# (lubang yang hanya tertutup di tes karena tes tidak pernah set target).
+	return _interactor.get_target() == _target
 
 
 func _activate() -> void:
