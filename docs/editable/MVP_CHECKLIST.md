@@ -486,7 +486,8 @@ Panduan lengkap: `docs/editable/ASSET_GUIDE.md`.
 
 - [ ] Prioritas 1 (26 slot) terisi art final — menunggu tim seni.
 - [x] Konvensi nama file + fallback + auto-scale + reload tanpa restart.
-- [x] `tools/check_assets.gd` melaporkan typo, strip salah, rasio menyimpang.
+- [x] `tools/check_assets.gd` melaporkan typo, strip salah, rasio menyimpang,
+  sekaligus cakupan/typo/duplikat/bentuk ikon item dan held item.
 - [x] UI skin (theme, ikon item, latar menu) aktif otomatis bila art ada.
 - [x] Senjata/tools dasar: dibuktikan `test_crafting_component.gd`.
 
@@ -545,3 +546,31 @@ Fase 0-3 jalan; fase 4-6 belum (lihat bagian terpisah di bawah).
 - [x] Overlay `PlaceholderLabels` menampilkan nama slot yang art-nya masih kosong di dekat pemain (maks 12 label, dipindai tiap 0,25 s).
 - [x] `docs/editable/PANDUAN_INPUT.md` — arti setiap tombol, dibuat dari Input Map hidup.
 - [ ] Verifikasi rasa: getaran pohon dan tampilan menu jeda — needs playtest.
+
+## 29. Mission 10 — Fisika badan, rusa, dan audio (data)
+
+- [x] `BodyProfile` + `BodyProfileApplier` + tiga `.tres` (player/babi/rusa) — `test_mission10_mass_deer.gd`.
+- [x] Matriks fisika dengan badan nyata: A kontak, B lepas, C jarak stabil, D knockback, E jepitan, F anti-tumpuk — `test_mission10_physics_matrix.gd` (8 tes) + `test_boar_mass.gd` (8 tes).
+- [x] `BodySeparation` (tidak menembus dinding/pagar/sungai, tidak mendorong ke pemain) — `test_mission10_body_separation.gd`.
+- [x] Aturan spawn 60 px dari pemain/badan fauna, fallback tidak memakai penanda di ring base — `test_camp_anchor.gd`, `test_night_spawner.gd`, `test_fauna_quota.gd`.
+- [x] Rusa ALERT -> STARTLE -> FLEE, hit-stun 0.35 s, ramp kecepatan 0.5 s — `test_mission10_mass_deer.gd`, `test_deer_alert.gd`.
+- [x] Simulasi first-hit S1-S5 (tangan kosong, Tombak Kayu, sprint, jendela hit kedua, rusa lelah) — `test_mission10_deer_first_hit.gd`.
+- [x] Registri audio 103 cue + `AUDIO_GUIDE.md` + tes sinkronisasi — `test_audio_guide_sync.gd`, `test_docs_in_sync.gd`.
+- [ ] Playback audio, `AudioManager`, mixing/volume — sengaja belum ada; hanya data + panduan.
+- [ ] Playtest manual Mission 10 (dorong rusa/babi, sneak, startle, spawn dekat pemain).
+- [ ] Art rusa/babi (masih placeholder).
+
+## 30. Perbaikan panel stasiun, sungai, dan atmosfer (Mission 10 lanjutan)
+
+- [x] Panel Meja Kerja/Api Unggun mengunci gerak pemain tanpa mem-pause dunia.
+- [x] Craft dari panel stasiun berjalan (tidak batal sendiri karena tombol gerak).
+- [x] Panel peti tidak lagi menyambung ke sinyal stasiun (error 2 argumen hilang).
+- [x] Minum bisa dilakukan di mana saja di zona sungai dan tepinya (32 px).
+- [x] Sore mulai di menit ke-4 dan malam tepat di menit ke-5 (fajar kebalikannya),
+  memakai sisa waktu fase, bukan tween terpisah.
+- [x] Transisi memakai arah matahari (`SunOverlay` + `DayLightCurve`).
+- [x] Kunang-kunang hanya muncul di malam hari.
+- [x] Cahaya api unggun meredup saat siang dan penuh saat malam.
+- [x] Warning editor di screenshot dibersihkan (shadowing, parameter, unreachable,
+  meta tween).
+- [x] Tes baru untuk keempat area di atas.

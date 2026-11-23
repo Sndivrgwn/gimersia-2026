@@ -117,8 +117,8 @@ func _remove_row(index: int) -> void:
 
 
 func _on_add_blocked(item: ItemDefinition, remaining: int) -> void:
-	var name := item.display_name if item != null and not item.display_name.is_empty() else "item"
-	show_toast(MSG_INVENTORY_FULL % [name, remaining])
+	var item_name := item.display_name if item != null and not item.display_name.is_empty() else "item"
+	show_toast(MSG_INVENTORY_FULL % [item_name, remaining])
 
 
 func _on_craft_cancelled(_recipe: RecipeDefinition, reason: String) -> void:

@@ -554,16 +554,16 @@ func refresh_proficiency() -> void:
 		var title := row["title"] as Label
 		var bar := row["bar"] as ProgressBar
 		var passive := row["passive"] as Label
-		var name: String = PROF_NAMES[prof] if prof < PROF_NAMES.size() else "Profisiensi"
+		var prof_name: String = PROF_NAMES[prof] if prof < PROF_NAMES.size() else "Profisiensi"
 
 		if level >= max_level:
-			title.text = "%s  Lv %d (maks)" % [name, level]
+			title.text = "%s  Lv %d (maks)" % [prof_name, level]
 			bar.value = bar.max_value
 		else:
 			bar.max_value = maxf(xp_base * level, 1.0)
 			bar.value = clampf(_proficiency.get_xp(prof), 0.0, bar.max_value)
 			title.text = "%s  Lv %d   %d/%d XP" % [
-				name, level, int(bar.value), int(bar.max_value),
+				prof_name, level, int(bar.value), int(bar.max_value),
 			]
 		passive.text = _passive_text(prof, level)
 

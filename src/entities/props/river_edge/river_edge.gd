@@ -48,13 +48,19 @@ func interact(interactor: Node) -> void:
 		return
 	if get_cooldown_remaining(interactor) > 0.0:
 		return
+	if not apply_drink(interactor):
+		return
+	_cooldowns[interactor.get_instance_id()] = COOLDOWN_SECONDS
+
+
+## Efek minum yang sama dipakai RiverEdge dan RiverDrinkZone.
+static func apply_drink(interactor: Node) -> bool:
 	var needs := _needs_of(interactor)
 	if needs == null:
-		return
-
+		return false
 	needs.add(NeedsComponent.Need.THIRST, THIRST_GAIN)
 	needs.add(NeedsComponent.Need.HUNGER, -HUNGER_COST)
-	_cooldowns[interactor.get_instance_id()] = COOLDOWN_SECONDS
+	return true
 
 
 func get_cooldown_remaining(interactor: Node) -> float:
@@ -75,7 +81,7 @@ func advance_cooldowns(delta: float) -> void:
 			_cooldowns[key] = remaining
 
 
-func _needs_of(interactor: Node) -> NeedsComponent:
+static func _needs_of(interactor: Node) -> NeedsComponent:
 	if interactor == null or not interactor.has_method(&"get_needs"):
 		return null
 	return interactor.get_needs() as NeedsComponent

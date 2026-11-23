@@ -27,6 +27,9 @@ const PROMPT := "E: Api Unggun"
 const PLAYER_GROUP := &"player"
 const NEEDS_NAME := "NeedsComponent"
 const REST_SOURCE := &"campfire"
+## Siang hari api tetap terlihat redup; malam penuh.
+const DAY_LIGHT_ENERGY := 0.12
+const NIGHT_LIGHT_ENERGY := 1.0
 
 ## Tuning. Null berarti memakai CampfireConfig() bawaan.
 @export var config: CampfireConfig
@@ -71,6 +74,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	tick(delta)
+	# Tint dunia berubah selama senja/fajar; energi cahaya ikut meredup.
+	_refresh_light()
 
 
 func _exit_tree() -> void:
@@ -413,3 +418,15 @@ func _refresh_light() -> void:
 	var width := maxf(float(_light_texture.get_width()), 1.0)
 	_light.texture_scale = (radius * 2.0) / width
 	_light.visible = radius > 0.0
+	_light.energy = lerpf(DAY_LIGHT_ENERGY, NIGHT_LIGHT_ENERGY, _world_darkness())
+
+
+## 0 siang terang, 1 malam; dibaca dari tint CanvasModulate DayNightVisual.
+func _world_darkness() -> float:
+	var tree := get_tree()
+	if tree == null:
+		return 0.0
+	var visual := tree.get_first_node_in_group(&"day_night_visual")
+	if visual != null and visual.has_method(&"get_world_darkness"):
+		return clampf(float(visual.call(&"get_world_darkness")), 0.0, 1.0)
+	return 0.0

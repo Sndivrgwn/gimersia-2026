@@ -24,7 +24,7 @@ const ScreenFade := preload("res://src/ui/fx/screen_fade.gd")
 @onready var _beacon: SignalBeacon = get_node_or_null("Beacon") as SignalBeacon
 
 
-func _wire_hud(player: Node) -> void:
+func _wire_hud() -> void:
 	var spawner := find_child("NightSpawner", true, false)
 	var quota := find_child("FaunaQuota", true, false)
 	var death := find_child("DeathController", true, false)
@@ -87,7 +87,10 @@ func _on_station_structure_built(_id: StringName) -> void:
 
 
 func _connect_station(panel: StationPanel, structure: Node) -> void:
-	if structure == null or not structure.has_signal(&"interaction_requested"):
+	# Hanya stasiun (2 argumen: station, interactor); peti punya sinyal 1 argumen.
+	if structure == null or not structure.has_method(&"request_station_panel"):
+		return
+	if not structure.has_signal(&"interaction_requested"):
 		return
 	var callback := Callable(panel, &"open")
 	if not structure.interaction_requested.is_connected(callback):
@@ -129,7 +132,7 @@ func _ready() -> void:
 	_wire_pause_menu()
 	_wire_station_panel()
 	_wire_chest_panel(player)
-	_wire_hud(player)
+	_wire_hud()
 	_wire_feedback_hud(player)
 	UiSkin.apply_all(self)
 	ScreenFade.fade_in(self)

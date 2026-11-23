@@ -67,7 +67,7 @@ func tick(delta: float) -> void:
 
 
 ## Dipakai tes dan hook Heavy Strike.
-func notify_hit(target: Node, damage: float, heavy: bool = false) -> void:
+func notify_hit(target: Node, _damage: float, heavy: bool = false) -> void:
 	var position := (target as Node2D).global_position if target is Node2D else Vector2.ZERO
 	_last_target_position = position
 	_last_kind = &"heavy_hit" if heavy else &"hit"

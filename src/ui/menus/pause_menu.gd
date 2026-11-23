@@ -147,16 +147,16 @@ func _process(_delta: float) -> void:
 
 ## Label "Esc: Jeda" + tombol II: tersembunyi saat Jeda/layar mati tampil.
 func _refresh_discoverability() -> void:
-	var show := not is_open()
-	if show:
+	var show_hint := not is_open()
+	if show_hint:
 		for node in blockers:
 			if node != null and is_instance_valid(node) and node.has_method(&"is_showing") and node.is_showing():
-				show = false
+				show_hint = false
 				break
 	if _esc_hint != null:
-		_esc_hint.visible = show
+		_esc_hint.visible = show_hint
 	if _esc_button != null:
-		_esc_button.visible = show
+		_esc_button.visible = show_hint
 
 
 func get_esc_hint_label() -> Label:

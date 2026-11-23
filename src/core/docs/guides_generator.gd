@@ -21,6 +21,11 @@ const CATEGORY_LABEL := {
 	"ui": "UI & ikon",
 }
 const ITEM_HINT := "src/data/items/*.tres"
+## Aman untuk slot hotbar 48 px; baris resep mengecilkan art secara proporsional.
+const ITEM_ICON_RECOMMENDED := Vector2i(48, 48)
+## Sama dengan HeldItemConfig.hand_size bawaan.
+const HELD_ITEM_DISPLAY := Vector2(14.0, 14.0)
+const HELD_ITEM_RECOMMENDED := Vector2i(32, 32)
 
 
 # --- ASSET_GUIDE ------------------------------------------------------------
@@ -53,6 +58,36 @@ Dokumen ini untuk tim kreatif: cara mengganti tampilan game tanpa menyentuh kode
 4. UI otomatis memakai art bila ada; tanpa art tampilan tetap seperti sekarang.
 5. Art hanya ikut ke build kalau sudah di-import Godot dan di-commit oleh owner.
 
+## Bagian dokumen ini
+
+- **Karakter, Node resource, Camp & struktur, Dunia, Efek, UI & ikon** — slot
+  visual dari `src/data/assets/asset_registry.tres`, lengkap dengan pola file,
+  ukuran, pivot, state, dan pemakainya.
+- **Ikon item** — semua ikon barang (tas, hotbar, baris resep, dan item pickup).
+- **Item di tangan** — art barang yang dipegang pemain saat dipilih di hotbar.
+- **Resep crafting** — setiap resep beserta ikon hasil yang dipakai panel
+  Meja Kerja/Api Unggun.
+- **Cakupan file** — berapa slot dan ikon yang sudah punya file, dan mana yang
+  masih kosong.
+- **Visual runtime** — efek yang sengaja dibuat kode, jadi tim aset tidak perlu
+  membuat file untuk itu.
+- **Audio** — tidak di dokumen ini; lihat `docs/editable/AUDIO_GUIDE.md` untuk
+  daftar cue suara.
+
+## Peta cepat: mau mengubah apa?
+
+| Ingin mengubah | Lihat bagian |
+| --- | --- |
+| Pemain, babi hutan, rusa | Karakter |
+| Pohon, batu, semak beri, bambu, kelapa | Node resource |
+| Api unggun, meja kerja, peti, tenda, blueprint, pagar | Camp & struktur |
+| Tanah per zona, pantai, sungai, bangkai pesawat, suar, koper | Dunia |
+| Serpihan, debu, percikan hit, slash | Efek |
+| Panel, tombol, bar, font, ikon kebutuhan, layar mati | UI & ikon |
+| Ikon barang di tas/peti/hotbar/pickup | Ikon item |
+| Barang yang dipegang pemain | Item di tangan |
+| Nama, bahan, dan stasiun tiap resep | Resep crafting |
+
 ## Tiga langkah mengganti satu visual
 
 1. Taruh file di path yang benar, mis. `res://assets/props/campfire/lit.png`
@@ -79,6 +114,20 @@ Dokumen ini untuk tim kreatif: cara mengganti tampilan game tanpa menyentuh kode
 - Tidak ada file biner yang masuk repo sampai owner meng-commit-nya; agen tidak
   pernah menambahkan gambar.
 
+## Aturan ikon item
+
+- Semua item memakai satu ikon: `res://assets/icons/items/<id>.png`.
+  Contoh: `res://assets/icons/items/stone_axe.png`.
+- Nama file wajib sama dengan `id` item di `src/data/items/<id>.tres` (English,
+  snake_case), bukan `display_name`, tanpa spasi.
+- Ukuran sumber disarankan 48 × 48 px, latar transparan (game memperkecilnya di
+  slot tas ~28 px dan hotbar ~20 px). Ikon yang sama dipakai di tas, panel peti,
+  hotbar, dan item pickup. Baris resep di panel stasiun hanya menampilkan teks
+  (nama, bahan, waktu), jadi tidak butuh ikon tambahan.
+- Tanpa file, ikon memakai placeholder; game tetap jalan.
+- Daftar lengkap item ada di bagian **Ikon item**; resep yang memakainya ada di
+  bagian **Resep crafting**.
+
 ## Catatan build ekspor
 
 Hanya file yang sudah di-import Godot yang ikut di-pack. File yang baru
@@ -87,8 +136,9 @@ diletakkan tapi belum di-import akan hilang di build ekspor. Jalankan
 
 ## Alat bantu
 
-- `GODOT --headless --path . -s tools/check_assets.gd` — cek cakupan, file typo,
-  strip yang salah, dan rasio aspek menyimpang.
+- `GODOT --headless --path . -s tools/check_assets.gd` — cek cakupan slot,
+  **ikon item & held item**, file typo, duplikat `.png`/`.webp`, strip yang salah,
+  dan rasio aspek menyimpang.
 - **F1** di island — muat ulang semua art.
 - **Home** di island — tampilkan kotak slot + pivot + toast "Aset: X/Y terisi".
 - `res://assets/README.md` — pengingat singkat.
@@ -120,6 +170,11 @@ func _asset_tables() -> String:
 		for slot in slots:
 			text += _asset_row(slot)
 		text += "\n"
+	text += _item_icon_table()
+	text += _held_item_table()
+	text += _recipe_table()
+	text += _asset_coverage(registry)
+	text += _runtime_art_notes()
 	return text
 
 
@@ -156,6 +211,223 @@ func _example_dir(slot: AssetSlotDefinition) -> String:
 
 func _example_frames(slot: AssetSlotDefinition) -> int:
 	return 4 if slot.is_loop(String(slot.default_state())) else 0
+
+
+# --- Ikon item, resep, cakupan ----------------------------------------------
+
+func _item_icon_table() -> String:
+	var items := _item_definitions()
+	var text := "## Ikon item (%d item)\n\n" % items.size()
+	text += "Satu file per item: `res://assets/icons/items/<id>.png` (`.webp` juga dibaca; `.png` diprioritaskan bila keduanya ada). Ikon yang sama dipakai di tas, panel peti, hotbar, dan item pickup (diperkecil otomatis). Baris resep tidak memakai ikon. Ukuran sumber disarankan %d × %d px, latar transparan.\n\n" % [
+		ITEM_ICON_RECOMMENDED.x, ITEM_ICON_RECOMMENDED.y
+	]
+	text += "| Ikon | Path file | Item | ID | Kategori | Stack | Ukuran disarankan | Dipakai di | Status file |\n"
+	text += "| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+	for item in items:
+		# `ItemDefinition.icon` menang atas file; status harus mencerminkan sumber efektif.
+		var status := "Texture di .tres" if item.icon != null else _icon_file_status(item.id)
+		text += "| `icon_%s` | `%s` | %s | `%s` | %s | %d | %d × %d | tas, peti, hotbar, pickup | %s |\n" % [
+			String(item.id),
+			_item_icon_path(item.id),
+			item.display_name,
+			String(item.id),
+			_item_category_name(item.category),
+			item.max_stack,
+			ITEM_ICON_RECOMMENDED.x,
+			ITEM_ICON_RECOMMENDED.y,
+			status,
+		]
+	text += "\n"
+	return text
+
+
+func _held_item_table() -> String:
+	var items := _item_definitions()
+	var text := "## Item di tangan (%d item)\n\n" % items.size()
+	text += "Art barang yang dipegang pemain saat item dipilih di hotbar: `res://assets/held/<id>.png` (hanya `.png`; `.webp` tidak dibaca). Tanpa file, pemain memakai bentuk placeholder per kategori.\n\n"
+	text += "| File | Item | ID | Ukuran tampil | Sumber disarankan | Dipakai di | Status file |\n"
+	text += "| --- | --- | --- | --- | --- | --- | --- |\n"
+	var hand_size := _held_display_size()
+	for item in items:
+		var path := "%s/%s.png" % [_held_item_dir(), String(item.id)]
+		var status := "Ada" if FileAccess.file_exists(path) else "Belum ada (placeholder)"
+		text += "| `%s` | %s | `%s` | %.0f × %.0f | %d × %d | `src/components/visual/held_item_visual.gd` | %s |\n" % [
+			path,
+			item.display_name,
+			String(item.id),
+			hand_size.x,
+			hand_size.y,
+			HELD_ITEM_RECOMMENDED.x,
+			HELD_ITEM_RECOMMENDED.y,
+			status,
+		]
+	text += "\n"
+	return text
+
+
+func _recipe_table() -> String:
+	var recipes := _recipe_definitions()
+	var text := "## Resep crafting (%d resep)\n\n" % recipes.size()
+	text += "Panel Meja Kerja/Api Unggun menampilkan baris dari data ini sebagai teks (nama, bahan, waktu). Kolom ikon di bawah menunjuk file ikon barang hasil yang dipakai saat barang itu ada di tas/peti/hotbar/pickup.\n\n"
+	text += "| Resep | ID | Stasiun | Bahan | Waktu | Ikon hasil | Status ikon |\n"
+	text += "| --- | --- | --- | --- | --- | --- | --- |\n"
+	for recipe in recipes:
+		var ingredients := PackedStringArray()
+		for amount in recipe.ingredients:
+			if amount != null and amount.item != null:
+				ingredients.append("%s ×%d" % [amount.item.display_name, amount.count])
+		var result_name := "—"
+		var icon_path := "—"
+		var icon_status := "—"
+		if recipe.result != null:
+			result_name = "%s ×%d" % [recipe.result.display_name, recipe.result_count]
+			icon_path = "`%s`" % _item_icon_path(recipe.result.id)
+			icon_status = "Texture di .tres" if recipe.result.icon != null else _icon_file_status(recipe.result.id)
+		text += "| %s | `%s` | %s | %s | %.1f s | %s | %s |\n" % [
+			result_name,
+			String(recipe.id),
+			recipe.get_station_name(),
+			", ".join(ingredients) if not ingredients.is_empty() else "—",
+			recipe.craft_time,
+			icon_path,
+			icon_status,
+		]
+	text += "\n"
+	return text
+
+
+func _asset_coverage(registry: AssetRegistry) -> String:
+	var text := "## Cakupan file saat panduan dibuat\n\n"
+	text += "Dihitung dari file `.png`/`.webp` yang ada di folder tiap slot. Jalankan ulang generator setelah menambah art.\n\n"
+	text += "| Kategori | Slot | Sudah ada file | Belum ada |\n| --- | --- | --- | --- |\n"
+	var total := 0
+	var filled := 0
+	for category in CATEGORY_ORDER:
+		var slots := _sorted_slots(registry, category)
+		if slots.is_empty():
+			continue
+		var have := 0
+		for slot in slots:
+			# Sumber sama dengan tools/check_assets.gd dan HUD "Aset: X/Y".
+			if Assets.has_art(slot.key):
+				have += 1
+		total += slots.size()
+		filled += have
+		text += "| %s | %d | %d | %d |\n" % [CATEGORY_LABEL.get(category, category), slots.size(), have, slots.size() - have]
+	text += "| **Total** | %d | %d | %d |\n\n" % [total, filled, total - filled]
+
+	var items := _item_definitions()
+	var item_have := 0
+	for item in items:
+		if _item_icon_exists(item.id):
+			item_have += 1
+	text += "- Ikon item: **%d/%d** ada di `res://assets/icons/items/`.\n" % [item_have, items.size()]
+	var held_have := 0
+	for item in items:
+		if not _find_item_asset(_held_item_dir(), item.id, ["png"]).is_empty():
+			held_have += 1
+	text += "- Item di tangan: **%d/%d** ada di `res://assets/held/`.\n" % [held_have, items.size()]
+	text += "- Slot/ikon yang belum ada tetap memakai placeholder; game tidak crash.\n\n"
+	return text
+
+
+func _runtime_art_notes() -> String:
+	var text := "## Visual yang dibuat runtime (tidak perlu file)\n\n"
+	text += "| Visual | Dibuat oleh | Catatan |\n| --- | --- | --- |\n"
+	text += "| Gradien arah matahari | `src/levels/components/environment/sun_overlay.gd` | Gradien runtime; arah dan intensitas ikut waktu |\n"
+	text += "| Titik debu & kunang-kunang | `src/levels/components/environment/ambient_life.gd` | Tekstur titik dibuat `ImageTexture` |\n"
+	text += "| Partikel Fireflies/DayMotes | `src/levels/components/environment/day_night_visual.tscn` | `GradientTexture2D` bawaan scene |\n"
+	text += "| Placeholder pemain/fauna/props | Polygon2D di scene | Otomatis diganti slot art bila file tersedia |\n"
+	text += "| Tema UI fallback | `src/ui/ui_skin.gd` | Tema default sampai `ui_panel`/`ui_button_*` diisi |\n\n"
+	return text
+
+
+## Sumber sama dengan gameplay dan tools/check_assets.gd: ItemCatalog.ALL.
+## Item baru wajib didaftarkan di sana (dijaga test_docs_in_sync.gd).
+func _item_definitions() -> Array:
+	var items: Array = []
+	for item in ItemCatalog.ALL:
+		if item != null:
+			items.append(item)
+	items.sort_custom(func(a: ItemDefinition, b: ItemDefinition) -> bool:
+		if a.category != b.category:
+			return int(a.category) < int(b.category)
+		return String(a.id) < String(b.id))
+	return items
+
+
+## Sumber sama dengan panel stasiun: CraftingComponent.RECIPE_FILES.
+## Resep baru wajib didaftarkan di sana (dijaga test_docs_in_sync.gd).
+func _recipe_definitions() -> Array:
+	var recipes: Array = []
+	for path in CraftingComponent.RECIPE_FILES:
+		var recipe := load(path) as RecipeDefinition
+		if recipe != null:
+			recipes.append(recipe)
+	recipes.sort_custom(func(a: RecipeDefinition, b: RecipeDefinition) -> bool:
+		return String(a.id) < String(b.id))
+	return recipes
+
+
+func _item_icon_path(item_id: StringName) -> String:
+	return "%s/%s.png" % [_item_icon_dir(), String(item_id)]
+
+
+func _item_icon_exists(item_id: StringName) -> bool:
+	return not _find_item_asset(_item_icon_dir(), item_id).is_empty()
+
+
+func _icon_file_status(item_id: StringName) -> String:
+	for extension in ["png", "webp"]:
+		if FileAccess.file_exists("%s/%s.%s" % [_item_icon_dir(), String(item_id), extension]):
+			return "Ada (.%s)" % extension
+	return "Belum ada"
+
+
+## Ukuran tampil dari config yang benar-benar dipakai HeldItemVisual.
+func _held_display_size() -> Vector2:
+	var config := load(HeldItemVisual.CONFIG_PATH) as HeldItemConfig
+	if config != null and config.hand_size.x > 0.0 and config.hand_size.y > 0.0:
+		return config.hand_size
+	return HELD_ITEM_DISPLAY
+
+
+## Folder mengikuti konstanta runtime supaya panduan dan kode tidak menyimpang.
+func _item_icon_dir() -> String:
+	return Assets.DEFAULT_ROOT + "/" + Assets.ITEM_ICON_FOLDER
+
+
+func _held_item_dir() -> String:
+	return HeldItemVisual.HELD_DIR.trim_suffix("/")
+
+
+func _find_item_asset(directory: String, item_id: StringName, extensions: Array = ["png", "webp"]) -> String:
+	if String(item_id).is_empty():
+		return ""
+	for extension in extensions:
+		var path := "%s/%s.%s" % [directory, String(item_id), extension]
+		if FileAccess.file_exists(path):
+			return path
+	return ""
+
+
+func _item_category_name(category: int) -> String:
+	match category:
+		ItemDefinition.Category.CONSUMABLE:
+			return "Consumable"
+		ItemDefinition.Category.WEAPON:
+			return "Weapon"
+		ItemDefinition.Category.TOOL:
+			return "Tool"
+		ItemDefinition.Category.ARMOR:
+			return "Armor"
+		ItemDefinition.Category.SPECIAL:
+			return "Special"
+		_:
+			return "Resource"
+
+
+
 
 
 # --- CONFIG_GUIDE -----------------------------------------------------------
@@ -352,6 +624,30 @@ func _tres_meta() -> Dictionary:
 			"used_by": "FenceRing, FenceSegment",
 			"effect": "Bentuk dan kekuatan pagar base.",
 			"tests": "test_fence.gd",
+		},
+		"res://src/data/configs/physics/body_player.tres": {
+			"purpose": "Profil massa/kolisi badan pemain (LIGHT, radius 12).",
+			"used_by": "BodyProfileApplier (Player._ready), BodySeparation",
+			"effect": "Menentukan siapa yang bisa ditembus, jarak kontak, dan pengali knockback yang diterima.",
+			"tests": "test_mission10_physics_matrix.gd, test_mission10_mass_deer.gd",
+		},
+		"res://src/data/configs/physics/body_wild_boar.tres": {
+			"purpose": "Profil massa/kolisi babi hutan (HEAVY, knockback 0.35).",
+			"used_by": "BodyProfileApplier (FaunaBase._ready), BodySeparation",
+			"effect": "Babi memblokir pemain, tetap bisa dipisah saat bertumpuk, dan hanya menerima 35% knockback.",
+			"tests": "test_mission10_physics_matrix.gd, test_boar_mass.gd",
+		},
+		"res://src/data/configs/physics/body_island_deer.tres": {
+			"purpose": "Profil massa/kolisi rusa pulau (MEDIUM, knockback 0.6).",
+			"used_by": "BodyProfileApplier (FaunaBase._ready), BodySeparation",
+			"effect": "Rusa kini padat dan menerima 60% knockback; jarak kontak dijaga pemisah badan.",
+			"tests": "test_mission10_physics_matrix.gd, test_mission10_body_separation.gd",
+		},
+		"res://src/data/audio/audio_registry.tres": {
+			"purpose": "Daftar semua cue audio (key, kategori, hook, bus, prioritas). Data dan dokumentasi saja.",
+			"used_by": "AUDIO_GUIDE (generator), test_audio_guide_sync; belum ada playback",
+			"effect": "Menambah cue berarti satu key baru di panduan audio; tidak mengubah gameplay.",
+			"tests": "test_audio_guide_sync.gd, test_docs_in_sync.gd",
 		},
 	}
 

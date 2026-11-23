@@ -154,12 +154,15 @@ func _scan_chests() -> void:
 	if tree == null:
 		return
 	for node in tree.get_nodes_in_group(CHEST_GROUP):
-		if node.has_signal(&"interaction_requested"):
+		# Grup camp_structure juga berisi Campfire/Workbench yang sinyalnya
+		# interaction_requested(station, interactor). Hanya peti yang boleh
+		# disambung ke _on_chest_interaction(interactor).
+		if node is Chest:
 			_connect_chest(node)
 
 
 func _connect_chest(node: Node) -> void:
-	if node == null or not is_instance_valid(node):
+	if not (node is Chest) or not is_instance_valid(node):
 		return
 	var id := node.get_instance_id()
 	if _connected_chests.has(id):
@@ -174,17 +177,31 @@ func _on_chest_interaction(interactor: Node) -> void:
 		inventory = interactor.get_inventory() as InventoryComponent
 	if player == null and interactor is Node2D:
 		player = interactor.get_parent() as Node2D
-	open_for(chest if _open else _sender_chest(interactor), inventory, player)
+	var target: Node = chest if _open and chest is Chest else _sender_chest(interactor)
+	if target == null:
+		return
+	open_for(target, inventory, player)
 
 
-func _sender_chest(_interactor: Node) -> Node:
+## Peti terdekat dari interactor (bukan struktur camp lain di grup yang sama).
+func _sender_chest(interactor: Node) -> Node:
 	var tree := get_tree()
 	if tree == null:
 		return null
+	var origin := Vector2.ZERO
+	if interactor is Node2D:
+		origin = (interactor as Node2D).global_position
+	var best: Chest = null
+	var best_distance := INF
 	for node in tree.get_nodes_in_group(CHEST_GROUP):
-		if node.has_signal(&"interaction_requested"):
-			return node
-	return null
+		if not (node is Chest):
+			continue
+		var candidate := node as Chest
+		var distance := origin.distance_to(candidate.global_position)
+		if distance < best_distance:
+			best_distance = distance
+			best = candidate
+	return best
 
 
 func _on_chest_slot(index: int) -> void:

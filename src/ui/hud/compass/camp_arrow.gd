@@ -28,12 +28,12 @@ func _process(_delta: float) -> void:
 	if _player == null or _anchor == null:
 		_label.visible = false
 		return
-	var offset := _anchor.global_position - _player.global_position
-	var distance := offset.length()
+	var to_anchor := _anchor.global_position - _player.global_position
+	var distance := to_anchor.length()
 	_label.visible = distance > SHOW_DISTANCE
 	if not _label.visible:
 		return
-	_label.text = FORMAT % [_glyph(offset), int(round(distance))]
+	_label.text = FORMAT % [_glyph(to_anchor), int(round(distance))]
 
 
 ## Dipakai tes: teks penunjuk saat ini (kosong bila disembunyikan).

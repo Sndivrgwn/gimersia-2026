@@ -6,7 +6,7 @@ extends Resource
 ## tidak boleh menanam angka sendiri.
 
 ## Seed RNG; seed sama -> posisi sama.
-@export var seed: int = 20260101
+@export var layout_seed: int = 20260101
 ## Setengah sisi pulau (pulau = kotak -half_size..+half_size).
 @export var half_size: float = 2400.0
 ## Margin dari tepi pulau yang tidak dipakai untuk node.

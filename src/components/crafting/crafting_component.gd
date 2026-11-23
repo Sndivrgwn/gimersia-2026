@@ -229,7 +229,7 @@ func tick(delta: float) -> void:
 	_refresh_station_key()
 	if _recipe == null or delta <= 0.0:
 		return
-	if input_enabled and InputSetup.is_movement_pressed():
+	if input_enabled and not _player_input_locked() and InputSetup.is_movement_pressed():
 		cancel_craft(REASON_MOVED)
 		return
 	if _hp_dropped():
@@ -311,6 +311,13 @@ func _station_valid(station: Node, recipe: RecipeDefinition) -> bool:
 
 func get_active_station() -> Node:
 	return _active_station
+
+
+## Panel stasiun mengunci gerak pemain; tombol gerak saat itu tidak dihitung
+## sebagai "bergerak" supaya craft tidak batal sendiri.
+func _player_input_locked() -> bool:
+	return player != null and is_instance_valid(player) \
+		and player.has_method(&"is_input_locked") and bool(player.call(&"is_input_locked"))
 
 
 func _origin() -> Vector2:

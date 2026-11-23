@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_layout")
-seed = 20260101
+layout_seed = 20260101
 half_size = 2400.0
 coast_margin = 150.0
 min_spacing = 70.0

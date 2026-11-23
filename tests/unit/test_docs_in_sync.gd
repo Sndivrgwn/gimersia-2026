@@ -7,8 +7,11 @@ const ASSET_GUIDE := "res://docs/editable/ASSET_GUIDE.md"
 const CONFIG_GUIDE := "res://docs/editable/CONFIG_GUIDE.md"
 const INPUT_GUIDE := "res://docs/editable/PANDUAN_INPUT.md"
 const MODULE_GUIDE := "res://docs/editable/PANDUAN_MODUL.md"
+const AUDIO_GUIDE := "res://docs/editable/AUDIO_GUIDE.md"
 const HINT := "jalankan tools/generate_guides.gd"
 const GeneratorScript = preload("res://src/core/docs/guides_generator.gd")
+
+const AudioGeneratorScript = preload("res://src/core/docs/audio_guide_generator.gd")
 
 var _generator = GeneratorScript.new()
 
@@ -32,6 +35,15 @@ func test_config_guide_is_up_to_date() -> void:
 	assert_eq(actual.strip_edges(), _normalize(expected).strip_edges(), HINT)
 
 
+## Mission 10 fase 6: panduan audio ikut dijaga tes yang sama.
+func test_audio_guide_is_up_to_date() -> void:
+	var generator = AudioGeneratorScript.new()
+	var expected := generator.build_audio_guide()
+	var actual := _read(AUDIO_GUIDE)
+	assert_false(actual.is_empty(), "%s: %s tidak ada" % [HINT, AUDIO_GUIDE])
+	assert_eq(actual.strip_edges(), _normalize(expected).strip_edges(), HINT)
+
+
 func test_every_registry_key_appears_in_asset_guide() -> void:
 	var guide := _read(ASSET_GUIDE)
 	var registry := Assets.registry()
@@ -42,6 +54,60 @@ func test_every_registry_key_appears_in_asset_guide() -> void:
 		if not guide.contains("`%s`" % slot.key):
 			missing.append(String(slot.key))
 	assert_true(missing.is_empty(), "%s: slot belum ada di panduan: %s" % [HINT, ", ".join(missing)])
+
+
+## Asset guide harus mencatat seluruh item (ikon + art di tangan), bukan hanya
+## slot registry. Item baru otomatis ikut lewat generator; tes ini menjaga
+## dokumen tetap sinkron.
+func test_every_item_appears_in_asset_guide() -> void:
+	var guide := _read(ASSET_GUIDE)
+	var missing := PackedStringArray()
+	for item in _collect_items():
+		if not guide.contains("`icon_%s`" % String(item.id)):
+			missing.append("icon:" + String(item.id))
+		if not guide.contains("`res://assets/held/%s.png`" % String(item.id)):
+			missing.append("held:" + String(item.id))
+	assert_true(missing.is_empty(), "%s: item belum tercatat di panduan aset: %s" % [HINT, ", ".join(missing)])
+
+
+func test_every_recipe_appears_in_asset_guide() -> void:
+	var guide := _read(ASSET_GUIDE)
+	var missing := PackedStringArray()
+	for recipe in _collect_recipes():
+		if not guide.contains("`%s`" % String(recipe.id)):
+			missing.append(String(recipe.id))
+		if recipe.result != null and not guide.contains("`res://assets/icons/items/%s.png`" % String(recipe.result.id)):
+			missing.append("icon:" + String(recipe.result.id))
+	assert_true(missing.is_empty(), "%s: resep belum tercatat di panduan aset: %s" % [HINT, ", ".join(missing)])
+
+
+## Panduan (dan check_assets) memakai ItemCatalog.ALL + CraftingComponent.RECIPE_FILES
+## sebagai sumber yang sama dengan gameplay. File baru yang lupa didaftarkan akan
+## membuat art-nya tidak pernah diminta; tes ini menangkapnya.
+func test_every_item_file_is_registered_in_catalog() -> void:
+	var missing := PackedStringArray()
+	for item in _collect_items():
+		if ItemCatalog.get_by_id(item.id) == null:
+			missing.append(String(item.id))
+	assert_true(missing.is_empty(), "item .tres belum ada di ItemCatalog.ALL: %s" % ", ".join(missing))
+
+
+func test_every_recipe_file_is_registered_for_crafting() -> void:
+	var used: Dictionary = {}
+	for path in CraftingComponent.RECIPE_FILES:
+		used[path] = true
+	var missing := PackedStringArray()
+	var dir := DirAccess.open("res://src/data/recipes")
+	if dir != null:
+		var names: Array = dir.get_files()
+		names.sort()
+		for name in names:
+			if not String(name).ends_with(".tres"):
+				continue
+			var path := "res://src/data/recipes/%s" % name
+			if not used.has(path):
+				missing.append(String(name))
+	assert_true(missing.is_empty(), "resep .tres belum ada di CraftingComponent.RECIPE_FILES: %s" % ", ".join(missing))
 
 
 func test_every_tres_appears_in_config_guide() -> void:
@@ -144,6 +210,38 @@ func _read(path: String) -> String:
 
 func _normalize(text: String) -> String:
 	return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+func _collect_items() -> Array:
+	var items: Array = []
+	var dir := DirAccess.open("res://src/data/items")
+	if dir == null:
+		return items
+	var names: Array = dir.get_files()
+	names.sort()
+	for name in names:
+		if not String(name).ends_with(".tres"):
+			continue
+		var item := load("res://src/data/items/%s" % name) as ItemDefinition
+		if item != null:
+			items.append(item)
+	return items
+
+
+func _collect_recipes() -> Array:
+	var recipes: Array = []
+	var dir := DirAccess.open("res://src/data/recipes")
+	if dir == null:
+		return recipes
+	var names: Array = dir.get_files()
+	names.sort()
+	for name in names:
+		if not String(name).ends_with(".tres"):
+			continue
+		var recipe := load("res://src/data/recipes/%s" % name) as RecipeDefinition
+		if recipe != null:
+			recipes.append(recipe)
+	return recipes
 
 
 func _collect_tres() -> PackedStringArray:

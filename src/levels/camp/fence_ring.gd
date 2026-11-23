@@ -50,11 +50,13 @@ func build_ring(center: Vector2) -> void:
 		slot.name = "FenceSlot%d" % index
 		slot.definition = definition
 		add_child(slot)
-		# Koordinat LOKAL: ring ikut transform camp, bukan dobel offset pusat base.
-		# Jangan pakai to_local(): transform induk belum tentu sudah diperbarui
-		# pada frame yang sama saat anchor.found() memanggil build_ring().
-		var local_pos: Vector2 = (entry["position"] as Vector2) - center
-		slot.position = local_pos
+		# Root cause Mission 10: posisi lokal membuat ring jatuh di sekitar origin
+		# setiap kali node induk tidak dipindah ke pusat base (mis. FenceRing di
+		# bawah CampAnchor kosong). Geometri layout() SUDAH absolut, jadi slot
+		# memakai top_level: posisinya tidak ikut transform induk yang mungkin
+		# belum diperbarui pada frame yang sama saat anchor.found() dipanggil.
+		slot.top_level = true
+		slot.position = entry["position"] as Vector2
 		# Tangen ring: segmen menyambung satu sama lain.
 		slot.rotation = float(entry["rotation"])
 		slot.built.connect(_on_slot_built.bind(index))

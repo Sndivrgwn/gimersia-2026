@@ -10,6 +10,36 @@ Dokumen ini untuk tim kreatif: cara mengganti tampilan game tanpa menyentuh kode
 4. UI otomatis memakai art bila ada; tanpa art tampilan tetap seperti sekarang.
 5. Art hanya ikut ke build kalau sudah di-import Godot dan di-commit oleh owner.
 
+## Bagian dokumen ini
+
+- **Karakter, Node resource, Camp & struktur, Dunia, Efek, UI & ikon** — slot
+  visual dari `src/data/assets/asset_registry.tres`, lengkap dengan pola file,
+  ukuran, pivot, state, dan pemakainya.
+- **Ikon item** — semua ikon barang (tas, hotbar, baris resep, dan item pickup).
+- **Item di tangan** — art barang yang dipegang pemain saat dipilih di hotbar.
+- **Resep crafting** — setiap resep beserta ikon hasil yang dipakai panel
+  Meja Kerja/Api Unggun.
+- **Cakupan file** — berapa slot dan ikon yang sudah punya file, dan mana yang
+  masih kosong.
+- **Visual runtime** — efek yang sengaja dibuat kode, jadi tim aset tidak perlu
+  membuat file untuk itu.
+- **Audio** — tidak di dokumen ini; lihat `docs/editable/AUDIO_GUIDE.md` untuk
+  daftar cue suara.
+
+## Peta cepat: mau mengubah apa?
+
+| Ingin mengubah | Lihat bagian |
+| --- | --- |
+| Pemain, babi hutan, rusa | Karakter |
+| Pohon, batu, semak beri, bambu, kelapa | Node resource |
+| Api unggun, meja kerja, peti, tenda, blueprint, pagar | Camp & struktur |
+| Tanah per zona, pantai, sungai, bangkai pesawat, suar, koper | Dunia |
+| Serpihan, debu, percikan hit, slash | Efek |
+| Panel, tombol, bar, font, ikon kebutuhan, layar mati | UI & ikon |
+| Ikon barang di tas/peti/hotbar/pickup | Ikon item |
+| Barang yang dipegang pemain | Item di tangan |
+| Nama, bahan, dan stasiun tiap resep | Resep crafting |
+
 ## Tiga langkah mengganti satu visual
 
 1. Taruh file di path yang benar, mis. `res://assets/props/campfire/lit.png`
@@ -36,6 +66,20 @@ Dokumen ini untuk tim kreatif: cara mengganti tampilan game tanpa menyentuh kode
 - Tidak ada file biner yang masuk repo sampai owner meng-commit-nya; agen tidak
   pernah menambahkan gambar.
 
+## Aturan ikon item
+
+- Semua item memakai satu ikon: `res://assets/icons/items/<id>.png`.
+  Contoh: `res://assets/icons/items/stone_axe.png`.
+- Nama file wajib sama dengan `id` item di `src/data/items/<id>.tres` (English,
+  snake_case), bukan `display_name`, tanpa spasi.
+- Ukuran sumber disarankan 48 × 48 px, latar transparan (game memperkecilnya di
+  slot tas ~28 px dan hotbar ~20 px). Ikon yang sama dipakai di tas, panel peti,
+  hotbar, dan item pickup. Baris resep di panel stasiun hanya menampilkan teks
+  (nama, bahan, waktu), jadi tidak butuh ikon tambahan.
+- Tanpa file, ikon memakai placeholder; game tetap jalan.
+- Daftar lengkap item ada di bagian **Ikon item**; resep yang memakainya ada di
+  bagian **Resep crafting**.
+
 ## Catatan build ekspor
 
 Hanya file yang sudah di-import Godot yang ikut di-pack. File yang baru
@@ -44,8 +88,9 @@ diletakkan tapi belum di-import akan hilang di build ekspor. Jalankan
 
 ## Alat bantu
 
-- `GODOT --headless --path . -s tools/check_assets.gd` — cek cakupan, file typo,
-  strip yang salah, dan rasio aspek menyimpang.
+- `GODOT --headless --path . -s tools/check_assets.gd` — cek cakupan slot,
+  **ikon item & held item**, file typo, duplikat `.png`/`.webp`, strip yang salah,
+  dan rasio aspek menyimpang.
 - **F1** di island — muat ulang semua art.
 - **Home** di island — tampilkan kotak slot + pivot + toast "Aset: X/Y terisi".
 - `res://assets/README.md` — pengingat singkat.
@@ -151,5 +196,113 @@ game tetap jalan dengan placeholder.
 | `ui_panel` | `res://assets/ui/panel[_dir][_Nf].png`<br>contoh: `res://assets/ui/panel.png` | Wajib | 256 × 128 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_slot_frame` | `res://assets/ui/slot_frame[_dir][_Nf].png`<br>contoh: `res://assets/ui/slot_frame.png` | Penting | 48 × 48 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_vignette_low_hp` | `res://assets/ui/vignette_low_hp[_dir][_Nf].png`<br>contoh: `res://assets/ui/vignette_low_hp.png` | Opsional | 1280 × 720 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
+
+## Ikon item (23 item)
+
+Satu file per item: `res://assets/icons/items/<id>.png` (`.webp` juga dibaca; `.png` diprioritaskan bila keduanya ada). Ikon yang sama dipakai di tas, panel peti, hotbar, dan item pickup (diperkecil otomatis). Baris resep tidak memakai ikon. Ukuran sumber disarankan 48 × 48 px, latar transparan.
+
+| Ikon | Path file | Item | ID | Kategori | Stack | Ukuran disarankan | Dipakai di | Status file |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `icon_bamboo` | `res://assets/icons/items/bamboo.png` | Bambu | `bamboo` | Resource | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_bone` | `res://assets/icons/items/bone.png` | Tulang | `bone` | Resource | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_fiber` | `res://assets/icons/items/fiber.png` | Serat | `fiber` | Resource | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_hide` | `res://assets/icons/items/hide.png` | Kulit | `hide` | Resource | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_stone` | `res://assets/icons/items/stone.png` | Batu | `stone` | Resource | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_wood` | `res://assets/icons/items/wood.png` | Kayu | `wood` | Resource | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_berry` | `res://assets/icons/items/berry.png` | Beri | `berry` | Consumable | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_boiled_water` | `res://assets/icons/items/boiled_water.png` | Air Matang | `boiled_water` | Consumable | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_bone_broth` | `res://assets/icons/items/bone_broth.png` | Kaldu Tulang | `bone_broth` | Consumable | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_coconut` | `res://assets/icons/items/coconut.png` | Kelapa | `coconut` | Consumable | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_cooked_meat` | `res://assets/icons/items/cooked_meat.png` | Daging Matang | `cooked_meat` | Consumable | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_herbal_bandage` | `res://assets/icons/items/herbal_bandage.png` | Perban Herbal | `herbal_bandage` | Consumable | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_raw_meat` | `res://assets/icons/items/raw_meat.png` | Daging Mentah | `raw_meat` | Consumable | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_bone_spear` | `res://assets/icons/items/bone_spear.png` | Tombak Tulang | `bone_spear` | Weapon | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_stone_spear` | `res://assets/icons/items/stone_spear.png` | Tombak Batu | `stone_spear` | Weapon | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_wooden_spear` | `res://assets/icons/items/wooden_spear.png` | Tombak Kayu | `wooden_spear` | Weapon | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_stone_axe` | `res://assets/icons/items/stone_axe.png` | Kapak Batu | `stone_axe` | Tool | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_stone_pickaxe` | `res://assets/icons/items/stone_pickaxe.png` | Beliung Batu | `stone_pickaxe` | Tool | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_leather_vest` | `res://assets/icons/items/leather_vest.png` | Rompi Kulit | `leather_vest` | Armor | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_cockpit_notes` | `res://assets/icons/items/cockpit_notes.png` | Catatan Kokpit | `cockpit_notes` | Special | 1 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_signal_flare` | `res://assets/icons/items/signal_flare.png` | Suar Darurat | `signal_flare` | Special | 1 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_torch` | `res://assets/icons/items/torch.png` | Obor | `torch` | Special | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_waterskin` | `res://assets/icons/items/waterskin.png` | Kantung Air Kulit | `waterskin` | Special | 1 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+
+## Item di tangan (23 item)
+
+Art barang yang dipegang pemain saat item dipilih di hotbar: `res://assets/held/<id>.png` (hanya `.png`; `.webp` tidak dibaca). Tanpa file, pemain memakai bentuk placeholder per kategori.
+
+| File | Item | ID | Ukuran tampil | Sumber disarankan | Dipakai di | Status file |
+| --- | --- | --- | --- | --- | --- | --- |
+| `res://assets/held/bamboo.png` | Bambu | `bamboo` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/bone.png` | Tulang | `bone` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/fiber.png` | Serat | `fiber` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/hide.png` | Kulit | `hide` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/stone.png` | Batu | `stone` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/wood.png` | Kayu | `wood` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/berry.png` | Beri | `berry` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/boiled_water.png` | Air Matang | `boiled_water` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/bone_broth.png` | Kaldu Tulang | `bone_broth` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/coconut.png` | Kelapa | `coconut` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/cooked_meat.png` | Daging Matang | `cooked_meat` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/herbal_bandage.png` | Perban Herbal | `herbal_bandage` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/raw_meat.png` | Daging Mentah | `raw_meat` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/bone_spear.png` | Tombak Tulang | `bone_spear` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/stone_spear.png` | Tombak Batu | `stone_spear` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/wooden_spear.png` | Tombak Kayu | `wooden_spear` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/stone_axe.png` | Kapak Batu | `stone_axe` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/stone_pickaxe.png` | Beliung Batu | `stone_pickaxe` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/leather_vest.png` | Rompi Kulit | `leather_vest` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/cockpit_notes.png` | Catatan Kokpit | `cockpit_notes` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/signal_flare.png` | Suar Darurat | `signal_flare` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/torch.png` | Obor | `torch` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/waterskin.png` | Kantung Air Kulit | `waterskin` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+
+## Resep crafting (13 resep)
+
+Panel Meja Kerja/Api Unggun menampilkan baris dari data ini sebagai teks (nama, bahan, waktu). Kolom ikon di bawah menunjuk file ikon barang hasil yang dipakai saat barang itu ada di tas/peti/hotbar/pickup.
+
+| Resep | ID | Stasiun | Bahan | Waktu | Ikon hasil | Status ikon |
+| --- | --- | --- | --- | --- | --- | --- |
+| Air Matang ×1 | `boiled_water` | Api Unggun | Bambu ×1 | 2.0 s | `res://assets/icons/items/boiled_water.png` | Belum ada |
+| Kaldu Tulang ×1 | `bone_broth` | Api Unggun | Tulang ×2, Daging Mentah ×1 | 2.5 s | `res://assets/icons/items/bone_broth.png` | Belum ada |
+| Tombak Tulang ×1 | `bone_spear` | Workbench | Tombak Kayu ×1, Tulang ×2, Serat ×2 | 3.0 s | `res://assets/icons/items/bone_spear.png` | Belum ada |
+| Daging Matang ×1 | `cooked_meat` | Api Unggun | Daging Mentah ×1 | 2.0 s | `res://assets/icons/items/cooked_meat.png` | Belum ada |
+| Perban Herbal ×1 | `herbal_bandage` | Tangan | Serat ×3, Beri ×2 | 1.5 s | `res://assets/icons/items/herbal_bandage.png` | Belum ada |
+| Rompi Kulit ×1 | `leather_vest` | Workbench | Kulit ×3, Serat ×3 | 3.0 s | `res://assets/icons/items/leather_vest.png` | Belum ada |
+| Suar Darurat ×1 | `signal_flare` | Workbench | Kayu ×5, Tulang ×3, Kulit ×2, Serat ×2 | 4.0 s | `res://assets/icons/items/signal_flare.png` | Belum ada |
+| Kapak Batu ×1 | `stone_axe` | Workbench | Kayu ×2, Batu ×2, Serat ×1 | 2.5 s | `res://assets/icons/items/stone_axe.png` | Belum ada |
+| Beliung Batu ×1 | `stone_pickaxe` | Workbench | Kayu ×2, Batu ×3, Serat ×1 | 2.5 s | `res://assets/icons/items/stone_pickaxe.png` | Belum ada |
+| Tombak Batu ×1 | `stone_spear` | Workbench | Tombak Kayu ×1, Batu ×2, Serat ×2 | 3.0 s | `res://assets/icons/items/stone_spear.png` | Belum ada |
+| Obor ×1 | `torch` | Tangan | Kayu ×2, Serat ×1 | 1.5 s | `res://assets/icons/items/torch.png` | Belum ada |
+| Kantung Air Kulit ×1 | `waterskin` | Workbench | Kulit ×2, Serat ×1 | 2.5 s | `res://assets/icons/items/waterskin.png` | Belum ada |
+| Tombak Kayu ×1 | `wooden_spear` | Tangan | Kayu ×3, Serat ×2 | 2.0 s | `res://assets/icons/items/wooden_spear.png` | Belum ada |
+
+## Cakupan file saat panduan dibuat
+
+Dihitung dari file `.png`/`.webp` yang ada di folder tiap slot. Jalankan ulang generator setelah menambah art.
+
+| Kategori | Slot | Sudah ada file | Belum ada |
+| --- | --- | --- | --- |
+| Karakter | 3 | 1 | 2 |
+| Node resource | 9 | 0 | 9 |
+| Camp & struktur | 11 | 0 | 11 |
+| Dunia | 13 | 0 | 13 |
+| Efek | 4 | 0 | 4 |
+| UI & ikon | 23 | 0 | 23 |
+| **Total** | 63 | 1 | 62 |
+
+- Ikon item: **0/23** ada di `res://assets/icons/items/`.
+- Item di tangan: **0/23** ada di `res://assets/held/`.
+- Slot/ikon yang belum ada tetap memakai placeholder; game tidak crash.
+
+## Visual yang dibuat runtime (tidak perlu file)
+
+| Visual | Dibuat oleh | Catatan |
+| --- | --- | --- |
+| Gradien arah matahari | `src/levels/components/environment/sun_overlay.gd` | Gradien runtime; arah dan intensitas ikut waktu |
+| Titik debu & kunang-kunang | `src/levels/components/environment/ambient_life.gd` | Tekstur titik dibuat `ImageTexture` |
+| Partikel Fireflies/DayMotes | `src/levels/components/environment/day_night_visual.tscn` | `GradientTexture2D` bawaan scene |
+| Placeholder pemain/fauna/props | Polygon2D di scene | Otomatis diganti slot art bila file tersedia |
+| Tema UI fallback | `src/ui/ui_skin.gd` | Tema default sampai `ui_panel`/`ui_button_*` diisi |
 
 <!-- END GENERATED -->

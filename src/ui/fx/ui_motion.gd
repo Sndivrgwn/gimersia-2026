@@ -47,9 +47,10 @@ static func tween_bar(bar: ProgressBar, target: float, duration: float = BAR_TIM
 	if is_instant():
 		bar.value = target
 		return
-	var existing := bar.get_meta(&"ui_motion_tween", null) as Tween
-	if existing != null and existing.is_valid():
-		existing.kill()
+	if bar.has_meta(&"ui_motion_tween"):
+		var existing := bar.get_meta(&"ui_motion_tween") as Tween
+		if existing != null and existing.is_valid():
+			existing.kill()
 	var tween := bar.create_tween()
 	bar.set_meta(&"ui_motion_tween", tween)
 	tween.tween_property(bar, "value", target, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)

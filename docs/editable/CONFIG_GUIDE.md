@@ -28,9 +28,11 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | Generator | Perintah | File `.tres` yang ditulis |
 | --- | --- | --- |
 | `res://tools/generate_asset_registry.gd` | `GODOT --headless --path . -s tools/generate_asset_registry.gd` | res://src/data/assets/asset_registry.tres |
+| `res://tools/generate_audio_registry.gd` | `GODOT --headless --path . -s tools/generate_audio_registry.gd` | res://src/data/audio/audio_registry.tres |
 | `res://tools/generate_balance_data.gd` | `GODOT --headless --path . -s tools/generate_balance_data.gd` | res://src/data/configs/health_regen_config.tres, res://src/data/configs/needs_config.tres, res://src/data/configs/run_config.tres, res://src/data/configs/sneak_config.tres, res://src/data/configs/wading_config.tres |
 | `res://tools/generate_body_profiles.gd` | `GODOT --headless --path . -s tools/generate_body_profiles.gd` | res://src/data/configs/physics/body_island_deer.tres, res://src/data/configs/physics/body_player.tres, res://src/data/configs/physics/body_wild_boar.tres |
 | `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` | res://src/data/configs/combat_config.tres, res://src/data/configs/fauna/boar_config.tres, res://src/data/configs/fauna/deer_config.tres, res://src/data/configs/fauna/ember_snuff_config.tres, res://src/data/configs/fauna/night_scaling_config.tres, res://src/data/configs/fauna/raid_config.tres |
+| `res://tools/generate_fauna_configs.gd` | `GODOT --headless --path . -s tools/generate_fauna_configs.gd` | res://src/data/configs/fauna/boar_config.tres, res://src/data/configs/fauna/deer_config.tres |
 | `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` | — (tidak menulis .tres) |
 | `res://tools/generate_held_item_data.gd` | `GODOT --headless --path . -s tools/generate_held_item_data.gd` | res://src/data/configs/held_item_config.tres |
 | `res://tools/generate_hints.gd` | `GODOT --headless --path . -s tools/generate_hints.gd` | res://src/data/hints/base_place.tres, res://src/data/hints/campfire_cold.tres, res://src/data/hints/crafting.tres, res://src/data/hints/dusk.tres, res://src/data/hints/fence.tres, res://src/data/hints/gather.tres, res://src/data/hints/hunger_sprint_lock.tres, res://src/data/hints/need_low.tres, res://src/data/hints/neutral_hit.tres, res://src/data/hints/repair.tres |
@@ -55,6 +57,23 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
 | `slots` | Array | [63 item] |
+
+
+## src/data/audio
+
+### `res://src/data/audio/audio_registry.tres`
+
+- Kelas: `audio_registry.gd` (`res://src/data/resources/audio/audio_registry.gd`)
+- Tujuan: Daftar semua cue audio (key, kategori, hook, bus, prioritas). Data dan dokumentasi saja.
+- Dipakai oleh: AUDIO_GUIDE (generator), test_audio_guide_sync; belum ada playback
+- Pemilik: generator
+- Efek tuning: Menambah cue berarti satu key baru di panduan audio; tidak mengubah gameplay.
+- Tes terkait: test_audio_guide_sync.gd, test_docs_in_sync.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `cues` | Array | [103 item] |
 
 
 ## src/data/camp
@@ -381,7 +400,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | Field | Tipe | Nilai |
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
-| `seed` | int | 20260101 |
+| `layout_seed` | int | 20260101 |
 | `half_size` | float | 2400.00 |
 | `coast_margin` | float | 150.00 |
 | `min_spacing` | float | 70.00 |
@@ -657,7 +676,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | Field | Tipe | Nilai |
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
-| `transition_duration` | float | 9.50 |
+| `transition_duration` | float | 60.00 |
 | `morning_color` | lain | (0.95, 0.8, 0.68, 1.0) |
 | `day_color` | lain | (1.0, 0.96, 0.88, 1.0) |
 | `evening_color` | lain | (1.0, 0.68, 0.45, 1.0) |
@@ -742,6 +761,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `startle_seconds` | float | 0.90 |
 | `flee_accel_seconds` | float | 0.50 |
 | `sneak_notice_floor_px` | float | 24.00 |
+| `hit_stun` | float | 0.35 |
 | `max_hp` | float | 40.00 |
 | `move_speed_day` | float | 60.00 |
 | `move_speed_night` | float | 60.00 |
@@ -753,8 +773,8 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `flee_despawn_timeout` | float | 8.00 |
 | `loot_ids` | Array | [] |
 | `loot_counts` | Array | [] |
-| `blocks_player` | bool | false |
-| `knockback_resistance` | float | 1.00 |
+| `blocks_player` | bool | true |
+| `knockback_resistance` | float | 0.60 |
 | `contact_stop_extra` | float | 2.00 |
 
 ### `res://src/data/configs/fauna/ember_snuff_config.tres`
@@ -823,20 +843,20 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 ### `res://src/data/configs/physics/body_island_deer.tres`
 
 - Kelas: `body_profile.gd` (`res://src/data/resources/physics/body_profile.gd`)
-- Tujuan: belum didokumentasikan
-- Dipakai oleh: —
+- Tujuan: Profil massa/kolisi rusa pulau (MEDIUM, knockback 0.6).
+- Dipakai oleh: BodyProfileApplier (FaunaBase._ready), BodySeparation
 - Pemilik: generator
-- Efek tuning: —
-- Tes terkait: —
+- Efek tuning: Rusa kini padat dan menerima 60% knockback; jarak kontak dijaga pemisah badan.
+- Tes terkait: test_mission10_physics_matrix.gd, test_mission10_body_separation.gd
 
 | Field | Tipe | Nilai |
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
 | `id` | StringName | island_deer |
 | `mass_class` | int | 1 |
-| `radius` | float | 12.00 |
-| `collision_layer` | int | 4 |
-| `collision_mask` | int | 3 |
+| `radius` | float | 10.00 |
+| `collision_layer` | int | 2 |
+| `collision_mask` | int | 15 |
 | `blocks_player` | bool | true |
 | `pushable_by_others` | bool | false |
 | `knockback_taken_multiplier` | float | 0.60 |
@@ -847,20 +867,20 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 ### `res://src/data/configs/physics/body_player.tres`
 
 - Kelas: `body_profile.gd` (`res://src/data/resources/physics/body_profile.gd`)
-- Tujuan: belum didokumentasikan
-- Dipakai oleh: —
+- Tujuan: Profil massa/kolisi badan pemain (LIGHT, radius 12).
+- Dipakai oleh: BodyProfileApplier (Player._ready), BodySeparation
 - Pemilik: generator
-- Efek tuning: —
-- Tes terkait: —
+- Efek tuning: Menentukan siapa yang bisa ditembus, jarak kontak, dan pengali knockback yang diterima.
+- Tes terkait: test_mission10_physics_matrix.gd, test_mission10_mass_deer.gd
 
 | Field | Tipe | Nilai |
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
 | `id` | StringName | player |
-| `mass_class` | int | 1 |
-| `radius` | float | 10.00 |
-| `collision_layer` | int | 1 |
-| `collision_mask` | int | 6 |
+| `mass_class` | int | 0 |
+| `radius` | float | 12.00 |
+| `collision_layer` | int | 5 |
+| `collision_mask` | int | 3 |
 | `blocks_player` | bool | true |
 | `pushable_by_others` | bool | false |
 | `knockback_taken_multiplier` | float | 1.00 |
@@ -871,20 +891,20 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 ### `res://src/data/configs/physics/body_wild_boar.tres`
 
 - Kelas: `body_profile.gd` (`res://src/data/resources/physics/body_profile.gd`)
-- Tujuan: belum didokumentasikan
-- Dipakai oleh: —
+- Tujuan: Profil massa/kolisi babi hutan (HEAVY, knockback 0.35).
+- Dipakai oleh: BodyProfileApplier (FaunaBase._ready), BodySeparation
 - Pemilik: generator
-- Efek tuning: —
-- Tes terkait: —
+- Efek tuning: Babi memblokir pemain, tetap bisa dipisah saat bertumpuk, dan hanya menerima 35% knockback.
+- Tes terkait: test_mission10_physics_matrix.gd, test_boar_mass.gd
 
 | Field | Tipe | Nilai |
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
 | `id` | StringName | wild_boar |
 | `mass_class` | int | 2 |
-| `radius` | float | 14.00 |
+| `radius` | float | 12.00 |
 | `collision_layer` | int | 2 |
-| `collision_mask` | int | 5 |
+| `collision_mask` | int | 15 |
 | `blocks_player` | bool | true |
 | `pushable_by_others` | bool | false |
 | `knockback_taken_multiplier` | float | 0.35 |
@@ -2129,9 +2149,11 @@ Kelas berikut hanya punya default di kode; ubah lewat kode atau dengan membuat `
 | Generator | Perintah |
 | --- | --- |
 | `res://tools/generate_asset_registry.gd` | `GODOT --headless --path . -s tools/generate_asset_registry.gd` |
+| `res://tools/generate_audio_registry.gd` | `GODOT --headless --path . -s tools/generate_audio_registry.gd` |
 | `res://tools/generate_balance_data.gd` | `GODOT --headless --path . -s tools/generate_balance_data.gd` |
 | `res://tools/generate_body_profiles.gd` | `GODOT --headless --path . -s tools/generate_body_profiles.gd` |
 | `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` |
+| `res://tools/generate_fauna_configs.gd` | `GODOT --headless --path . -s tools/generate_fauna_configs.gd` |
 | `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` |
 | `res://tools/generate_held_item_data.gd` | `GODOT --headless --path . -s tools/generate_held_item_data.gd` |
 | `res://tools/generate_hints.gd` | `GODOT --headless --path . -s tools/generate_hints.gd` |

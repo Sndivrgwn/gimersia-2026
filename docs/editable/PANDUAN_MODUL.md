@@ -485,9 +485,8 @@ Island
 
 ## 15. Input Map
 
-> Tabel lengkap dan tunggal ada di §22. Tabel lama di bawah dipertahankan
-> sebagai riwayat; bila berbeda, §22 yang benar (semua action didaftarkan
-> `InputSetup.ensure_actions()`, bukan `project.godot`).
+> Tabel lengkap dan tunggal ada di §22. Subbagian ini hanya menjelaskan
+> sumbernya; tidak ada tabel kedua di sini.
 
 **Sumber kebenaran:** sebagian besar action ada di `project.godot` bagian `[input]`,
 jadi terlihat dan bisa diubah di **Project Settings → Input Map**. Action yang
@@ -501,36 +500,6 @@ action Input (`Input.is_action_pressed()`, `Input.is_action_just_pressed()`,
 `physical_keycode` sendiri. Panel UI seperti `BagPanel` boleh memakai
 `_unhandled_input`, dan hanya untuk toggle/tutup. Tidak ada kode gameplay yang
 memakai `_unhandled_input`.
-
-| Action | Tombol | Dipakai |
-|---|---|---|
-| `move_left` / `move_right` / `move_up` / `move_down` | A/D/W/S + panah | `Player` |
-| `sprint` | Shift | `Player` |
-| `hotbar_1` … `hotbar_5` | 1–5 | `InventoryComponent` |
-| `hotbar_next` / `hotbar_prev` | scroll bawah / atas | `HotbarSelectionComponent` |
-| `use_held` | klik kanan / F | `HotbarSelectionComponent` |
-| `inventory_toggle` | Tab / I | `BagPanel` (`_unhandled_input`) |
-| `interact` | E (tahan) | `InteractorComponent` — didaftarkan `InputSetup` |
-| `repair` | R (tahan) | `RepairComponent` — didaftarkan `InputSetup` |
-| `debug_island_toggle` / `debug_island_zone` / `debug_island_morning` / `debug_island_kit` | F2 / F3 / F4 / F5 | `GatherDebug` (island only) — didaftarkan `InputSetup`; F5 memberi kit bahan uji crafting |
-| `debug_island_boar` / `debug_island_deer` / `debug_island_night` / `debug_island_heal` / `debug_island_weapon` | F6 / F7 / F8 / F9 / F10 | `GatherDebug` (island only) — spawn Boar HOSTILE / Rusa 250 px di depan, lompat ke awal malam, heal penuh + needs, siklus senjata none→wooden→stone→bone |
-| `attack_click` | Klik kiri | `CombatComponent` — ayunan manual ke arah kursor (diabaikan saat kursor di UI/BagPanel terbuka) |
-| `attack_space` | Space | `CombatComponent` — ayunan manual ke arah `facing_direction` |
-| `debug_island_kill` | F11 | `GatherDebug` — HP 0 untuk menguji death screen (island saja) |
-| `debug_island_rescue` | F12 | `GatherDebug` — lompat fase sampai rescue/fajar Hari 7 (island saja) |
-| `base_place` | B | `BasePlacementController` — masuk/keluar mode pendirian base (didaftarkan `InputSetup`) |
-| `debug_fauna_labels` | Insert | `GatherDebug` — label temperament/HP fauna di atas kepala (island saja), termasuk tanda RAIDER/normal |
-| `debug_raid` | J | `GatherDebug` — picu satu raid sekarang lewat `RaidDirector` (island saja) |
-| `pause_toggle` | P | `PauseMenu` — buka/tutup pause (didaftarkan `InputSetup`) |
-| `help_toggle` | H | `HelpPanel` — buka/tutup daftar kontrol (didaftarkan `InputSetup`) |
-| `ui_cancel` (bawaan) | Esc | `BagPanel` — hanya menutup saat terbuka |
-| `debug_needs_toggle` | F1 | `NeedsDebug` (practice only) |
-| `debug_cycle_hunger` / `debug_cycle_thirst` / `debug_cycle_fatigue` | X / C / V | `NeedsDebug`, sandbox |
-| `debug_refill_needs` | B | `NeedsDebug`, sandbox |
-| `debug_eat` | M | `NeedsDebug` |
-| `debug_str_up`/`debug_spd_up`/`debug_mas_up`/`debug_agi_up` | 1–4 | sandbox |
-| `debug_str_down`/`debug_spd_down`/`debug_mas_down`/`debug_agi_down` | Ctrl + 1–4 | sandbox |
-| `debug_toggle_zirah` · `debug_heal` · `debug_set_hp` · `debug_toggle_sprint` · `debug_reset` | Z · H · J · T · R | sandbox |
 
 `InputSetup.ensure_actions()` masih boleh dipanggil di `_ready()` sebagai jaring
 pengaman: fungsi ini hanya menambah action/tombol yang belum ada, jadi tidak
@@ -1219,10 +1188,24 @@ VisualSlot.attach(self, &"campfire", [get_node_or_null("Visual"), get_node_or_nu
   `GODOT --headless --path . -s tools/generate_asset_registry.gd`.
   Jangan mengedit `src/data/assets/asset_registry.tres` dengan tangan.
 - **Cek file seni**: `GODOT --headless --path . -s tools/check_assets.gd`.
+  Selain slot registry, alat ini mengecek **ikon item** (`assets/icons/items`)
+  dan **held item** (`assets/held`): cakupan, nama file typo, duplikat
+  `.png`/`.webp`, serta bentuk yang tidak persegi.
 - **Tes**: `tests/unit/test_assets_core.gd`, `test_visual_slot.gd`,
   `test_visual_state_map.gd`, `test_visual_entities.gd`, `test_ui_skin.gd`.
 - **Panduan seni**: `docs/editable/ASSET_GUIDE.md`; angka resource:
   `docs/editable/CONFIG_GUIDE.md`.
+  `ASSET_GUIDE.md` digenerate oleh `tools/generate_guides.gd`, jadi jangan edit
+  bagian di antara penanda HTML dengan tangan. Isinya menyeluruh: slot dunia/UI
+  dari registry, **ikon semua item** (`assets/icons/items/<id>.png`), **art item
+  di tangan** (`assets/held/<id>.png`), **semua resep crafting**, ringkasan
+  cakupan file, dan daftar visual runtime. Sumber daftarnya = gameplay
+  (`ItemCatalog.ALL`, `CraftingComponent.RECIPE_FILES`), jadi item/resep baru
+  wajib didaftarkan di sana lalu jalankan generator;
+  `test_docs_in_sync.gd` gagal kalau panduan tertinggal atau file lupa didaftarkan.
+- **Ikon item & held item** tidak memakai slot registry: `ItemDefinition.get_icon()`
+  membaca `assets/icons/items/<id>.png`, sedangkan `HeldItemVisual` membaca
+  `assets/held/<id>.png`. Nama file = `id` item, bukan `display_name`.
 
 ## 24. `StatusEffectsComponent` — efek berdurasi (regen HP)
 
@@ -1377,3 +1360,137 @@ Catatan:
 - Tidak ada perubahan damage, hitbox, atau urutan tick; `test_feedback_hud.gd`
   menutup toast (cap/dedupe/expire), sinyal inventory penuh, angka damage, dan
   busur arah.
+
+## 30. Mission 10 — fisika badan, rusa, dan registri audio
+
+| Modul | File | Peran | Kontrak |
+| --- | --- | --- | --- |
+| `BodyProfile` | `src/data/resources/physics/body_profile.gd`, `src/data/configs/physics/body_*.tres` | Profil massa/kolisi per badan (LIGHT/MEDIUM/HEAVY) | `mass_class`, `radius`, `collision_layer/mask`, `blocks_player`, `pushable_by_others`, `knockback_taken_multiplier`, `contact_stop_extra`, `separation_speed`, `max_overlap_px` |
+| `BodyProfileApplier` | `src/data/resources/physics/body_profile_applier.gd` | Satu baris di `_ready` memasang profil | `apply(body, profile, apply_layers := false)`, `profile_of(body)`, `knockback_multiplier(body, fallback)` |
+| `BodySeparation` | `src/components/fauna/body_separation.gd` | Melepas badan yang bertumpuk lebih dari `max_overlap_px` | `apply(body, delta, player := null) -> Vector2`, `radius_of(body)` |
+| `SpawnClearance` | `src/utils/spawn_clearance.gd` | Aturan jarak spawn 60 px | `is_clear(tree, point, min_px := 60.0, ignore := null)` |
+| `IslandDeer` (state) | `src/entities/fauna/island_deer/island_deer.gd` | WANDER -> ALERT -> STARTLE -> FLEE | `get_state()`, `is_alerted()`, `is_startling()`, `get_startle_remaining()`, `get_hit_stun_remaining()`, `get_current_flee_speed()`, sinyal `alerted` |
+| `AudioCueDefinition` / `AudioRegistry` | `src/data/resources/audio/`, `src/data/audio/audio_registry.tres` | Data cue audio (belum ada playback) | `key`, `category`, `trigger`, `hook`, `loop`, `spatial`, `bus`, `priority`, `file_pattern`, `has_hook()`; registry: `get_cue()`, `keys()`, `cues_in_category()`, `missing_hook_cues()` |
+| `AudioGuideGenerator` | `src/core/docs/audio_guide_generator.gd`, `tools/generate_guides.gd` | Menulis `docs/editable/AUDIO_GUIDE.md` dari registry | `build_audio_guide()` |
+
+### Fisika badan
+
+- Pemain dan fauna memanggil `BodyProfileApplier.apply()` di `_ready` **tanpa**
+  mengubah layer scene (`apply_layers = false`); layer/mask dari profil hanya
+  dipakai tes matriks. Semua badan `pushable_by_others = false`: tidak ada body
+  yang memindahkan body lain lewat kontak.
+- Matriks: pemain <-> babi padat, pemain <-> rusa padat, babi <-> rusa padat,
+  sesama spesies padat. Pagar memblokir fauna saja; struktur non-pagar, node
+  resource, pickup dan loot bag tetap non-solid.
+- Pengali knockback yang **diterima**: babi 0.35, rusa 0.6, pemain 1.0
+  (`BodyProfileApplier.knockback_multiplier`). Konvensi lama
+  `knockback_resistance` tetap dipakai sebagai fallback bila profil tidak ada.
+- `BodySeparation` dipanggil dari `FaunaBase.tick()`; ia tidak pernah menembus
+  dinding/pagar, tidak masuk zona sungai, dan tidak mendorong badan ke arah
+  pemain.
+
+### Rusa: ALERT -> STARTLE -> FLEE
+
+1. Radius deteksi = `flee_trigger_radius x get_detection_multiplier(pemain)`,
+   dengan lantai `sneak_notice_floor_px` (24 px). Jongkok = x0.6.
+2. **ALERT**: berhenti, menghadap pemain, label "!", sinyal `alerted` sekali.
+   Lama `alert_time` 0.45 s.
+3. **STARTLE**: terpaku `startle_seconds` 0.9 s dan tetap bisa dipukul.
+4. **FLEE**: kecepatan naik linear 0 -> `flee_speed` selama
+   `flee_accel_seconds` 0.5 s. Damage di WANDER/ALERT/STARTLE langsung memicu
+   FLEE + hit-stun 0.35 s, jadi serangan kedua masih bisa mendarat.
+
+### Registri audio
+
+`AudioRegistry` hanya data + dokumentasi: tidak ada `AudioManager`, playback,
+atau file `.ogg` di repo. Satu cue = satu key; `file_pattern` mengikuti
+`res://assets/audio/<kategori>/<key>[_1.._N].ogg`. Hook yang belum punya titik
+sambung ditandai `HOOK BELUM ADA` di registry dan di `AUDIO_GUIDE.md`.
+Alur kerja: edit tabel di `tools/generate_audio_registry.gd`, jalankan
+`GODOT --headless --path . -s tools/generate_audio_registry.gd`, lalu
+`GODOT --headless --path . -s tools/generate_guides.gd`.
+
+### Wiring Mission 10
+
+Tidak ada node baru di `island.tscn`. Yang berubah hanya isi `_ready`/`tick`:
+
+```text
+Player (body_player.tres) ── BodyProfileApplier.apply
+FaunaBase._ready ── BodyProfileApplier.apply(body_<spesies>.tres)
+FaunaBase.tick ── BodySeparation.apply(self, delta, player)
+FaunaQuota / NightSpawner ── SpawnClearance.is_clear (60 px) + ring base
+IslandDeer ── ALERT/STARTLE/FLEE + ramp kecepatan
+AudioRegistry (data) ── AudioGuideGenerator ── docs/editable/AUDIO_GUIDE.md
+```
+
+### Uji manual Mission 10
+
+1. Berjalan menembus rusa dan babi: keduanya menahan pemain, tidak bergeser
+   lebih dari 1 px, dan tidak menyeret pemain saat berbalik.
+2. Jongkok (Ctrl) dari 300 px ke rusa, lalu pukul: rusa waspada -> terpaku ->
+   baru kabur; serangan pertama mendarat.
+3. Setelah STARTLE, perhatikan rusa mulai lambat lalu makin cepat (ramp 0.5 s).
+4. Berdiri diam dan biarkan `FaunaQuota`/`NightSpawner` spawn: tidak ada hewan
+   baru dalam 60 px dari pemain atau hewan lain, dan tidak di tengah base.
+5. Buka `docs/editable/AUDIO_GUIDE.md`, cek tabel per kategori, daftar minimum,
+   dan daftar "Hook yang belum ada".
+
+## 31. Perbaikan panel stasiun, sungai, dan transisi siang-malam
+
+Semua perilaku di bawah ini menambah API yang sudah ada; tidak mengubah autoload
+atau `project.godot`.
+
+### Panel stasiun (Meja Kerja / Api Unggun)
+
+- Membuka panel memanggil `Player.set_input_locked(true)`: pemain tidak bisa
+  bergerak, tetapi `SceneTree` tidak di-pause sehingga jam, fauna, dan api unggun
+  tetap berjalan. Menutup panel (Esc/E/tombol Tutup atau `close()`) membuka lock.
+- `CraftingComponent` tidak membatalkan craft karena tombol gerak selama lock
+  aktif, jadi menekan Craft di panel tidak lagi langsung "Bergerak".
+- Panel peti tidak lagi mendengar sinyal stasiun: `ChestPanel` memfilter
+  `node is Chest` sebelum menyambung `interaction_requested(interactor)`.
+  `island.gd` juga hanya menyambung stasiun yang punya `request_station_panel()`.
+  Ini menghilangkan error `Method expected 1 argument(s), but called with 2`.
+
+### Minum di area sungai
+
+- `RiverDrinkZone` adalah anak `Player` di `island.tscn`. Aktif bila posisi pemain
+  masuk `IslandZones.Zone.RIVER` atau masih <= 32 px dari tepi
+  (`RiverDrinkZone.is_river_water()`).
+- Efek memakai `RiverEdge.apply_drink()`: +25 Thirst, -8 Hunger, cooldown 15 dtk.
+  Saat tidak di air, node keluar dari grup `interactable` sehingga prompt dan
+  interaksi lain di darat tidak berubah.
+- Tuning tepi: `@export var margin` pada node `RiverDrinkZone`.
+
+### Transisi siang/sore/malam dan arah matahari
+
+- `DayNightVisual` tidak memakai tween lagi. Setiap frame ia menghitung
+  `progress = DayLightCurve.transition_progress(sisa_detik_fase, duration)`.
+  Transisi mulai saat sisa fase = `duration`, jadi selesai tepat di batas fase.
+- `transition_duration = 60.0` di
+  `src/data/configs/environment/day_night_visual_default.tres`. Dengan hari 300 dtk
+  (5 menit game), sore mengambil menit ke-4 dan malam mulai di menit ke-5; fajar
+  mengambil menit terakhir malam.
+- `SunOverlay` (anak `DayNightVisual`, CanvasLayer 1) menggambar gradien hangat
+  aditif searah matahari. Arah: terbit kiri -> atas saat tengah hari -> terbenam
+  kanan (`DayLightCurve.sun_direction`). Intensitas mengikuti kegelapan.
+- Scene yang dimuat di tengah transisi langsung menghitung warna dari sisa waktu;
+  tidak ada fade yang diulang dari awal.
+
+### Malam dan cahaya api
+
+- Kunang-kunang hanya `emitting` di atmosfer `NIGHT`; fase `EVENING`/`MORNING`
+  masih terang sehingga hanya memakai partikel debu siang.
+- `Campfire` menghitung `PointLight2D.energy` dari
+  `DayNightVisual.get_world_darkness()`: `Campfire.DAY_LIGHT_ENERGY` (0.12) saat
+  terang sampai `NIGHT_LIGHT_ENERGY` (1.0) saat gelap. Api yang mati tetap tidak
+  terlihat karena radiusnya 0.
+
+### Tes terkait
+
+```
+tools\run_tests.ps1 -Test res://tests/unit/test_station_panel_craft.gd
+tools\run_tests.ps1 -Test res://tests/unit/test_river_drink_zone.gd
+tools\run_tests.ps1 -Test res://tests/unit/test_day_light_curve.gd
+tools\run_tests.ps1 -Test res://tests/unit/test_environment_light.gd
+```

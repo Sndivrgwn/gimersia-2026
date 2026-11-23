@@ -118,8 +118,8 @@ static func describe_effect(item: ItemDefinition) -> String:
 static func _add_amount(parts: PackedStringArray, label: String, amount: float) -> void:
 	if is_zero_approx(amount):
 		return
-	var sign := "+" if amount > 0.0 else ""
-	parts.append("%s %s%.0f" % [label, sign, amount])
+	var sign_text := "+" if amount > 0.0 else ""
+	parts.append("%s %s%.0f" % [label, sign_text, amount])
 
 
 # --- Drag & drop ------------------------------------------------------------

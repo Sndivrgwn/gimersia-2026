@@ -33,6 +33,8 @@ var _sprint_blocks: Dictionary = {}
 ## Dorongan eksternal (knockback) yang meluruh selama durasinya.
 var _knockback_velocity: Vector2 = Vector2.ZERO
 var _knockback_remaining: float = 0.0
+## UI yang butuh perhatian penuh (panel stasiun) mengunci gerak tanpa pause.
+var _input_locked: bool = false
 
 
 func _ready() -> void:
@@ -48,6 +50,22 @@ func _ready() -> void:
 ## True saat pemain sedang sprint (dibaca driver visual).
 func is_sprinting() -> bool:
 	return _is_sprinting
+
+
+## Kunci input gerak selama panel stasiun terbuka. Dunia tetap berjalan:
+## hanya input pemain yang diabaikan, tidak ada SceneTree.paused.
+func set_input_locked(locked: bool) -> void:
+	if _input_locked == locked:
+		return
+	_input_locked = locked
+	if locked:
+		velocity = Vector2.ZERO
+		_set_sprinting(false)
+		set_sneaking(false)
+
+
+func is_input_locked() -> bool:
+	return _input_locked
 
 
 # --- Blokir sprint (Mission 9) ----------------------------------------------
@@ -135,6 +153,12 @@ func _set_sprint_block(source: StringName, enabled: bool) -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	if _input_locked:
+		velocity = Vector2.ZERO
+		_set_sprinting(false)
+		set_sneaking(false)
+		return
+
 	var input_direction := Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
 	var has_movement := input_direction.length_squared() > 0.0
 

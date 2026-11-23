@@ -6,10 +6,14 @@ extends SceneTree
 const ProfileScript = preload("res://src/data/resources/physics/body_profile.gd")
 const OUT := "res://src/data/configs/physics/"
 
+## Radius = radius CircleShape2D di scene masing-masing (player 12, babi 12,
+## rusa 10). Layer/mask mencerminkan matriks Mission 10: pemain di
+## WORLD|PLAYER_BODY dan bertabrakan dengan WORLD|FAUNA_BODY (bukan pagar);
+## fauna di FAUNA_BODY dan bertabrakan dengan WORLD|FENCE|FAUNA_BODY|PLAYER_BODY.
 const PROFILES: Array = [
-	{"id": &"player", "mass": 1, "radius": 10.0, "layer": 1, "mask": 6, "blocks": true, "kb": 1.0},
-	{"id": &"wild_boar", "mass": 2, "radius": 14.0, "layer": 2, "mask": 5, "blocks": true, "kb": 0.35},
-	{"id": &"island_deer", "mass": 1, "radius": 12.0, "layer": 4, "mask": 3, "blocks": true, "kb": 0.6},
+	{"id": &"player", "mass": 0, "radius": 12.0, "layer": 5, "mask": 3, "blocks": true, "kb": 1.0},
+	{"id": &"wild_boar", "mass": 2, "radius": 12.0, "layer": 2, "mask": 15, "blocks": true, "kb": 0.35},
+	{"id": &"island_deer", "mass": 1, "radius": 10.0, "layer": 2, "mask": 15, "blocks": true, "kb": 0.6},
 ]
 
 

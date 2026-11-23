@@ -161,7 +161,7 @@ func test_layout_is_deterministic_for_same_seed() -> void:
 
 func test_other_seed_moves_nodes() -> void:
 	var first := builder.plan()
-	layout.seed = 7
+	layout.layout_seed = 7
 	var second := builder.plan()
 	var differences := 0
 	for index in mini(first.size(), second.size()):

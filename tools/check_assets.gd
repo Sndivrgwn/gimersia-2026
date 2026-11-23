@@ -3,9 +3,11 @@ extends SceneTree
 ## Pemeriksa aset (read-only, tidak menulis apa pun ke repo).
 ## Jalankan: GODOT --headless --path . -s tools/check_assets.gd
 ##
-## Melaporkan: cakupan slot, slot prioritas 1 yang kosong, file di assets/ yang
-## tidak cocok dengan slot mana pun (plus petunjuk typo), strip yang lebarnya
-## tidak habis dibagi jumlah frame, dan rasio aspek yang menyimpang > 25%.
+## Melaporkan: cakupan slot, slot prioritas 1 yang kosong, cakupan + typo +
+## duplikat + bentuk ikon item (`assets/icons/items`) dan art item di tangan
+## (`assets/held`), file di assets/ yang tidak cocok dengan slot mana pun (plus
+## petunjuk typo), strip yang lebarnya tidak habis dibagi jumlah frame, dan
+## rasio aspek yang menyimpang > 25%.
 
 const EXTENSIONS: Array[String] = ["png", "webp"]
 const ASPECT_TOLERANCE := 0.25
@@ -22,6 +24,7 @@ func _init() -> void:
 	else:
 		print("Prioritas 1 kosong (%d): %s" % [missing.size(), ", ".join(missing)])
 
+	_report_item_assets()
 	_report_unmatched(registry)
 	_report_strips(registry)
 	_report_aspect(registry)
@@ -33,6 +36,8 @@ func _report_unmatched(registry: AssetRegistry) -> void:
 	for slot in registry.slots:
 		if slot != null:
 			known[slot.folder] = true
+	# Ikon item dan held item punya folder sendiri di luar registry.
+	var item_folders := _item_folders_relative()
 
 	var folder_names: Array[String] = []
 	for folder in known.keys():
@@ -44,6 +49,8 @@ func _report_unmatched(registry: AssetRegistry) -> void:
 			continue
 		var relative := file_path.trim_prefix(Assets.DEFAULT_ROOT + "/")
 		var folder := relative.get_base_dir()
+		if item_folders.has(folder):
+			continue
 		if not known.has(folder):
 			problems.append("%s (folder tidak dikenal; mirip: %s)" % [relative, _closest(folder, folder_names)])
 			continue
@@ -118,6 +125,164 @@ func _report_aspect(registry: AssetRegistry) -> void:
 		print("Rasio aspek menyimpang (%d):" % problems.size())
 		for problem in problems:
 			print("  - " + problem)
+
+
+# --- Ikon item & held item ---------------------------------------------------
+
+## Ikon item dan held item tidak lewat registry, jadi dicek terpisah: cakupan,
+## typo nama file, duplikat .png/.webp, dan bentuk yang tidak persegi.
+func _report_item_assets() -> void:
+	var items: Array = ItemCatalog.ALL
+	var icon_dir := _item_icon_dir()
+	var held_dir := _held_item_dir()
+	var missing_icons := PackedStringArray()
+	var missing_held := PackedStringArray()
+	var problems: Array[String] = []
+	var icon_have := 0
+	var held_have := 0
+
+	for item in items:
+		if item == null:
+			continue
+		var icon_path := _find_item_asset(icon_dir, item.id)
+		if item.icon != null:
+			# ItemDefinition.icon menang atas file; tetap dihitung terisi.
+			icon_have += 1
+			if not icon_path.is_empty():
+				problems.append("ikon %s (file ada tapi .tres punya texture; file diabaikan)" % String(item.id))
+		elif icon_path.is_empty():
+			missing_icons.append(String(item.id))
+		else:
+			icon_have += 1
+			_check_icon_asset(icon_path, "ikon " + String(item.id), problems)
+
+		var held_path := _find_item_asset(held_dir, item.id, ["png"])
+		if held_path.is_empty():
+			missing_held.append(String(item.id))
+		else:
+			held_have += 1
+			_check_icon_asset(held_path, "held " + String(item.id), problems)
+
+	print("=== Ikon item: %d/%d terisi (%s) ===" % [icon_have, items.size(), _relative(icon_dir)])
+	if missing_icons.is_empty():
+		print("Ikon item: semua terisi.")
+	else:
+		print("Ikon item kosong (%d): %s" % [missing_icons.size(), ", ".join(missing_icons)])
+
+	print("=== Item di tangan: %d/%d terisi (%s) ===" % [held_have, items.size(), _relative(held_dir)])
+	if missing_held.is_empty():
+		print("Item di tangan: semua terisi.")
+	else:
+		print("Item di tangan kosong (%d): %s" % [missing_held.size(), ", ".join(missing_held)])
+
+	# HeldItemVisual hanya membaca .png; .webp dengan id valid tidak akan termuat.
+	var ids := _item_ids()
+	for file_path in _walk(held_dir):
+		if file_path.get_extension().to_lower() != "webp":
+			continue
+		var stem := file_path.get_file().get_basename()
+		if not ids.has(stem):
+			continue
+		if _find_item_asset(held_dir, StringName(stem), ["png"]).is_empty():
+			problems.append("%s (held item hanya membaca .png)" % _relative(file_path))
+
+	var unknown := _unknown_item_files()
+	if unknown.is_empty():
+		print("File ikon/held tak dikenal: tidak ada.")
+	else:
+		print("File ikon/held tak dikenal (%d):" % unknown.size())
+		for problem in unknown:
+			print("  - " + problem)
+
+	if problems.is_empty():
+		print("Ikon & held item: bentuk/duplikat aman.")
+	else:
+		print("Ikon & held item perlu perhatian (%d):" % problems.size())
+		for problem in problems:
+			print("  - " + problem)
+
+
+func _check_icon_asset(path: String, label: String, problems: Array[String]) -> void:
+	if _has_png_and_webp(path):
+		problems.append("%s (duplikat .png + .webp; .png dipakai)" % label)
+	var texture := _load_texture(path)
+	if texture == null:
+		problems.append("%s (tidak bisa dibaca)" % label)
+		return
+	var width := texture.get_width()
+	var height := texture.get_height()
+	if width <= 0 or height <= 0:
+		return
+	var deviation := absf(float(width) / float(height) - 1.0)
+	if deviation > ASPECT_TOLERANCE:
+		problems.append("%s (%dx%d, bukan kotak; slot persegi)" % [label, width, height])
+
+
+func _item_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for item in ItemCatalog.ALL:
+		if item != null:
+			ids.append(String(item.id))
+	ids.sort()
+	return ids
+
+
+func _unknown_item_files() -> Array[String]:
+	var ids := _item_ids()
+	var known: Dictionary = {}
+	var normalized_ids: Array[String] = []
+	for id in ids:
+		known[id] = true
+		normalized_ids.append(_normalize(id))
+	normalized_ids.sort()
+
+	var problems: Array[String] = []
+	for directory in [_item_icon_dir(), _held_item_dir()]:
+		for file_path in _walk(directory):
+			if not EXTENSIONS.has(file_path.get_extension().to_lower()):
+				continue
+			var stem := file_path.get_file().get_basename()
+			if known.has(stem):
+				continue
+			problems.append("%s (tidak cocok dengan item id; mirip: %s)" % [
+				_relative(file_path), _closest(stem, normalized_ids)
+			])
+	return problems
+
+
+func _find_item_asset(directory: String, item_id: StringName, extensions: Array = EXTENSIONS) -> String:
+	if String(item_id).is_empty():
+		return ""
+	for extension in extensions:
+		var path := "%s/%s.%s" % [directory, String(item_id), extension]
+		if FileAccess.file_exists(path):
+			return path
+	return ""
+
+
+func _has_png_and_webp(path: String) -> bool:
+	var base := path.get_basename()
+	return FileAccess.file_exists(base + ".png") and FileAccess.file_exists(base + ".webp")
+
+
+func _item_icon_dir() -> String:
+	return Assets.DEFAULT_ROOT + "/" + Assets.ITEM_ICON_FOLDER
+
+
+func _held_item_dir() -> String:
+	return HeldItemVisual.HELD_DIR.trim_suffix("/")
+
+
+func _item_folders_relative() -> Array[String]:
+	var folders: Array[String] = [
+		Assets.ITEM_ICON_FOLDER,
+		HeldItemVisual.HELD_DIR.trim_prefix(Assets.DEFAULT_ROOT + "/").trim_suffix("/"),
+	]
+	return folders
+
+
+func _relative(path: String) -> String:
+	return path.trim_prefix(Assets.DEFAULT_ROOT + "/")
 
 
 # --- Helper -----------------------------------------------------------------

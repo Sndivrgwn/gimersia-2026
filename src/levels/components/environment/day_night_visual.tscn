@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://src/levels/components/environment/day_night_visual.gd" id="1_visual"]
 [ext_resource type="Resource" path="res://src/data/configs/environment/day_night_visual_default.tres" id="2_visual_config"]
+[ext_resource type="Script" path="res://src/levels/components/environment/sun_overlay.gd" id="3_sun"]
 
 [sub_resource type="Gradient" id="Gradient_glow"]
 offsets = PackedFloat32Array(0, 0.4, 1)
@@ -30,6 +31,9 @@ visual_config = ExtResource("2_visual_config")
 
 [node name="CanvasModulate" type="CanvasModulate" parent="."]
 color = Color(1, 1, 1, 1)
+
+[node name="SunOverlay" type="CanvasLayer" parent="."]
+script = ExtResource("3_sun")
 
 [node name="Effects" type="Node2D" parent="."]
 

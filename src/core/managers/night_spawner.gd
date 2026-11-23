@@ -157,6 +157,7 @@ func _spawn_position() -> Vector2:
 	var far: Array[Vector2] = []
 	var all: Array[Vector2] = []
 	var raw: Array[Vector2] = []
+	var outside_base: Array[Vector2] = []
 	for node in tree.get_nodes_in_group(&"night_spawn_point"):
 		var marker := node as Node2D
 		if marker == null:
@@ -164,20 +165,23 @@ func _spawn_position() -> Vector2:
 		raw.append(marker.global_position)
 		if base_clear > 0.0 and marker.global_position.distance_to(base_center) < base_clear:
 			continue
+		# Root cause Mission 10: fallback tidak boleh memakai penanda di ring base.
+		outside_base.append(marker.global_position)
 		# Mission 10: jangan menumpuk dengan pemain/badan fauna yang sudah ada.
 		if not SpawnClearance.is_clear(tree, marker.global_position, min_body_clearance):
 			continue
 		all.append(marker.global_position)
 		if marker.global_position.distance_to(player_position) >= 600.0:
 			far.append(marker.global_position)
-	if all.is_empty():
-		all = raw
 	if not far.is_empty():
 		return far[rng.randi_range(0, far.size() - 1)]
-	if all.is_empty():
+	var pool: Array[Vector2] = all if not all.is_empty() else outside_base
+	if pool.is_empty():
+		pool = raw
+	if pool.is_empty():
 		return Vector2.ZERO
-	var best := all[0]
-	for point in all:
+	var best := pool[0]
+	for point in pool:
 		if point.distance_to(player_position) > best.distance_to(player_position):
 			best = point
 	return best

@@ -60,6 +60,7 @@ func open(p_station: Node, p_interactor: Node = null) -> bool:
 	_is_open = true
 	visible = true
 	_root.visible = true
+	_set_player_locked(true)
 	UiBackStack.register(self)
 	rebuild()
 	opened.emit(station)
@@ -73,6 +74,7 @@ func close() -> void:
 	_is_open = false
 	visible = false
 	_root.visible = false
+	_set_player_locked(false)
 	UiBackStack.unregister(self)
 	if crafting != null and crafting.get_active_station() == station:
 		crafting.cancel_craft("Panel ditutup")
@@ -81,6 +83,17 @@ func close() -> void:
 
 func is_open() -> bool:
 	return _is_open
+
+
+func _exit_tree() -> void:
+	if _is_open:
+		_set_player_locked(false)
+
+
+## Dunia tetap berjalan; hanya input gerak pemain yang dikunci.
+func _set_player_locked(locked: bool) -> void:
+	if player != null and is_instance_valid(player) and player.has_method(&"set_input_locked"):
+		player.call(&"set_input_locked", locked)
 
 
 ## Dipanggil _process dan tes.

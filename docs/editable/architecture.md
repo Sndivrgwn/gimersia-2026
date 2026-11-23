@@ -576,3 +576,69 @@ Aturan:
   rusa dan babi berbagi satu jalur fisika.
 - `needs_config.tres` menyimpan multiplier balans; `NeedsComponent` tidak
   menyimpan angka sendiri.
+
+## Mission 10 — Physics matrix, deer states, audio data
+
+| Module | Files | Responsibility | Public contract | State |
+| --- | --- | --- | --- | --- |
+| **BodyProfile / BodyProfileApplier** | `src/data/resources/physics/body_profile.gd`, `body_profile_applier.gd`; `.tres` in `src/data/configs/physics/` | Profil massa/kolisi per badan (LIGHT/MEDIUM/HEAVY) dan satu titik pasang | `mass_class`, `radius`, `collision_layer/mask`, `blocks_player`, `pushable_by_others`, `knockback_taken_multiplier`, `contact_stop_extra`, `separation_speed`, `max_overlap_px`; `apply(body, profile, apply_layers := false)`, `profile_of()`, `knockback_multiplier()` | Implemented; 4 + 8 tests |
+| **BodySeparation** | `src/components/fauna/body_separation.gd` | Melepas badan yang bertumpuk lebih dari `max_overlap_px` tanpa menembus dinding/pagar/sungai dan tanpa mendorong ke arah pemain | `apply(body, delta, player := null) -> Vector2`, `radius_of(body)` | Implemented; 5 tests |
+| **SpawnClearance** | `src/utils/spawn_clearance.gd` | Aturan spawn 60 px dari pemain dan badan fauna lain | `is_clear(tree, point, min_px := 60.0, ignore := null)` | Implemented; dipakai FaunaQuota + NightSpawner |
+| **IslandDeer (state)** | `src/entities/fauna/island_deer/island_deer.gd`, `src/data/resources/fauna/deer_config.gd` | WANDER -> ALERT -> STARTLE -> FLEE, hit-stun dan ramp kecepatan | `get_state()`, `is_alerted()`, `is_startling()`, `get_startle_remaining()`, `get_hit_stun_remaining()`, `get_current_flee_speed()`, sinyal `alerted`; `startle_seconds`, `flee_accel_seconds`, `sneak_notice_floor_px`, `hit_stun` | Implemented; 4 + 11 tests |
+| **AudioCueDefinition / AudioRegistry** | `src/data/resources/audio/`, `src/data/audio/audio_registry.tres` | Data cue audio (kategori, trigger, hook, bus, prioritas, pola file) | `key`, `category_key()`, `bus_name()`, `has_hook()`, `expected_pattern()`, `is_valid()`; registry: `get_cue()`, `keys()`, `cues_in_category()`, `cues_with_priority()`, `missing_hook_cues()` | Implemented; 103 cue; **tanpa playback** |
+| **AudioGuideGenerator** | `src/core/docs/audio_guide_generator.gd`, `tools/generate_guides.gd` | Menulis `docs/editable/AUDIO_GUIDE.md` dari registry | `build_audio_guide()` | Implemented; dijaga `test_audio_guide_sync.gd` |
+
+### Physics layers (Mission 10)
+
+| Konstanta | Nilai | Dipakai |
+| --- | --- | --- |
+| `PhysicsLayers.WORLD` | 1 | Dinding pantai, badan dunia |
+| `PhysicsLayers.FAUNA_BODY` | 2 | Badan fauna yang memblokir pemain |
+| `PhysicsLayers.PLAYER_BODY` | 4 | Badan pemain |
+| `PhysicsLayers.FENCE_LAYER` | 8 | Pagar (hanya fauna yang bertabrakan) |
+
+### Body profiles
+
+| Profil | Massa | Radius | Layer | Mask | Knockback diterima |
+| --- | --- | --- | --- | --- | --- |
+| `body_player.tres` | LIGHT | 12 | 5 (WORLD\|PLAYER_BODY) | 3 (WORLD\|FAUNA_BODY) | 1.0 |
+| `body_wild_boar.tres` | HEAVY | 12 | 2 (FAUNA_BODY) | 15 (WORLD\|FAUNA\|PLAYER\|FENCE) | 0.35 |
+| `body_island_deer.tres` | MEDIUM | 10 | 2 (FAUNA_BODY) | 15 (WORLD\|FAUNA\|PLAYER\|FENCE) | 0.6 |
+
+Matriks kolisi: pemain <-> babi padat, pemain <-> rusa padat, babi <-> rusa padat,
+sesama spesies padat; tidak ada body yang mendorong body lain lewat kontak
+(semua `pushable_by_others = false`). Pagar memblokir fauna saja. Struktur
+non-pagar, node resource, pickup, dan loot bag tetap non-solid.
+
+### Dependency direction (Mission 10)
+
+- `BodyProfileApplier` hanya bergantung pada `BodyProfile`; `Player` dan
+  `FaunaBase` memanggilnya satu kali di `_ready` (additive, tanpa API baru).
+- `BodySeparation` membaca profil + `IslandZones` + ray fisika; tidak pernah
+  memanggil AI fauna atau mengubah `global_position` lewat jalur lain.
+- `FaunaQuota`/`NightSpawner` bergantung pada `SpawnClearance` untuk aturan
+  60 px; fallback "paling jauh" tidak boleh memakai penanda di dalam ring base.
+- Registri audio adalah **daun data**: tidak ada autoload, tidak ada playback,
+  dan tidak ada komponen gameplay yang membacanya. Generator panduan hanya
+  membaca registry.
+
+## Perbaikan gameplay & atmosfer (Mission 10 lanjutan)
+
+- **UI stasiun dan gerak pemain.** `StationPanel` memiliki lock input lewat
+  `Player.set_input_locked()`; tidak ada pause global. `CraftingComponent` membaca
+  lock itu sebelum membatalkan craft karena gerak. Batas tanggung jawab tetap:
+  panel = UI, komponen = aturan craft, Player = gerak.
+- **Sinyal peti vs stasiun.** `ChestPanel` sekarang memfilter `node is Chest`
+  sebelum menyambung `interaction_requested(interactor)`. `island.gd` memfilter
+  struktur dengan `request_station_panel()` untuk `StationPanel.open(station,
+  interactor)`. Dua kontrak sinyal yang berbeda tidak lagi tercampur.
+- **Air sungai.** `RiverDrinkZone` (komponen Interactable anak Player) menjadi
+  jalur minum di seluruh zona sungai; `RiverEdge` tetap ada untuk tepi di luar
+  zona dan menyediakan `apply_drink()` sebagai satu-satunya implementasi efek.
+- **Waktu visual.** `DayNightVisual` membaca sisa detik fase dari
+  `DayNightManager` setiap frame (tanpa tween), dengan kurva murni di
+  `DayLightCurve`. `SunOverlay` memakai arah matahari dari kurva yang sama.
+  `Campfire` memakai `get_world_darkness()` untuk energi cahayanya.
+- **Tes.** Empat berkas baru: `test_station_panel_craft.gd`,
+  `test_river_drink_zone.gd`, `test_day_light_curve.gd`,
+  `test_environment_light.gd`.
