@@ -1,10 +1,224 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://cl7doqbo2ydnp"]
 
-[ext_resource type="Script" path="res://src/ui/menus/main_menu.gd" id="1_menu"]
+[ext_resource type="Script" uid="uid://3rl15fjol8em" path="res://src/ui/menus/main_menu.gd" id="1_menu"]
+[ext_resource type="Texture2D" uid="uid://baynnutctl3vh" path="res://assets/textures/ui/08_background/background_main_menu.png" id="2_bg"]
+[ext_resource type="Theme" uid="uid://ceclrsmkpees0" path="res://src/ui/theme/ui_theme.tres" id="3_theme"]
+[ext_resource type="Shader" uid="uid://erxg2o34om07" path="res://src/ui/theme/stitch_frame.gdshader" id="4_jmap8"]
+[ext_resource type="Script" uid="uid://dsx2xdxdkivrd" path="res://src/ui/theme/stitch_frame.gd" id="5_stitch"]
 
-[node name="MainMenu" type="Control"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jmap8"]
+shader = ExtResource("4_jmap8")
+shader_parameter/frame_size = Vector2(0, 0)
+shader_parameter/inset = 2.0
+shader_parameter/corner_radius = 24.0
+shader_parameter/thickness = 1.6
+shader_parameter/dash_length = 4.0
+shader_parameter/gap_length = 3.0
+shader_parameter/stitch_color = Color(0.741176, 0.698039, 0.647059, 1)
+
+[node name="MainMenu" type="Control" unique_id=2144366014]
+texture_filter = 2
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
 script = ExtResource("1_menu")
+
+[node name="Background" type="TextureRect" parent="." unique_id=520269233]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="TitleBlock" type="VBoxContainer" parent="." unique_id=1330327865]
+layout_mode = 1
+offset_left = 84.0
+offset_top = 60.0
+offset_right = 540.0
+offset_bottom = 236.0
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="EyebrowRow" type="HBoxContainer" parent="TitleBlock" unique_id=1848363625]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="AccentLine" type="ColorRect" parent="TitleBlock/EyebrowRow" unique_id=985734631]
+custom_minimum_size = Vector2(38, 3)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+color = Color(0.858824, 0.690196, 0.317647, 1)
+
+[node name="Eyebrow" type="Label" parent="TitleBlock/EyebrowRow" unique_id=1305105934]
+layout_mode = 2
+theme_type_variation = &"EyebrowLabel"
+text = "PULAU"
+
+[node name="Title" type="Label" parent="TitleBlock" unique_id=260677553]
+layout_mode = 2
+theme_type_variation = &"HeroTitle"
+text = "Aurora"
+
+[node name="MenuButtons" type="VBoxContainer" parent="." unique_id=566998798]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 84.0
+offset_top = 44.0
+offset_right = 324.0
+offset_bottom = 44.0
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="StartButton" type="Button" parent="MenuButtons" unique_id=1991083649]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PrimaryButton"
+text = "MULAI"
+
+[node name="ControlsButton" type="Button" parent="MenuButtons" unique_id=925044563]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"SecondaryButton"
+text = "KONTROL"
+
+[node name="CreditsButton" type="Button" parent="MenuButtons" unique_id=1331297170]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"SecondaryButton"
+text = "KREDIT"
+
+[node name="QuitButton" type="Button" parent="." unique_id=182588810]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 56.0
+offset_top = -112.0
+offset_right = 264.0
+offset_bottom = -48.0
+grow_vertical = 0
+theme_type_variation = &"BackButton"
+text = "KELUAR"
+
+[node name="VersionLabel" type="Label" parent="." unique_id=528181879]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -50.0
+offset_right = -32.0
+offset_bottom = -26.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_type_variation = &"VersionLabel"
+text = "v1.0.0"
+horizontal_alignment = 2
+
+[node name="InfoOverlay" type="Control" parent="." unique_id=915140752]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="InfoOverlay" unique_id=2018899407]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.1, 0.06, 0.04, 0.55)
+
+[node name="Center" type="CenterContainer" parent="InfoOverlay" unique_id=1013301726]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="InfoOverlay/Center" unique_id=1776584315]
+custom_minimum_size = Vector2(520, 300)
+layout_mode = 2
+theme_type_variation = &"PanelCard"
+
+[node name="StitchFrame" type="ColorRect" parent="InfoOverlay/Center/Card" unique_id=1261301928]
+material = SubResource("ShaderMaterial_jmap8")
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("5_stitch")
+
+[node name="Padding" type="MarginContainer" parent="InfoOverlay/Center/Card" unique_id=174336825]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 14
+
+[node name="Content" type="VBoxContainer" parent="InfoOverlay/Center/Card/Padding" unique_id=1078497537]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="InfoTitleLabel" type="Label" parent="InfoOverlay/Center/Card/Padding/Content" unique_id=93244623]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CardTitleLabel"
+text = "Kontrol"
+
+[node name="InfoTextLabel" type="Label" parent="InfoOverlay/Center/Card/Padding/Content" unique_id=2059790378]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+autowrap_mode = 3
+
+[node name="InfoBackButton" type="Button" parent="InfoOverlay/Center/Card/Padding/Content" unique_id=1234714096]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 72)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"SecondaryButton"
+text = "KEMBALI"
+
+[node name="ScreenFade" type="ColorRect" parent="." unique_id=1911436810]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.117647, 0.0745098, 0.0470588, 1)
