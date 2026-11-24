@@ -1177,6 +1177,7 @@ dari InputMap yang hidup, jadi tidak boleh berbeda dengan kode.
 | `debug_str_up` | 1 |
 | `debug_toggle_sprint` | T |
 | `debug_toggle_zirah` | Z |
+| `debug_world_overlay` | O |
 | `help_toggle` | H |
 | `hotbar_1` | 1 |
 | `hotbar_2` | 2 |
@@ -1836,3 +1837,50 @@ dan `tools\run_tests.ps1 -Test res://tests/integration/test_island_goals.gd`.
    makin tebal, cincin merah di titik tuju, label "!" berdenyut, lalu dash.
 
 **Tes:** `tools\run_tests.ps1 -Test res://tests/unit/test_fase3_camera_telegraph.gd`.
+## 40. Lapisan dunia (Mission 13)
+
+Panduan lengkap untuk PM: `docs/editable/WORLD_BUILDING_GUIDE.md`. Ringkasan
+modul:
+
+- **`WorldSource`** (`src/levels/world/world_source.gd`) — kontrak sumber dunia
+  (`id`, `zone_at`, `is_walkable`, `is_buildable`, `poi`, spawn, air, plan).
+  Turunannya: `FormulaWorld` (pulau lama) dan `AuthoredWorldSource` (scene).
+- **`FormulaWorld`** (`formula_world.gd`) — membungkus `IslandZones` +
+  `IslandLayoutConfig`; satu-satunya tempat yang boleh memanggil `IslandZones`.
+- **`WorldRules`** (`world_rules.gd`) — fasad statis yang dipakai gameplay
+  (`zone_at`, `is_walkable`, `is_buildable`, `poi`, `zone_center`, ...).
+- **`WorldConfig`** (`src/data/configs/world/world_config.tres`) — `mode`,
+  `authored_scene_path`, `fallback_to_formula`, dan angka validasi.
+- **`WorldController`** (`world_controller.gd`) — membuat sumber sesuai mode,
+  spawn POI/air/malam; fallback ke FORMULA bila scene gagal.
+- **`AuthoredWorld`** (`authored_world.gd`) — akar scene dunia; kontrak anak
+  `Visual/Zones/Markers/Resources/Decor`; tombol **Validasi dunia**.
+- **`ZoneArea` / `ResourceArea` / `ResourceSpawnEntry`** — polygon zona dan
+  sebaran resource di scene.
+- **`ZoneGrid`** (`zone_grid.gd`) — rasterisasi polygon ke grid sel.
+- **`AuthoredWorldSource`** (`authored_world_source.gd`) — lookup zona,
+  reachability, `resource_plan`, `get_shortfalls()`.
+- **`WorldValidator`** (`world_validator.gd` + `tools/validate_world.gd`) —
+  kode W001-W017, laporan teks, CLI exit 0/1.
+- **`WorldDebugOverlay`** (`world_debug_overlay.gd`) — overlay sel + panel;
+  tombol **O** (`debug_world_overlay`), default mati.
+- **`WorldGuideGenerator`** (`src/core/docs/world_guide_generator.gd`) — menulis
+  `WORLD_BUILDING_GUIDE.md`; jalankan `tools/generate_guides.gd` setelah mengubah
+  kode/angka.
+
+### 40a. Mencoba dengan tangan
+
+1. Buka `res://src/data/configs/world/world_config.tres`, set `mode = AUTHORED`
+   dan `authored_scene_path = res://src/levels/worlds/sample_island/world.tscn`.
+2. Jalankan `island.tscn` (F5). Pemain harus spawn di `PlayerStart` pulau contoh.
+3. Tekan **O**: overlay zona tampil, panel kiri atas menulis `mode: AUTHORED`
+   dan jumlah ERROR/WARN; tekan **O** lagi untuk mematikan.
+4. Jalankan CLI:
+   `GODOT --headless --path . -s tools/validate_world.gd -- res://src/levels/worlds/sample_island/world.tscn`
+   — harus `0 ERROR` dan exit code 0.
+5. Kembalikan `mode = FORMULA` untuk build yang sekarang.
+
+**Tes:** `toolsun_tests.ps1 -Test res://tests/unit/test_world_validator.gd`,
+`... test_world_guide_sync.gd`, `... test_world_controller_authored.gd`,
+`... test_authored_world.gd`, `... test_world_zone_grid.gd`,
+`... test_world_golden.gd`, `... test_world_rules.gd`.

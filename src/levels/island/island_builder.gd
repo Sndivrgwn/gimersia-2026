@@ -35,6 +35,12 @@ const KEEP_OUT_POINTS: Array[Vector2] = [
 	Vector2(0.0, -185.0),  # PlaneWreckage
 	Vector2(-48.0, 40.0),  # Emergency Suitcase
 ]
+## POI yang dibaca dari provider dunia saat membuang posisi node resource.
+const KEEP_OUT_POIS: Array[StringName] = [
+	WorldSource.POI_PLAYER_START,
+	WorldSource.POI_PLANE_WRECKAGE,
+	WorldSource.POI_EMERGENCY_SUITCASE,
+]
 
 @export var layout: IslandLayoutConfig = LAYOUT_DEFAULT
 ## Saat false, scene harus memanggil `build()` sendiri (dipakai tes).
@@ -88,6 +94,16 @@ func plan() -> Array[Dictionary]:
 	_rng.seed = layout.layout_seed
 	_placed.clear()
 
+	# Mission 13: sumber AUTHORED boleh memberi rencana sendiri. FormulaWorld
+	# tidak punya rencana, jadi jalur lama di bawah tetap dipakai apa adanya.
+	var world := WorldRules.get_source()
+	if world.has_resource_plan():
+		var provided: Array[Dictionary] = []
+		for entry in world.resource_plan(layout, layout.layout_seed):
+			if entry is Dictionary:
+				provided.append(entry)
+		return provided
+
 	var entries: Array[Dictionary] = []
 	var starters := layout.camp_starters_last_respawn_day
 
@@ -133,6 +149,10 @@ func _plan_zone(
 
 
 func _plan_markers(entries: Array[Dictionary], count: int) -> void:
+	# Mission 13: dunia AUTHORED membawa marker spawn malamnya sendiri (dibuat
+	# WorldController dari provider), jadi penanda rumus dilewati.
+	if WorldRules.has_resource_plan():
+		return
 	var limit := layout.half_size - layout.coast_margin
 	for index in count:
 		var chosen := Vector2.INF
@@ -187,10 +207,14 @@ func _find_point(zone: int, camp_ring: bool) -> Vector2:
 
 
 func _is_clear(point: Vector2) -> bool:
-	for keep_out in KEEP_OUT_POINTS:
+	for poi_name in KEEP_OUT_POIS:
+		var keep_out := WorldRules.poi(poi_name)
+		if keep_out == Vector2.INF:
+			continue
 		if point.distance_to(keep_out) < layout.keep_out_radius:
 			return false
-	if point.distance_to(IslandZones.BEACON_POSITION) < layout.beacon_keep_out:
+	var beacon := WorldRules.poi(WorldSource.POI_SIGNAL_BEACON)
+	if beacon != Vector2.INF and point.distance_to(beacon) < layout.beacon_keep_out:
 		return false
 	for other in _placed:
 		if point.distance_to(other) < layout.min_spacing:

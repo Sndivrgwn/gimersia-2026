@@ -228,7 +228,11 @@ func _cycle_zone() -> void:
 		return
 	var zone: int = ZONES[_zone_index % ZONES.size()]
 	_zone_index += 1
-	player.global_position = IslandZones.zone_center(zone)
+	var center := WorldRules.zone_center(zone)
+	if center == Vector2.INF:
+		push_warning("GatherDebug: zona %s tidak punya titik teleport; dilewati." % IslandZones.zone_name(zone))
+		return
+	player.global_position = center
 	print("GatherDebug: teleport ke zona %s" % IslandZones.zone_name(zone))
 
 

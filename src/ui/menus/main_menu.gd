@@ -56,6 +56,7 @@ func _ready() -> void:
 	_info_back.pressed.connect(close_info)
 	_quit_button.pressed.connect(_quit)
 	_version_label.text = _version_text()
+	_ensure_settings_ui()
 
 	# Layar sempat gelap lalu memudar masuk saat menu dibuka.
 	_screen_fade.visible = true
@@ -89,12 +90,14 @@ func open_info(title: String, lines: Array[String]) -> void:
 
 func close_info() -> void:
 	if not _info_overlay.visible:
-	_build()
-	_ensure_settings_ui()
-	UiSkin.apply(self)
-	UiSkin.add_background(self, &"ui_bg_main_menu")
-	UiSkin.add_logo(self)
-	ScreenFade.fade_in(self)
+		return
+	_kill(_overlay_tween)
+	_overlay_tween = create_tween().set_parallel(true)
+	_overlay_tween.tween_property(_info_dim, "color:a", 0.0, OVERLAY_TIME * 0.8)
+	_overlay_tween.tween_property(_info_card, "modulate:a", 0.0, OVERLAY_TIME * 0.8)
+	_overlay_tween.tween_property(_info_card, "scale", Vector2(0.97, 0.97), OVERLAY_TIME * 0.8)
+	_overlay_tween.chain().tween_callback(_hide_info)
+	_start_button.grab_focus()
 
 
 ## Mission 7: panel pengaturan dipakai ulang di menu utama.

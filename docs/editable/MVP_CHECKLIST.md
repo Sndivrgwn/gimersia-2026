@@ -644,3 +644,16 @@ Presentasi saja; siklus/fase/durasi tidak berubah.
 - [x] Panel Victory `EndgameHUD` menambahkan blok ringkasan yang sama setelah baris "Diselamatkan Hari N pukul HH:MM"; panel diperbesar ke 420x300 — `test_fase5_summary.gd`.
 - [x] Audit angka: timing `BITE`/`RECOVER` dan knockback dash babi pindah dari konstanta `WildBoar` ke `BoarConfig.bite_hold_time` (0.22), `dash_recover_time` (0.3), `dash_knockback_distance` (60); kerusakan lapar/haus dan regen HP sudah di `needs_config.tres`/`health_regen_config.tres` — `test_fase5_summary.gd`, regresi `test_wild_boar.gd` 8/8.
 - [ ] Uji rasa manual: ringkasan tidak membuat panel mati/kemenangan sesak di 1280x720, angka run kosong (belum ada kill) tetap terbaca wajar.
+## 38. Mission 13 — dua mode dunia, validator, panduan
+
+- [x] Lapisan sumber dunia: `WorldSource` + `WorldRules` (fasad) + `FormulaWorld` (pulau lama) + `WorldConfig`; angka FORMULA tidak berubah — `test_world_golden.gd` (5 tes/438 assert), `test_world_rules.gd` (14).
+- [x] Mode AUTHORED: `AuthoredWorld` + `ZoneArea` + `ResourceArea` + `ResourceSpawnEntry` + `ZoneGrid` + `AuthoredWorldSource`; scene template dan contoh (`src/levels/worlds/_template`, `sample_island`) — `test_authored_world.gd` (12), `test_world_zone_grid.gd` (8), `test_island_authored.gd` (3).
+- [x] `WorldController` memuat mode dari config, spawn POI/air/malam untuk AUTHORED, dan fallback ke FORMULA bila scene gagal — `test_world_controller_authored.gd` (8).
+- [x] Tombol **Validasi dunia** di `AuthoredWorld` + `last_validation_summary` + peringatan konfigurasi struktural — `test_world_validator.gd`.
+- [x] `WorldValidator` W001-W017 (severity, pesan, fix) + `tools/validate_world.gd` (exit 0/1) — `test_world_validator.gd` (25).
+- [x] Overlay debug dunia (tombol **O**, `debug_world_overlay`): warna zona per sel, sel blocked, sel tak terjangkau, POI/spawn/air, panel ERROR/WARN — `test_world_validator.gd`.
+- [x] Panduan membangun dunia untuk PM (`docs/editable/WORLD_BUILDING_GUIDE.md`) digenerate `tools/generate_guides.gd` — `test_world_guide_sync.gd` (6).
+- [x] Docs ikut diperbarui: AI_CONTEXT (§3/§4/riwayat), PANDUAN_MODUL, architecture, CONFIG_GUIDE, ASSET_GUIDE, README.
+- [ ] Uji rasa manual: gambar satu pulau baru di editor dari nol mengikuti panduan 12 langkah, lalu mainkan 10 menit (spawn, koridor, camp, malam).
+- [ ] Uji rasa manual: overlay **O** di pulau AUTHORED tidak menutupi pandangan berlebihan pada 1280x720.
+- [ ] Keputusan terbuka: apakah tile 32 px cukup untuk semua tileset final (belum ada art dunia).

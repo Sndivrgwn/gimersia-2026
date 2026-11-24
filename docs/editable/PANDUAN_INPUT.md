@@ -80,6 +80,7 @@ Hanya berguna di `island.tscn`; dipasang `GatherDebug` dan diabaikan di scene la
 | `debug_island_zone` | F3 | Teleport ke zona berikutnya (pantai, hutan, sungai, tebing). |
 | `debug_raid` | J | Picu satu raid sekarang tanpa menunggu jadwal malam. |
 | `debug_reload_assets` | QuoteLeft | Muat ulang semua art aset tanpa restart game. |
+| `debug_world_overlay` | O | Overlay debug dunia: warna zona per sel, sel terlarang, sel tak terjangkau, POI/spawn/air + panel hasil validator (default mati). |
 
 ## Debug sandbox (`practice1.tscn`)
 

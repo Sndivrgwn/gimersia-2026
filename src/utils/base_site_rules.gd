@@ -28,14 +28,13 @@ static func evaluate(center: Vector2, config: BaseSiteConfig, locked: bool = fal
 		return {"valid": false, "reason": REASON_LOCKED}
 	var rules := config if config != null else BaseSiteConfig.new()
 
-	if absf(center.x) > IslandZones.HALF_SIZE or absf(center.y) > IslandZones.HALF_SIZE:
+	if not WorldRules.is_walkable(center):
 		return {"valid": false, "reason": REASON_OUTSIDE}
-	var zone := IslandZones.zone_at(center)
+	var zone := WorldRules.zone_at(center)
 	if zone == IslandZones.Zone.OUTSIDE:
 		return {"valid": false, "reason": REASON_OUTSIDE}
 
-	if absf(center.x) > IslandZones.HALF_SIZE - rules.coast_margin \
-		or absf(center.y) > IslandZones.HALF_SIZE - rules.coast_margin:
+	if WorldRules.distance_to_coast(center) < rules.coast_margin:
 		return {"valid": false, "reason": REASON_COAST}
 
 	if zone == IslandZones.Zone.RIVER:
@@ -46,16 +45,7 @@ static func evaluate(center: Vector2, config: BaseSiteConfig, locked: bool = fal
 	return {"valid": true, "reason": ""}
 
 
-## Jarak titik ke persegi panjang strip sungai; 0 bila di dalamnya.
+## Jarak titik ke wilayah sungai dari provider dunia; 0 bila di dalamnya.
+## (FormulaWorld menghitungnya dengan persegi strip yang sama seperti dulu.)
 static func distance_to_river(point: Vector2) -> float:
-	var dx := 0.0
-	if point.x < RIVER_MIN_X:
-		dx = RIVER_MIN_X - point.x
-	elif point.x > RIVER_MAX_X:
-		dx = point.x - RIVER_MAX_X
-	var dy := 0.0
-	if point.y < -RIVER_HALF_Y:
-		dy = -RIVER_HALF_Y - point.y
-	elif point.y > RIVER_HALF_Y:
-		dy = point.y - RIVER_HALF_Y
-	return sqrt(dx * dx + dy * dy)
+	return WorldRules.distance_to_zone(point, IslandZones.Zone.RIVER)

@@ -44,9 +44,11 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `res://tools/generate_player_light.gd` | `GODOT --headless --path . -s tools/generate_player_light.gd` | res://src/data/configs/player_light_config.tres |
 | `res://tools/generate_proficiency_data.gd` | `GODOT --headless --path . -s tools/generate_proficiency_data.gd` | res://src/data/configs/proficiency_config.tres |
 | `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` | res://src/data/recipes/boiled_water.tres, res://src/data/recipes/bone_broth.tres, res://src/data/recipes/bone_spear.tres, res://src/data/recipes/cooked_meat.tres, res://src/data/recipes/herbal_bandage.tres, res://src/data/recipes/leather_vest.tres, res://src/data/recipes/signal_flare.tres, res://src/data/recipes/stone_axe.tres, res://src/data/recipes/stone_pickaxe.tres, res://src/data/recipes/stone_spear.tres, res://src/data/recipes/torch.tres, res://src/data/recipes/waterskin.tres, res://src/data/recipes/wooden_spear.tres |
+| `res://tools/generate_sample_world.gd` | `GODOT --headless --path . -s tools/generate_sample_world.gd` | res://src/data/gathering/bamboo_clump.tres, res://src/data/gathering/berry_bush.tres, res://src/data/gathering/big_rock.tres, res://src/data/gathering/coconut_palm.tres, res://src/data/gathering/fiber_bush.tres, res://src/data/gathering/small_rock.tres, res://src/data/gathering/small_tree.tres, res://src/data/gathering/tree.tres, res://src/data/gathering/twig.tres |
 | `res://tools/generate_station_data.gd` | `GODOT --headless --path . -s tools/generate_station_data.gd` | res://src/data/configs/station_config.tres |
 | `res://tools/generate_structures.gd` | `GODOT --headless --path . -s tools/generate_structures.gd` | res://src/data/camp/campfire.tres, res://src/data/camp/chest.tres, res://src/data/camp/fence_segment.tres, res://src/data/camp/tent.tres, res://src/data/camp/workbench.tres, res://src/data/configs/campfire_config.tres, res://src/data/configs/fence_config.tres |
 | `res://tools/generate_sun_config.gd` | `GODOT --headless --path . -s tools/generate_sun_config.gd` | res://src/data/configs/environment/day_night_visual_default.tres, res://src/data/configs/environment/sun_config.tres |
+| `res://tools/generate_world_config.gd` | `GODOT --headless --path . -s tools/generate_world_config.gd` | res://src/data/configs/world/world_config.tres |
 
 ## src/data/assets
 
@@ -460,11 +462,11 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 ### `res://src/data/configs/island_layout.tres`
 
 - Kelas: `island_layout_config.gd` (`res://src/data/resources/island/island_layout_config.gd`)
-- Tujuan: Titik spawn resource, fauna, dan zona pulau.
-- Dipakai oleh: IslandBuilder, NightSpawner
+- Tujuan: Titik spawn resource, fauna, dan zona pulau FORMULA.
+- Dipakai oleh: IslandBuilder, NightSpawner, FormulaWorld, WorldValidator
 - Pemilik: edit tangan
-- Efek tuning: Isi dan kepadatan pulau.
-- Tes terkait: test_island_builder.gd
+- Efek tuning: Isi dan kepadatan pulau FORMULA (AUTHORED memakai scene sendiri).
+- Tes terkait: test_island.gd, test_world_golden.gd
 
 | Field | Tipe | Nilai |
 | --- | --- | --- |
@@ -1051,6 +1053,35 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_overlap_px` | float | 2.00 |
 
 
+## src/data/configs/world
+
+### `res://src/data/configs/world/world_config.tres`
+
+- Kelas: `world_config.gd` (`res://src/data/resources/world/world_config.gd`)
+- Tujuan: Mode dunia (FORMULA/AUTHORED), path scene AUTHORED, dan angka validasi dunia.
+- Dipakai oleh: WorldController, AuthoredWorld, WorldValidator, WorldDebugOverlay
+- Pemilik: generator
+- Efek tuning: Menentukan pulau mana yang dimuat dan seberapa ketat validator.
+- Tes terkait: test_world_controller_authored.gd, test_world_validator.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `mode` | int | 0 |
+| `authored_scene_path` | String | res://src/levels/worlds/sample_island/world.tscn |
+| `fallback_to_formula` | bool | true |
+| `cell_size` | float | 32.00 |
+| `min_spawn_points` | int | 8 |
+| `min_spawn_distance` | float | 1100.00 |
+| `min_corridor_width` | float | 96.00 |
+| `base_clearance_extra` | float | 50.00 |
+| `reachability_required_ratio` | float | 0.98 |
+| `warn_node_ratio` | float | 0.50 |
+| `polygon_vertex_limit` | int | 2000 |
+| `min_forest_area` | float | 1000000.00 |
+| `overlay_cell_px` | int | 64 |
+
+
 ## src/data/gathering
 
 ### `res://src/data/gathering/bamboo_clump.tres`
@@ -1058,7 +1089,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1083,7 +1114,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1108,7 +1139,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1133,7 +1164,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1158,7 +1189,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1183,7 +1214,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1208,7 +1239,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1233,7 +1264,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1258,7 +1289,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `resource_node_definition.gd` (`res://src/data/resources/gathering/resource_node_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -2322,6 +2353,133 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `craft_time` | float | 2.00 |
 
 
+## src/ui/theme
+
+### `res://src/ui/theme/stitch_frame_material.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `shader` | Resource | (res://src/ui/theme/stitch_frame.gdshader):<S... |
+| `shader_parameter/frame_size` | Vector2 | 520.0 × 300.0 |
+| `shader_parameter/inset` | float | 2.00 |
+| `shader_parameter/corner_radius` | float | 24.00 |
+| `shader_parameter/thickness` | float | 1.60 |
+| `shader_parameter/dash_length` | float | 4.00 |
+| `shader_parameter/gap_length` | float | 3.00 |
+| `shader_parameter/stitch_color` | lain | (0.7412, 0.698, 0.6471, 1.0) |
+
+### `res://src/ui/theme/ui_theme.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `default_base_scale` | float | 0.00 |
+| `default_font` | Resource | (res://assets/fonts/nunito/nunito_variable.tt... |
+| `default_font_size` | int | 20 |
+| `BackButton/base_type` | StringName | Button |
+| `BackButton/colors/font_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `BackButton/colors/font_disabled_color` | lain | (0.2431, 0.1529, 0.102, 0.45) |
+| `BackButton/colors/font_focus_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `BackButton/colors/font_hover_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `BackButton/colors/font_hover_pressed_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `BackButton/colors/font_pressed_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `BackButton/font_sizes/font_size` | int | 20 |
+| `BackButton/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+| `BackButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme.tres::sb_back_di... |
+| `BackButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme.tres::sb_back_ho... |
+| `BackButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme.tres::sb_back_ho... |
+| `BackButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme.tres::sb_back_no... |
+| `BackButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme.tres::sb_back_pr... |
+| `BodyLabel/base_type` | StringName | Label |
+| `BodyLabel/colors/font_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `BodyLabel/constants/line_spacing` | int | 7 |
+| `BodyLabel/font_sizes/font_size` | int | 18 |
+| `BodyLabel/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+| `Button/colors/font_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `Button/colors/font_disabled_color` | lain | (0.2431, 0.1529, 0.102, 0.45) |
+| `Button/colors/font_focus_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `Button/colors/font_hover_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `Button/colors/font_hover_pressed_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `Button/colors/font_pressed_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `Button/font_sizes/font_size` | int | 26 |
+| `Button/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+| `Button/styles/disabled` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
+| `Button/styles/focus` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
+| `Button/styles/hover` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
+| `Button/styles/normal` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
+| `Button/styles/pressed` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
+| `CardTitleLabel/base_type` | StringName | Label |
+| `CardTitleLabel/colors/font_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `CardTitleLabel/font_sizes/font_size` | int | 28 |
+| `CardTitleLabel/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+| `EyebrowLabel/base_type` | StringName | Label |
+| `EyebrowLabel/colors/font_color` | lain | (0.9686, 0.9451, 0.898, 0.82) |
+| `EyebrowLabel/font_sizes/font_size` | int | 14 |
+| `EyebrowLabel/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+| `HeroTitle/base_type` | StringName | Label |
+| `HeroTitle/colors/font_color` | lain | (0.9765, 0.9569, 0.9137, 1.0) |
+| `HeroTitle/colors/font_outline_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `HeroTitle/colors/font_shadow_color` | lain | (0.1176, 0.0745, 0.0471, 0.35) |
+| `HeroTitle/constants/outline_size` | int | 9 |
+| `HeroTitle/constants/shadow_offset_x` | int | 0 |
+| `HeroTitle/constants/shadow_offset_y` | int | 7 |
+| `HeroTitle/constants/shadow_outline_size` | int | 9 |
+| `HeroTitle/font_sizes/font_size` | int | 88 |
+| `HeroTitle/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+| `Label/colors/font_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `Label/font_sizes/font_size` | int | 20 |
+| `Label/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+| `PanelCard/base_type` | StringName | PanelContainer |
+| `PanelCard/styles/panel` | Resource | (res://src/ui/theme/ui_theme.tres::sb_panel):... |
+| `PrimaryButton/base_type` | StringName | Button |
+| `PrimaryButton/colors/font_color` | lain | (0.9686, 0.9451, 0.898, 1.0) |
+| `PrimaryButton/colors/font_disabled_color` | lain | (0.9686, 0.9451, 0.898, 0.5) |
+| `PrimaryButton/colors/font_focus_color` | lain | (0.9686, 0.9451, 0.898, 1.0) |
+| `PrimaryButton/colors/font_hover_color` | lain | (0.9686, 0.9451, 0.898, 1.0) |
+| `PrimaryButton/colors/font_hover_pressed_color` | lain | (0.9686, 0.9451, 0.898, 1.0) |
+| `PrimaryButton/colors/font_pressed_color` | lain | (0.9686, 0.9451, 0.898, 1.0) |
+| `PrimaryButton/font_sizes/font_size` | int | 26 |
+| `PrimaryButton/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+| `PrimaryButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme.tres::sb_primary... |
+| `PrimaryButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme.tres::sb_primary... |
+| `PrimaryButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme.tres::sb_primary... |
+| `PrimaryButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme.tres::sb_primary... |
+| `PrimaryButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme.tres::sb_primary... |
+| `SecondaryButton/base_type` | StringName | Button |
+| `SecondaryButton/colors/font_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `SecondaryButton/colors/font_disabled_color` | lain | (0.2431, 0.1529, 0.102, 0.45) |
+| `SecondaryButton/colors/font_focus_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `SecondaryButton/colors/font_hover_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `SecondaryButton/colors/font_hover_pressed_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `SecondaryButton/colors/font_pressed_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `SecondaryButton/font_sizes/font_size` | int | 26 |
+| `SecondaryButton/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+| `SecondaryButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
+| `SecondaryButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
+| `SecondaryButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
+| `SecondaryButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
+| `SecondaryButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
+| `VersionLabel/base_type` | StringName | Label |
+| `VersionLabel/colors/font_color` | lain | (0.9686, 0.9451, 0.898, 0.5) |
+| `VersionLabel/font_sizes/font_size` | int | 13 |
+| `VersionLabel/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+
+
 ## Resource tanpa `.tres` (nilai default di script)
 
 Kelas berikut hanya punya default di kode; ubah lewat kode atau dengan membuat `.tres` baru.
@@ -2352,8 +2510,10 @@ Kelas berikut hanya punya default di kode; ubah lewat kode atau dengan membuat `
 | `res://tools/generate_player_light.gd` | `GODOT --headless --path . -s tools/generate_player_light.gd` |
 | `res://tools/generate_proficiency_data.gd` | `GODOT --headless --path . -s tools/generate_proficiency_data.gd` |
 | `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` |
+| `res://tools/generate_sample_world.gd` | `GODOT --headless --path . -s tools/generate_sample_world.gd` |
 | `res://tools/generate_station_data.gd` | `GODOT --headless --path . -s tools/generate_station_data.gd` |
 | `res://tools/generate_structures.gd` | `GODOT --headless --path . -s tools/generate_structures.gd` |
 | `res://tools/generate_sun_config.gd` | `GODOT --headless --path . -s tools/generate_sun_config.gd` |
+| `res://tools/generate_world_config.gd` | `GODOT --headless --path . -s tools/generate_world_config.gd` |
 
 <!-- END GENERATED -->

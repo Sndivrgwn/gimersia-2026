@@ -115,6 +115,10 @@ Dokumen ini untuk tim kreatif: cara mengganti tampilan game tanpa menyentuh kode
 - Ground harus seamless: teksturnya diulang tiap ukuran tile di daftar slot.
 - Tidak ada file biner yang masuk repo sampai owner meng-commit-nya; agen tidak
   pernah menambahkan gambar.
+- Tileset dunia AUTHORED (mode pulau buatan) **tidak memakai slot aset**: simpan
+  di `assets/world/tilesets/` dan lihat
+  [`WORLD_BUILDING_GUIDE.md`](WORLD_BUILDING_GUIDE.md) bagian 10. Slot di bawah
+  hanya untuk pulau FORMULA dan prop yang dipasang kode.
 
 ## Aturan ikon item
 
@@ -697,10 +701,16 @@ func _tres_meta() -> Dictionary:
 			"tests": "test_interactor_component.gd",
 		},
 		"res://src/data/configs/island_layout.tres": {
-			"purpose": "Titik spawn resource, fauna, dan zona pulau.",
-			"used_by": "IslandBuilder, NightSpawner",
-			"effect": "Isi dan kepadatan pulau.",
-			"tests": "test_island_builder.gd",
+			"purpose": "Titik spawn resource, fauna, dan zona pulau FORMULA.",
+			"used_by": "IslandBuilder, NightSpawner, FormulaWorld, WorldValidator",
+			"effect": "Isi dan kepadatan pulau FORMULA (AUTHORED memakai scene sendiri).",
+			"tests": "test_island.gd, test_world_golden.gd",
+		},
+		"res://src/data/configs/world/world_config.tres": {
+			"purpose": "Mode dunia (FORMULA/AUTHORED), path scene AUTHORED, dan angka validasi dunia.",
+			"used_by": "WorldController, AuthoredWorld, WorldValidator, WorldDebugOverlay",
+			"effect": "Menentukan pulau mana yang dimuat dan seberapa ketat validator.",
+			"tests": "test_world_controller_authored.gd, test_world_validator.gd",
 		},
 		"res://src/data/configs/proficiency_config.tres": {
 			"purpose": "Ambang level proficiency dan debuff kematian.",

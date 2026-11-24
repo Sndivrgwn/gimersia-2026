@@ -1,4 +1,4 @@
-[gd_scene load_steps=67 format=3]
+[gd_scene load_steps=69 format=3]
 
 [ext_resource type="Script" path="res://src/levels/island/island.gd" id="1_island"]
 [ext_resource type="PackedScene" path="res://src/entities/player/player.tscn" id="2_player"]
@@ -58,6 +58,8 @@
 [ext_resource type="Script" path="res://src/core/assets/asset_debug.gd" id="56_assetdebug"]
 [ext_resource type="Script" path="res://src/components/interaction/river_drink_zone.gd" id="57_riverdrink"]
 [ext_resource type="Script" path="res://src/levels/components/environment/ambient_life.gd" id="60_ambient"]
+[ext_resource type="Script" path="res://src/levels/world/world_controller.gd" id="61_world"]
+[ext_resource type="Script" path="res://src/levels/world/world_debug_overlay.gd" id="62_worlddebug"]
 [ext_resource type="Script" path="res://src/components/camera/camera_feel.gd" id="61_camerafeel"]
 [ext_resource type="Script" path="res://src/ui/fx/low_hp_vignette.gd" id="62_lowhp"]
 [ext_resource type="Script" path="res://src/ui/hud/hints/opening_sequence.gd" id="63_opening"]
@@ -101,7 +103,7 @@ duration = 0.5
 [node name="Island" type="Node2D"]
 script = ExtResource("1_island")
 
-[node name="Ground" type="Node2D" parent="."]
+[node name="Ground" type="Node2D" parent="." groups=["formula_world"]]
 
 [node name="Forest" type="Polygon2D" parent="Ground"]
 color = Color(0.22, 0.32, 0.2, 1)
@@ -127,7 +129,7 @@ polygon = PackedVector2Array(-1050, -1400, -850, -1400, -850, 1400, -1050, 1400)
 color = Color(0.35, 0.4, 0.25, 1)
 polygon = PackedVector2Array(800, 0, 739, 306, 566, 566, 306, 739, 0, 800, -306, 739, -566, 566, -739, 306, -800, 0, -739, -306, -566, -566, -306, -739, 0, -800, 306, -739, 566, -566, 739, -306)
 
-[node name="Coastline" type="StaticBody2D" parent="."]
+[node name="Coastline" type="StaticBody2D" parent="." groups=["formula_world"]]
 
 [node name="NorthWall" type="CollisionShape2D" parent="Coastline"]
 position = Vector2(0, -2450)
@@ -177,7 +179,7 @@ theme_override_font_sizes/font_size = 11
 text = "Signal Beacon"
 horizontal_alignment = 1
 
-[node name="RiverEdges" type="Node2D" parent="."]
+[node name="RiverEdges" type="Node2D" parent="." groups=["formula_world"]]
 
 [node name="RiverEdge1" parent="RiverEdges" instance=ExtResource("8_riveredge")]
 position = Vector2(-950, -1400)
@@ -264,6 +266,12 @@ follow_mode = 2
 follow_target = NodePath("../../../Player")
 zoom = Vector2(3, 3)
 tween_resource = SubResource("Resource_tween")
+
+[node name="WorldController" type="Node" parent="."]
+script = ExtResource("61_world")
+
+[node name="WorldDebugOverlay" type="Node2D" parent="."]
+script = ExtResource("62_worlddebug")
 
 [node name="IslandBuilder" type="Node2D" parent="."]
 script = ExtResource("5_builder")

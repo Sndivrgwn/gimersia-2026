@@ -18,7 +18,14 @@ const RIVER_MAX_X := -850.0
 const BEACON_POSITION := Vector2(0.0, 2100.0)
 
 
+## Zona dunia aktif (WorldRules). Signature lama dipertahankan.
 static func zone_at(position: Vector2) -> Zone:
+	var zone: int = WorldRules.zone_at(position)
+	return zone
+
+
+## Matematika zona lama; satu-satunya isi FormulaWorld.zone_at.
+static func _formula_zone_at(position: Vector2) -> Zone:
 	if absf(position.x) > HALF_SIZE or absf(position.y) > HALF_SIZE:
 		return Zone.OUTSIDE
 	if position.length() <= CAMP_RADIUS:

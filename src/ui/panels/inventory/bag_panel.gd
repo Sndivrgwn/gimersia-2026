@@ -17,17 +17,12 @@ const INVENTORY_NAME := "InventoryComponent"
 const CRAFTING_NAME := "CraftingComponent"
 const CRAFTING_TAB_PATH := "Root/Frame/Margin/VBox/Tabs/Crafting"
 const VBOX_PATH := "Root/Frame/Margin/VBox"
-<<<<<<< Updated upstream
 ## Kolom Peralatan sudah 210 px; alat tas ditaruh di sana supaya grid 6 kolom
 ## tidak melebar keluar frame.
 const BAG_TOOLS_PATH := "Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"
 const BAG_HINT := "Klik kanan: pakai\nShift+klik: pecah"
-## Ditampilkan di bawah judul: pemain perlu tahu Profisiensi ada di tab ketiga.
-const TABS_HINT := "Tab / I: buka-tutup · tab panel: Tas · Crafting · Profisiensi · Esc: tutup"
-=======
 ## Petunjuk singkat tab panel di bawah judul.
 const TABS_HINT := "Tab / I: buka-tutup · tab panel: Tas · Crafting · Esc: tutup"
->>>>>>> Stashed changes
 const TOGGLE_ACTION := &"inventory_toggle"
 ## Esc hanya menutup panel; tidak membukanya.
 const CLOSE_ACTION := &"ui_cancel"

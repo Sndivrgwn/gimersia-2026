@@ -9,7 +9,6 @@ extends PanelContainer
 ## Baris terkunci (stasiun belum ada / api dingin) tetap tampil, dengan alasan
 ## di bawah tombol.
 
-<<<<<<< Updated upstream
 const MISSING_COLOR := Color(1.0, 0.5, 0.45, 1.0)
 const NORMAL_COLOR := Color(0.88, 0.93, 0.88, 1.0)
 const LOCKED_ALPHA := 0.45
@@ -20,9 +19,7 @@ const READY_BORDER := Color(0.45, 0.85, 0.5, 0.8)
 const IDLE_BG := Color(0.1, 0.12, 0.14, 0.55)
 const IDLE_BORDER := Color(0.35, 0.4, 0.35, 0.25)
 const DEFAULT_BATCH_MAX := 5
-=======
 const CARD_TEXTURE := "res://assets/textures/ui/inventory/inventory_slot.png"
-const LOCKED_ALPHA := 0.82
 
 const TITLE_COLOR := Color(0.22, 0.14, 0.09, 1.0)
 const DESC_COLOR := Color(0.43, 0.34, 0.25, 1.0)
@@ -45,7 +42,6 @@ const BUTTON_BORDER := Color(0.2, 0.12, 0.08, 1.0)
 const BUTTON_DISABLED_BORDER := Color(0.45, 0.37, 0.29, 1.0)
 const BUTTON_TEXT := Color(0.97, 0.93, 0.86, 1.0)
 const BUTTON_DISABLED_TEXT := Color(0.48, 0.4, 0.33, 1.0)
->>>>>>> Stashed changes
 
 var recipe: RecipeDefinition
 var crafting: CraftingComponent

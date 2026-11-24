@@ -147,8 +147,26 @@ Empty placeholder folders such as `src/entities/enemies`, `src/entities/props`, 
 | **PhysicsTraceRecorder** | `src/core/debug/physics_trace_recorder.gd` | Rekaman jejak fisika 6 dtk untuk diagnosa seret (Mission 11) | `start_recording()`, `stop_recording() -> String`, `is_recording()`, `get_rows()`, static `build_csv(rows)` | Implemented; `test_physics_trace_recorder.gd` |
 | **Assets / ResolvedVisual (SpriteFrames)** | `src/core/assets/assets.gd`, `resolved_visual.gd`, `src/components/visual/visual_slot.gd` | Aset berbasis `SpriteFrames` `.tres` di atas PNG (Mission 12) | `spriteframes_path()`, `sprite_frames_at()`, `pick_animation()`, `audit_sprite_frames()`, `animation_name()`; `ResolvedVisual.animation`, `from_spriteframes`, `is_sprite_frames()` | Implemented; `test_assets_spriteframes.gd` |
 | **SunSweep / SunSweepOverlay / SunConfig / SunArc** | `src/core/environment/sun_sweep.gd`, `src/levels/components/environment/sun_sweep_overlay.gd`, `src/data/resources/environment/sun_config.gd`, `src/ui/hud/time/sun_arc.gd` | Sapuan fajar/senja + arc matahari HUD (Mission 13) | `SunSweep.mask()`, `rim()`, `ratio()`, `plan()`; `SunSweepOverlay.apply(progress, side, softness, warm, ratio)`, `clear()`; `SunConfig.dusk_side()`, `side_for()`, `sweep_seconds_for()`; `SunArc.arc_position()`, `set_phase()` | Implemented; `test_sun_sweep.gd` |
+| **WorldSource / WorldRules** | `src/levels/world/world_source.gd`, `world_rules.gd` | Kontrak sumber dunia + fasad statis untuk gameplay | `id()`, `zone_at()`, `is_walkable()`, `is_buildable()`, `bounds()`, `distance_to_coast/zone()`, `poi()`, `night_spawn_points()`, `water_access_points()`, `zone_center()`, `has_resource_plan()`, `resource_plan()`; `WorldRules.get_source/set_source/reset` | Implemented; `test_world_rules.gd` 14 tes, golden 5 tes |
+| **FormulaWorld / WorldConfig** | `src/levels/world/formula_world.gd`, `src/data/resources/world/world_config.gd`, `src/data/configs/world/world_config.tres` | Sumber FORMULA (pulau lama) dan konfigurasi mode/validasi | `WorldConfig`: `mode`, `authored_scene_path`, `fallback_to_formula`, `cell_size`, `min_spawn_points`, `min_spawn_distance`, `min_corridor_width`, `base_clearance_extra`, `reachability_required_ratio`, `warn_node_ratio`, `polygon_vertex_limit`, `min_forest_area`, `overlay_cell_px` | Implemented; angka FORMULA dijaga `test_world_golden.gd` |
+| **WorldController** | `src/levels/world/world_controller.gd` | Memuat FORMULA atau AUTHORED, spawn POI/air/malam, fallback | `apply_config()`, `get_source_id()`, `get_authored_root()` | Implemented; `test_world_controller_authored.gd` 8 tes |
+| **AuthoredWorld / ZoneArea / ResourceArea / ResourceSpawnEntry** | `src/levels/world/authored_world.gd`, `zone_area.gd`, `resource_area.gd`, `src/data/resources/world/resource_spawn_entry.gd` | Kontrak scene dunia (`@tool`) dan data zona/resource | `AuthoredWorld`: `make_source()`, `build_collision()`, `configuration_warnings()`, `zone_areas()`, `resource_areas()`, `outline_points()`, `marker_position()`, `last_validation_summary`, tombol `validate_world`. `ZoneArea`: `zone`, `priority`, `walkable`, `build_rule`, `is_island_outline`, `global_polygon()` | Implemented; 12 + 3 tes |
+| **ZoneGrid / AuthoredWorldSource** | `src/levels/world/zone_grid.gd`, `authored_world_source.gd` | Rasterisasi polygon dan sumber AUTHORED | `ZoneGrid.cell_index()`, `walkable_mask()`, `build_mask()`; `AuthoredWorldSource`: `grid`, `polygons_by_zone`, `is_inside_blocked()`, `get_shortfalls()`, `resource_plan()` | Implemented; 8 tes `test_world_zone_grid.gd` |
+| **WorldValidator / WorldDebugOverlay** | `src/levels/world/world_validator.gd`, `world_debug_overlay.gd`, `tools/validate_world.gd` | Validasi W001-W017, CLI, overlay sel | `WorldValidator`: `CODES`, `validate()`, `static_checks()`, `format_report()`, `validate_scene()`, `flood_fill()`, `erode()`; overlay: `set_enabled()`, `toggle()`, `get_counts()`, `get_panel_text()` (action `debug_world_overlay` = O) | Implemented; `test_world_validator.gd` 25 tes |
+| **WorldGuideGenerator** | `src/core/docs/world_guide_generator.gd`, `docs/editable/WORLD_BUILDING_GUIDE.md` | Panduan membangun dunia yang digenerate dari data hidup | `build_guide()`, `write_file()` | Implemented; `test_world_guide_sync.gd` 6 tes |
 
 ## 4. Dependency Direction
+
+**Lapisan dunia (Mission 13) ada DI BAWAH konsumen gameplay.**
+`WorldSource`/`WorldRules` tidak mengimpor komponen pemain, HUD, atau fauna.
+Konsumen (IslandZones, BaseSiteRules, IslandBuilder, GatherDebug, CampAnchor,
+WadingComponent, RiverDrinkZone, EndgameController) hanya memanggil
+`WorldRules`; `WorldController` adalah satu-satunya yang membuat sumber dan
+memasangnya. `AuthoredWorld`/`ZoneArea`/`ResourceArea` adalah `@tool` murni
+scene (tanpa autoload, tanpa `IslandZones`), `AuthoredWorldSource`/`ZoneGrid`
+murni data, `WorldValidator` murni statis (tanpa scene), dan
+`WorldDebugOverlay` hanya membaca. `FormulaWorld` adalah satu-satunya jembatan
+ke `IslandZones`; jangan menambah pemanggil `IslandZones` baru.
 
 New in Missions 11-13: `FaunaBase` hanya membaca `InteractorComponent`/pemain lewat grup
 (tidak ada import pemain); `PhysicsTraceRecorder` adalah leaf yang membaca

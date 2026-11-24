@@ -65,6 +65,10 @@ Dokumen ini untuk tim kreatif: cara mengganti tampilan game tanpa menyentuh kode
 - Ground harus seamless: teksturnya diulang tiap ukuran tile di daftar slot.
 - Tidak ada file biner yang masuk repo sampai owner meng-commit-nya; agen tidak
   pernah menambahkan gambar.
+- Tileset dunia AUTHORED (mode pulau buatan) **tidak memakai slot aset**: simpan
+  di `assets/world/tilesets/` dan lihat
+  [`WORLD_BUILDING_GUIDE.md`](WORLD_BUILDING_GUIDE.md) bagian 10. Slot di bawah
+  hanya untuk pulau FORMULA dan prop yang dipasang kode.
 
 ## Aturan ikon item
 

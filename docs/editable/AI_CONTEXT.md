@@ -54,6 +54,7 @@ in `docs/editable/` is maintained by the project.
 | One test file | `... -Test res://tests/unit/<file>.gd` | dipakai saat memperbaiki satu kegagalan |
 | Integration tests | `... -Dir res://tests/integration` | **15/15 passing** (10 file: S1-S5 + 7-day soak + perf) |
 | Slow-only tests | `... -Slow` (sets `GIMERSIA_SLOW=1`) | helper `tests/helpers/slow_guard.gd` tersedia; saat ini belum ada file tes yang memakainya |
+| Lapisan dunia (Mission 13) | `... -Test res://tests/unit/<file>.gd` per berkas | **132/132** di 12 berkas: `test_world_validator` 25, `test_world_guide_sync` 6, `test_docs_in_sync` 16, `test_authored_world` 12, `test_world_zone_grid` 8, `test_world_controller_authored` 8, `test_island_authored` 3, `test_world_golden` 5, `test_world_rules` 14, `test_island` 17, `test_camp_anchor` 13, `test_fase4_base_build` 5. Full suite tidak bisa dijalankan penuh (timeout 120 s per perintah) |
 | Verified on | — | 24 Nov 2026 (Mission 11-13) |
 | Main scene boot | `--quit-after 120 res://src/levels/island/island.tscn` | exit 0, **no ERROR/WARNING** (island = `run/main_scene`) |
 | Legacy practice boot | — | `scenes/practice/practice1.tscn` tidak dipakai lagi sejak Mission 11 (tidak dijalankan) |
@@ -155,6 +156,15 @@ Known bugs still present:
 | `Assets` (SpriteFrames) / `ResolvedVisual` | `src/core/assets/assets.gd`, `resolved_visual.gd` | Mission 12: `spriteframes_path()`, `sprite_frames_at()` (cache; resource dibagi), `pick_animation()` (rantai fallback sama dengan PNG), `audit_sprite_frames()`; `ResolvedVisual.animation`/`from_spriteframes`; `.tres` menang atas PNG dan fps/loop ikut resource | Implemented; `test_assets_spriteframes.gd`, `test_assets_core.gd`, `test_visual_slot.gd` |
 | `ClockFormatConfig` / `GameClockFormat` (jam dunia nyata) | `src/data/resources/environment/clock_format_config.gd`, `src/core/clock/game_clock_format.gd`, `src/data/configs/environment/clock_format.tres` | Mission 12: presentasi jam tanpa mengubah siklus. Fase DAY = `day_start_hour`->`night_start_hour` (06:00->18:00), NIGHT = 18:00->06:00; kecepatan jam ikut panjang fase. Murni: `hour_of()`, `text()`, `period_of()`, `hours_between()`, `seconds_until_hour()`, `next_period_start_hour()`, `sleep_toast_text()`. Manager: `get_clock_hour()/get_clock_text()/get_clock_period()/get_clock_format()` + sinyal `hour_changed(hour)` | Implemented; `test_game_clock_format.gd` |
 | `SunSweep` / `SunSweepOverlay` / `SunConfig` / `SunArc` | `src/core/environment/sun_sweep.gd`, `src/levels/components/environment/sun_sweep_overlay.gd`, `src/data/resources/environment/sun_config.gd`, `src/ui/hud/time/sun_arc.gd` | Mission 13: `mask()`/`rim()`/`ratio()`/`plan()` murni; overlay CanvasLayer 2 `blend_mul` dengan mask 128x1; `SunConfig` (arah, detik, softness, warm rim, arc); `SunArc` read-only di TimeHUD | Implemented; `test_sun_sweep.gd`, `test_environment_light.gd` |
+| `WorldSource` / `WorldRules` | `src/levels/world/world_source.gd`, `world_rules.gd` | Mission 13. Satu kontrak sumber dunia (`id`, `zone_at`, `is_walkable`, `is_buildable`, `bounds`, `distance_to_coast/zone`, `poi`, `night_spawn_points`, `water_access_points`, `zone_center`, `has_resource_plan`, `resource_plan`) + fasad statis yang dipakai gameplay/AI/UI. `get_source()`, `set_source()`, `reset()`. Semua kode lama (IslandZones, BaseSiteRules, IslandBuilder, GatherDebug, CampAnchor) lewat fasad ini | Implemented; 14 tes `test_world_rules.gd` + 5 tes golden |
+| `FormulaWorld` | `src/levels/world/formula_world.gd` | Sumber dunia FORMULA: memakai `IslandZones` + `IslandLayoutConfig` apa adanya, angka POI/zona sama persis dengan sebelum refactor | Implemented; `test_world_golden.gd` 5 tes/438 assert |
+| `WorldConfig` | `src/data/resources/world/world_config.gd`, `src/data/configs/world/world_config.tres` | `mode` (FORMULA/AUTHORED), `authored_scene_path`, `fallback_to_formula`, `cell_size`, `min_spawn_points`, `min_spawn_distance`, `min_corridor_width`, `base_clearance_extra`, `reachability_required_ratio`, `warn_node_ratio`, `polygon_vertex_limit`, `min_forest_area`, `overlay_cell_px` | Implemented; dibaca controller, validator, overlay |
+| `WorldController` | `src/levels/world/world_controller.gd` | Memuat sumber sesuai `WorldConfig.mode`, spawn POI/air/malam, collision AUTHORED, fallback ke FORMULA bila scene gagal dimuat (`_authored_failed`). `apply_config()`, `get_source_id()`, `get_authored_root()` | Implemented; 8 tes `test_world_controller_authored.gd` |
+| `AuthoredWorld` / `ZoneArea` / `ResourceArea` / `ResourceSpawnEntry` | `src/levels/world/authored_world.gd`, `zone_area.gd`, `resource_area.gd`, `src/data/resources/world/resource_spawn_entry.gd` | Kontrak scene AUTHORED (`@tool`, tanpa autoload): anak Visual/Zones/Markers/Resources/Decor, marker wajib, tombol **Validasi dunia**, `last_validation_summary`, `make_source()`, `build_collision()`, `configuration_warnings()` | Implemented; 12 tes `test_authored_world.gd` + 3 tes integrasi |
+| `ZoneGrid` / `AuthoredWorldSource` | `src/levels/world/zone_grid.gd`, `authored_world_source.gd` | Rasterisasi polygon ke grid sel (prioritas, walkable, buildable, blocked) dan sumber AUTHORED: lookup zona, reachability grid, `resource_plan`, `get_shortfalls()` | Implemented; 8 tes `test_world_zone_grid.gd` |
+| `WorldValidator` | `src/levels/world/world_validator.gd`, `tools/validate_world.gd` | Validator murni statis: `CODES` W001-W017 (severity, pesan, fix Indonesia), `validate()`, `static_checks()`, `format_report()`, `validate_scene(path, cfg)`, `flood_fill()`, `erode()`. CLI exit 0/1 | Implemented; 25 tes `test_world_validator.gd` |
+| `WorldDebugOverlay` | `src/levels/world/world_debug_overlay.gd` | Overlay sel (warna zona, blocked, tak terjangkau), POI/spawn/air berlabel, panel hitungan ERROR/WARN + 8 pesan. Action `debug_world_overlay` = **O**, default OFF, jalan di FORMULA dan AUTHORED; validasi dihitung sekali per sumber (bukan tiap 0.25 s) | Implemented; 2 tes + boot island |
+| `WorldGuideGenerator` | `src/core/docs/world_guide_generator.gd`, `docs/editable/WORLD_BUILDING_GUIDE.md` | Panduan membangun dunia untuk PM: 16 bagian, tabel GENERATED dari WorldConfig/IslandLayoutConfig/AuthoredWorld/ZoneArea/ResourceNodeDefinition/WorldValidator.CODES | Implemented; `test_world_guide_sync.gd` 6 tes |
 
 ### What does NOT exist yet
 
@@ -775,6 +785,10 @@ memblokir sprint. Rincian angka: `CONFIG_GUIDE` dan laporan misi.
 - Mission 13: sapuan fajar dari `dawn_side`, senja dari sisi seberang;
   CanvasModulate memakai endpoint lebih terang + overlay multiply pada bagian
   yang belum dilewati; `sweep_enabled=false` tetap fade seragam lama.
+- Mission 13 (dunia): dua mode dunia disetujui owner — FORMULA (default, pulau
+  lama tidak berubah) dan AUTHORED (scene `world.tscn`). Zona AUTHORED berupa
+  polygon `ZoneArea` dengan prioritas, bukan rumus `IslandZones`; angka FORMULA
+  tetap Jadi default `WorldConfig.mode`. Fallback ke FORMULA = true.
 
 ## 9. Commands & upkeep
 
@@ -959,7 +973,9 @@ Label misi dipakai bebas di dokumen lain; tabel ini peta label -> fitur.
 | Mission 10 lanjutan (architecture) | architecture | Perbaikan atmosfer/transisi yang sama, ditambah pembersihan warning editor |
 | Mission 11 | §8 item 8 | Anti-seret fauna (contact-stop) + `PhysicsTraceRecorder` (K) |
 | Mission 12 | §4, ASSET_GUIDE | SpriteFrames-first: `.tres` per slot, rantai fallback animasi, `check_assets` validasi, panduan |
-| Mission 13 | §4, CONFIG_GUIDE | Sapuan fajar/senja (`SunConfig`/`SunSweep`/`SunSweepOverlay`) + `SunArc` di TimeHUD |
+| Mission 13 (matahari) | §4, CONFIG_GUIDE | Sapuan fajar/senja (`SunConfig`/`SunSweep`/`SunSweepOverlay`) + `SunArc` di TimeHUD |
+| Mission 12 (jam) | §4, MVP §32 | Jam dunia nyata: `GameClockFormat`, `hour_changed`, HUD/tombstone/victory berjam |
+| Mission 13 (dunia) | §4, WORLD_BUILDING_GUIDE | Dua mode dunia (FORMULA/AUTHORED), `WorldRules`/`WorldSource`, validator W001-W017, overlay O, panduan membangun dunia |
 
 ## 14. Masih terbuka
 

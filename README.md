@@ -49,6 +49,7 @@ gimersia-2026/
 
 - [Asset & SpriteFrames guide](docs/editable/ASSET_GUIDE.md) — cara menaruh art (slot, nama file, fallback, `.tres`).
 - [Config guide](docs/editable/CONFIG_GUIDE.md) — semua Resource `.tres` dan efek tuning-nya.
+- [World building guide](docs/editable/WORLD_BUILDING_GUIDE.md) — dua mode dunia (FORMULA/AUTHORED), 12 langkah membuat pulau, validator W001-W017, overlay O.
 - [Audio guide](docs/editable/AUDIO_GUIDE.md) — daftar cue audio, spesifikasi file, bus, dan hook (belum ada playback).
 - `docs/editable/PANDUAN_MODUL.md` — wiring modul, Input Map, sistem aset.
 - `docs/editable/PANDUAN_INPUT.md` — arti setiap tombol (Tab, I, P, F1-F12, J, Esc, ...), dibuat dari Input Map yang hidup.

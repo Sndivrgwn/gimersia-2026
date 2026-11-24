@@ -52,6 +52,8 @@ const BASE_ROTATE := &"base_rotate"
 const DEBUG_DRAG_TRACE := &"debug_drag_trace"
 ## Mission 12: lompat ke awal periode jam berikutnya (Pagi/Siang/Sore/Malam).
 const DEBUG_ISLAND_PERIOD := &"debug_island_period"
+## Mission 13 (blok H): overlay debug dunia (island only). O belum dipakai.
+const DEBUG_WORLD_OVERLAY := &"debug_world_overlay"
 
 ## Mission 10 Phase 3: hotbar memilih item; use_held memakainya.
 const HOTBAR_NEXT := &"hotbar_next"
@@ -172,6 +174,8 @@ static func ensure_actions() -> void:
 	_ensure_key(DEBUG_DRAG_TRACE, KEY_K)
 	_ensure_action(DEBUG_ISLAND_PERIOD)
 	_ensure_key(DEBUG_ISLAND_PERIOD, KEY_Y)
+	_ensure_action(DEBUG_WORLD_OVERLAY)
+	_ensure_key(DEBUG_WORLD_OVERLAY, KEY_O)
 
 	_ensure_action(ATTACK_SPACE)
 	_ensure_key(ATTACK_SPACE, KEY_SPACE)

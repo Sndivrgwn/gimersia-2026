@@ -1,0 +1,142 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/levels/world/authored_world.gd" id="1_pgxxl"]
+[ext_resource type="Script" path="res://src/levels/world/zone_area.gd" id="2_oj1v4"]
+[ext_resource type="Script" path="res://src/levels/world/resource_area.gd" id="3_11unf"]
+[ext_resource type="Script" path="res://src/data/resources/world/resource_spawn_entry.gd" id="4_x18gm"]
+[ext_resource type="Resource" path="res://src/data/gathering/twig.tres" id="5_8gyaj"]
+[ext_resource type="Resource" path="res://src/data/gathering/small_rock.tres" id="6_4i052"]
+[ext_resource type="Resource" path="res://src/data/gathering/fiber_bush.tres" id="7_3x7wj"]
+[ext_resource type="Resource" path="res://src/data/gathering/berry_bush.tres" id="8_d3ijg"]
+[ext_resource type="Resource" path="res://src/data/gathering/bamboo_clump.tres" id="9_u11w3"]
+
+[sub_resource type="Resource" id="Resource_pjdrh"]
+script = ExtResource("4_x18gm")
+definition = ExtResource("5_8gyaj")
+count = 4
+
+[sub_resource type="Resource" id="Resource_qjv7x"]
+script = ExtResource("4_x18gm")
+definition = ExtResource("6_4i052")
+count = 3
+
+[sub_resource type="Resource" id="Resource_cv5c2"]
+script = ExtResource("4_x18gm")
+definition = ExtResource("7_3x7wj")
+count = 2
+
+[sub_resource type="Resource" id="Resource_i8hui"]
+script = ExtResource("4_x18gm")
+definition = ExtResource("8_d3ijg")
+count = 2
+
+[sub_resource type="Resource" id="Resource_p0diu"]
+script = ExtResource("4_x18gm")
+definition = ExtResource("9_u11w3")
+count = 2
+
+[node name="Template" type="Node2D" unique_id=1519703050]
+editor_description = "Akar dunia AUTHORED. Anak wajib: Visual, Zones, Markers, Resources, Decor."
+script = ExtResource("1_pgxxl")
+world_name = "template"
+
+[node name="Visual" type="Node2D" parent="." unique_id=1717345881]
+editor_description = "Tempat art dunia (Polygon2D/Sprite2D). Boleh kosong."
+
+[node name="Zones" type="Node2D" parent="." unique_id=140885195]
+
+[node name="IslandOutline" type="Polygon2D" parent="Zones" unique_id=1285241974]
+editor_description = "Tepi pulau template 1600 x 1600. Ganti polygon ini untuk dunia baru."
+color = Color(0.22, 0.32, 0.2, 0.15)
+polygon = PackedVector2Array(-800, -800, 800, -800, 800, 800, -800, 800)
+script = ExtResource("2_oj1v4")
+priority = -100
+is_island_outline = true
+
+[node name="Forest" type="Polygon2D" parent="Zones" unique_id=792484720]
+editor_description = "Dasar hutan: seluruh pulau."
+color = Color(0.22, 0.32, 0.2, 0.35)
+polygon = PackedVector2Array(-800, -800, 800, -800, 800, 800, -800, 800)
+script = ExtResource("2_oj1v4")
+priority = -50
+
+[node name="Camp" type="Polygon2D" parent="Zones" unique_id=1127989841]
+editor_description = "Zona camp awal: aman dan bisa dibangun."
+color = Color(0.35, 0.4, 0.25, 0.35)
+polygon = PackedVector2Array(300, 0, 289.77774, 77.64571, 259.80762, 150, 212.13203, 212.13203, 150, 259.80762, 77.64571, 289.77774, 1.8369095e-14, 300, -77.64571, 289.77774, -150, 259.80762, -212.13203, 212.13203, -259.80762, 150, -289.77774, 77.64571, -300, 3.673819e-14, -289.77774, -77.64571, -259.80762, -150, -212.13203, -212.13203, -150, -259.80762, -77.64571, -289.77774, -5.5107286e-14, -300, 77.64571, -289.77774, 150, -259.80762, 212.13203, -212.13203, 259.80762, -150, 289.77774, -77.64571)
+script = ExtResource("2_oj1v4")
+zone = 0
+priority = 10
+
+[node name="Markers" type="Node2D" parent="." unique_id=423650310]
+
+[node name="PlayerStart" type="Marker2D" parent="Markers" unique_id=1809763912]
+editor_description = "Titik spawn pemain saat scene dimulai."
+position = Vector2(0, 64)
+
+[node name="PlaneWreckage" type="Marker2D" parent="Markers" unique_id=1517320295]
+editor_description = "Badan pesawat yang jatuh: POI bangkai."
+position = Vector2(0, -185)
+
+[node name="EmergencySuitcase" type="Marker2D" parent="Markers" unique_id=1190796340]
+editor_description = "Koper darurat: POI awal pemain."
+position = Vector2(-48, 40)
+
+[node name="SignalBeacon" type="Marker2D" parent="Markers" unique_id=617121531]
+editor_description = "Signal Beacon: tujuan akhir permainan."
+position = Vector2(0, 700)
+
+[node name="NightSpawns" type="Node2D" parent="Markers" unique_id=1297146043]
+editor_description = "Titik spawn fauna malam (minimal 8)."
+
+[node name="NightSpawns1" type="Marker2D" parent="Markers/NightSpawns" unique_id=1236912969]
+editor_description = "Titik spawn fauna malam (minimal 8). #1."
+position = Vector2(598.40686, -32.565636)
+
+[node name="NightSpawns2" type="Marker2D" parent="Markers/NightSpawns" unique_id=1797294600]
+editor_description = "Titik spawn fauna malam (minimal 8). #2."
+position = Vector2(432.01196, 511.98517)
+
+[node name="NightSpawns3" type="Marker2D" parent="Markers/NightSpawns" unique_id=1630941197]
+editor_description = "Titik spawn fauna malam (minimal 8). #3."
+position = Vector2(-53.859486, 538.28986)
+
+[node name="NightSpawns4" type="Marker2D" parent="Markers/NightSpawns" unique_id=985057685]
+editor_description = "Titik spawn fauna malam (minimal 8). #4."
+position = Vector2(-403.96313, 436.35165)
+
+[node name="NightSpawns5" type="Marker2D" parent="Markers/NightSpawns" unique_id=437357753]
+editor_description = "Titik spawn fauna malam (minimal 8). #5."
+position = Vector2(-594.46686, -44.131004)
+
+[node name="NightSpawns6" type="Marker2D" parent="Markers/NightSpawns" unique_id=798902316]
+editor_description = "Titik spawn fauna malam (minimal 8). #6."
+position = Vector2(-325.6366, -397.77548)
+
+[node name="NightSpawns7" type="Marker2D" parent="Markers/NightSpawns" unique_id=242310124]
+editor_description = "Titik spawn fauna malam (minimal 8). #7."
+position = Vector2(-6.3406363, -575.47864)
+
+[node name="NightSpawns8" type="Marker2D" parent="Markers/NightSpawns" unique_id=1880420485]
+editor_description = "Titik spawn fauna malam (minimal 8). #8."
+position = Vector2(337.79852, -396.07617)
+
+[node name="WaterAccess" type="Node2D" parent="Markers" unique_id=912322500]
+editor_description = "Titik akses air untuk mengisi waterskin."
+
+[node name="WaterAccess1" type="Marker2D" parent="Markers/WaterAccess" unique_id=527319220]
+editor_description = "Titik akses air untuk mengisi waterskin. #1."
+position = Vector2(400, 300)
+
+[node name="Resources" type="Node2D" parent="." unique_id=1844754802]
+editor_description = "ResourceArea dan node resource manual."
+
+[node name="TemplateGathering" type="Polygon2D" parent="Resources" unique_id=1454515705]
+editor_description = "Sebaran resource contoh: satu entry per kategori wajib, jumlah kecil."
+color = Color(0.9, 0.55, 0.2, 0.3)
+polygon = PackedVector2Array(-800, -800, 800, -800, 800, 800, -800, 800)
+script = ExtResource("3_11unf")
+entries = Array[ExtResource("4_x18gm")]([SubResource("Resource_pjdrh"), SubResource("Resource_qjv7x"), SubResource("Resource_cv5c2"), SubResource("Resource_i8hui"), SubResource("Resource_p0diu")])
+
+[node name="Decor" type="Node2D" parent="." unique_id=1992423357]
+editor_description = "Tempat dekorasi non-gameplay. Boleh kosong."

@@ -105,5 +105,8 @@ static func center_of(node: Node) -> Vector2:
 static func respawn_position_of(node: Node) -> Vector2:
 	var anchor := find_anchor(node)
 	if anchor == null:
-		return DEFAULT_RESPAWN_OFFSET
+		# Tanpa base: titik spawn pemain dari provider dunia (konstanta lama jadi
+		# cadangan kalau provider tidak tahu).
+		var poi := WorldRules.poi(WorldSource.POI_PLAYER_START)
+		return poi if poi != Vector2.INF else DEFAULT_RESPAWN_OFFSET
 	return anchor.get_respawn_position()
