@@ -83,19 +83,31 @@ func test_bag_crafting_tab_refreshes_after_station_built() -> void:
 	_stand_next_to(bench)
 	panel.toggle_panel()
 
-	var locked_station_rows := 0
 	var hand_rows := 0
+	var workbench_rows := 0
+	var locked_workbench := 0
+	var campfire_rows := 0
+	var locked_campfire := 0
 	for row in panel.get_crafting_rows():
-		if row.get_recipe().station == RecipeDefinition.Station.HAND:
+		var recipe: RecipeDefinition = row.get_recipe()
+		if recipe.station == RecipeDefinition.Station.HAND:
 			hand_rows += 1
-		elif row.is_locked():
-			locked_station_rows += 1
+		elif recipe.station == RecipeDefinition.Station.WORKBENCH:
+			workbench_rows += 1
+			if row.is_locked():
+				locked_workbench += 1
+		elif recipe.station == RecipeDefinition.Station.CAMPFIRE:
+			campfire_rows += 1
+			if row.is_locked():
+				locked_campfire += 1
 	var info := panel.get_node("Root/Frame/Margin/VBox/Tabs/Crafting").find_child("StationInfo", true, false)
 	panel.toggle_panel()
-	assert_eq(locked_station_rows, 0, "resep stasiun tidak boleh lagi tampil terkunci di tab tas")
 	assert_gt(hand_rows, 0, "resep tangan tetap ada")
-	assert_not_null(info, "tab tas menampilkan info 'Dibuka lewat E di Meja Kerja / Api Unggun'")
-	assert_string_contains((info as Label).text, "Dibuka lewat E")
+	assert_gt(workbench_rows, 0, "resep meja kerja tampil")
+	assert_eq(locked_workbench, 0, "resep meja kerja terbuka setelah dibangun")
+	assert_gt(campfire_rows, 0, "resep api unggun tampil")
+	assert_gt(locked_campfire, 0, "resep api unggun tetap terkunci tanpa api")
+	assert_null(info, "status 'harus di meja' ada di kartu, bukan StationInfo")
 
 
 func test_station_panel_opens_and_crafts_with_station() -> void:

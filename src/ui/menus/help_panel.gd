@@ -17,7 +17,7 @@ const HELP_LINES: Array[String] = [
 	"Space / klik kiri - serang",
 	"",
 	"PANEL & MENU",
-	"Tab / I - panel tas: Tas | Crafting | Profisiensi",
+	"Tab / I - panel tas: Tas | Crafting",
 	"P - pause (Lanjutkan, Pengaturan, Bantuan, Menu Utama)",
 	"H - bantuan ini",
 	"Esc - tutup panel yang terbuka",

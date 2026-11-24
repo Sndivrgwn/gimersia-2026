@@ -185,7 +185,7 @@ game tetap jalan, tetapi terasa bisu.
 | `ui_panel_open` | `res://assets/audio/ui/ui_panel_open[_1.._2].ogg` | Penting | tidak | tidak | 0.15-0.25 s | 2 | UI | Panel stasiun dibuka.<br>Hook: StationPanel.opened(station) | 2 |
 | `ui_pause_off` | `res://assets/audio/ui/ui_pause_off[_1.._2].ogg` | Penting | tidak | tidak | 0.12-0.20 s | 2 | UI | Pause menu ditutup.<br>Hook: PauseMenu.resumed | 2 |
 | `ui_pause_on` | `res://assets/audio/ui/ui_pause_on[_1.._2].ogg` | Penting | tidak | tidak | 0.15-0.25 s | 2 | UI | Pause menu dibuka.<br>Hook: HOOK BELUM ADA | 2 |
-| `ui_tab_switch` | `res://assets/audio/ui/ui_tab_switch[_1.._2].ogg` | Opsional | tidak | tidak | 0.05-0.10 s | 2 | UI | Tab Bag atau Profisiensi dipilih.<br>Hook: HOOK BELUM ADA | 3 |
+| `ui_tab_switch` | `res://assets/audio/ui/ui_tab_switch[_1.._2].ogg` | Opsional | tidak | tidak | 0.05-0.10 s | 2 | UI | Tab Tas atau Crafting dipilih.<br>Hook: HOOK BELUM ADA | 3 |
 | `ui_toast` | `res://assets/audio/ui/ui_toast[_1.._2].ogg` | Penting | tidak | tidak | 0.12-0.20 s | 2 | UI | ToastHUD menampilkan pesan.<br>Hook: HOOK BELUM ADA | 2 |
 
 ## Hook yang sudah ada

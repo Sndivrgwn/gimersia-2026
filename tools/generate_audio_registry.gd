@@ -124,7 +124,7 @@ const CUES: Array = [
 	["ui_pause_on", "ui", "Game dijeda.", "Pause menu dibuka.", NO_HOOK, false, false, 2, "0.15-0.25 s", "ui", 2, false, "PauseMenu hanya punya sinyal resumed."],
 	["ui_pause_off", "ui", "Game dilanjutkan.", "Pause menu ditutup.", "PauseMenu.resumed", false, false, 2, "0.12-0.20 s", "ui", 2, false, "Termasuk tombol Lanjutkan."],
 	["ui_banner", "ui", "Banner besar muncul.", "Banner endgame tampil.", "EndgameController.banner_shown(text)", false, false, 2, "0.4-0.6 s", "ui", 2, false, "Banner Hari 7 dan rescue."],
-	["ui_tab_switch", "ui", "Ganti tab panel.", "Tab Bag atau Profisiensi dipilih.", NO_HOOK, false, false, 2, "0.05-0.10 s", "ui", 3, true, "BagPanel tidak punya sinyal ganti tab."],
+	["ui_tab_switch", "ui", "Ganti tab panel.", "Tab Tas atau Crafting dipilih.", NO_HOOK, false, false, 2, "0.05-0.10 s", "ui", 3, true, "BagPanel tidak punya sinyal ganti tab."],
 
 	# --- Endgame ------------------------------------------------------------
 	["beacon_activate", "sfx", "Mengaktifkan beacon.", "SignalBeacon dipakai saat rescue.", "SignalBeacon.victory_triggered", false, true, 1, "1.0-1.5 s", "sfx", 2, false, "Suar darurat dikonsumsi setelah ini."],

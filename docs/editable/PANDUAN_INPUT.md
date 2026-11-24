@@ -6,7 +6,7 @@ Dokumen ini menjawab satu pertanyaan: **tombol ini fungsinya apa?**
 
 | Yang dibuka | Tombol | Isi |
 | --- | --- | --- |
-| Panel tas | Tab atau I (gamepad Y) | Tab 1 **Tas** (12 slot + senjata/alat/armor), Tab 2 **Crafting** (resep tersedia dan terkunci), Tab 3 **Profisiensi** (level, XP, dan passive Kekuatan/Kecepatan/Penguasaan/Kelincahan) |
+| Panel tas | Tab atau I (gamepad Y) | Tab 1 **Tas** (12 slot + senjata/alat/armor), Tab 2 **Crafting** (resep tersedia dan terkunci) |
 | Menu Jeda | P (gamepad Start) | Lanjutkan, Pengaturan, Bantuan, Menu Utama |
 | Panel bantuan | H | Ringkasan kontrol di layar (pemain, panel/menu, debug pulau) |
 | Tutup panel | Esc | Menutup tas, peti, bantuan, dan menu Jeda |
@@ -45,7 +45,7 @@ Tombol yang dipakai pemain sehari-hari. Action ini didaftarkan `InputSetup.ensur
 | `hotbar_next` | Mouse 5 | Pilih slot hotbar berikutnya (scroll bawah). |
 | `hotbar_prev` | Mouse 4 | Pilih slot hotbar sebelumnya (scroll atas). |
 | `interact` | E, Gamepad A | Tahan untuk memanen, membangun, membuka koper, minum di sungai, menyalakan api (QTE), dan interaksi lain. |
-| `inventory_toggle` | Tab, I, Gamepad Y | Buka/tutup panel tas: Tab 1 (Tas + alat + tas), Tab 2 (Crafting), Tab 3 (Profisiensi). |
+| `inventory_toggle` | Tab, I, Gamepad Y | Buka/tutup panel tas: Tab 1 (Tas), Tab 2 (Crafting). |
 | `move_down` | S, Down, Stik kiri (atas/bawah) | Jalan ke bawah (S / panah bawah). |
 | `move_left` | A, Left, Stik kiri (kiri/kanan) | Jalan ke kiri (A / panah kiri). |
 | `move_right` | D, Right, Stik kiri (kiri/kanan) | Jalan ke kanan (D / panah kanan). |

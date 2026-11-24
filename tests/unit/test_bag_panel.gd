@@ -96,12 +96,13 @@ func test_panel_does_not_pause_the_game() -> void:
 	assert_false(get_tree().paused, "game tetap berjalan saat panel terbuka")
 
 
-func test_header_hint_names_the_three_tabs() -> void:
+func test_header_hint_names_the_two_tabs() -> void:
 	var hint: String = panel.get_tabs_hint_text()
 	assert_string_contains(hint, "Tab / I")
+	assert_string_contains(hint, "Tas")
 	assert_string_contains(hint, "Crafting")
-	assert_string_contains(hint, "Profisiensi", "pemain harus tahu Profisiensi ada di panel tas")
 	assert_string_contains(hint, "Esc")
+	assert_false(hint.contains("Profisiensi"), "tab Profisiensi sudah dihapus")
 
 
 func test_panel_and_slots_block_mouse_and_avoid_focus() -> void:
@@ -138,15 +139,16 @@ func test_grid_has_twelve_slots_and_hotbar_markers() -> void:
 		assert_eq(slots[index].get_key_text(), "", "slot 5-11 bukan hotbar")
 
 
-func test_slot_shows_name_and_count_only_when_filled() -> void:
+func test_slot_shows_count_and_tooltip_only() -> void:
 	var slots: Array = panel.get_slots()
-	assert_eq(slots[0].get_label_text(), "", "slot kosong tanpa nama")
+	assert_eq(slots[0].get_label_text(), "", "slot kosong tanpa teks nama")
 	assert_eq(slots[0].get_count_text(), "")
 	assert_eq(slots[0].tooltip_text, "", "slot kosong tanpa tooltip")
 
 	inventory.add_item(ItemCatalog.BERRY, 3)
-	assert_eq(slots[0].get_label_text(), "Beri", "sinyal slot_changed -> refresh")
+	assert_eq(slots[0].get_label_text(), "", "nama item tidak ditampilkan di slot")
 	assert_eq(slots[0].get_count_text(), "x3")
+	assert_string_contains(slots[0].tooltip_text, "Beri", "nama/deskripsi lewat tooltip")
 
 	inventory.use_slot(0)
 	assert_eq(slots[0].get_count_text(), "x2")
@@ -273,11 +275,10 @@ func test_equipment_drops_are_not_accepted() -> void:
 
 func test_crafting_tab_hosts_code_built_ui_instead_of_placeholder() -> void:
 	var tabs := panel.get_node(TABS_PATH) as TabContainer
-	# Mission 9: tab ketiga (Profisiensi) ditambahkan di sebelah Tas dan Crafting.
-	assert_eq(tabs.get_tab_count(), 3)
+	# Tab Profisiensi dihapus; panel tas hanya Tas + Crafting.
+	assert_eq(tabs.get_tab_count(), 2)
 	assert_eq(tabs.get_tab_title(0), "Tas")
 	assert_eq(tabs.get_tab_title(1), "Crafting")
-	assert_eq(tabs.get_tab_title(2), "Profisiensi")
 
 	var tab := panel.get_node(CRAFTING_TAB_PATH) as Control
 	assert_not_null(tab.find_child("CraftingBox", true, false), "isi tab dibuat saat runtime")

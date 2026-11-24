@@ -3,6 +3,7 @@ extends CanvasLayer
 const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
 
 ## Panel tas interaktif (Step 2B): 12 slot tas + kolom equipment.
+## Nama/deskripsi item hanya ada di tooltip slot, bukan teks di dalam slot.
 ##
 ## Bukan HUD: panel ini menerima mouse dan memanggil `move_slot()` /
 ## `use_slot()`. Ia tidak menyimpan state gameplay dan tidak mem-pause game:
@@ -14,24 +15,19 @@ const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
 const PLAYER_GROUP := &"player"
 const INVENTORY_NAME := "InventoryComponent"
 const CRAFTING_NAME := "CraftingComponent"
-const PROFICIENCY_NAME := "ProficiencyComponent"
-## Tab profisiensi (Mission 9): daftar level + XP + passive di panel tas.
-const PROF_TAB_NAME := "Profisiensi"
-const PROF_NAMES: Array[String] = ["Kekuatan", "Kecepatan", "Penguasaan", "Kelincahan"]
-const PROF_PASSIVES: Array = [
-	[[3, "Heavy Strike"], [6, "Sturdy"]],
-	[[3, "Light Footed"], [6, "Second Wind"]],
-	[[3, "Resourceful"], [6, "Master Chef"]],
-	[[3, "Quick Reflex"], [6, "Swift Counter"]],
-]
 const CRAFTING_TAB_PATH := "Root/Frame/Margin/VBox/Tabs/Crafting"
 const VBOX_PATH := "Root/Frame/Margin/VBox"
+<<<<<<< Updated upstream
 ## Kolom Peralatan sudah 210 px; alat tas ditaruh di sana supaya grid 6 kolom
 ## tidak melebar keluar frame.
 const BAG_TOOLS_PATH := "Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"
 const BAG_HINT := "Klik kanan: pakai\nShift+klik: pecah"
 ## Ditampilkan di bawah judul: pemain perlu tahu Profisiensi ada di tab ketiga.
 const TABS_HINT := "Tab / I: buka-tutup · tab panel: Tas · Crafting · Profisiensi · Esc: tutup"
+=======
+## Petunjuk singkat tab panel di bawah judul.
+const TABS_HINT := "Tab / I: buka-tutup · tab panel: Tas · Crafting · Esc: tutup"
+>>>>>>> Stashed changes
 const TOGGLE_ACTION := &"inventory_toggle"
 ## Esc hanya menutup panel; tidak membukanya.
 const CLOSE_ACTION := &"ui_cancel"
@@ -68,10 +64,7 @@ var _crafting_progress: ProgressBar
 var _crafting_status: Label
 var _crafting_cancel: Button
 var _crafting_rows: Array[CraftingRow] = []
-var _proficiency: ProficiencyComponent
-var _prof_rows: Array[Dictionary] = []
 var _tabs_hint: Label
-var _crafting_dirty: bool = false
 
 
 func _ready() -> void:
@@ -97,8 +90,6 @@ func _ready() -> void:
 	_build_crafting_tab()
 	_connect_crafting()
 	refresh_crafting()
-
-	_build_proficiency_tab()
 
 	_apply_visible(open_on_start)
 
@@ -171,7 +162,6 @@ func _apply_visible(value: bool) -> void:
 		UiBackStack.register(self)
 		UiMotion.pop_in(_root)
 		refresh()
-		refresh_proficiency()
 		# Mission 10: daftar resep dihitung ulang saat dibuka supaya stasiun
 		# yang baru dibangun tidak tetap tampil "Butuh Meja Kerja".
 		refresh_crafting()
@@ -179,7 +169,7 @@ func _apply_visible(value: bool) -> void:
 		UiBackStack.unregister(self)
 
 
-## Satu baris petunjuk di bawah judul TAS (Profisiensi ada di tab ketiga).
+## Satu baris petunjuk tab di bawah panel.
 func _build_tabs_hint() -> void:
 	var vbox := get_node_or_null(VBOX_PATH) as VBoxContainer
 	if vbox == null:
@@ -189,7 +179,7 @@ func _build_tabs_hint() -> void:
 	_tabs_hint.text = TABS_HINT
 	_tabs_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_tabs_hint.add_theme_font_size_override("font_size", 10)
-	_tabs_hint.add_theme_color_override("font_color", Color(0.78, 0.82, 0.78, 1.0))
+	_tabs_hint.add_theme_color_override("font_color", Color(0.36, 0.27, 0.19, 1.0))
 	vbox.add_child(_tabs_hint)
 	vbox.move_child(_tabs_hint, 1)
 
@@ -361,10 +351,6 @@ func _build_crafting_tab() -> void:
 	if _crafting_tab == null:
 		return
 
-	for child in _crafting_tab.get_children():
-		_crafting_tab.remove_child(child)
-		child.free()
-
 	var vbox := VBoxContainer.new()
 	vbox.name = "CraftingBox"
 	vbox.add_theme_constant_override("separation", 8)
@@ -430,48 +416,18 @@ func refresh_crafting() -> void:
 		_crafting_status.text = "Crafting tidak tersedia (CraftingComponent tidak ditemukan)."
 		return
 
-	var hand_only := crafting_component.get_station_config().bag_tab_hand_only
+	# Semua resep tampil: yang langsung bisa dibuat dan yang butuh stasiun.
+	# Resep stasiun yang belum tersedia tetap tampil dengan status di kartunya.
 	for recipe in crafting_component.get_available_recipes():
-		if hand_only and recipe.station != RecipeDefinition.Station.HAND:
-			continue
 		_add_crafting_row(recipe, false)
 
-	if hand_only:
-		_add_station_info()
-		return
-
-	var locked := crafting_component.get_locked_recipes()
-	if not locked.is_empty():
-		var header := Label.new()
-		header.text = "TERKUNCI"
-		header.add_theme_font_size_override("font_size", 10)
-		header.add_theme_color_override("font_color", Color(0.72, 0.78, 0.72, 1.0))
-		_crafting_list.add_child(header)
-		for recipe in locked:
-			_add_crafting_row(recipe, true)
+	for recipe in crafting_component.get_locked_recipes():
+		_add_crafting_row(recipe, true)
 
 	# Status terakhir ("Selesai"/"Batal") dipertahankan sampai aksi berikutnya.
 	if not crafting_component.is_crafting():
 		_crafting_progress.visible = false
 		_crafting_cancel.visible = false
-
-
-## Mission 10: info read-only resep stasiun di tab tas (tanpa tombol craft).
-func _add_station_info() -> void:
-	var header := Label.new()
-	header.name = "StationInfo"
-	header.text = "Dibuka lewat E di Meja Kerja / Api Unggun"
-	header.add_theme_font_size_override("font_size", 10)
-	header.add_theme_color_override("font_color", Color(0.72, 0.78, 0.72, 1.0))
-	_crafting_list.add_child(header)
-
-	for type in [RecipeDefinition.Station.WORKBENCH, RecipeDefinition.Station.CAMPFIRE]:
-		for recipe in crafting_component.get_recipes_for(type):
-			var line := Label.new()
-			line.text = "%s - %s" % [recipe.display_name, recipe.get_station_name()]
-			line.add_theme_font_size_override("font_size", 10)
-			line.add_theme_color_override("font_color", Color(0.62, 0.66, 0.62, 1.0))
-			_crafting_list.add_child(line)
 
 
 func _add_crafting_row(recipe: RecipeDefinition, locked: bool) -> void:
@@ -525,117 +481,5 @@ func _on_craft_cancelled(recipe: RecipeDefinition, reason: String) -> void:
 func _on_stations_changed() -> void:
 	if is_open():
 		refresh_crafting()
-	else:
-		_crafting_dirty = true
 
 
-# --- Profisiensi (Mission 9) -------------------------------------------------
-
-## Tab di sebelah Tas/Crafting: level, XP ke level berikut, dan passive.
-func _build_proficiency_tab() -> void:
-	if _tabs == null:
-		return
-	_proficiency = _find_proficiency_component()
-
-	var page := VBoxContainer.new()
-	page.name = PROF_TAB_NAME
-	page.add_theme_constant_override("separation", 6)
-
-	var header := Label.new()
-	header.text = "Level naik dari aktivitas: memukul, berjalan, memanen, mengolah."
-	header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	header.add_theme_font_size_override("font_size", 10)
-	header.add_theme_color_override("font_color", Color(0.75, 0.8, 0.75, 1.0))
-	page.add_child(header)
-
-	var rows := VBoxContainer.new()
-	rows.name = "Rows"
-	rows.add_theme_constant_override("separation", 8)
-	page.add_child(rows)
-
-	for prof in PROF_NAMES.size():
-		var row := VBoxContainer.new()
-		row.name = "Prof%d" % prof
-		var title := Label.new()
-		title.add_theme_font_size_override("font_size", 13)
-		row.add_child(title)
-		var bar := ProgressBar.new()
-		bar.show_percentage = false
-		bar.custom_minimum_size = Vector2(0, 8)
-		bar.max_value = 100.0
-		row.add_child(bar)
-		var passive := Label.new()
-		passive.add_theme_font_size_override("font_size", 10)
-		passive.add_theme_color_override("font_color", Color(0.78, 0.82, 0.78, 1.0))
-		row.add_child(passive)
-		rows.add_child(row)
-		_prof_rows.append({"title": title, "bar": bar, "passive": passive})
-
-	_tabs.add_child(page)
-	refresh_proficiency()
-
-
-func refresh_proficiency() -> void:
-	if _proficiency == null and _prof_rows.is_empty():
-		return
-	if _proficiency == null:
-		for row in _prof_rows:
-			(row["title"] as Label).text = "Profisiensi tidak tersedia"
-			(row["bar"] as ProgressBar).visible = false
-			(row["passive"] as Label).text = ""
-		return
-	if not is_instance_valid(_proficiency):
-		_proficiency = _find_proficiency_component()
-		if _proficiency == null:
-			return
-
-	var config := _proficiency.config
-	var max_level: int = config.max_level if config != null else 10
-	var xp_base: float = config.xp_per_level_base if config != null else 100.0
-
-	for prof in _prof_rows.size():
-		var row: Dictionary = _prof_rows[prof]
-		var level: int = _proficiency.get_level(prof)
-		var title := row["title"] as Label
-		var bar := row["bar"] as ProgressBar
-		var passive := row["passive"] as Label
-		var prof_name: String = PROF_NAMES[prof] if prof < PROF_NAMES.size() else "Profisiensi"
-
-		if level >= max_level:
-			title.text = "%s  Lv %d (maks)" % [prof_name, level]
-			bar.value = bar.max_value
-		else:
-			bar.max_value = maxf(xp_base * level, 1.0)
-			bar.value = clampf(_proficiency.get_xp(prof), 0.0, bar.max_value)
-			title.text = "%s  Lv %d   %d/%d XP" % [
-				prof_name, level, int(bar.value), int(bar.max_value),
-			]
-		passive.text = _passive_text(prof, level)
-
-
-func _passive_text(prof: int, level: int) -> String:
-	if prof < 0 or prof >= PROF_PASSIVES.size():
-		return ""
-	var parts := PackedStringArray()
-	for entry in PROF_PASSIVES[prof]:
-		var unlock: int = entry[0]
-		var passive_name: String = entry[1]
-		var state := "terbuka" if level >= unlock else "Lv %d" % unlock
-		parts.append("%s (%s)" % [passive_name, state])
-	return "Passive: " + ", ".join(parts)
-
-
-func get_proficiency_tab() -> Node:
-	if _tabs == null:
-		return null
-	return _tabs.get_node_or_null(PROF_TAB_NAME)
-
-
-func _find_proficiency_component() -> ProficiencyComponent:
-	var tree := get_tree()
-	if tree == null:
-		return null
-	var player := tree.get_first_node_in_group(PLAYER_GROUP)
-	if player == null:
-		return null
-	return player.get_node_or_null(PROFICIENCY_NAME) as ProficiencyComponent

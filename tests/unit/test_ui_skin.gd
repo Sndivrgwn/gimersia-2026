@@ -97,7 +97,8 @@ func test_bag_slot_shows_icon_only_when_art_exists() -> void:
 	await wait_frames(1)
 	var icon := slot.get_node("VBox/Icon") as TextureRect
 	assert_false(icon.visible)
-	assert_eq(slot.get_label_text(), WOOD.display_name)
+	assert_eq(slot.get_label_text(), "", "nama item tidak ditulis di slot")
+	assert_string_contains(slot.tooltip_text, WOOD.display_name, "nama item ada di tooltip")
 
 	_write_image("icons/items/wood.png", 16, 16)
 	Assets.reload_assets()

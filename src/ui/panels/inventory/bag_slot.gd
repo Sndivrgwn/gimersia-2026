@@ -21,7 +21,7 @@ var inventory: InventoryComponent
 @onready var _key: Label = $VBox/Top/Key
 @onready var _count: Label = $VBox/Top/Count
 @onready var _icon: TextureRect = $VBox/Icon
-@onready var _name: Label = $VBox/Name
+@onready var _dummy: Label = $VBox/DummyIcon
 
 
 func _ready() -> void:
@@ -35,11 +35,13 @@ func refresh() -> void:
 	var count := get_count()
 	var empty := item == null or count <= 0
 
-	_name.text = "" if empty else item.display_name
 	_count.text = "" if empty else "x%d" % count
 	var icon: Texture2D = null if empty else item.get_icon()
 	_icon.texture = icon
 	_icon.visible = icon != null
+	# Nama item tidak lagi tampil di slot; ikon dummy huruf + tooltip.
+	_dummy.visible = not empty and icon == null
+	_dummy.text = "" if empty or icon != null else item.display_name.left(1).to_upper()
 	tooltip_text = "" if empty else describe_item(item)
 
 
@@ -61,8 +63,9 @@ func get_key_text() -> String:
 	return _key.text
 
 
+## Nama item hanya ada di tooltip; slot tidak menampilkan teks deskripsi.
 func get_label_text() -> String:
-	return _name.text
+	return ""
 
 
 func get_count_text() -> String:
