@@ -39,7 +39,9 @@ static func is_river_water(point: Vector2, edge_margin: float = EDGE_MARGIN) -> 
 		and point.x <= IslandZones.RIVER_MAX_X + edge_margin
 
 
-func get_prompt(_interactor: Node) -> String:
+func get_prompt(interactor: Node) -> String:
+	if RiverEdge.has_empty_waterskin(interactor):
+		return RiverEdge.REFILL_PROMPT
 	return PROMPT
 
 
@@ -47,17 +49,23 @@ func get_hold_time(_interactor: Node) -> float:
 	return RiverEdge.HOLD_TIME
 
 
-func can_interact(_interactor: Node) -> bool:
+func can_interact(interactor: Node) -> bool:
+	if RiverEdge.has_empty_waterskin(interactor):
+		return true
 	return _cooldown <= 0.0
 
 
-func get_block_reason(_interactor: Node) -> String:
+func get_block_reason(interactor: Node) -> String:
+	if RiverEdge.has_empty_waterskin(interactor):
+		return ""
 	if _cooldown <= 0.0:
 		return ""
 	return COOLDOWN_FORMAT % int(ceil(_cooldown))
 
 
 func interact(interactor: Node) -> void:
+	if RiverEdge.refill_waterskin(interactor):
+		return
 	if _cooldown > 0.0:
 		return
 	if RiverEdge.apply_drink(interactor):

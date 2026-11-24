@@ -35,6 +35,7 @@ Tombol yang dipakai pemain sehari-hari. Action ini didaftarkan `InputSetup.ensur
 | `attack_click` | Mouse 1 | Serang ke arah kursor mouse. |
 | `attack_space` | Space, Gamepad X | Serang ke arah hadap (gamepad: X). |
 | `base_place` | B | Tentukan lokasi base saat fase penentuan base (sekali). |
+| `base_rotate` | Q | Putar ring pagar preview base 15° (Shift = arah sebaliknya) supaya pagar tidak menabrak sungai/tepi. |
 | `help_toggle` | H | Buka/tutup panel bantuan (daftar kontrol dan alur main). |
 | `hotbar_1` | 1, Gamepad D-pad atas | Pilih slot hotbar 1 (item dibawa, tidak langsung dipakai). |
 | `hotbar_2` | 2, Gamepad D-pad bawah | Pilih slot hotbar 2 (item dibawa, tidak langsung dipakai). |

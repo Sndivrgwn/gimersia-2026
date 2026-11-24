@@ -3,6 +3,14 @@ extends FaunaConfig
 
 ## Babi hutan (spesifikasi §7.3).
 
+@export_group("Timing")
+## Lama state BITE ditahan supaya animasi gigit terlihat (detik nyata).
+@export var bite_hold_time: float = 0.22
+## Lama state RECOVER setelah dash menabrak (detik nyata).
+@export var dash_recover_time: float = 0.3
+## Jarak dorongan dash ke pemain (piksel; durasi ada di CombatConfig).
+@export var dash_knockback_distance: float = 60.0
+
 @export_group("Gigit")
 @export var bite_damage: float = 12.0
 @export var bite_range: float = 50.0

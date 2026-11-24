@@ -630,6 +630,18 @@ func _tres_meta() -> Dictionary:
 			"effect": "Berapa lama panel rekap tampil sebelum menutup sendiri.",
 			"tests": "test_daily_goals_and_light.gd",
 		},
+		"res://src/data/configs/camera_feel_config.tres": {
+			"purpose": "Look-ahead/zoom kamera dan margin batas tepi pulau.",
+			"used_by": "CameraFeel, CameraFeelConfig",
+			"effect": "Mengubah rasa kamera dan seberapa dalam batas tepi pulau ditarik.",
+			"tests": "test_fase3_camera_telegraph.gd",
+		},
+		"res://src/data/configs/compass_config.tres": {
+			"purpose": "Ambang jarak panah base dan penanda tas jatuh.",
+			"used_by": "CampArrow, LootBagArrow, CompassConfig",
+			"effect": "Menentukan kapan penunjuk arah muncul/hilang; tidak mengubah gameplay.",
+			"tests": "test_fase2_navigation.gd",
+		},
 		"res://src/data/configs/player_light_config.tres": {
 			"purpose": "Radius dan energi cahaya pemain malam (110 px, obor 190 px).",
 			"used_by": "PlayerLight, PlayerLightConfig",
@@ -725,6 +737,48 @@ func _tres_meta() -> Dictionary:
 			"used_by": "BodyProfileApplier (FaunaBase._ready), BodySeparation",
 			"effect": "Rusa kini padat dan menerima 60% knockback; jarak kontak dijaga pemisah badan.",
 			"tests": "test_mission10_physics_matrix.gd, test_mission10_body_separation.gd",
+		},
+		"res://src/data/items/waterskin.tres": {
+			"purpose": "Kantung air penuh: satu tegukan, +25 Thirst dan -5 Hunger, lalu jadi kantung kosong.",
+			"used_by": "InventoryComponent.use_slot, RiverEdge/RiverDrinkZone",
+			"effect": "Nilai efek minum dan varian hasil pemakaian (`use_result`).",
+			"tests": "test_item_definitions.gd, test_fase3_waterskin.gd",
+		},
+		"res://src/data/items/waterskin_empty.tres": {
+			"purpose": "Varian kantung kosong; diisi ulang di sungai (tahan E).",
+			"used_by": "RiverEdge.refill_waterskin, RiverDrinkZone",
+			"effect": "Tidak punya efek konsumsi; hanya penanda bahwa kantung perlu diisi.",
+			"tests": "test_fase3_waterskin.gd",
+		},
+		"res://src/data/configs/fauna/boar_config.tres": {
+			"purpose": "Angka babi hutan: gigit, dash, persepsi, dan timing state.",
+			"used_by": "WildBoar, FaunaBase",
+			"effect": "Rasa tempur babi; timing BITE/RECOVER dan knockback dash ada di sini (Fase 5).",
+			"tests": "test_wild_boar.gd, test_fase5_summary.gd",
+		},
+		"res://src/data/configs/fauna/raid_config.tres": {
+			"purpose": "Jadwal raid malam, jumlah raider, cap populasi, dan mode raid.",
+			"used_by": "RaidDirector, WildBoar, NightSpawner, FaunaQuota",
+			"effect": "Menentukan kapan dan seberapa besar raid; 1.0 = tabel spesifikasi.",
+			"tests": "test_raid_director.gd, test_night_spawner.gd",
+		},
+		"res://src/data/configs/station_config.tres": {
+			"purpose": "Panel stasiun: hold E, jarak pakai/tutup, mode tab tas, batas craft xN.",
+			"used_by": "CraftingComponent, StationPanel, CraftingRow",
+			"effect": "Seberapa mudah membuka panel dan berapa banyak craft sekali tekan.",
+			"tests": "test_station_panel_craft.gd, test_crafting_panel.gd, test_fase4_crafting.gd",
+		},
+		"res://src/data/configs/health_regen_config.tres": {
+			"purpose": "Regen HP pasif: laju, jeda keluar combat, dan kurva Hunger/Thirst.",
+			"used_by": "HealthRegenComponent",
+			"effect": "Seberapa cepat HP pulih dan seberapa besar penalti need rendah.",
+			"tests": "test_health_regen.gd",
+		},
+		"res://src/data/configs/run_config.tres": {
+			"purpose": "Perlindungan setelah respawn: durasi, kedip, aturan batal.",
+			"used_by": "DeathController, PlayerDamageReceiver",
+			"effect": "Menentukan lama pemain aman setelah respawn; tidak mengubah token respawn.",
+			"tests": "test_respawn_protection.gd",
 		},
 		"res://src/data/audio/audio_registry.tres": {
 			"purpose": "Daftar semua cue audio (key, kategori, hook, bus, prioritas). Data dan dokumentasi saja.",

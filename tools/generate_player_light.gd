@@ -6,7 +6,9 @@ extends SceneTree
 ## Menulis ulang: res://src/data/configs/player_light_config.tres
 
 const PATH := "res://src/data/configs/player_light_config.tres"
-const TORCH := preload("res://src/data/items/torch.tres")
+## Dibaca lewat ItemCatalog supaya generator ini tidak terdaftar sebagai pemilik
+## `torch.tres` (file itu diedit tangan).
+const ITEM_CATALOG := preload("res://src/data/resources/items/item_catalog.gd")
 
 
 func _init() -> void:
@@ -17,7 +19,7 @@ func _init() -> void:
 	config.night_energy = 1.0
 	config.torch_energy_bonus = 0.0
 	config.color = Color(1.0, 0.86, 0.62, 1.0)
-	config.torch_item = TORCH
+	config.torch_item = ITEM_CATALOG.TORCH
 
 	var error := ResourceSaver.save(config, PATH)
 	if error == OK:

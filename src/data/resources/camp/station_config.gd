@@ -15,3 +15,5 @@ extends Resource
 @export var bag_tab_hand_only: bool = true
 ## False = perilaku lama (E pada api unggun memicu gesek batu, tanpa panel).
 @export var campfire_opens_panel: bool = true
+## Fase 4B: batas jumlah craft sekali tekan (tombol Craft xN).
+@export var craft_batch_max: int = 5

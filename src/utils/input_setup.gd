@@ -45,6 +45,8 @@ const DEBUG_RAID := &"debug_raid"
 const DEBUG_ASSET_BOXES := &"debug_asset_boxes"
 ## B: tentukan lokasi base (BasePlacementController).
 const BASE_PLACE := &"base_place"
+## Fase 4C: Q memutar ring pagar preview base 15° (Shift+Q arah sebaliknya).
+const BASE_ROTATE := &"base_rotate"
 ## Mission 11: K (island debug): rekam 6 detik jejak fisika pemain + 2 fauna
 ## terdekat ke CSV user:// (laporan "fauna masih terseret").
 const DEBUG_DRAG_TRACE := &"debug_drag_trace"
@@ -162,6 +164,9 @@ static func ensure_actions() -> void:
 
 	_ensure_action(BASE_PLACE)
 	_ensure_key(BASE_PLACE, KEY_B)
+
+	_ensure_action(BASE_ROTATE)
+	_ensure_key(BASE_ROTATE, KEY_Q)
 
 	_ensure_action(DEBUG_DRAG_TRACE)
 	_ensure_key(DEBUG_DRAG_TRACE, KEY_K)

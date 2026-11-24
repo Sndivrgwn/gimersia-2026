@@ -34,6 +34,7 @@ const PURPOSES: Dictionary = {
 	"hotbar_prev": ["main", "Pilih slot hotbar sebelumnya (scroll atas)."],
 	"use_held": ["main", "Pakai item di slot terpilih (klik kanan / F); hanya consumable."],
 	"base_place": ["main", "Tentukan lokasi base saat fase penentuan base (sekali)."],
+	"base_rotate": ["main", "Putar ring pagar preview base 15° (Shift = arah sebaliknya) supaya pagar tidak menabrak sungai/tepi."],
 	"pause_toggle": ["main", "Buka/tutup menu Jeda (Lanjutkan, Pengaturan, Bantuan, Menu Utama)."],
 	"help_toggle": ["main", "Buka/tutup panel bantuan (daftar kontrol dan alur main)."],
 	"ui_cancel": ["main", "Tutup panel yang sedang terbuka (tas, peti, bantuan, jeda)."],

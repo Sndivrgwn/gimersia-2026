@@ -12,6 +12,12 @@ const MISSING_COLOR := Color(1.0, 0.5, 0.45, 1.0)
 const NORMAL_COLOR := Color(0.88, 0.93, 0.88, 1.0)
 const LOCKED_ALPHA := 0.45
 const REASON_COLOR := Color(1.0, 0.62, 0.5, 1.0)
+## Fase 4B: baris yang bisa di-craft sekarang diberi latar hijau tipis.
+const READY_BG := Color(0.16, 0.26, 0.18, 0.95)
+const READY_BORDER := Color(0.45, 0.85, 0.5, 0.8)
+const IDLE_BG := Color(0.1, 0.12, 0.14, 0.55)
+const IDLE_BORDER := Color(0.35, 0.4, 0.35, 0.25)
+const DEFAULT_BATCH_MAX := 5
 
 var recipe: RecipeDefinition
 var crafting: CraftingComponent
@@ -26,6 +32,7 @@ var _name_label: Label
 var _time_label: Label
 var _reason_label: Label
 var _craft_button: Button
+var _count_input: SpinBox
 var _ingredient_labels: Array[Label] = []
 var _missing_flags: Array[bool] = []
 var _block_reason: String = ""
@@ -67,6 +74,26 @@ func get_block_reason() -> String:
 
 func is_craft_disabled() -> bool:
 	return _craft_button == null or _craft_button.disabled
+
+
+## Fase 4B: jumlah craft yang dipilih di baris (1..craft_batch_max).
+func get_batch_quantity() -> int:
+	if _count_input == null:
+		return 1
+	return maxi(int(_count_input.value), 1)
+
+
+func set_batch_quantity(value: int) -> void:
+	if _count_input == null:
+		return
+	_count_input.value = clampi(value, 1, int(_count_input.max_value))
+
+
+## True bila baris ditandai siap craft (latar hijau).
+func is_highlighted() -> bool:
+	var style := get_theme_stylebox(&"panel")
+	var flat := style as StyleBoxFlat
+	return flat != null and flat.bg_color.is_equal_approx(READY_BG)
 
 
 func get_name_text() -> String:
@@ -118,6 +145,7 @@ func refresh() -> void:
 	_reason_label.text = _block_reason
 	_reason_label.visible = not _block_reason.is_empty()
 	modulate = Color(1.0, 1.0, 1.0, LOCKED_ALPHA) if locked else Color(1.0, 1.0, 1.0, 1.0)
+	_apply_highlight(not locked and _block_reason.is_empty() and not busy)
 
 
 func _update_ingredients() -> void:
@@ -178,6 +206,18 @@ func _build() -> void:
 	_time_label.add_theme_font_size_override("font_size", 12)
 	row.add_child(_time_label)
 
+	_count_input = SpinBox.new()
+	_count_input.name = "Count"
+	_count_input.min_value = 1
+	_count_input.max_value = DEFAULT_BATCH_MAX
+	_count_input.step = 1
+	_count_input.value = 1
+	_count_input.tooltip_text = "Jumlah craft"
+	_count_input.custom_minimum_size = Vector2(62.0, 26.0)
+	if crafting != null:
+		_count_input.max_value = maxi(crafting.get_station_config().craft_batch_max, 1)
+	row.add_child(_count_input)
+
 	_craft_button = Button.new()
 	_craft_button.text = "Craft"
 	_craft_button.custom_minimum_size = Vector2(64.0, 26.0)
@@ -188,4 +228,17 @@ func _build() -> void:
 func _on_craft_pressed() -> void:
 	if crafting == null or recipe == null:
 		return
-	crafting.start_craft(recipe, station)
+	crafting.start_craft(recipe, station, get_batch_quantity())
+
+
+func _apply_highlight(ready: bool) -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = READY_BG if ready else IDLE_BG
+	style.border_color = READY_BORDER if ready else IDLE_BORDER
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(4)
+	style.content_margin_left = 8.0
+	style.content_margin_right = 8.0
+	style.content_margin_top = 4.0
+	style.content_margin_bottom = 4.0
+	add_theme_stylebox_override(&"panel", style)

@@ -12,6 +12,8 @@ extends Node
 
 signal day_summary(summary: Dictionary)
 
+## Fase 5: layar Game Over/Victory mencari node ini lewat grup.
+const GROUP := &"daily_run_stats"
 const PLAYER_GROUP := &"player"
 const STRUCTURE_GROUP := &"camp_structure"
 const SCAN_INTERVAL := 1.0
@@ -37,6 +39,10 @@ var _totals: Dictionary = {
 }
 var _connected: Dictionary = {}
 var _scan_timer: float = 0.0
+
+
+func _enter_tree() -> void:
+	add_to_group(GROUP)
 
 
 func _ready() -> void:

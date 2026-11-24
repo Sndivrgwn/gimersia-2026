@@ -1,22 +1,26 @@
 extends CanvasLayer
 
-## Fase 1A: satu baris tujuan harian di HUD (kiri bawah).
+## Fase 1A: satu baris tujuan harian di HUD (bawah tengah, di atas hotbar).
 ##
 ## Read-only. Tujuan dibaca dari `daily_goals.tres` dan dievaluasi dari state
 ## hidup (tas pemain, struktur camp, base), jadi tidak ada progres yang perlu
-## disimpan. Tujuan yang sudah selesai diganti tujuan berikutnya; saat semua
-## selesai, baris menampilkan "semua tujuan selesai (3/3)".
+## disimpan. Semua tujuan hari itu tampil dalam satu baris; tujuan yang sudah
+## selesai dicoret dan ikut dihitung pada `(n/m)`.
 
 const CONFIG_PATH := "res://src/data/configs/daily_goals.tres"
 const PLAYER_GROUP := &"player"
 const REFRESH_INTERVAL := 0.4
 const FALLBACK_TEXT := "jelajahi pulau dan siapkan bertahan malam"
+## Warna tujuan yang sudah selesai (dicoret) dan penghitung (n/m).
+const DONE_HEX := "8f9499"
+const COUNT_HEX := "b8b094"
+const GOAL_SEPARATOR := ", "
 
 @export var config: DailyGoalConfig
 @export var clock: Node
 
 var _panel: PanelContainer
-var _label: Label
+var _label: RichTextLabel
 var _player: Node
 var _camp: Node
 var _anchor: Node
@@ -43,7 +47,7 @@ func _process(delta: float) -> void:
 
 # --- API --------------------------------------------------------------------
 
-## Teks baris tujuan saat ini (dipakai tes dan debug).
+## Teks baris tujuan saat ini tanpa markup (dipakai tes dan debug).
 func get_text() -> String:
 	return _last_text
 
@@ -55,27 +59,34 @@ func refresh() -> void:
 	var goals: Array[DailyGoal] = []
 	if config != null:
 		goals = config.get_goals_for_day(day)
-	var text := ""
+	var plain := ""
+	var rich := ""
 	if goals.is_empty():
-		text = "Hari %d: %s" % [day, FALLBACK_TEXT]
+		plain = "Hari %d: %s" % [day, FALLBACK_TEXT]
+		rich = plain
 	else:
 		_bind()
+		var inventory := _inventory()
 		var met := 0
-		var next_goal: DailyGoal = null
+		var plain_parts: Array[String] = []
+		var rich_parts: Array[String] = []
 		for goal in goals:
-			if goal.is_met(_inventory(), _camp, _anchor):
+			var done := goal.is_met(inventory, _camp, _anchor)
+			if done:
 				met += 1
-			elif next_goal == null:
-				next_goal = goal
-		if next_goal == null:
-			text = "Hari %d: semua tujuan selesai" % day
-		else:
-			text = "Hari %d: %s" % [day, next_goal.describe()]
-		text += "  (%d/%d)" % [met, goals.size()]
-	if text == _last_text:
+			plain_parts.append(goal.describe())
+			if done:
+				rich_parts.append("[s][color=#%s]%s[/color][/s]" % [DONE_HEX, goal.describe()])
+			else:
+				rich_parts.append(goal.describe())
+		plain = "Hari %d: %s  (%d/%d)" % [day, GOAL_SEPARATOR.join(plain_parts), met, goals.size()]
+		rich = "Hari %d: %s  [color=#%s](%d/%d)[/color]" % [
+			day, GOAL_SEPARATOR.join(rich_parts), COUNT_HEX, met, goals.size()
+		]
+	if plain == _last_text:
 		return
-	_last_text = text
-	_label.text = text
+	_last_text = plain
+	_label.text = rich
 
 
 # --- Internal ---------------------------------------------------------------
@@ -122,32 +133,40 @@ func _build() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
+	# Bawah tengah, persis di atas hotbar dan prompt interaksi (tidak menimpa
+	# StatsHUD di kiri bawah).
 	_panel = PanelContainer.new()
 	_panel.name = "GoalPanel"
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_panel.anchor_left = 0.5
+	_panel.anchor_right = 0.5
 	_panel.anchor_top = 1.0
 	_panel.anchor_bottom = 1.0
-	_panel.offset_left = 16.0
-	_panel.offset_right = 620.0
-	_panel.offset_top = -46.0
-	_panel.offset_bottom = -16.0
+	_panel.offset_left = -310.0
+	_panel.offset_right = 310.0
+	_panel.offset_top = -226.0
+	_panel.offset_bottom = -198.0
+	_panel.clip_contents = true
 	_panel.add_theme_stylebox_override("panel", _panel_style())
 	root.add_child(_panel)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 10)
 	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_top", 4)
-	margin.add_theme_constant_override("margin_bottom", 4)
+	margin.add_theme_constant_override("margin_top", 3)
+	margin.add_theme_constant_override("margin_bottom", 3)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_panel.add_child(margin)
 
-	_label = Label.new()
+	_label = RichTextLabel.new()
 	_label.name = "GoalLabel"
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_label.add_theme_font_size_override("font_size", 15)
-	_label.add_theme_color_override("font_color", Color(0.94, 0.89, 0.72, 1.0))
-	_label.clip_text = true
+	_label.bbcode_enabled = true
+	_label.scroll_active = false
+	_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_label.custom_minimum_size = Vector2(0.0, 20.0)
+	_label.add_theme_font_size_override("normal_font_size", 15)
+	_label.add_theme_color_override("default_color", Color(0.94, 0.89, 0.72, 1.0))
 	margin.add_child(_label)
 
 

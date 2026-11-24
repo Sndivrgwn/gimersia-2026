@@ -243,7 +243,7 @@ Slot prioritas 1 di luar showcase.
 | `ui_sun` | `res://assets/ui/icons/sun[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/sun.png` | Opsional | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_vignette_low_hp` | `res://assets/ui/vignette_low_hp[_dir][_Nf].png`<br>contoh: `res://assets/ui/vignette_low_hp.png` | Opsional | 1280 × 720 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 
-## Ikon item (23 item)
+## Ikon item (24 item)
 
 Satu file per item: `res://assets/icons/items/<id>.png` (`.webp` juga dibaca; `.png` diprioritaskan bila keduanya ada). Ikon yang sama dipakai di tas, panel peti, hotbar, dan item pickup (diperkecil otomatis). Baris resep tidak memakai ikon. Ukuran sumber disarankan 48 × 48 px, latar transparan.
 
@@ -262,6 +262,7 @@ Satu file per item: `res://assets/icons/items/<id>.png` (`.webp` juga dibaca; `.
 | `icon_cooked_meat` | `res://assets/icons/items/cooked_meat.png` | Daging Matang | `cooked_meat` | Consumable | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
 | `icon_herbal_bandage` | `res://assets/icons/items/herbal_bandage.png` | Perban Herbal | `herbal_bandage` | Consumable | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
 | `icon_raw_meat` | `res://assets/icons/items/raw_meat.png` | Daging Mentah | `raw_meat` | Consumable | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_waterskin` | `res://assets/icons/items/waterskin.png` | Kantung Air Kulit | `waterskin` | Consumable | 1 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
 | `icon_bone_spear` | `res://assets/icons/items/bone_spear.png` | Tombak Tulang | `bone_spear` | Weapon | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
 | `icon_stone_spear` | `res://assets/icons/items/stone_spear.png` | Tombak Batu | `stone_spear` | Weapon | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
 | `icon_wooden_spear` | `res://assets/icons/items/wooden_spear.png` | Tombak Kayu | `wooden_spear` | Weapon | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
@@ -271,9 +272,9 @@ Satu file per item: `res://assets/icons/items/<id>.png` (`.webp` juga dibaca; `.
 | `icon_cockpit_notes` | `res://assets/icons/items/cockpit_notes.png` | Catatan Kokpit | `cockpit_notes` | Special | 1 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
 | `icon_signal_flare` | `res://assets/icons/items/signal_flare.png` | Suar Darurat | `signal_flare` | Special | 1 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
 | `icon_torch` | `res://assets/icons/items/torch.png` | Obor | `torch` | Special | 20 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
-| `icon_waterskin` | `res://assets/icons/items/waterskin.png` | Kantung Air Kulit | `waterskin` | Special | 1 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
+| `icon_waterskin_empty` | `res://assets/icons/items/waterskin_empty.png` | Kantung Air Kosong | `waterskin_empty` | Special | 1 | 48 × 48 | tas, peti, hotbar, pickup | Belum ada |
 
-## Item di tangan (23 item)
+## Item di tangan (24 item)
 
 Art barang yang dipegang pemain saat item dipilih di hotbar: `res://assets/held/<id>.png` (hanya `.png`; `.webp` tidak dibaca). Tanpa file, pemain memakai bentuk placeholder per kategori.
 
@@ -292,6 +293,7 @@ Art barang yang dipegang pemain saat item dipilih di hotbar: `res://assets/held/
 | `res://assets/held/cooked_meat.png` | Daging Matang | `cooked_meat` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
 | `res://assets/held/herbal_bandage.png` | Perban Herbal | `herbal_bandage` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
 | `res://assets/held/raw_meat.png` | Daging Mentah | `raw_meat` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/waterskin.png` | Kantung Air Kulit | `waterskin` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
 | `res://assets/held/bone_spear.png` | Tombak Tulang | `bone_spear` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
 | `res://assets/held/stone_spear.png` | Tombak Batu | `stone_spear` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
 | `res://assets/held/wooden_spear.png` | Tombak Kayu | `wooden_spear` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
@@ -301,7 +303,7 @@ Art barang yang dipegang pemain saat item dipilih di hotbar: `res://assets/held/
 | `res://assets/held/cockpit_notes.png` | Catatan Kokpit | `cockpit_notes` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
 | `res://assets/held/signal_flare.png` | Suar Darurat | `signal_flare` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
 | `res://assets/held/torch.png` | Obor | `torch` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
-| `res://assets/held/waterskin.png` | Kantung Air Kulit | `waterskin` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
+| `res://assets/held/waterskin_empty.png` | Kantung Air Kosong | `waterskin_empty` | 14 × 14 | 32 × 32 | `src/components/visual/held_item_visual.gd` | Belum ada (placeholder) |
 
 ## Resep crafting (13 resep)
 
@@ -337,8 +339,8 @@ Dihitung dari file `.png`/`.webp` yang ada di folder tiap slot. Jalankan ulang g
 | UI & ikon | 27 | 0 | 27 |
 | **Total** | 67 | 1 | 66 |
 
-- Ikon item: **0/23** ada di `res://assets/icons/items/`.
-- Item di tangan: **0/23** ada di `res://assets/held/`.
+- Ikon item: **0/24** ada di `res://assets/icons/items/`.
+- Item di tangan: **0/24** ada di `res://assets/held/`.
 - Slot/ikon yang belum ada tetap memakai placeholder; game tidak crash.
 
 ## Visual yang dibuat runtime (tidak perlu file)

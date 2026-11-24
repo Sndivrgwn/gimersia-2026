@@ -31,10 +31,22 @@ func _ready() -> void:
 func show_screen() -> void:
 	if _panel != null:
 		_panel.visible = true
+	_refresh_detail()
 
 
 func show_game_over() -> void:
 	show_screen()
+
+
+## Teks detail lengkap (dipakai tes).
+func get_detail_text() -> String:
+	return "" if _detail == null else _detail.text
+
+
+## Fase 5: ringkasan run dari DailyRunStats.
+func _refresh_detail() -> void:
+	if _detail != null:
+		_detail.text = DETAIL + RunSummary.block_for(self)
 
 
 func hide_screen() -> void:
@@ -52,8 +64,8 @@ func _build() -> void:
 	_panel = PanelContainer.new()
 	_panel.name = "Panel"
 	_panel.set_anchors_preset(Control.PRESET_CENTER)
-	_panel.position = Vector2(-170, -110)
-	_panel.custom_minimum_size = Vector2(340, 220)
+	_panel.position = Vector2(-230, -150)
+	_panel.custom_minimum_size = Vector2(460, 300)
 	add_child(_panel)
 
 	var column := VBoxContainer.new()

@@ -5,16 +5,24 @@ extends FaunaBase
 ## malam HOSTILE. Bisa menggigit, menyerbu (dash), dan menyerang struktur camp.
 
 signal dash_ended(hit: bool)
+## Fase 3B: hook suara/feedback. Tidak ada aset audio; pemanggil nanti yang
+## menyambungnya (mis. AudioManager). `target` = titik dash (global).
+signal telegraph_started(target: Vector2, seconds: float)
+signal telegraph_ended()
 
 enum State { WANDER, CHASE, BITE, DASH_TELEGRAPH, DASH, RECOVER, FLEE }
 
 const DEFAULT_RAID_CONFIG: RaidConfig = preload("res://src/data/configs/fauna/raid_config.tres")
 const CAMP_CENTER := Vector2.ZERO
-const RECOVER_TIME := 0.3
-## Gigitan ditahan beberapa frame supaya animasi `bite` benar-benar terlihat.
-const BITE_TIME := 0.22
-## Spesifikasi §7.2: knockback dash 60 px (durasi 0.2 s di CombatConfig).
-const DASH_KNOCKBACK_DISTANCE := 60.0
+## Fase 5: timing gigit/recover dan knockback dash pindah ke BoarConfig
+## (`bite_hold_time`, `dash_recover_time`, `dash_knockback_distance`).
+## Fase 3B: garis merah makin tebal/terang menjelang dash, plus cincin zona
+## bahaya di titik tuju. Kosmetik saja; durasi tetap dari BoarConfig.
+const TELEGRAPH_WIDTH_MIN := 3.0
+const TELEGRAPH_WIDTH_MAX := 6.0
+const TELEGRAPH_COLOR := Color(1.0, 0.22, 0.18, 0.95)
+const TELEGRAPH_RING_COLOR := Color(1.0, 0.25, 0.2, 0.28)
+const TELEGRAPH_RING_POINTS := 24
 
 ## Mission 9: mode raid + tanda raider (ditulis RaidDirector secara additive).
 @export var raid_config: RaidConfig = DEFAULT_RAID_CONFIG
@@ -34,6 +42,9 @@ var _dash_target: Vector2 = Vector2.ZERO
 var _dash_hit: bool = false
 var _telegraph_line: Line2D
 var _telegraph_label: Label
+var _telegraph_ring: Polygon2D
+var _telegraph_active: bool = false
+var _telegraph_duration: float = 1.0
 
 
 func _ready() -> void:
@@ -248,7 +259,7 @@ func _player_alive() -> bool:
 
 func _bite(target: Node, boar: BoarConfig) -> void:
 	state = State.BITE
-	_bite_remaining = BITE_TIME
+	_bite_remaining = boar.bite_hold_time
 	move_in_direction(Vector2.ZERO, 0.0, 0.0)
 	_bite_cooldown = boar.bite_cooldown
 	_deal_damage(target, boar.bite_damage, boar.bite_damage, Vector2.ZERO, 0.0)
@@ -272,30 +283,60 @@ func _lunge_visual(target: Node) -> void:
 func _begin_telegraph(locked_position: Vector2, boar: BoarConfig) -> void:
 	state = State.DASH_TELEGRAPH
 	_telegraph_remaining = boar.dash_telegraph
+	_telegraph_duration = maxf(boar.dash_telegraph, 0.001)
 	_dash_target = locked_position
 	_dash_hit = false
 	move_in_direction(Vector2.ZERO, 0.0, 0.0)
 	if _visual != null:
 		_visual.modulate = Color(1.5, 0.5, 0.5, 1.0)
-	_show_telegraph(locked_position)
+	_show_telegraph(locked_position, boar.dash_hit_radius)
+	telegraph_started.emit(_dash_target, boar.dash_telegraph)
 
 
-## D5: garis merah ke titik dash + label "!".
-func _show_telegraph(target_position: Vector2) -> void:
+## D5 + Fase 3B: garis merah ke titik dash, cincin zona bahaya di titik tuju,
+## dan label "!" yang berdenyut. Lebih tebal/terang saat dash makin dekat.
+func _show_telegraph(target_position: Vector2, hit_radius: float = 40.0) -> void:
 	_clear_telegraph()
+	_telegraph_active = true
 	_telegraph_line = Line2D.new()
 	_telegraph_line.name = "TelegraphLine"
-	_telegraph_line.width = 2.0
-	_telegraph_line.default_color = Color(1.0, 0.2, 0.2, 0.7)
+	_telegraph_line.width = TELEGRAPH_WIDTH_MIN
+	_telegraph_line.default_color = TELEGRAPH_COLOR
 	_telegraph_line.z_index = -1
 	_telegraph_line.points = PackedVector2Array([Vector2.ZERO, target_position - global_position])
 	add_child(_telegraph_line)
 
+	_telegraph_ring = Polygon2D.new()
+	_telegraph_ring.name = "TelegraphRing"
+	_telegraph_ring.color = TELEGRAPH_RING_COLOR
+	_telegraph_ring.z_index = -2
+	_telegraph_ring.polygon = _circle_points(maxf(hit_radius, 8.0))
+	_telegraph_ring.position = target_position - global_position
+	add_child(_telegraph_ring)
+
 	_telegraph_label = Label.new()
 	_telegraph_label.name = "TelegraphMark"
 	_telegraph_label.text = "!"
-	_telegraph_label.position = Vector2(-4.0, -46.0)
+	_telegraph_label.position = Vector2(-5.0, -52.0)
+	_telegraph_label.add_theme_font_size_override("font_size", 20)
+	_telegraph_label.add_theme_color_override("font_color", Color(1.0, 0.35, 0.3, 1.0))
 	add_child(_telegraph_label)
+
+
+func _circle_points(radius: float) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	for index in TELEGRAPH_RING_POINTS:
+		var angle := TAU * float(index) / float(TELEGRAPH_RING_POINTS)
+		points.append(Vector2(cos(angle), sin(angle)) * radius)
+	return points
+
+
+func get_telegraph_ring() -> Polygon2D:
+	return _telegraph_ring if is_instance_valid(_telegraph_ring) else null
+
+
+func is_telegraph_active() -> bool:
+	return _telegraph_active
 
 
 func get_telegraph_line() -> Line2D:
@@ -306,20 +347,34 @@ func _clear_telegraph() -> void:
 	if _telegraph_line != null and is_instance_valid(_telegraph_line):
 		_telegraph_line.queue_free()
 	_telegraph_line = null
+	if _telegraph_ring != null and is_instance_valid(_telegraph_ring):
+		_telegraph_ring.queue_free()
+	_telegraph_ring = null
 	if _telegraph_label != null and is_instance_valid(_telegraph_label):
 		_telegraph_label.queue_free()
 	_telegraph_label = null
 	if _visual != null:
 		_visual.position = Vector2.ZERO
+	if _telegraph_active:
+		_telegraph_active = false
+		telegraph_ended.emit()
 
 
 func _tick_telegraph(delta: float, boar: BoarConfig) -> void:
 	_telegraph_remaining -= delta
 	move_in_direction(Vector2.ZERO, 0.0, delta)
+	var progress := clampf(1.0 - _telegraph_remaining / _telegraph_duration, 0.0, 1.0)
 	if _telegraph_label != null and is_instance_valid(_telegraph_label):
-		_telegraph_label.modulate.a = 0.5 + 0.5 * sin(_telegraph_remaining * 18.0)
+		_telegraph_label.modulate.a = 0.55 + 0.45 * absf(sin(_telegraph_remaining * 18.0))
+		var pulse := 1.0 + 0.12 * sin(_telegraph_remaining * 18.0)
+		_telegraph_label.scale = Vector2(pulse, pulse)
 	if _telegraph_line != null and is_instance_valid(_telegraph_line):
-		_telegraph_line.modulate.a = 0.4 + 0.4 * absf(sin(_telegraph_remaining * 12.0))
+		_telegraph_line.width = lerpf(TELEGRAPH_WIDTH_MIN, TELEGRAPH_WIDTH_MAX, progress)
+		_telegraph_line.modulate.a = 0.65 + 0.35 * absf(sin(_telegraph_remaining * 12.0))
+	if _telegraph_ring != null and is_instance_valid(_telegraph_ring):
+		var ring_pulse := 1.0 + 0.08 * sin(_telegraph_remaining * 12.0)
+		_telegraph_ring.scale = Vector2(ring_pulse, ring_pulse)
+		_telegraph_ring.modulate.a = 0.6 + 0.4 * progress
 	if _visual != null:
 		_visual.position = Vector2(rng.randf_range(-2.0, 2.0), rng.randf_range(-2.0, 2.0))
 	if _telegraph_remaining > 0.0:
@@ -363,7 +418,7 @@ func _tick_dash(delta: float, boar: BoarConfig) -> void:
 			boar.dash_player_damage,
 			boar.dash_structure_damage,
 			push_dir,
-			DASH_KNOCKBACK_DISTANCE
+			boar.dash_knockback_distance
 		)
 	else:
 		_deal_damage(hit_target, boar.dash_player_damage, boar.dash_structure_damage, Vector2.ZERO, 0.0)
@@ -371,7 +426,7 @@ func _tick_dash(delta: float, boar: BoarConfig) -> void:
 	# `dash_ended(false)`, sehingga satu tabrakan mengirim dua sinyal.
 	move_in_direction(Vector2.ZERO, 0.0, 0.0)
 	state = State.RECOVER
-	_recover_remaining = RECOVER_TIME
+	_recover_remaining = boar.dash_recover_time
 	dash_ended.emit(true)
 
 

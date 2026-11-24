@@ -11,6 +11,8 @@ signal placement_cancelled
 const GROUP := &"base_placement"
 const SNAP := 16.0
 const RING_SEGMENTS := 48
+## Fase 4C: satu tekan Q memutar ring pagar 15°.
+const ROTATE_STEP := PI / 12.0
 
 @export var player: Node2D
 @export var anchor: CampAnchor
@@ -22,6 +24,7 @@ var rules_override: Callable = Callable()
 
 var _preview_active: bool = false
 var _preview_position: Vector2 = Vector2.ZERO
+var _rotation: float = 0.0
 var _result: Dictionary = {"valid": false, "reason": ""}
 var _ring: Line2D
 var _drawer: PreviewDraw
@@ -50,6 +53,10 @@ func _process(_delta: float) -> void:
 			start_preview()
 		return
 	if not _preview_active:
+		return
+	if Input.is_action_just_pressed(InputSetup.BASE_ROTATE):
+		var direction := -1.0 if Input.is_action_pressed(InputSetup.SPRINT) else 1.0
+		rotate_ring(direction)
 		return
 	if Input.is_action_just_pressed(&"ui_cancel"):
 		cancel()
@@ -84,7 +91,7 @@ func confirm() -> bool:
 	if not bool(_result.get("valid", false)):
 		return false
 	_preview_active = false
-	var placed := anchor.found(_preview_position)
+	var placed := anchor.found(_preview_position, _rotation)
 	refresh_ring()
 	if placed:
 		base_placed.emit(_preview_position)
@@ -119,6 +126,20 @@ func set_preview_position(position: Vector2) -> void:
 	preview_changed.emit(bool(_result.get("valid", false)), String(_result.get("reason", "")))
 
 
+## Fase 4C: putar ring pagar preview tanpa memindahkan pusat base.
+func rotate_ring(direction: float = 1.0) -> void:
+	set_rotation(_rotation + ROTATE_STEP * signf(direction))
+
+
+func set_rotation(angle: float) -> void:
+	_rotation = wrapf(angle, -PI, PI)
+	set_preview_position(_preview_position)
+
+
+func get_rotation() -> float:
+	return _rotation
+
+
 ## Mission 10: preview = aturan site + seluruh segmen pagar + 4 slot inti.
 func evaluate_at(position: Vector2) -> Dictionary:
 	if rules_override.is_valid():
@@ -126,7 +147,7 @@ func evaluate_at(position: Vector2) -> Dictionary:
 	if anchor != null and anchor.is_founded():
 		return BaseSiteRules.evaluate(position, _site_config(), true)
 	var site := _site_config()
-	return BasePlacementPreview.compute(position, site, _fence_config(), false)
+	return BasePlacementPreview.compute(position, site, _fence_config(), false, _rotation)
 
 
 func _site_config() -> BaseSiteConfig:

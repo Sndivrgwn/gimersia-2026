@@ -187,6 +187,108 @@ func remove_item(item: Variant, count: int = 1) -> bool:
 	return true
 
 
+## Ganti satu item di tas dengan varian lain tanpa menggeser urutan slot.
+## Dipakai mengisi ulang Waterskin kosong menjadi penuh di sungai.
+func replace_item(from_item: Variant, to_item: ItemDefinition) -> bool:
+	if to_item == null:
+		return false
+	var from_id := _id_of(from_item)
+	if from_id == &"":
+		return false
+	_ensure_slots()
+	for index in _slots.size():
+		var stack := _slots[index]
+		if stack == null or stack.item == null or stack.item.id != from_id:
+			continue
+		stack.item = to_item
+		slot_changed.emit(index)
+		inventory_changed.emit()
+		return true
+	return false
+
+
+## Pecah satu tumpukan jadi dua: separuh (dibulatkan ke atas) tetap di slot
+## asal, sisanya pindah ke slot kosong pertama. True bila berhasil.
+func split_slot(index: int) -> bool:
+	if not _is_valid_slot(index):
+		return false
+	var stack := _slots[index]
+	if stack == null or stack.item == null or stack.count <= 1:
+		return false
+
+	var target := -1
+	for slot_index in _slots.size():
+		if slot_index == index:
+			continue
+		var other := _slots[slot_index]
+		if other == null or other.is_empty():
+			target = slot_index
+			break
+	if target < 0:
+		return false
+
+	var moved := stack.count / 2
+	stack.count -= moved
+	_slots[target] = ItemStack.new(stack.item, moved)
+	slot_changed.emit(index)
+	slot_changed.emit(target)
+	inventory_changed.emit()
+	return true
+
+
+## Urutkan tas: gabung stack item yang sama, lalu urut kategori -> id.
+## Slot kosong selalu di belakang; equipment tidak disentuh. True bila ada
+## slot yang benar-benar berubah.
+func sort() -> bool:
+	_ensure_slots()
+	var totals: Dictionary = {}
+	for stack in _slots:
+		if stack == null or stack.item == null or stack.count <= 0:
+			continue
+		totals[stack.item] = int(totals.get(stack.item, 0)) + stack.count
+
+	var items: Array[ItemDefinition] = []
+	for item in totals.keys():
+		items.append(item as ItemDefinition)
+	items.sort_custom(_sort_before)
+
+	var rebuilt: Array[ItemStack] = []
+	for item in items:
+		var remaining := int(totals[item])
+		var stack_max := maxi(item.max_stack, 1)
+		while remaining > 0:
+			var take := mini(remaining, stack_max)
+			rebuilt.append(ItemStack.new(item, take))
+			remaining -= take
+
+	var changed := false
+	for index in _slots.size():
+		var before := _slots[index]
+		var after: ItemStack = rebuilt[index] if index < rebuilt.size() else null
+		if _same_stack(before, after):
+			continue
+		_slots[index] = after
+		slot_changed.emit(index)
+		changed = true
+	if changed:
+		inventory_changed.emit()
+	return changed
+
+
+static func _sort_before(a: ItemDefinition, b: ItemDefinition) -> bool:
+	if a.category != b.category:
+		return a.category < b.category
+	return String(a.id) < String(b.id)
+
+
+static func _same_stack(a: ItemStack, b: ItemStack) -> bool:
+	var a_empty := a == null or a.item == null or a.count <= 0
+	var b_empty := b == null or b.item == null or b.count <= 0
+	if a_empty or b_empty:
+		return a_empty == b_empty
+	return a.item.id == b.item.id and a.count == b.count
+
+
 ## Buang dari slot tertentu saja (dipakai transfer peti -> tas). Berbeda dari
 ## `remove_item()` yang mencari id dari slot terakhir, ini tidak menggeser isi
 ## slot lain saat pemain mengklik satu slot.
@@ -268,7 +370,8 @@ func move_slot(from: int, to: int) -> bool:
 
 
 ## Pakai item di slot. Hanya CONSUMABLE; item tetap terpakai walau stat sudah
-## penuh. True bila item benar-benar dipakai dan dikurangi satu.
+## penuh. True bila item benar-benar dipakai. Item dengan `use_result` (mis.
+## Waterskin) berubah menjadi varian itu di slot yang sama.
 ## Mission 7: hook additive setelah item berhasil dipakai.
 signal item_used(item: ItemDefinition, slot_index: int)
 
@@ -285,7 +388,7 @@ func use_slot(index: int) -> bool:
 		return false
 
 	_apply_effect(item.consume_effect)
-	_consume_one(index)
+	_consume_one(index, item.use_result)
 	item_used.emit(item, index)
 	return true
 
@@ -427,11 +530,17 @@ func _apply_hp(amount: float) -> void:
 		stats.set_hp(stats.current_hp + amount)
 
 
-func _consume_one(index: int) -> void:
+## Kurangi satu item di slot. Bila `replacement` diisi dan slot hanya berisi
+## satu item, slot diganti varian itu (Waterskin penuh -> kosong).
+func _consume_one(index: int, replacement: ItemDefinition = null) -> void:
 	var stack := _slots[index]
-	stack.count -= 1
-	if stack.count <= 0:
-		_slots[index] = null
+	if replacement != null and stack.count <= 1:
+		stack.item = replacement
+		stack.count = 1
+	else:
+		stack.count -= 1
+		if stack.count <= 0:
+			_slots[index] = null
 	slot_changed.emit(index)
 	inventory_changed.emit()
 

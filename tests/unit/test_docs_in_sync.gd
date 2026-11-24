@@ -192,6 +192,29 @@ func test_every_input_action_is_documented() -> void:
 	assert_true(missing.is_empty(), "action belum ada di tabel Input Map PANDUAN_MODUL.md: %s" % ", ".join(missing))
 
 
+## Tabel "## 22. Tabel Input Map lengkap" ditulis tangan; tes ini menjaga isinya
+## tidak tertinggal saat action baru ditambahkan (mis. `base_rotate`).
+func test_module_input_table_lists_every_action() -> void:
+	InputSetup.ensure_actions()
+	var text := _read(MODULE_GUIDE)
+	var start := text.find("## 22. Tabel Input Map lengkap")
+	assert_gte(start, 0, "seksi tabel Input Map hilang dari PANDUAN_MODUL.md")
+	var section := text.substr(start)
+	var next_section := section.find("\n## ", 10)
+	if next_section > 0:
+		section = section.substr(0, next_section)
+	var missing := PackedStringArray()
+	for action in InputMap.get_actions():
+		var name := String(action)
+		if name.begins_with("ui_"):
+			continue
+		if name == "godot_editor":
+			continue
+		if not section.contains("| `%s` |" % name):
+			missing.append(name)
+	assert_true(missing.is_empty(), "tabel Input Map PANDUAN_MODUL.md belum memuat: %s" % ", ".join(missing))
+
+
 # --- Helper -----------------------------------------------------------------
 
 ## Mission 9: dokumen tangan memakai CRLF, generator menulis CRLF juga, tetapi

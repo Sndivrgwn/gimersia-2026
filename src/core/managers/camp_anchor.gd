@@ -14,6 +14,8 @@ const STRUCTURE_GROUP := &"camp_structure"
 
 var _center: Vector2 = Vector2.ZERO
 var _founded: bool = false
+## Fase 4C: rotasi ring pagar yang dipilih saat base ditentukan (radian).
+var _fence_rotation: float = 0.0
 
 
 func _enter_tree() -> void:
@@ -53,14 +55,21 @@ func get_rules_config() -> BaseSiteConfig:
 	return config
 
 
-func found(position: Vector2) -> bool:
+## `fence_rotation` hanya disimpan bila base berhasil ditentukan.
+func found(position: Vector2, fence_rotation: float = 0.0) -> bool:
 	var result := BaseSiteRules.evaluate(position, get_rules_config(), not can_found())
 	if not bool(result.get("valid", false)):
 		return false
 	_center = position
+	_fence_rotation = wrapf(fence_rotation, -PI, PI)
 	_founded = true
 	base_founded.emit(_center)
 	return true
+
+
+## Rotasi ring pagar base (0 bila belum pernah diputar).
+func get_fence_rotation() -> float:
+	return _fence_rotation
 
 
 func evaluate(position: Vector2) -> Dictionary:

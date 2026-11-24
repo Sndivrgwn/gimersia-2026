@@ -16,7 +16,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 > **Status saat ini:** loop survival inti dapat dimainkan dari awal sampai akhir — bukti
 > `test_island_survival.gd`, `test_island_night.gd`, `test_island_death.gd`,
 > `test_island_endgame.gd`, `test_island_soak.gd`. Yang belum: build/export, audio,
-> art final (0/63 slot), dan playtest manual owner.
+> art final (0/67 slot), dan playtest manual owner.
 
 ---
 
@@ -37,7 +37,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 | Death & respawn | Ada | DeathController, LootBag di lokasi kematian, debuff proficiency, DeathScreen dengan Respawn & Menu Utama (8 tes) |
 | Win condition | Ada | EndgameController, SignalBeacon, banner Hari 7, arrow ke beacon, layar Victory (7 tes); integrasi HUD ada |
 | UI & audio final | Sebagian | HUD waktu (termasuk arc matahari/bulan), needs, stats, hotbar, interaksi, banner, recap debuff, pause/settings/help, peti, panel stasiun ada; audio belum (data + panduan); visual belum dicek manual |
-| Aset & visual | Fondasi ada | `Assets`/`VisualSlot`/`UiSkin` + registry 65 slot (SpriteFrames-first + slot `ui_sun`/`ui_moon`); coverage 0/65 (tim seni) |
+| Aset & visual | Fondasi ada | `Assets`/`VisualSlot`/`UiSkin` + registry 67 slot (SpriteFrames-first + slot `ui_sun`/`ui_moon`); coverage 0/67 (tim seni) |
 | Build & playtest | Belum | Belum ada build/export yang diverifikasi |
 
 ---
@@ -56,7 +56,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] `DayNightVisual` dengan `CanvasModulate`, transisi warna, dan partikel.
 - [x] `TimeHUD` read-only untuk hari, fase, sisa waktu, progress, dan label Survival.
 - [x] `SafeZone` practice sebagai contoh modifier dan zoom kamera.
-- [x] Tes GUT ditulis dan dijalankan: **529 tes (522 unit + 7 integration), 3089 assert, 67 skrip tes**.
+- [x] Tes GUT ditulis dan dijalankan: ratusan tes unit + 7 integration (angka berubah tiap fase; lihat output `tools/run_tests.sh`).
 - [x] Sandbox manual stats: `tests/sandbox/stats_sandbox.tscn`.
 - [x] GUT 9.7.1 terpasang di `addons/gut` dan tes benar-benar dijalankan.
 - [x] Smoke test runtime `practice1.tscn` setelah semua perubahan clock.
@@ -95,7 +95,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] Sprint (Shift) dengan speed dari stats.
 - [x] `can_sprint` dapat dikunci modul luar.
 - [x] `facing_direction` menyimpan arah hadap terakhir.
-- [x] Animasi sprite/arah hadap — sistem `VisualSlot` (strip `_Nf`, 4 arah, mirror) teruji; art produksi 0/63 slot.
+- [x] Animasi sprite/arah hadap — sistem `VisualSlot` (strip `_Nf`, 4 arah, mirror) teruji; art produksi 0/67 slot.
 - Attack otomatis dan cooldown — status di §9.
 - [x] Interaksi dengan resource/objek (E).
 - Inventory dan item — status di §6.
@@ -118,7 +118,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] Level-up otomatis dan batas XP (100 x level, overflow, lock di Lv 10).
 - [x] Passive ability yang terhubung ke level (Heavy Strike, Sturdy, Second Wind, Quick Reflex, Swift Counter; Light Footed di `StatsComponent`).
 - [x] Death debuff permanen dengan batas maksimal (2 proficiency).
-- [x] Integrasi `max_respawn_tokens` dan `fatigue_sprint_threshold` ke gameplay. Catatan: `DeathController` memakai konstanta internal `RESPAWN_TOKENS = 3`; `PlayerBaseStats.max_respawn_tokens` belum dibaca (angkanya sama). Ambang sprint sudah di `NeedsComponent`.
+- [x] Integrasi `max_respawn_tokens` dan `fatigue_sprint_threshold` ke gameplay. `DeathController` membaca `PlayerBaseStats.max_respawn_tokens` lewat `StatsComponent.get_base_stats()` (fallback 3 bila stat tidak ada); ambang sprint dibaca `NeedsComponent`.
 
 ---
 
@@ -146,7 +146,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 ## 6. Inventory dan Item
 
 - [x] Definisi item/data item.
-  - `ItemDefinition` + `ItemEffect` + `ItemStack` + `InventoryConfig` di `src/data/resources/items/`, 22 `.tres` di `src/data/items/`, diakses lewat `ItemCatalog`; setiap file divalidasi `tests/unit/test_item_definitions.gd`.
+  - `ItemDefinition` + `ItemEffect` + `ItemStack` + `InventoryConfig` di `src/data/resources/items/`, 24 `.tres` di `src/data/items/`, diakses lewat `ItemCatalog`; setiap file divalidasi `tests/unit/test_item_definitions.gd`.
 - [x] Inventory pemain dan kapasitas.
   - 12 slot, 5 slot pertama hotbar, stack maksimal 20 (Waterskin/Flare = 1); angka dari `inventory_config.tres`; dicek tes kapasitas dan stacking.
 - [x] Equipment slot dasar (senjata, tool, armor).
@@ -161,8 +161,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] Item Suar Darurat.
 - [x] Efek instan makanan/minuman (Hunger/Thirst/HP/plafon Fatigue).
   - Berry, Coconut, Raw/Cooked Meat, Bone Broth, Boiled Water, Herbal Bandage; efek Hunger/Thirst/HP/plafon Fatigue dicek tes.
-- [x] Regen HP Bone Broth (+1 HP/s, 20 dtk) — `StatusEffectsComponent` (`test_status_effects.gd`: durasi, refresh, time scale 0/2, mati).
-  - `regen_hp_per_second`/`regen_duration` baru disimpan di `ItemEffect`; belum ada sistem status effect yang menerapkannya.
+- [x] Regen HP Bone Broth (+1 HP/s, 20 dtk) — `StatusEffectsComponent` menerapkan `ItemEffect.regen_hp_per_second`/`regen_duration` dari sinyal `item_used` (`test_status_effects.gd`: durasi, refresh, time scale 0/2, mati).
 - [x] Senjata/tools dasar — resep + `test_crafting_component.gd` (kapak, pickaxe, senjata).
 
 ---
@@ -418,8 +417,8 @@ menu utama, UI kematian, UI inventory, feedback debuff, Survival Timer malam. Si
 
 ### Wandi — Game Artist / 2D Artist
 
-> Pipeline siap dan terdokumentasi (`docs/editable/ASSET_GUIDE.md`, registry 63 slot;
-> coverage 0/63). Butir di bawah murni kerja seni — kode tidak perlu diubah lagi.
+> Pipeline siap dan terdokumentasi (`docs/editable/ASSET_GUIDE.md`, registry 67 slot;
+> coverage 0/67). Butir di bawah murni kerja seni — kode tidak perlu diubah lagi.
 
 - [ ] Style visual konsisten.
 - [ ] Sprite dan animasi dasar pemain.
@@ -457,7 +456,7 @@ butir sengaja `[ ]` sampai pemilik menjalankannya dalam satu sesi penuh.
 3. **[Selesai] `set_time_scale(-1)` reset ke config.** Nilai negatif mengembalikan `DayNightConfig.time_scale`; `0.0` tetap override nyata untuk freeze final dawn.
 4. **`phase_changed` tidak membawa `day`.** Jangan ubah sinyal lama; tambahkan sinyal baru bila perlu.
 5. **[Selesai] GUT 9.7.1 terpasang.** Tes clock/stats sudah dijalankan lewat GUT command line.
-6. **[Sebagian] Modul inti belum lengkap.** Needs (komponen + HUD + 27 tes), inventory (12 slot + hotbar + equipment, 23 tes), bag panel (17 tes), gathering (8 resource node + hold-E, 14 tes), peta pulau minimum, crafting (13 resep + `CraftingComponent` + tab Crafting), struktur camp (Campfire/Workbench/BlueprintSlot + repair + rest, Peti 24 slot, Tenda tidur, Night Watch, `CampController` terpasang di `island.tscn`) sudah ada; panel Peti, combat, enemy, death, menu, audio, victory belum.
+6. **[Selesai] Modul inti lengkap.** Needs, inventory (12 slot + hotbar + equipment + pecah/urut), bag panel, gathering (9 resource node + hold-E), peta pulau minimum, crafting (13 resep + craft xN), struktur camp (Campfire/Workbench/BlueprintSlot + repair + rest, Peti 24 slot + panel, Tenda tidur, Night Watch), combat/fauna, death/respawn, menu, Victory, dan ringkasan run sudah ada. Yang benar-benar kosong hanya audio (data + panduan saja) dan art produksi.
 7. **`get_time_scale()` berubah saat final dawn.** Modul survival harus memakai getter ini agar ikut berhenti.
 8. **`SafeZone` masih practice-only.** Jangan anggap ini sistem camp produksi.
 
@@ -481,7 +480,7 @@ butir sengaja `[ ]` sampai pemilik menjalankannya dalam satu sesi penuh.
 
 ## 24. Aset dan visual
 
-Sistem aset siap dipakai tetapi **0/63 slot terisi** (coverage Mission 8).
+Sistem aset siap dipakai tetapi **0/67 slot terisi** (coverage Mission 8).
 Panduan lengkap: `docs/editable/ASSET_GUIDE.md`.
 
 - [ ] Prioritas 1 (26 slot) terisi art final — menunggu tim seni.
@@ -523,7 +522,7 @@ Rasa/feedback, bukan fitur baru. Semua butir terverifikasi lewat
 
 ## 27. Balance pass 2 (Mission 9, fase 1-3)
 
-Fase 0-3 jalan; fase 4-6 belum (lihat bagian terpisah di bawah).
+Fase 0-6 jalan; butir uji rasa manual tetap terbuka.
 
 - [x] Raid sebagai event terjadwal (`RaidDirector` + `RaidConfig`), peringatan sebelum raid, raider dipilih dari boar terdekat ke base.
 - [x] Cap populasi malam dan siang dibaca dari `RaidConfig`; cap tidak pernah membunuh fauna yang sudah ada.
@@ -579,7 +578,7 @@ Fase 0-3 jalan; fase 4-6 belum (lihat bagian terpisah di bawah).
 
 Fitur Mission 10 yang belum punya baris sendiri di file ini.
 
-- [x] Satu action penempatan base (`base_place`, B) dengan preview pagar: ghost mengikuti kursor, situs invalid diblokir dengan alasan Indonesia, klik kiri mendirikan base — `test_camp_anchor.gd` (memuat `BasePlacementController`).
+- [x] Penempatan base dua action: `base_place` (B) memulai/mengonfirmasi, `base_rotate` (Q / Shift+Q) memutar ring pagar 15° dengan pusat di-snap grid 16 px; preview pagar mengikuti kursor, situs invalid diblokir dengan alasan Indonesia, klik kiri mendirikan base — `test_camp_anchor.gd` + `test_fase4_base_build.gd`.
 - [x] Panel stasiun (Meja Kerja / Api Unggun) terbuka dengan E, mengunci gerak pemain tanpa mem-pause dunia, craft dari panel memakai `CraftingComponent` yang sama — `test_station_panel_craft.gd`.
 - [x] Item di tangan (`HeldItemVisual`) + hotbar memilih item (1-5, `InventoryConfig.hotbar_select_mode`) dan `use_held` (klik kanan/F) — `test_mission10_held_items.gd`.
 - [x] Perilaku pause berlapis (`UiBackStack.close_top`): Esc menutup panel paling atas dulu, skala waktu dipulihkan persis — `test_pause_menu.gd`.
@@ -598,8 +597,50 @@ Presentasi saja; siklus/fase/durasi tidak berubah.
 
 ## 33. Fase 1 — orientasi pemain (tujuan, rekap, cahaya)
 
-- [x] Tujuan harian dinamis dari data (`DailyGoalConfig`/`DailyGoal`, `daily_goals.tres`) + baris HUD `DailyGoalHUD` — `test_daily_goals_and_light.gd`.
-- [x] Rekap fajar (`DailyRunStats` + `DawnRecapHUD`, config `dawn_recap_config.tres`) — `test_daily_goals_and_light.gd`.
-- [x] Cahaya pemain malam 110 px / 190 px dengan Obor (`PlayerLight`, `player_light_config.tres`) — `test_daily_goals_and_light.gd`.
-- [ ] Uji rasa manual: keterbacaan baris tujuan, panel rekap tidak mengganggu, malam terasa gelap tapi tetap adil.
+- [x] Tujuan harian dinamis dari data (`DailyGoalConfig`/`DailyGoal`, `daily_goals.tres`) + baris HUD `DailyGoalHUD`; semua tujuan hari itu tampil satu baris, yang selesai dicoret, ada penghitung `(n/m)` — `test_daily_goals_and_light.gd`, `test_island_goals.gd`.
+- [x] `Kind` tujuan: `ITEM_COUNT`, `TOOL_OWNED`, `WEAPON_EQUIPPED`, `ARMOR_EQUIPPED`, `STRUCTURE_BUILT`, `BASE_FOUNDED`; 17 tujuan Hari 1-7 (Hari 6: 5 Kayu + pakai Rompi Kulit).
+- [x] Baris tujuan dipindah ke bawah tengah (di atas hotbar) supaya tidak menimpa StatsHUD dan slot hotbar.
+- [x] Rekap fajar (`DailyRunStats` + `DawnRecapHUD`, config `dawn_recap_config.tres`) dengan fade masuk/keluar, menutup sendiri atau Esc, tanpa pause — `test_daily_goals_and_light.gd`, `test_island_goals.gd`.
+- [x] Perbaikan wiring: node `DawnRecapHUD` di `island.tscn` memakai `node_paths` untuk `stats` (sebelumnya rekap tidak pernah muncul di island).
+- [x] Cahaya pemain malam 110 px / 190 px dengan Obor (`PlayerLight`, `player_light_config.tres`); deskripsi item Obor diperbarui — `test_daily_goals_and_light.gd`.
+- [ ] Uji rasa manual: keterbacaan baris tujuan di resolusi 1280x720, panel rekap tidak mengganggu, malam terasa gelap tapi tetap adil.
 - [ ] Pertanyaan terbuka: apakah Obor perlu durasi/habis? Belum ditambahkan (spec tidak menyebut).
+
+## 34. Fase 2 — navigasi
+
+- [x] Panah ke base (`CampArrow`) dengan pusat dari `CampAnchor.get_center()`, ambang `CompassConfig.camp_arrow_distance` (600 px), hanya setelah base ditentukan — `test_fase2_navigation.gd`.
+- [x] Perbaikan bug 2A: `CampAnchor` bertipe `Node` (bukan `Node2D`), sebelumnya cast gagal sehingga panah base tidak pernah tampil di island.
+- [x] Penanda tas jatuh (`LootBagArrow`) mengikuti grup `loot_bag`, hilang saat tas diambil, ambang `CompassConfig.loot_arrow_distance` (40 px) — `test_fase2_navigation.gd`.
+- [x] Indikator target auto-attack (`CombatComponent.get_auto_target()` + `auto_target_changed`, `TargetIndicator` anak Player) — `test_fase2_navigation.gd`.
+- [x] Bar HP hewan muncul hanya saat terluka dan hilang setelah `FaunaConfig.hp_bar_hide_seconds` (3 dtk nyata) tanpa damage — `test_fase2_navigation.gd`.
+- [x] Config baru `compass_config.tres` + generator `tools/generate_compass_config.gd`, terdaftar di CONFIG_GUIDE.
+- [ ] Uji rasa manual: panah base di pulau 4800x4800 (jarak 600 px terasa pas?), posisi penanda tas di kanan atas, chevron target tidak menutupi bar HP.
+- [ ] Catatan: penanda tas hanya menunjuk tas terdekat bila ada beberapa tas sekaligus.
+
+## 35. Fase 3 — kamera dan telegraph
+
+- [x] Look-ahead kamera + zoom siang/malam lewat `camera_feel_config.tres` (11 px, follow 3.2, zoom 3.0/2.75) — `test_fase3_camera_telegraph.gd`.
+- [x] Batas kamera di tepi pulau dari `IslandLayoutConfig.half_size` (limit ±2400 px, minus margin config) — `test_fase3_camera_telegraph.gd`.
+- [x] Telegraph babi lebih jelas: garis 3→6 px makin terang, label "!" besar berdenyut, cincin zona bahaya seukuran `dash_hit_radius` — `test_fase3_camera_telegraph.gd`.
+- [x] Hook suara: sinyal `WildBoar.telegraph_started(target, seconds)` dan `telegraph_ended()` tanpa aset audio.
+- [ ] Uji rasa manual: look-ahead 11 px terasa cukup (bukan bikin mual), limit kamera tidak terasa mentok mendadak, cincin bahaya tidak berlebihan.
+- [x] 3C Waterskin (desain A: varian item): Kantung Air Kulit kini CONSUMABLE (+25 Thirst, -5 Hunger) dengan `use_result` -> `waterskin_empty.tres`; isi ulang di sungai menukar kantung kosong jadi penuh lewat `InventoryComponent.replace_item()` tanpa cooldown minum — `test_fase3_waterskin.gd`.
+- [ ] Uji rasa manual: satu tegukan per kantung (bukan 3/3) terasa cukup, prompt "Isi Kantung Air" tidak membingungkan saat ingin langsung minum.
+
+## 36. Fase 4 — UX tas, crafting xN, bangun base
+
+- [x] 4A Pecah tumpukan: Shift + klik kiri di slot tas memanggil `InventoryComponent.split_slot()`; separuh (dibulatkan ke atas) tetap di slot asal, sisanya ke slot kosong pertama — `test_fase4_inventory_ux.gd`.
+- [x] 4A Urutkan tas: `InventoryComponent.sort()` menggabung stack sejenis lalu mengurutkan kategori + id, slot kosong di belakang; tombol **Urutkan** + hint "klik kanan / Shift+klik" di tab Tas — `test_fase4_inventory_ux.gd`.
+- [x] 4B Craft xN: `CraftingComponent.start_craft(recipe, station, count)` mengulang resep sampai N tercapai, bahan habis, atau stasiun hilang; getter `get_batch_total/done/remaining`; `cancel_craft()` membatalkan seluruh batch — `test_fase4_crafting.gd`.
+- [x] 4B Highlight: baris resep yang siap di-craft diberi latar hijau (`CraftingRow.is_highlighted()`), SpinBox jumlah 1..`StationConfig.craft_batch_max` (5) — `test_fase4_crafting.gd`.
+- [x] 4C Bangun base: pusat tetap di-snap ke grid 16 px dan ring pagar bisa diputar 15° dengan **Q** (Shift+Q kebalikannya) lewat `BasePlacementController.rotate_ring()`, `FenceRing.layout(..., angle_offset)`, dan `CampAnchor.found(center, fence_rotation)`; `PANDUAN_INPUT` ikut diperbarui — `test_fase4_base_build.gd`.
+- [ ] Uji rasa manual: Shift+klik tidak bentrok dengan drag-drop, tombol Urutkan tidak mengacak hotbar saat dipakai, Craft x5 terasa tidak terlalu lama, Q memutar ring terasa 15° cukup halus.
+
+## 37. Fase 5 — layar akhir informatif & audit angka
+
+- [x] `RunSummary` (`src/utils/run_summary.gd`, murni) memformat `DailyRunStats.get_totals()`: hari bertahan, sumber daya, babi/hewan dibunuh, kerusakan base, struktur hancur; nilai negatif dijepit ke 0 dan kunci yang hilang aman (default 0) — `test_fase5_summary.gd`.
+- [x] `DailyRunStats` mendaftar ke grup `daily_run_stats`; layar akhir menemukannya lewat grup lalu fallback `find_child` di scene aktif.
+- [x] DeathScreen (`show_death`, `show_game_over`) dan GameOverScreen (`show_screen`) menampilkan blok "Ringkasan Perjalanan"; panel diperbesar ke 460x300 agar 4 baris muat — `test_fase5_summary.gd`.
+- [x] Panel Victory `EndgameHUD` menambahkan blok ringkasan yang sama setelah baris "Diselamatkan Hari N pukul HH:MM"; panel diperbesar ke 420x300 — `test_fase5_summary.gd`.
+- [x] Audit angka: timing `BITE`/`RECOVER` dan knockback dash babi pindah dari konstanta `WildBoar` ke `BoarConfig.bite_hold_time` (0.22), `dash_recover_time` (0.3), `dash_knockback_distance` (60); kerusakan lapar/haus dan regen HP sudah di `needs_config.tres`/`health_regen_config.tres` — `test_fase5_summary.gd`, regresi `test_wild_boar.gd` 8/8.
+- [ ] Uji rasa manual: ringkasan tidak membuat panel mati/kemenangan sesak di 1280x720, angka run kosong (belum ada kill) tetap terbaca wajar.

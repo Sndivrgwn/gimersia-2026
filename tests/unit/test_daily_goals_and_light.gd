@@ -5,6 +5,7 @@ extends GutTest
 const GOALS_CONFIG: DailyGoalConfig = preload("res://src/data/configs/daily_goals.tres")
 const LIGHT_CONFIG: PlayerLightConfig = preload("res://src/data/configs/player_light_config.tres")
 const RECAP_SCRIPT := preload("res://src/ui/hud/recap/dawn_recap_hud.gd")
+const GOAL_HUD_SCRIPT := preload("res://src/ui/hud/goals/daily_goal_hud.gd")
 const BOAR_SCENE: PackedScene = preload("res://src/entities/fauna/wild_boar/wild_boar.tscn")
 
 
@@ -27,6 +28,13 @@ class StubHotbar extends Node:
 
 	func get_held_item() -> ItemDefinition:
 		return item
+
+
+class StubClock extends Node:
+	var day := 1
+
+	func get_current_day() -> int:
+		return day
 
 
 # --- 1A: tujuan harian ------------------------------------------------------
@@ -74,6 +82,13 @@ func test_tool_and_weapon_goals() -> void:
 	inventory.equip(ItemCatalog.STONE_SPEAR)
 	assert_true(weapon.is_met(inventory, null, null), "tombak batu terpasang")
 
+	var armor := DailyGoal.new()
+	armor.kind = DailyGoal.Kind.ARMOR_EQUIPPED
+	armor.item = ItemCatalog.LEATHER_VEST
+	assert_false(armor.is_met(inventory, null, null))
+	inventory.equip(ItemCatalog.LEATHER_VEST)
+	assert_true(armor.is_met(inventory, null, null), "rompi kulit terpasang")
+
 
 func test_structure_and_base_goals() -> void:
 	var camp := StubCamp.new()
@@ -92,6 +107,26 @@ func test_structure_and_base_goals() -> void:
 	assert_false(base.is_met(null, camp, anchor))
 	anchor.founded = true
 	assert_true(base.is_met(null, camp, anchor), "base ditentukan")
+
+
+func test_goal_hud_lists_every_goal_of_the_day() -> void:
+	var clock := StubClock.new()
+	add_child_autofree(clock)
+	clock.day = 2
+	var hud := GOAL_HUD_SCRIPT.new()
+	hud.config = GOALS_CONFIG
+	hud.clock = clock
+	add_child_autofree(hud)
+	var text: String = hud.get_text()
+	assert_true(text.begins_with("Hari 2:"), "baris diawali hari: %s" % text)
+	for goal in GOALS_CONFIG.get_goals_for_day(2):
+		assert_string_contains(text, goal.describe())
+	assert_string_contains(text, "(0/3)", "penghitung progres")
+
+	clock.day = 1
+	hud.refresh()
+	assert_string_contains(hud.get_text(), "bangun api unggun")
+	assert_string_contains(hud.get_text(), "(0/3)")
 
 
 # --- 1B: rekap fajar --------------------------------------------------------
@@ -127,6 +162,21 @@ func test_daily_stats_destroyed_structure_marks_base_broken() -> void:
 	stats.record_structure_destroyed()
 	assert_false(stats.is_base_intact())
 	assert_eq(int(stats.build_summary()["structures_destroyed"]), 1)
+
+
+func test_recap_hud_shows_and_closes() -> void:
+	var hud := RECAP_SCRIPT.new()
+	add_child_autofree(hud)
+	assert_false(hud.is_open(), "awalnya tertutup")
+	hud.show_summary({
+		"day": 2, "resources": 12, "kills_boar": 2,
+		"structures_destroyed": 0, "base_intact": true,
+	})
+	assert_true(hud.is_open())
+	assert_eq(hud.get_title_text(), "Hari 2 selesai")
+	assert_string_contains(hud.get_body_text(), "12 resource")
+	hud.close()
+	assert_false(hud.is_open(), "bisa ditutup pemain")
 
 
 func test_recap_text_formats() -> void:

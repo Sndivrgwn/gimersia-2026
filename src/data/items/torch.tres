@@ -6,6 +6,6 @@
 script = ExtResource("1_item")
 id = &"torch"
 display_name = "Obor"
-description = "Obor untuk memperluas cahaya pemain. Perilaku belum aktif."
+description = "Pilih di hotbar saat malam: cahaya pemain melebar dari 110 px ke 190 px."
 category = 5
 max_stack = 20

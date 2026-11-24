@@ -25,6 +25,7 @@ const HERBAL_BANDAGE: ItemDefinition = preload("res://src/data/items/herbal_band
 const COCKPIT_NOTES: ItemDefinition = preload("res://src/data/items/cockpit_notes.tres")
 
 const WATERSKIN: ItemDefinition = preload("res://src/data/items/waterskin.tres")
+const WATERSKIN_EMPTY: ItemDefinition = preload("res://src/data/items/waterskin_empty.tres")
 const SIGNAL_FLARE: ItemDefinition = preload("res://src/data/items/signal_flare.tres")
 const TORCH: ItemDefinition = preload("res://src/data/items/torch.tres")
 
@@ -53,6 +54,7 @@ const ALL: Array[ItemDefinition] = [
 	HERBAL_BANDAGE,
 	COCKPIT_NOTES,
 	WATERSKIN,
+	WATERSKIN_EMPTY,
 	SIGNAL_FLARE,
 	TORCH,
 	WOODEN_SPEAR,

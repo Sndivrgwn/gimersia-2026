@@ -31,15 +31,17 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `res://tools/generate_audio_registry.gd` | `GODOT --headless --path . -s tools/generate_audio_registry.gd` | res://src/data/audio/audio_registry.tres |
 | `res://tools/generate_balance_data.gd` | `GODOT --headless --path . -s tools/generate_balance_data.gd` | res://src/data/configs/health_regen_config.tres, res://src/data/configs/needs_config.tres, res://src/data/configs/run_config.tres, res://src/data/configs/sneak_config.tres, res://src/data/configs/wading_config.tres |
 | `res://tools/generate_body_profiles.gd` | `GODOT --headless --path . -s tools/generate_body_profiles.gd` | res://src/data/configs/physics/body_island_deer.tres, res://src/data/configs/physics/body_player.tres, res://src/data/configs/physics/body_wild_boar.tres |
+| `res://tools/generate_camera_feel_config.gd` | `GODOT --headless --path . -s tools/generate_camera_feel_config.gd` | res://src/data/configs/camera_feel_config.tres |
 | `res://tools/generate_clock_format.gd` | `GODOT --headless --path . -s tools/generate_clock_format.gd` | res://src/data/configs/environment/clock_format.tres |
 | `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` | res://src/data/configs/combat_config.tres, res://src/data/configs/fauna/boar_config.tres, res://src/data/configs/fauna/deer_config.tres, res://src/data/configs/fauna/ember_snuff_config.tres, res://src/data/configs/fauna/night_scaling_config.tres, res://src/data/configs/fauna/raid_config.tres |
+| `res://tools/generate_compass_config.gd` | `GODOT --headless --path . -s tools/generate_compass_config.gd` | res://src/data/configs/compass_config.tres |
 | `res://tools/generate_daily_goals.gd` | `GODOT --headless --path . -s tools/generate_daily_goals.gd` | res://src/data/configs/daily_goals.tres, res://src/data/configs/dawn_recap_config.tres |
 | `res://tools/generate_fauna_configs.gd` | `GODOT --headless --path . -s tools/generate_fauna_configs.gd` | res://src/data/configs/fauna/boar_config.tres, res://src/data/configs/fauna/deer_config.tres |
 | `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` | — (tidak menulis .tres) |
 | `res://tools/generate_held_item_data.gd` | `GODOT --headless --path . -s tools/generate_held_item_data.gd` | res://src/data/configs/held_item_config.tres |
 | `res://tools/generate_hints.gd` | `GODOT --headless --path . -s tools/generate_hints.gd` | res://src/data/hints/base_place.tres, res://src/data/hints/campfire_cold.tres, res://src/data/hints/crafting.tres, res://src/data/hints/dusk.tres, res://src/data/hints/fence.tres, res://src/data/hints/gather.tres, res://src/data/hints/hunger_sprint_lock.tres, res://src/data/hints/need_low.tres, res://src/data/hints/neutral_hit.tres, res://src/data/hints/repair.tres |
 | `res://tools/generate_input_guide.gd` | `GODOT --headless --path . -s tools/generate_input_guide.gd` | — (tidak menulis .tres) |
-| `res://tools/generate_player_light.gd` | `GODOT --headless --path . -s tools/generate_player_light.gd` | res://src/data/configs/player_light_config.tres, res://src/data/items/torch.tres |
+| `res://tools/generate_player_light.gd` | `GODOT --headless --path . -s tools/generate_player_light.gd` | res://src/data/configs/player_light_config.tres |
 | `res://tools/generate_proficiency_data.gd` | `GODOT --headless --path . -s tools/generate_proficiency_data.gd` | res://src/data/configs/proficiency_config.tres |
 | `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` | res://src/data/recipes/boiled_water.tres, res://src/data/recipes/bone_broth.tres, res://src/data/recipes/bone_spear.tres, res://src/data/recipes/cooked_meat.tres, res://src/data/recipes/herbal_bandage.tres, res://src/data/recipes/leather_vest.tres, res://src/data/recipes/signal_flare.tres, res://src/data/recipes/stone_axe.tres, res://src/data/recipes/stone_pickaxe.tres, res://src/data/recipes/stone_spear.tres, res://src/data/recipes/torch.tres, res://src/data/recipes/waterskin.tres, res://src/data/recipes/wooden_spear.tres |
 | `res://tools/generate_station_data.gd` | `GODOT --headless --path . -s tools/generate_station_data.gd` | res://src/data/configs/station_config.tres |
@@ -216,6 +218,25 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `mirror_fallback` | bool | true |
 | `default_fps` | Dictionary | {8 entri} |
 
+### `res://src/data/configs/camera_feel_config.tres`
+
+- Kelas: `camera_feel_config.gd` (`res://src/data/resources/camera/camera_feel_config.gd`)
+- Tujuan: Look-ahead/zoom kamera dan margin batas tepi pulau.
+- Dipakai oleh: CameraFeel, CameraFeelConfig
+- Pemilik: generator
+- Efek tuning: Mengubah rasa kamera dan seberapa dalam batas tepi pulau ditarik.
+- Tes terkait: test_fase3_camera_telegraph.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `look_ahead_px` | float | 11.00 |
+| `follow_speed` | float | 3.20 |
+| `day_zoom` | float | 3.00 |
+| `night_zoom` | float | 2.75 |
+| `zoom_time` | float | 1.40 |
+| `camera_limit_margin` | float | 0.00 |
+
 ### `res://src/data/configs/campfire_config.tres`
 
 - Kelas: `campfire_config.gd` (`res://src/data/resources/camp/campfire_config.gd`)
@@ -268,6 +289,21 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `bleed_duration` | float | 3.00 |
 | `bleed_weapon_ids` | Array | [1 item] |
 | `floating_text_lifetime` | float | 0.80 |
+
+### `res://src/data/configs/compass_config.tres`
+
+- Kelas: `compass_config.gd` (`res://src/data/resources/hud/compass_config.gd`)
+- Tujuan: Ambang jarak panah base dan penanda tas jatuh.
+- Dipakai oleh: CampArrow, LootBagArrow, CompassConfig
+- Pemilik: generator
+- Efek tuning: Menentukan kapan penunjuk arah muncul/hilang; tidak mengubah gameplay.
+- Tes terkait: test_fase2_navigation.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `camp_arrow_distance` | float | 600.00 |
+| `loot_arrow_distance` | float | 40.00 |
 
 ### `res://src/data/configs/daily_goals.tres`
 
@@ -351,11 +387,11 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 ### `res://src/data/configs/health_regen_config.tres`
 
 - Kelas: `health_regen_config.gd` (`res://src/data/resources/needs/health_regen_config.gd`)
-- Tujuan: belum didokumentasikan
-- Dipakai oleh: —
+- Tujuan: Regen HP pasif: laju, jeda keluar combat, dan kurva Hunger/Thirst.
+- Dipakai oleh: HealthRegenComponent
 - Pemilik: generator
-- Efek tuning: —
-- Tes terkait: —
+- Efek tuning: Seberapa cepat HP pulih dan seberapa besar penalti need rendah.
+- Tes terkait: test_health_regen.gd
 
 | Field | Tipe | Nilai |
 | --- | --- | --- |
@@ -617,11 +653,11 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 ### `res://src/data/configs/run_config.tres`
 
 - Kelas: `run_config.gd` (`res://src/data/resources/run/run_config.gd`)
-- Tujuan: belum didokumentasikan
-- Dipakai oleh: —
+- Tujuan: Perlindungan setelah respawn: durasi, kedip, aturan batal.
+- Dipakai oleh: DeathController, PlayerDamageReceiver
 - Pemilik: generator
-- Efek tuning: —
-- Tes terkait: —
+- Efek tuning: Menentukan lama pemain aman setelah respawn; tidak mengubah token respawn.
+- Tes terkait: test_respawn_protection.gd
 
 | Field | Tipe | Nilai |
 | --- | --- | --- |
@@ -650,11 +686,11 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 ### `res://src/data/configs/station_config.tres`
 
 - Kelas: `station_config.gd` (`res://src/data/resources/camp/station_config.gd`)
-- Tujuan: belum didokumentasikan
-- Dipakai oleh: —
+- Tujuan: Panel stasiun: hold E, jarak pakai/tutup, mode tab tas, batas craft xN.
+- Dipakai oleh: CraftingComponent, StationPanel, CraftingRow
 - Pemilik: generator
-- Efek tuning: —
-- Tes terkait: —
+- Efek tuning: Seberapa mudah membuka panel dan berapa banyak craft sekali tekan.
+- Tes terkait: test_station_panel_craft.gd, test_crafting_panel.gd, test_fase4_crafting.gd
 
 | Field | Tipe | Nilai |
 | --- | --- | --- |
@@ -664,6 +700,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `panel_close_distance` | float | 160.00 |
 | `bag_tab_hand_only` | bool | true |
 | `campfire_opens_panel` | bool | true |
+| `craft_batch_max` | int | 5 |
 
 ### `res://src/data/configs/wading_config.tres`
 
@@ -795,15 +832,18 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 ### `res://src/data/configs/fauna/boar_config.tres`
 
 - Kelas: `boar_config.gd` (`res://src/data/resources/fauna/boar_config.gd`)
-- Tujuan: belum didokumentasikan
-- Dipakai oleh: —
+- Tujuan: Angka babi hutan: gigit, dash, persepsi, dan timing state.
+- Dipakai oleh: WildBoar, FaunaBase
 - Pemilik: generator
-- Efek tuning: —
-- Tes terkait: —
+- Efek tuning: Rasa tempur babi; timing BITE/RECOVER dan knockback dash ada di sini (Fase 5).
+- Tes terkait: test_wild_boar.gd, test_fase5_summary.gd
 
 | Field | Tipe | Nilai |
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
+| `bite_hold_time` | float | 0.22 |
+| `dash_recover_time` | float | 0.30 |
+| `dash_knockback_distance` | float | 60.00 |
 | `bite_damage` | float | 12.00 |
 | `bite_range` | float | 50.00 |
 | `bite_cooldown` | float | 1.20 |
@@ -831,6 +871,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `wander_pause_max` | float | 5.00 |
 | `flee_despawn_distance` | float | 600.00 |
 | `flee_despawn_timeout` | float | 8.00 |
+| `hp_bar_hide_seconds` | float | 3.00 |
 | `loot_ids` | Array | [] |
 | `loot_counts` | Array | [] |
 | `blocks_player` | bool | true |
@@ -867,6 +908,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `wander_pause_max` | float | 5.00 |
 | `flee_despawn_distance` | float | 600.00 |
 | `flee_despawn_timeout` | float | 8.00 |
+| `hp_bar_hide_seconds` | float | 3.00 |
 | `loot_ids` | Array | [] |
 | `loot_counts` | Array | [] |
 | `blocks_player` | bool | true |
@@ -907,11 +949,11 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 ### `res://src/data/configs/fauna/raid_config.tres`
 
 - Kelas: `raid_config.gd` (`res://src/data/resources/fauna/raid_config.gd`)
-- Tujuan: belum didokumentasikan
-- Dipakai oleh: —
+- Tujuan: Jadwal raid malam, jumlah raider, cap populasi, dan mode raid.
+- Dipakai oleh: RaidDirector, WildBoar, NightSpawner, FaunaQuota
 - Pemilik: generator
-- Efek tuning: —
-- Tes terkait: —
+- Efek tuning: Menentukan kapan dan seberapa besar raid; 1.0 = tabel spesifikasi.
+- Tes terkait: test_raid_director.gd, test_night_spawner.gd
 
 | Field | Tipe | Nilai |
 | --- | --- | --- |
@@ -1411,6 +1453,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1436,6 +1479,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | (res://src/data/items/berry.tres::Resource_ef... |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1461,6 +1505,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | (res://src/data/items/boiled_water.tres::Reso... |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1486,6 +1531,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1511,6 +1557,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | (res://src/data/items/bone_broth.tres::Resour... |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1536,6 +1583,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 1 |
 | `weapon_damage` | float | 30.00 |
 | `weapon_range` | float | 85.00 |
@@ -1561,6 +1609,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 1 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1586,6 +1635,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | (res://src/data/items/coconut.tres::Resource_... |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1611,6 +1661,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | (res://src/data/items/cooked_meat.tres::Resou... |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1636,6 +1687,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1661,6 +1713,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | (res://src/data/items/herbal_bandage.tres::Re... |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1686,6 +1739,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1711,6 +1765,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 3 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1736,6 +1791,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | (res://src/data/items/raw_meat.tres::Resource... |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1761,6 +1817,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 1 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1786,6 +1843,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1811,6 +1869,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 2 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1836,6 +1895,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 2 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1861,6 +1921,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 1 |
 | `weapon_damage` | float | 28.00 |
 | `weapon_range` | float | 85.00 |
@@ -1872,7 +1933,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: generator
+- Pemilik: edit tangan
 - Efek tuning: —
 - Tes terkait: —
 
@@ -1881,11 +1942,12 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `resource_local_to_scene` | bool | false |
 | `id` | StringName | torch |
 | `display_name` | String | Obor |
-| `description` | String | Obor untuk memperluas cahaya pemain. Perilaku... |
+| `description` | String | Pilih di hotbar saat malam: cahaya pemain mel... |
 | `category` | int | 5 |
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1895,22 +1957,49 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 ### `res://src/data/items/waterskin.tres`
 
 - Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
-- Tujuan: belum didokumentasikan
-- Dipakai oleh: —
+- Tujuan: Kantung air penuh: satu tegukan, +25 Thirst dan -5 Hunger, lalu jadi kantung kosong.
+- Dipakai oleh: InventoryComponent.use_slot, RiverEdge/RiverDrinkZone
 - Pemilik: edit tangan
-- Efek tuning: —
-- Tes terkait: —
+- Efek tuning: Nilai efek minum dan varian hasil pemakaian (`use_result`).
+- Tes terkait: test_item_definitions.gd, test_fase3_waterskin.gd
 
 | Field | Tipe | Nilai |
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
 | `id` | StringName | waterskin |
 | `display_name` | String | Kantung Air Kulit |
-| `description` | String | Wadah air dari kulit. Isi ulang di sungai. Pe... |
+| `description` | String | Wadah air kulit berisi satu tegukan. Pakai un... |
+| `category` | int | 1 |
+| `max_stack` | int | 1 |
+| `icon` | Resource | — |
+| `consume_effect` | Resource | (res://src/data/items/waterskin.tres::Resourc... |
+| `use_result` | Resource | (res://src/data/items/waterskin_empty.tres):<... |
+| `equipment_slot` | int | 0 |
+| `weapon_damage` | float | 0.00 |
+| `weapon_range` | float | 0.00 |
+| `armor_damage_reduction` | float | 0.00 |
+| `armor_max_hp_bonus` | float | 0.00 |
+
+### `res://src/data/items/waterskin_empty.tres`
+
+- Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
+- Tujuan: Varian kantung kosong; diisi ulang di sungai (tahan E).
+- Dipakai oleh: RiverEdge.refill_waterskin, RiverDrinkZone
+- Pemilik: edit tangan
+- Efek tuning: Tidak punya efek konsumsi; hanya penanda bahwa kantung perlu diisi.
+- Tes terkait: test_fase3_waterskin.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `id` | StringName | waterskin_empty |
+| `display_name` | String | Kantung Air Kosong |
+| `description` | String | Kantung air kulit yang sudah kosong. Isi ulan... |
 | `category` | int | 5 |
 | `max_stack` | int | 1 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1936,6 +2025,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 0 |
 | `weapon_damage` | float | 0.00 |
 | `weapon_range` | float | 0.00 |
@@ -1961,6 +2051,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `max_stack` | int | 20 |
 | `icon` | Resource | — |
 | `consume_effect` | Resource | — |
+| `use_result` | Resource | — |
 | `equipment_slot` | int | 1 |
 | `weapon_damage` | float | 18.00 |
 | `weapon_range` | float | 75.00 |
@@ -2248,8 +2339,10 @@ Kelas berikut hanya punya default di kode; ubah lewat kode atau dengan membuat `
 | `res://tools/generate_audio_registry.gd` | `GODOT --headless --path . -s tools/generate_audio_registry.gd` |
 | `res://tools/generate_balance_data.gd` | `GODOT --headless --path . -s tools/generate_balance_data.gd` |
 | `res://tools/generate_body_profiles.gd` | `GODOT --headless --path . -s tools/generate_body_profiles.gd` |
+| `res://tools/generate_camera_feel_config.gd` | `GODOT --headless --path . -s tools/generate_camera_feel_config.gd` |
 | `res://tools/generate_clock_format.gd` | `GODOT --headless --path . -s tools/generate_clock_format.gd` |
 | `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` |
+| `res://tools/generate_compass_config.gd` | `GODOT --headless --path . -s tools/generate_compass_config.gd` |
 | `res://tools/generate_daily_goals.gd` | `GODOT --headless --path . -s tools/generate_daily_goals.gd` |
 | `res://tools/generate_fauna_configs.gd` | `GODOT --headless --path . -s tools/generate_fauna_configs.gd` |
 | `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` |

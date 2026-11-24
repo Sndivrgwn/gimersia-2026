@@ -82,6 +82,8 @@
 [ext_resource type="Script" path="res://src/ui/hud/goals/daily_goal_hud.gd" id="80_goalhud"]
 [ext_resource type="Script" path="res://src/ui/hud/recap/dawn_recap_hud.gd" id="81_recaphud"]
 [ext_resource type="Script" path="res://src/components/visual/player_light.gd" id="82_playerlight"]
+[ext_resource type="Script" path="res://src/ui/hud/compass/loot_arrow.gd" id="83_lootarrow"]
+[ext_resource type="Script" path="res://src/components/combat/target_indicator.gd" id="84_target"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
 size = Vector2(5000, 100)
@@ -354,7 +356,7 @@ script = ExtResource("74_protection")
 [node name="DailyGoalHUD" type="CanvasLayer" parent="."]
 script = ExtResource("80_goalhud")
 
-[node name="DawnRecapHUD" type="CanvasLayer" parent="."]
+[node name="DawnRecapHUD" type="CanvasLayer" parent="." node_paths=PackedStringArray("stats")]
 script = ExtResource("81_recaphud")
 stats = NodePath("../DailyRunStats")
 
@@ -407,6 +409,9 @@ script = ExtResource("62_lowhp")
 script = ExtResource("63_opening")
 [node name="CampArrow" type="CanvasLayer" parent="."]
 script = ExtResource("64_camparrow")
+
+[node name="LootBagArrow" type="CanvasLayer" parent="."]
+script = ExtResource("83_lootarrow")
 [node name="DeathFX" type="Node" parent="."]
 script = ExtResource("65_deathfx")
 [node name="VictoryFX" type="Node" parent="."]
@@ -429,3 +434,6 @@ script = ExtResource("78_held_visual")
 
 [node name="PlayerLight" type="Node2D" parent="Player"]
 script = ExtResource("82_playerlight")
+
+[node name="TargetIndicator" type="Node2D" parent="Player"]
+script = ExtResource("84_target")

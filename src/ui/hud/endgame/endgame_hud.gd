@@ -50,6 +50,11 @@ func is_victory_visible() -> bool:
 	return _victory_panel != null and _victory_panel.visible
 
 
+## Teks panel Victory lengkap (dipakai tes).
+func get_victory_text() -> String:
+	return "" if _victory_detail == null else _victory_detail.text
+
+
 # --- Internal ---------------------------------------------------------------
 
 func _build() -> void:
@@ -75,8 +80,8 @@ func _build() -> void:
 
 	_victory_panel = PanelContainer.new()
 	_victory_panel.name = "Victory"
-	_victory_panel.position = Vector2(400, 260)
-	_victory_panel.custom_minimum_size = Vector2(352, 140)
+	_victory_panel.position = Vector2(370, 220)
+	_victory_panel.custom_minimum_size = Vector2(420, 300)
 	_victory_panel.visible = false
 	add_child(_victory_panel)
 
@@ -132,7 +137,8 @@ func _on_rescue_ready() -> void:
 func _on_victory() -> void:
 	_victory_panel.visible = true
 	if _victory_detail != null:
-		_victory_detail.text = VICTORY_DETAIL + _rescue_time_line()
+		# Fase 5: ringkasan run ikut ditampilkan di panel Victory.
+		_victory_detail.text = VICTORY_DETAIL + _rescue_time_line() + RunSummary.block_for(self)
 
 
 ## Mission 12: "Diselamatkan Hari 7 pukul 06:00" bila jam tersedia.

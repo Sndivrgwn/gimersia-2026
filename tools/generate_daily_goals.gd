@@ -47,7 +47,7 @@ func _write_goals() -> void:
 		_goal(5, "buat Obor untuk malam", DailyGoal.Kind.ITEM_COUNT, ItemCatalog.TORCH, 1),
 		# Hari 6: siapkan pelarian.
 		_goal(6, "kumpulkan 5 Kayu untuk Suar", DailyGoal.Kind.ITEM_COUNT, ItemCatalog.WOOD, 5),
-		_goal(6, "pakai Obor di malam gelap", DailyGoal.Kind.ITEM_COUNT, ItemCatalog.TORCH, 1),
+		_goal(6, "pakai Rompi Kulit", DailyGoal.Kind.ARMOR_EQUIPPED, ItemCatalog.LEATHER_VEST),
 		# Hari 7: puncak.
 		_goal(7, "buat Suar Darurat", DailyGoal.Kind.ITEM_COUNT, ItemCatalog.SIGNAL_FLARE, 1),
 		_goal(7, "bawa Tombak Tulang", DailyGoal.Kind.WEAPON_EQUIPPED, ItemCatalog.BONE_SPEAR),

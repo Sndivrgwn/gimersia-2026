@@ -29,6 +29,10 @@ enum EquipmentSlot { NONE, WEAPON, TOOL, ARMOR }
 @export var icon: Texture2D
 ## Efek saat dipakai. Null berarti item tidak berefek.
 @export var consume_effect: ItemEffect
+## Varian item yang menggantikan item ini setelah dipakai (mis. Waterskin
+## penuh -> `waterskin_empty.tres`). Null berarti item habis seperti biasa.
+## Berlaku untuk stack berisi satu item (max_stack 1).
+@export var use_result: ItemDefinition
 ## Slot peralatan bila item ini bisa dipasang.
 @export var equipment_slot: EquipmentSlot = EquipmentSlot.NONE
 ## Damage senjata (dipakai combat nanti; belum di-wire).

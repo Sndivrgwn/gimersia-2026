@@ -20,7 +20,8 @@ static func compute(
 	center: Vector2,
 	site_config: BaseSiteConfig,
 	fence_config: FenceConfig,
-	locked: bool = false
+	locked: bool = false,
+	angle_offset: float = 0.0
 ) -> Dictionary:
 	var base := BaseSiteRules.evaluate(center, site_config, locked)
 	var radius := fence_radius(fence_config)
@@ -28,7 +29,7 @@ static func compute(
 	var valid := bool(base.get("valid", false))
 	var reason := String(base.get("reason", ""))
 
-	for entry in FenceRing.layout(center, fence_config):
+	for entry in FenceRing.layout(center, fence_config, angle_offset):
 		var point: Vector2 = entry["position"]
 		var inside := inside_island(point, site_config)
 		var in_river := inside_river(point)

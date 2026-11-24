@@ -11,6 +11,7 @@ enum Kind {
 	ITEM_COUNT,       ## punya `item` di tas sebanyak `count`
 	TOOL_OWNED,       ## kepemilikan tool (Stone Axe / Stone Pickaxe)
 	WEAPON_EQUIPPED,  ## `item` terpasang di slot WEAPON
+	ARMOR_EQUIPPED,   ## `item` terpasang di slot ARMOR
 	STRUCTURE_BUILT,  ## struktur camp ber-id `structure_id` sudah berdiri
 	BASE_FOUNDED,     ## base sudah ditentukan (CampAnchor)
 }
@@ -48,6 +49,10 @@ func is_met(inventory: Node, camp: Node, anchor: Node) -> bool:
 			if inventory == null or item == null or not inventory.has_method(&"get_equipped"):
 				return false
 			return inventory.get_equipped(ItemDefinition.EquipmentSlot.WEAPON) == item
+		Kind.ARMOR_EQUIPPED:
+			if inventory == null or item == null or not inventory.has_method(&"get_equipped"):
+				return false
+			return inventory.get_equipped(ItemDefinition.EquipmentSlot.ARMOR) == item
 		Kind.STRUCTURE_BUILT:
 			if camp == null or not camp.has_method(&"has_built"):
 				return false

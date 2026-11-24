@@ -186,6 +186,12 @@ func _gui_input(event: InputEvent) -> void:
 	var mouse := event as InputEventMouseButton
 	if mouse == null or not mouse.pressed:
 		return
+	# Shift + klik kiri = pecah tumpukan ke slot kosong pertama (Fase 4A).
+	if mouse.button_index == MOUSE_BUTTON_LEFT and mouse.shift_pressed:
+		accept_event()
+		if inventory != null:
+			inventory.split_slot(slot_index)
+		return
 	if mouse.button_index != MOUSE_BUTTON_RIGHT:
 		return
 

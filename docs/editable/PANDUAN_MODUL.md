@@ -187,17 +187,21 @@ inv.get_slot_count(0)
 inv.use_slot(0)                      # pakai item slot hotbar pertama
 inv.remove_item(&"berry", 1)         # bool; atomik (semua atau tidak sama sekali)
 inv.move_slot(0, 1)                  # tukar, atau gabung bila item sama
+inv.split_slot(0)                    # Fase 4A: separuh tumpukan ke slot kosong pertama
+inv.sort()                           # Fase 4A: gabung + urut kategori -> id
 inv.add_or_drop(ItemCatalog.WOOD, 5) # sisa meluber jadi ItemPickup di kaki pemain
 inv.equip(ItemCatalog.LEATHER_VEST)  # WEAPON/ARMOR menggantikan, TOOL menambah
+# Fase 3C: Waterskin penuh berubah jadi kantung kosong lewat ItemDefinition.use_result
 inv.has_tool(&"stone_axe")
 ```
 
-**API:** `add_item(item, count) -> int`, `remove_item(item, count) -> bool` (terima `ItemDefinition` atau id), `has_item(item, count)`, `count_of(item)` / `count_item(id)`, `get_slot(index)`, `get_slot_item(index)`, `get_slot_count(index)`, `is_slot_empty(index)`, `is_full()`, `move_slot(from, to) -> bool`, `use_slot(index) -> bool`, `add_or_drop(item, count) -> int`, `equip(item) -> bool`, `unequip(slot) -> bool`, `has_tool(item)`, `get_equipped(slot)`, `get_capacity()`, `get_hotbar_size()`, `clear()`, `setup(player, needs = null, stats = null)`.
+**API:** `add_item(item, count) -> int`, `remove_item(item, count) -> bool` (terima `ItemDefinition` atau id), `has_item(item, count)`, `count_of(item)` / `count_item(id)`, `get_slot(index)`, `get_slot_item(index)`, `get_slot_count(index)`, `is_slot_empty(index)`, `is_full()`, `move_slot(from, to) -> bool`, `split_slot(index) -> bool`, `sort() -> bool`, `use_slot(index) -> bool`, `add_or_drop(item, count) -> int`, `equip(item) -> bool`, `unequip(slot) -> bool`, `has_tool(item)`, `get_equipped(slot)`, `get_capacity()`, `get_hotbar_size()`, `clear()`, `setup(player, needs = null, stats = null)`.
 
 **Sinyal:** `slot_changed(index)`, `equipment_changed(slot)`, `inventory_changed()`.
 
 **Aturan main:**
 - Item menumpuk ke stack yang sama lebih dulu, lalu mengisi slot kosong paling kiri; `max_stack` definisi item (default 20). Urutan slot tidak diacak.
+- `split_slot()` memecah tumpukan (separuh dibulatkan ke atas tetap di slot asal) hanya bila ada slot kosong; `sort()` menggabung stack sejenis lalu mengurutkan kategori (RESOURCE -> CONSUMABLE -> WEAPON -> TOOL -> ARMOR -> SPECIAL) dan id, slot kosong di belakang. Keduanya memancarkan `slot_changed` per slot yang berubah.
 - `use_slot()` hanya untuk `ItemDefinition.Category.CONSUMABLE`. Hunger/Thirst lewat `NeedsComponent.add()`, HP lewat `StatsComponent.heal()/set_hp()`, dan Fatigue lewat `NeedsComponent.restore_fatigue_capacity()`. Item tetap terpakai walau stat sudah penuh.
 - **Jangan** memanggil `add(Need.FATIGUE, ...)` untuk item; Fatigue item selalu lewat plafon.
 - Armor memakai modifier `StatsComponent` dengan `source_id` tetap `&"equip_armor"` (damage reduction + max HP); mengganti/menanggalkan armor menghapus modifier lama dulu. Weapon dan tool tidak mengubah stat sekarang.
@@ -243,7 +247,9 @@ baru). Nama field dipertahankan demi kompatibilitas `.tres`; jangan menambah
 | Air Rebus (Boiled Water) | CONSUMABLE | +60 Thirst |
 | Perban Herbal (Herbal Bandage) | CONSUMABLE | +35 HP |
 | Kayu/Batu/Serat/Bambu/Tulang/Kulit | RESOURCE | stack 20, tanpa efek |
-| Kantung Air Kulit / Suar Darurat | SPECIAL | stack 1, tanpa perilaku |
+| Kantung Air Kulit (Waterskin) | CONSUMABLE | +25 Thirst, -5 Hunger; slot berubah jadi Kantung Air Kosong (`use_result`) |
+| Kantung Air Kosong | SPECIAL | stack 1, tanpa efek; isi ulang di sungai (tahan E) |
+| Suar Darurat | SPECIAL | stack 1, tanpa perilaku |
 | Obor (Torch) | SPECIAL | stack 20, tanpa perilaku |
 | Tombak Kayu/Batu/Tulang | WEAPON | 18/75, 28/85, 30/85 |
 | Kapak Batu / Beliung Batu | TOOL | kepemilikan, tanpa efek stat |
@@ -289,12 +295,14 @@ Tampilan: lima kartu slot, masing-masing nomor tombol, nama item (atau `icon` bi
 
 **Cara pakai:** instance `src/ui/panels/inventory/bag_panel.tscn` di scene permainan. CanvasLayer-nya `layer = 20` (di atas HUD `layer = 10`) dan panel tersembunyi secara default. Toggle lewat action Input Map `inventory_toggle` (Tab atau I), ditangani panel sendiri di `_unhandled_input`. Saat panel terbuka, **Esc** (`ui_cancel`) juga menutupnya; Esc tidak membuka panel.
 
-Tab **Tas**: grid 12 slot (`bag_slot.tscn`, minimal 64×64, slot 0-4 diberi nomor hotbar 1-5) plus kolom Peralatan read-only (Senjata, Alat = Kapak Batu/Beliung Batu yang dimiliki, Armor). Tab **Crafting**: daftar 13 resep (3 tangan di atas, 10 terkunci di bagian redup "TERKUNCI" dengan nama stasiunnya), teks bahan `punya/butuh` per bahan (merah bila kurang), waktu craft, dan tombol **Craft** per baris. Saat craft berjalan: bar progres, label status ("Membuat …", "Selesai: …", "Batal: …"), dan tombol **Batalkan**. Panel hanya memanggil `CraftingComponent.start_craft()` / `cancel_craft()`; angka dibaca ulang lewat sinyal inventaris + `craft_started/progress/completed/cancelled` + `stations_changed()`.
+Tab **Tas**: grid 12 slot (`bag_slot.tscn`, minimal 64×64, slot 0-4 diberi nomor hotbar 1-5) plus kolom Peralatan read-only (Senjata, Alat = Kapak Batu/Beliung Batu yang dimiliki, Armor). Tab **Crafting**: daftar 13 resep (3 tangan di atas, 10 terkunci di bagian redup "TERKUNCI" dengan nama stasiunnya), teks bahan `punya/butuh` per bahan (merah bila kurang), waktu craft, dan tombol **Craft** per baris. Sejak Fase 4B tiap baris punya SpinBox jumlah (1..`StationConfig.craft_batch_max`, bawaan 5): **Craft xN** mengulang resep yang sama sampai N tercapai atau bahan habis; baris yang siap di-craft diberi latar hijau. Saat craft berjalan: bar progres, label status ("Membuat …", "Selesai: …", "Batal: …"), dan tombol **Batalkan** (membatalkan seluruh batch). Panel hanya memanggil `CraftingComponent.start_craft()` / `cancel_craft()`; angka dibaca ulang lewat sinyal inventaris + `craft_started/progress/completed/cancelled` + `stations_changed()`.
 
 | Aksi | Efek |
 |---|---|
 | Klik kiri + drag slot ke slot lain | `InventoryComponent.move_slot(from, to)` — tukar, atau gabung bila item sama dan target masih muat |
 | Klik kanan slot | `InventoryComponent.use_slot(index)`; slot kosong / non-CONSUMABLE diabaikan tanpa error |
+| Shift + klik kiri slot | `InventoryComponent.split_slot(index)` — pecah tumpukan ke slot kosong pertama (Fase 4A) |
+| Tombol **Urutkan** (kolom kanan tab Tas) | `InventoryComponent.sort()` — gabung stack sejenis lalu urutkan kategori + id (Fase 4A) |
 | Hover slot | tooltip: nama, deskripsi, satu baris efek (Hunger/Thirst/Fatigue/HP, damage senjata, armor) |
 
 Panel **tidak mem-pause** game: DayNightManager, drain Needs, dan gerakan pemain tetap berjalan. Panel tidak punya state sendiri; semua isi dibaca dari `InventoryComponent` dan refresh hanya lewat `slot_changed`, `equipment_changed`, dan `inventory_changed`, jadi `HotbarHUD` dan tas selalu sinkron.
@@ -372,6 +380,11 @@ semua sistem membaca pusat/radius dari anchor.
 - `BasePlacementController` + `BaseHUD`: tekan **B**, ghost mengikuti kursor,
   situs tidak valid diblokir dengan alasan Indonesia (air/sungai/pantai),
   klik kiri mendirikan base (`base_founded(center, radius)`).
+- Fase 4C: pusat base di-snap ke grid 16 px; **Q** memutar ring pagar preview
+  15° (Shift+Q arah sebaliknya) lewat `FenceRing.layout(center, config, offset)`,
+  sehingga pagar bisa dihindarkan dari sungai/tepi tanpa memindahkan pusat.
+  Rotasi disimpan di `CampAnchor.found(center, fence_rotation)` dan dipakai
+  `FenceRing.build_ring()`.
 - `CampController` mengikat anchor (`get_anchor()`), memindahkan/mengaktifkan
   slot blueprint, dan mematikan slot saat base belum berdiri.
 - Konsumen yang ikut anchor: raid boar, radius Speed di `ProficiencyComponent`,
@@ -820,8 +833,10 @@ var crafting := player.get_node("CraftingComponent") as CraftingComponent
 crafting.get_available_recipes()   # Array[RecipeDefinition] yang stasiunnya ada
 crafting.get_block_reason(recipe)  # "Butuh Workbench", "Bahan kurang", ...
 crafting.can_craft(recipe)
-crafting.start_craft(recipe)
-crafting.cancel_craft("Batal")
+crafting.start_craft(recipe)                    # satu craft
+crafting.start_craft(recipe, station, 3)        # Fase 4B: batch x3
+crafting.get_batch_total() / get_batch_done() / get_batch_remaining()
+crafting.cancel_craft("Batal")                  # membatalkan seluruh batch
 crafting.tick(delta)               # _process sudah memanggil ini (delta nyata)
 ```
 
@@ -1085,12 +1100,18 @@ Clock TIDAK dipause. Sinyal: `died(respawns_remaining)`, `respawned`, `game_over
 
 **DeathScreen** (CanvasLayer, `PROCESS_MODE_ALWAYS`): hanya UI, memancarkan
 `respawn_requested` / `main_menu_requested`; `island.gd` yang menghubungkannya.
+Fase 5: `show_death()` dan `show_game_over()` menambahkan blok "Ringkasan
+Perjalanan" (hari bertahan, sumber daya, babi/hewan dibunuh, kerusakan base,
+struktur hancur) dari `RunSummary.block_for()` yang membaca
+`DailyRunStats.get_totals()`; `GameOverScreen` melakukan hal yang sama di
+`show_screen()`. Getter tes: `get_detail_text()`.
 
 **EndgameController + SignalBeacon + EndgameHUD**: banner saat
 `day_started(max_days)`, banner rescue saat `rescue_started`, panah arah/jarak ke
 Beacon, dan Victory saat Beacon dipakai. Beacon (`Interactable`, hold 1.5 s) hanya
 bisa dipakai saat `clock.rescue_triggered` dan `InventoryComponent` punya
-`signal_flare` (tidak dikonsumsi).
+`signal_flare` (tidak dikonsumsi). Fase 5: panel Victory ikut menampilkan blok
+ringkasan run yang sama (`EndgameHUD.get_victory_text()`).
 
 **RunController / MainMenu**: `request_main_menu()` membekukan clock
 (`set_time_scale(0.0)`), `request_restart()` memanggil `DayNightManager.restart()`.
@@ -1119,6 +1140,7 @@ dari InputMap yang hidup, jadi tidak boleh berbeda dengan kode.
 | `attack_click` | Mouse 1 |
 | `attack_space` | Space |
 | `base_place` | B |
+| `base_rotate` | Q |
 | `debug_agi_down` | 4 |
 | `debug_agi_up` | 4 |
 | `debug_asset_boxes` | Home |
@@ -1473,6 +1495,11 @@ atau `project.godot`.
 - Efek memakai `RiverEdge.apply_drink()`: +25 Thirst, -8 Hunger, cooldown 15 dtk.
   Saat tidak di air, node keluar dari grup `interactable` sehingga prompt dan
   interaksi lain di darat tidak berubah.
+- Fase 3C: bila pemain membawa Kantung Air Kosong, prompt menjadi "Isi Kantung
+  Air" dan `RiverEdge.refill_waterskin()` menukarnya dengan Kantung Air Kulit
+  penuh (`InventoryComponent.replace_item()`), tanpa meminum air dan tanpa
+  cooldown. Kantung diisi lebih dulu; minum baru terjadi bila tidak ada kantung
+  kosong. Berlaku di `RiverEdge` dan `RiverDrinkZone`.
 - Tuning tepi: `@export var margin` pada node `RiverDrinkZone`.
 
 ### Transisi siang/sore/malam dan arah matahari
@@ -1586,7 +1613,7 @@ sisi berlawanan dengan fajar (fajar dari kanan secara bawaan). Matikan
 | `HeldItemVisual` | `src/components/visual/held_item_visual.gd` | `resolve_item()`, `get_shape_points()`, `notify_swing()`; kosmetik saja |
 | `HotbarSelectionComponent` | `src/components/inventory/hotbar_selection_component.gd` | 1-5 memilih slot (`InventoryConfig.hotbar_select_mode`), `use_held()` (klik kanan/F) hanya untuk consumable |
 | `UiBackStack` | `src/ui/ui_back_stack.gd` | `close_top(context)` menutup lapisan UI paling atas dulu |
-| `BasePlacementController` + preview | `src/components/base/`, `src/levels/camp/fence_ring.gd` | satu action `base_place` (B): ghost pagar mengikuti kursor, situs invalid diblokir dengan alasan, klik kiri mendirikan base |
+| `BasePlacementController` + preview | `src/components/base/`, `src/levels/camp/fence_ring.gd` | `base_place` (B) memulai/mengonfirmasi base, `base_rotate` (Q / Shift+Q) memutar ring pagar 15°, situs invalid diblokir dengan alasan, pusat di-snap 16 px |
 
 **Uji manual:** buka Meja Kerja dengan E lalu tekan Esc (panel tertutup, gerak
 kembali); angkat item dengan 1-5 lalu klik kanan; tekan B di tanah valid dan
@@ -1645,12 +1672,14 @@ toast menampilkan jam sebelum -> sesudah.
 - Data: `src/data/configs/daily_goals.tres` (generator
   `tools/generate_daily_goals.gd`). Tiap `DailyGoal` berisi `day`, `text`,
   `kind`, `item`/`count`/`structure_id`.
-- `Kind`: `ITEM_COUNT`, `TOOL_OWNED`, `WEAPON_EQUIPPED`, `STRUCTURE_BUILT`,
-  `BASE_FOUNDED`. Semua dibaca dari state hidup (tas, struktur, base) — tidak ada
-  progres yang disimpan, jadi tidak bisa basi.
-- HUD: `DailyGoalHUD` (CanvasLayer, kiri bawah) menampilkan satu baris:
-  `Hari 2: buat Kapak Batu  (1/3)`. Tujuan yang selesai diganti tujuan
-  berikutnya; semua selesai -> `Hari 2: semua tujuan selesai  (3/3)`.
+- `Kind`: `ITEM_COUNT`, `TOOL_OWNED`, `WEAPON_EQUIPPED`, `ARMOR_EQUIPPED`,
+  `STRUCTURE_BUILT`, `BASE_FOUNDED`. Semua dibaca dari state hidup (tas,
+  struktur, base) — tidak ada progres yang disimpan, jadi tidak bisa basi.
+- HUD: `DailyGoalHUD` (CanvasLayer, bawah tengah di atas hotbar/prompt
+  interaksi) menampilkan **semua** tujuan hari itu dalam satu baris:
+  `Hari 2: bangun meja kerja, buat Kapak Batu, cari 2 Kulit  (1/3)`. Tujuan
+  yang sudah selesai dicoret abu-abu, penghitung `(n/m)` ikut bertambah; saat
+  semua selesai baris tetap tampil dengan ketiganya dicoret.
 - Menambah tujuan: ubah generator lalu jalankan ulang (atau edit `.tres` di
   Inspector; generator menimpa kalau dijalankan lagi).
 
@@ -1664,6 +1693,9 @@ toast menampilkan jam sebelum -> sesudah.
 - `DawnRecapHUD` menampilkan `Hari N selesai` + `12 resource · 2 babi · base
   utuh` (atau `base rusak` / `base rusak (2 hancur)`). Tidak mem-pause game dan
   tidak mengunci kontrol; menutup sendiri setelah `panel_seconds` (6 s) atau Esc.
+- Muncul/hilang dengan fade `fade_seconds`. Node `DawnRecapHUD` di `island.tscn`
+  menunjuk `stats` lewat `node_paths`, jadi koneksinya langsung siap saat scene
+  dimuat (bukan menunggu frame pertama).
 - Angka durasi panel: `src/data/configs/dawn_recap_config.tres`.
 
 ### 37c. Cahaya pemain (`PlayerLight`)
@@ -1676,16 +1708,131 @@ toast menampilkan jam sebelum -> sesudah.
 - Config: `src/data/configs/player_light_config.tres` — `player_radius`,
   `torch_radius`, `day_energy`, `night_energy`, `torch_energy_bonus`, `color`,
   `torch_item`. Generator `tools/generate_player_light.gd`.
+- `torch.tres` (ItemDefinition, kategori SPECIAL, resep HAND 2 Kayu + 1 Serat)
+  adalah item yang sama yang dipakai `PlayerLight`; deskripsinya menjelaskan
+  efek 110 px -> 190 px. Item ini diedit tangan, bukan hasil generator.
 - Obor **belum** punya durasi/habis (spesifikasi tidak menyebut) — pertanyaan
   terbuka, belum ditambahkan.
 
 ### 37d. Uji manual
 
-1. Boot island: baris `Hari 1: ...` muncul di kiri bawah.
-2. Panen kayu atau bangun api unggun: tujuan berganti / angka `(n/3)` naik.
-3. F4 (lompat pagi) atau tunggu fajar: panel rekap muncul dan menutup sendiri
-   (atau Esc).
-4. F8 (malam): cahaya pemain terlihat; craft Obor lalu pilih slotnya (1-5):
-   radius membesar ke 190 px.
+1. Boot island: baris `Hari 1: bangun api unggun, kumpulkan 4 Kayu, petakan
+   base (tekan B)  (0/3)` muncul di atas hotbar.
+2. Tekan B lalu klik lokasi base: tujuan `petakan base` dicoret dan penghitung
+   naik ke `(1/3)`; panen kayu 4x atau bangun api unggun juga mencoret tujuannya.
+3. F2 (aktifkan debug island) lalu F4 (lompat pagi) atau tunggu fajar: panel
+   `Hari N selesai` muncul dengan fade, menutup sendiri setelah 6 s atau Esc.
+4. F8 (lompat malam): cahaya pemain terlihat; craft Obor (resep tangan), pilih
+   slotnya (1-5): radius membesar ke 190 px.
 
-**Tes:** `tools\run_tests.ps1 -Test res://tests/unit/test_daily_goals_and_light.gd`.
+**Tes:** `tools\run_tests.ps1 -Test res://tests/unit/test_daily_goals_and_light.gd`
+dan `tools\run_tests.ps1 -Test res://tests/integration/test_island_goals.gd`.
+
+## 38. Fase 2 — navigasi
+
+### 38a. Panah ke base (`CampArrow`)
+
+- `CampArrow` (CanvasLayer di `island.tscn`, `src/ui/hud/compass/camp_arrow.gd`)
+  menampilkan `→ Base 1234 px` di pojok kanan-atas saat pemain lebih jauh dari
+  `CompassConfig.camp_arrow_distance` (600 px) dari pusat base.
+- Pusat base dibaca dari `CampAnchor.get_center()` lewat grup `camp_anchor`.
+  **Perbaikan Fase 2:** sebelumnya node di-cast ke `Node2D`, padahal
+  `CampAnchor` adalah `Node` — panah tidak pernah muncul. Panah juga baru aktif
+  setelah base ditentukan (`is_founded()`), karena sebelumnya `BaseHUD` yang
+  memandu menekan B.
+- Ambang: `src/data/configs/compass_config.tres` (generator
+  `tools/generate_compass_config.gd`).
+
+### 38b. Penanda tas jatuh (`LootBagArrow`)
+
+- `LootBagArrow` (CanvasLayer di `island.tscn`) menampilkan `← Tas 320 px` di
+  bawah panah base selama ada `LootBag` di grup `loot_bag` dan jaraknya lebih
+  dari `CompassConfig.loot_arrow_distance` (40 px).
+- Tas mendaftar sendiri ke grup dan `queue_free` saat kosong, jadi penanda
+  hilang otomatis begitu loot diambil; tidak perlu menghubungkan
+  `DeathController`.
+
+### 38c. Indikator target auto-attack (`TargetIndicator`)
+
+- `CombatComponent.get_auto_target()` + sinyal `auto_target_changed(target)`:
+  satu pemindaian per tick, dipakai auto-attack (tidak lagi memindai dua kali).
+- `TargetIndicator` (Node2D anak Player di `island.tscn`) menggambar chevron
+  kecil 34 px di atas hewan yang akan dipukul otomatis; kosmetik saja, tanpa
+  input dan tanpa state gameplay.
+
+### 38d. Bar HP hewan (Fase 2C)
+
+- `FaunaBase` sudah punya `HpBar`; sekarang bar hanya tampil saat hewan terluka
+  **dan** masih dalam `FaunaConfig.hp_bar_hide_seconds` (3 dtk nyata) sejak
+  damage terakhir. Setelah itu bar disembunyikan walau HP masih di bawah
+  maksimum. Bar memakai waktu nyata, bukan skala waktu game.
+- `is_hp_bar_visible()` dan `get_hp_bar()` untuk tes/debug.
+
+### 38e. Uji manual
+
+1. Boot island, tekan B dan tentukan base di lokasi crash, lalu berjalan jauh
+   (> 600 px): baris `→ Base N px` muncul di kanan atas dan hilang saat kembali.
+2. F11 (matikan pemain) lalu respawn: baris `← Tas N px` menunjuk tas di lokasi
+   mati; ambil loot (hold E) dan penanda hilang.
+3. F6 (spawn babi hostile) saat malam: chevron kuning muncul di atas babi selama
+   auto-attack bisa menjangkaunya; bar HP di atas babi tampil setelah dipukul dan
+   hilang ~3 dtk setelah serangan terakhir.
+
+**Tes:** `tools\run_tests.ps1 -Test res://tests/unit/test_fase2_navigation.gd`.
+
+## 39. Fase 3 — kamera dan telegraph babi
+
+### 39a. Kamera look-ahead + batas pulau (`CameraFeel`)
+
+- `CameraFeel` (node di `island.tscn`) menggeser `follow_offset` PhantomCamera2D
+  ke arah gerak pemain dengan lerp halus, dan men-zoom sedikit saat malam.
+- Semua angka sekarang dari `src/data/configs/camera_feel_config.tres`
+  (generator `tools/generate_camera_feel_config.gd`): `look_ahead_px` (11),
+  `follow_speed` (3.2), `day_zoom` (3.0), `night_zoom` (2.75), `zoom_time`
+  (1.4), `camera_limit_margin` (0).
+- Batas kamera dipasang dari `IslandLayoutConfig.half_size` milik IslandBuilder
+  (2400 px -> `limit_left/right/top/bottom` = -2400..2400, dikurangi margin),
+  jadi tepi pandang berhenti di coastline dan tidak memperlihatkan area kosong.
+  `apply_limits(half_size)` publik untuk tes/debug, `get_limits()` mengembalikan
+  keempat nilai.
+- `tick(delta)` publik; `_process` hanya meneruskan. Kamera tidak pernah menulis
+  posisi pemain.
+
+### 39b. Telegraph serangan babi (`WildBoar`)
+
+- Visual lama (garis merah 2 px + label "!") diperjelas: garis makin tebal
+  (3 -> 6 px) dan makin terang menjelang dash, label "!" lebih besar dan
+  berdenyut, plus **cincin zona bahaya** di titik tuju seukuran
+  `BoarConfig.dash_hit_radius`.
+- Hook suara (belum ada aset audio): sinyal `telegraph_started(target: Vector2,
+  seconds: float)` dan `telegraph_ended()`. Nanti AudioManager cukup menyambung
+  kedua sinyal itu; durasi tetap dari `BoarConfig.dash_telegraph`.
+- Getter tes/debug: `get_telegraph_line()`, `get_telegraph_ring()`,
+  `is_telegraph_active()`.
+
+### 39c. Ringkasan run di layar akhir (Fase 5)
+
+- `RunSummary` (`src/utils/run_summary.gd`, murni): `from_totals(totals, current_day)`
+  -> teks 4 baris, dan `block_for(node)` -> teks siap tempel ("Ringkasan
+  Perjalanan") yang kosong bila `DailyRunStats` tidak ada.
+- Sumber angka: `DailyRunStats.get_totals()` (resource, kill, kerusakan/hancur,
+  hari selesai) + hari berjalan dari `/root/DayNightManager`. `DailyRunStats`
+  kini mendaftar ke grup `daily_run_stats` supaya layar di cabang tree lain tetap
+  menemukannya.
+- Audit angka (Fase 5): timing gigit/recover dan knockback dash babi yang tadinya
+  konstanta `WildBoar` pindah ke `BoarConfig` (`bite_hold_time` 0.22,
+  `dash_recover_time` 0.3, `dash_knockback_distance` 60). Angka lapar/haus
+  (kerusakan tier ZERO) dan regen HP sudah sejak awal di `needs_config.tres` /
+  `health_regen_config.tres`, jadi tidak ada yang dipindah lagi.
+- Tes: `tests/unit/test_fase5_summary.gd`.
+
+### 39c. Uji manual
+
+1. Jalan/berlari: kamera bergeser sedikit ke arah gerak lalu kembali halus saat
+   berhenti; saat malam zoom sedikit lebih jauh.
+2. Jalan ke pantai sampai tepi pulau: pandangan berhenti di coastline, tidak ada
+   area kosong di luar pulau.
+3. Picu dash babi (F6 spawn babi hostile, lalu berdiri 110-240 px): garis merah
+   makin tebal, cincin merah di titik tuju, label "!" berdenyut, lalu dash.
+
+**Tes:** `tools\run_tests.ps1 -Test res://tests/unit/test_fase3_camera_telegraph.gd`.

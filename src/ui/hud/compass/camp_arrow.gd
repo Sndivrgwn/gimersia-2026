@@ -1,36 +1,54 @@
 extends CanvasLayer
 
-## Mission 9 polish: penunjuk arah base/camp saat pemain jauh dari camp.
+## Mission 9 polish / Fase 2A: penunjuk arah base saat pemain jauh dari camp.
 ## Hanya membaca posisi; tidak mengubah state gameplay.
 ## Label di-anchor ke pojok kanan-atas viewport, bukan piksel tetap.
+##
+## Fase 2A: pusat base dibaca dari `CampAnchor.get_center()`. Sebelumnya node
+## `CampAnchor` di-cast ke `Node2D` (padahal ia `Node` bertipe `class_name`
+## CampAnchor), jadi panah tidak pernah muncul. Jarak tampil kini dari
+## `compass_config.tres`.
 
 const PLAYER_GROUP := &"player"
-const SHOW_DISTANCE := 340.0
+const CONFIG_PATH := "res://src/data/configs/compass_config.tres"
 const FORMAT := "%s Base %d px"
 const MARGIN := 16
 
+@export var config: CompassConfig
+
 var _label: Label
 var _player: Node2D
-var _anchor: Node2D
+var _anchor: Node
 
 
 func _ready() -> void:
 	layer = 13
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	if config == null:
+		config = load(CONFIG_PATH) as CompassConfig
 	_build()
+	refresh()
 
 
 func _process(_delta: float) -> void:
-	if _player == null:
+	refresh()
+
+
+## Dipakai tes dan _process: hitung ulang teks/visibilitas.
+func refresh() -> void:
+	if _label == null:
+		return
+	if _player == null or not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group(PLAYER_GROUP) as Node2D
-	if _anchor == null:
+	if _anchor == null or not is_instance_valid(_anchor):
 		_anchor = find_anchor()
-	if _player == null or _anchor == null:
+	var center := get_anchor_center()
+	if _player == null or _anchor == null or not _is_anchor_ready():
 		_label.visible = false
 		return
-	var to_anchor := _anchor.global_position - _player.global_position
+	var to_anchor := center - _player.global_position
 	var distance := to_anchor.length()
-	_label.visible = distance > SHOW_DISTANCE
+	_label.visible = distance > get_show_distance()
 	if not _label.visible:
 		return
 	_label.text = FORMAT % [_glyph(to_anchor), int(round(distance))]
@@ -47,11 +65,45 @@ func get_label() -> Label:
 	return _label
 
 
-func find_anchor() -> Node2D:
-	var scene := get_tree().current_scene
+func is_showing() -> bool:
+	return _label != null and _label.visible
+
+
+func get_show_distance() -> float:
+	return 340.0 if config == null else config.camp_arrow_distance
+
+
+## Panah hanya berguna setelah base ditentukan (sebelum itu BaseHUD yang
+## memandu menekan B).
+func _is_anchor_ready() -> bool:
+	if _anchor == null:
+		return false
+	if _anchor.has_method(&"is_founded"):
+		return bool(_anchor.call(&"is_founded"))
+	return true
+
+
+func get_anchor_center() -> Vector2:
+	if _anchor == null:
+		return Vector2.ZERO
+	if _anchor.has_method(&"get_center"):
+		var center: Vector2 = _anchor.call(&"get_center")
+		return center
+	var node2d := _anchor as Node2D
+	return node2d.global_position if node2d != null else Vector2.ZERO
+
+
+func find_anchor() -> Node:
+	var tree := get_tree()
+	if tree == null:
+		return null
+	var found := tree.get_first_node_in_group(CampAnchor.GROUP)
+	if found != null:
+		return found
+	var scene := tree.current_scene
 	if scene == null:
 		return null
-	return scene.find_child("CampAnchor", true, false) as Node2D
+	return scene.find_child("CampAnchor", true, false)
 
 
 func _build() -> void:

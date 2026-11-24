@@ -16,6 +16,11 @@ extends Resource
 @export var flee_despawn_distance: float = 600.0
 @export var flee_despawn_timeout: float = 8.0
 
+@export_group("Bar HP")
+## Fase 2C: bar HP hanya tampil saat hewan terluka dan disembunyikan lagi
+## setelah sekian detik tanpa damage (detik nyata).
+@export_range(0.0, 30.0, 0.5) var hp_bar_hide_seconds: float = 3.0
+
 @export_group("Jatuhan")
 @export var loot_ids: Array[StringName] = []
 @export var loot_counts: Array[int] = []

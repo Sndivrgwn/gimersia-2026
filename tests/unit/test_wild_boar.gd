@@ -77,7 +77,7 @@ func test_bite_damages_player_in_range() -> void:
 	boar.tick(0.01)
 	assert_eq(player.stats.current_hp, before - 12.0)
 	assert_eq(boar.get_state(), WildBoar.State.BITE, "gigitan ditahan supaya animasi bite terlihat")
-	boar.tick(WildBoar.BITE_TIME + 0.01)
+	boar.tick((boar.config as BoarConfig).bite_hold_time + 0.01)
 	assert_eq(boar.get_state(), WildBoar.State.CHASE, "kembali mengejar setelah gigitan")
 
 

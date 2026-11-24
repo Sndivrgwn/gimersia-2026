@@ -22,7 +22,9 @@ signal respawned
 signal game_over
 
 const RESPAWN_POSITION := Vector2(0.0, 64.0)
-## Spec §7.6: 3 kesempatan respawn, kematian ke-4 permanen.
+## Spec §7.6: 3 kesempatan respawn, kematian ke-4 permanen. Nilai final
+## dibaca dari `PlayerBaseStats.max_respawn_tokens` saat bind; konstanta ini
+## hanya fallback bila StatsComponent tidak tersedia.
 const RESPAWN_TOKENS := 3
 ## Spec: respawn dengan 70% HP, Hunger 60, Thirst 60, Fatigue 80.
 const RESPAWN_HP_RATIO := 0.7
@@ -135,6 +137,9 @@ func _bind() -> void:
 			proficiency = player.get_node_or_null("ProficiencyComponent") as ProficiencyComponent
 	if stats != null and not stats.hp_changed.is_connected(_on_hp_changed):
 		stats.hp_changed.connect(_on_hp_changed)
+	# Fase 5: token respawn mengikuti setting run, bukan konstanta saja.
+	if stats != null:
+		respawns_remaining = maxi(stats.get_base_stats().max_respawn_tokens, 0)
 	_bound = true
 
 

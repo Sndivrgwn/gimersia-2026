@@ -3,7 +3,8 @@ extends CanvasLayer
 ## Fase 1B: panel rekap saat fajar ("Hari 2 selesai: 12 resource, 2 babi, base
 ## utuh"). Non-blocking: TIDAK mem-pause game dan tidak mendaftar ke UiBackStack
 ## supaya kontrol pemain tetap jalan. Menutup sendiri setelah
-## `DawnRecapConfig.panel_seconds` atau dengan Esc.
+## `DawnRecapConfig.panel_seconds`, dengan Esc, atau lewat `close()`. Muncul dan
+## hilang dengan fade `DawnRecapConfig.fade_seconds`.
 
 const CONFIG_PATH := "res://src/data/configs/dawn_recap_config.tres"
 const STATS_NAME := "DailyRunStats"
@@ -18,6 +19,7 @@ var _body: Label
 var _timer: float = 0.0
 var _showing: bool = false
 var _bind_timer: float = 0.0
+var _fade_tween: Tween
 
 
 func _ready() -> void:
@@ -61,13 +63,15 @@ func show_summary(summary: Dictionary) -> void:
 	_panel.visible = true
 	_showing = true
 	_timer = config.panel_seconds if config != null else 6.0
+	_fade_in()
 
 
 func close() -> void:
+	if not _showing and _panel != null and not _panel.visible:
+		return
 	_showing = false
 	_timer = 0.0
-	if _panel != null:
-		_panel.visible = false
+	_fade_out()
 
 
 func is_open() -> bool:
@@ -95,6 +99,50 @@ static func format_summary(summary: Dictionary) -> String:
 
 
 # --- Internal ---------------------------------------------------------------
+
+func _fade_seconds() -> float:
+	return 0.0 if config == null else maxf(config.fade_seconds, 0.0)
+
+
+func _fade_in() -> void:
+	if _panel == null:
+		return
+	_kill_fade()
+	var fade := _fade_seconds()
+	if fade <= 0.0:
+		_panel.modulate = Color(1.0, 1.0, 1.0, 1.0)
+		return
+	_panel.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	_fade_tween = create_tween()
+	_fade_tween.tween_property(_panel, "modulate:a", 1.0, fade)
+
+
+func _fade_out() -> void:
+	if _panel == null:
+		return
+	_kill_fade()
+	var fade := _fade_seconds()
+	if fade <= 0.0:
+		_panel.modulate = Color(1.0, 1.0, 1.0, 1.0)
+		_panel.visible = false
+		return
+	_fade_tween = create_tween()
+	_fade_tween.tween_property(_panel, "modulate:a", 0.0, fade)
+	_fade_tween.tween_callback(_hide_panel)
+
+
+func _hide_panel() -> void:
+	if _panel == null:
+		return
+	_panel.visible = false
+	_panel.modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+
+func _kill_fade() -> void:
+	if _fade_tween != null and _fade_tween.is_valid():
+		_fade_tween.kill()
+	_fade_tween = null
+
 
 func _bind() -> void:
 	if stats == null:

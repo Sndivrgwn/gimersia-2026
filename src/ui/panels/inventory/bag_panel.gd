@@ -26,6 +26,10 @@ const PROF_PASSIVES: Array = [
 ]
 const CRAFTING_TAB_PATH := "Root/Frame/Margin/VBox/Tabs/Crafting"
 const VBOX_PATH := "Root/Frame/Margin/VBox"
+## Kolom Peralatan sudah 210 px; alat tas ditaruh di sana supaya grid 6 kolom
+## tidak melebar keluar frame.
+const BAG_TOOLS_PATH := "Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"
+const BAG_HINT := "Klik kanan: pakai\nShift+klik: pecah"
 ## Ditampilkan di bawah judul: pemain perlu tahu Profisiensi ada di tab ketiga.
 const TABS_HINT := "Tab / I: buka-tutup · tab panel: Tas · Crafting · Profisiensi · Esc: tutup"
 const TOGGLE_ACTION := &"inventory_toggle"
@@ -47,6 +51,7 @@ const TOOL_ITEMS: Array[ItemDefinition] = [
 @export var crafting_component: CraftingComponent
 ## Buka panel saat scene mulai (default: tersembunyi).
 @export var open_on_start: bool = false
+var _sort_button: Button
 
 @onready var _root: Control = $Root
 @onready var _tabs: TabContainer = $Root/Frame/Margin/VBox/Tabs
@@ -77,6 +82,7 @@ func _ready() -> void:
 	if inventory == null:
 		inventory = _find_inventory()
 	_build_tabs_hint()
+	_build_bag_tools()
 	_build_slots()
 
 	if inventory == null:
@@ -186,6 +192,45 @@ func _build_tabs_hint() -> void:
 	_tabs_hint.add_theme_color_override("font_color", Color(0.78, 0.82, 0.78, 1.0))
 	vbox.add_child(_tabs_hint)
 	vbox.move_child(_tabs_hint, 1)
+
+
+## Fase 4A: tombol urutkan + petunjuk pecah tumpukan di tab Tas.
+func _build_bag_tools() -> void:
+	var column := get_node_or_null(BAG_TOOLS_PATH) as VBoxContainer
+	if column == null:
+		return
+
+	var tools := VBoxContainer.new()
+	tools.name = "BagTools"
+	tools.add_theme_constant_override("separation", 6)
+	column.add_child(tools)
+
+	var hint := Label.new()
+	hint.name = "Hint"
+	hint.text = BAG_HINT
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.custom_minimum_size = Vector2(96.0, 0.0)
+	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hint.add_theme_font_size_override("font_size", 9)
+	hint.add_theme_color_override("font_color", Color(0.72, 0.78, 0.72, 1.0))
+	tools.add_child(hint)
+
+	_sort_button = Button.new()
+	_sort_button.name = "SortButton"
+	_sort_button.text = "Urutkan"
+	_sort_button.tooltip_text = "Gabung dan urutkan isi tas"
+	_sort_button.custom_minimum_size = Vector2(96.0, 26.0)
+	_sort_button.pressed.connect(_on_sort_pressed)
+	tools.add_child(_sort_button)
+
+
+func get_sort_button() -> Button:
+	return _sort_button
+
+
+func _on_sort_pressed() -> void:
+	if inventory != null:
+		inventory.sort()
 
 
 func _build_slots() -> void:

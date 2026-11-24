@@ -57,6 +57,8 @@ var _flee_direction: Vector2 = Vector2.ZERO
 var _flash_remaining: float = 0.0
 var _visual: Polygon2D
 var _hp_bar: ProgressBar
+## Fase 2C: sisa detik bar HP tetap terlihat sejak damage terakhir.
+var _hp_bar_timeout: float = 0.0
 var _ready_done: bool = false
 var _pickup_scene: PackedScene
 ## Mission 11: perpindahan yang diterapkan BodySeparation pada tick terakhir
@@ -106,6 +108,7 @@ func tick(delta: float) -> void:
 		move_and_collide(_knockback_velocity * step)
 		_knockback_remaining = maxf(_knockback_remaining - delta, 0.0)
 	health.tick(delta)
+	_tick_hp_bar(delta)
 	_tick_flash(delta)
 	_update_dazzle()
 	# Mission 10 Phase 4: jaring pengaman anti-tumpuk, dihormati dinding/sungai.
@@ -147,10 +150,15 @@ func get_health() -> HealthComponent:
 	return health
 
 
-## Bar HP kecil di atas hewan; hanya terlihat setelah terkena damage.
+## Bar HP kecil di atas hewan; hanya terlihat setelah terkena damage dan
+## hilang lagi setelah `config.hp_bar_hide_seconds` tanpa damage (Fase 2C).
 func get_hp_bar() -> ProgressBar:
 	ensure_ready()
 	return _hp_bar
+
+
+func is_hp_bar_visible() -> bool:
+	return _hp_bar != null and _hp_bar.visible
 
 
 func get_temperament() -> int:
@@ -413,6 +421,7 @@ func visual_key() -> StringName:
 func _on_health_damaged(_amount: float, source: Node) -> void:
 	provoke(source)
 	flash_hit()
+	_hp_bar_timeout = maxf(config.hp_bar_hide_seconds, 0.0) if config != null else 0.0
 	_refresh_hp_bar()
 
 
@@ -500,7 +509,18 @@ func _refresh_hp_bar() -> void:
 		return
 	_hp_bar.max_value = maxf(health.get_max_hp(), 1.0)
 	_hp_bar.value = health.get_current_hp()
-	_hp_bar.visible = health.get_current_hp() < health.get_max_hp()
+	var damaged := health.get_current_hp() < health.get_max_hp()
+	_hp_bar.visible = damaged and _hp_bar_timeout > 0.0
+
+
+## Fase 2C: setelah `hp_bar_hide_seconds` tanpa damage, bar disembunyikan
+## walau HP masih di bawah maksimum.
+func _tick_hp_bar(delta: float) -> void:
+	if _hp_bar_timeout <= 0.0:
+		return
+	_hp_bar_timeout = maxf(_hp_bar_timeout - delta, 0.0)
+	if _hp_bar_timeout <= 0.0:
+		_refresh_hp_bar()
 
 
 func _tick_flash(delta: float) -> void:
