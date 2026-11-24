@@ -47,9 +47,9 @@ gimersia-2026/
 
 ## Panduan
 
-- `docs/editable/ASSET_GUIDE.md` — cara menaruh art (slot, nama file, fallback).
-- `docs/editable/CONFIG_GUIDE.md` — semua Resource `.tres` dan efek tuning-nya.
-- `docs/editable/AUDIO_GUIDE.md` — daftar cue audio, spesifikasi file, bus, dan hook (belum ada playback).
+- [Asset & SpriteFrames guide](docs/editable/ASSET_GUIDE.md) — cara menaruh art (slot, nama file, fallback, `.tres`).
+- [Config guide](docs/editable/CONFIG_GUIDE.md) — semua Resource `.tres` dan efek tuning-nya.
+- [Audio guide](docs/editable/AUDIO_GUIDE.md) — daftar cue audio, spesifikasi file, bus, dan hook (belum ada playback).
 - `docs/editable/PANDUAN_MODUL.md` — wiring modul, Input Map, sistem aset.
 - `docs/editable/PANDUAN_INPUT.md` — arti setiap tombol (Tab, I, P, F1-F12, J, Esc, ...), dibuat dari Input Map yang hidup.
 

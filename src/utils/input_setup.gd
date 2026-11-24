@@ -45,6 +45,11 @@ const DEBUG_RAID := &"debug_raid"
 const DEBUG_ASSET_BOXES := &"debug_asset_boxes"
 ## B: tentukan lokasi base (BasePlacementController).
 const BASE_PLACE := &"base_place"
+## Mission 11: K (island debug): rekam 6 detik jejak fisika pemain + 2 fauna
+## terdekat ke CSV user:// (laporan "fauna masih terseret").
+const DEBUG_DRAG_TRACE := &"debug_drag_trace"
+## Mission 12: lompat ke awal periode jam berikutnya (Pagi/Siang/Sore/Malam).
+const DEBUG_ISLAND_PERIOD := &"debug_island_period"
 
 ## Mission 10 Phase 3: hotbar memilih item; use_held memakainya.
 const HOTBAR_NEXT := &"hotbar_next"
@@ -157,6 +162,11 @@ static func ensure_actions() -> void:
 
 	_ensure_action(BASE_PLACE)
 	_ensure_key(BASE_PLACE, KEY_B)
+
+	_ensure_action(DEBUG_DRAG_TRACE)
+	_ensure_key(DEBUG_DRAG_TRACE, KEY_K)
+	_ensure_action(DEBUG_ISLAND_PERIOD)
+	_ensure_key(DEBUG_ISLAND_PERIOD, KEY_Y)
 
 	_ensure_action(ATTACK_SPACE)
 	_ensure_key(ATTACK_SPACE, KEY_SPACE)

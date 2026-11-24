@@ -103,9 +103,30 @@ func sleep(_interactor: Node = null) -> bool:
 		return false
 	_last_sleep_time = clock.get_total_elapsed_seconds()
 	_has_slept = true
+	# Mission 12: toast "Tidur: 22:10 -> 05:20" dari jam sebelum/sesudah lompatan.
+	var before_hour := -1.0
+	if clock.has_method(&"get_clock_hour"):
+		before_hour = clock.get_clock_hour()
 	clock.skip_time(config.skip_seconds)
+	if before_hour >= 0.0:
+		_show_sleep_toast(before_hour)
 	sleep_completed.emit()
 	return true
+
+
+func _show_sleep_toast(before_hour: float) -> void:
+	if not clock.has_method(&"get_clock_format") or not clock.has_method(&"get_clock_text"):
+		return
+	var format: ClockFormatConfig = clock.get_clock_format()
+	if format == null or not format.sleep_toast:
+		return
+	var tree := get_tree()
+	if tree == null:
+		return
+	var toast := tree.get_root().find_child("ToastHUD", true, false)
+	if toast == null or not toast.has_method(&"show_toast"):
+		return
+	toast.call(&"show_toast", GameClockFormat.sleep_toast_text(before_hour, clock.get_clock_hour(), format))
 
 
 func has_slept() -> bool:

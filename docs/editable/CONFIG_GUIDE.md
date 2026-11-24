@@ -31,6 +31,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `res://tools/generate_audio_registry.gd` | `GODOT --headless --path . -s tools/generate_audio_registry.gd` | res://src/data/audio/audio_registry.tres |
 | `res://tools/generate_balance_data.gd` | `GODOT --headless --path . -s tools/generate_balance_data.gd` | res://src/data/configs/health_regen_config.tres, res://src/data/configs/needs_config.tres, res://src/data/configs/run_config.tres, res://src/data/configs/sneak_config.tres, res://src/data/configs/wading_config.tres |
 | `res://tools/generate_body_profiles.gd` | `GODOT --headless --path . -s tools/generate_body_profiles.gd` | res://src/data/configs/physics/body_island_deer.tres, res://src/data/configs/physics/body_player.tres, res://src/data/configs/physics/body_wild_boar.tres |
+| `res://tools/generate_clock_format.gd` | `GODOT --headless --path . -s tools/generate_clock_format.gd` | res://src/data/configs/environment/clock_format.tres |
 | `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` | res://src/data/configs/combat_config.tres, res://src/data/configs/fauna/boar_config.tres, res://src/data/configs/fauna/deer_config.tres, res://src/data/configs/fauna/ember_snuff_config.tres, res://src/data/configs/fauna/night_scaling_config.tres, res://src/data/configs/fauna/raid_config.tres |
 | `res://tools/generate_fauna_configs.gd` | `GODOT --headless --path . -s tools/generate_fauna_configs.gd` | res://src/data/configs/fauna/boar_config.tres, res://src/data/configs/fauna/deer_config.tres |
 | `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` | — (tidak menulis .tres) |
@@ -41,6 +42,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` | res://src/data/recipes/boiled_water.tres, res://src/data/recipes/bone_broth.tres, res://src/data/recipes/bone_spear.tres, res://src/data/recipes/cooked_meat.tres, res://src/data/recipes/herbal_bandage.tres, res://src/data/recipes/leather_vest.tres, res://src/data/recipes/signal_flare.tres, res://src/data/recipes/stone_axe.tres, res://src/data/recipes/stone_pickaxe.tres, res://src/data/recipes/stone_spear.tres, res://src/data/recipes/torch.tres, res://src/data/recipes/waterskin.tres, res://src/data/recipes/wooden_spear.tres |
 | `res://tools/generate_station_data.gd` | `GODOT --headless --path . -s tools/generate_station_data.gd` | res://src/data/configs/station_config.tres |
 | `res://tools/generate_structures.gd` | `GODOT --headless --path . -s tools/generate_structures.gd` | res://src/data/camp/campfire.tres, res://src/data/camp/chest.tres, res://src/data/camp/fence_segment.tres, res://src/data/camp/tent.tres, res://src/data/camp/workbench.tres, res://src/data/configs/campfire_config.tres, res://src/data/configs/fence_config.tres |
+| `res://tools/generate_sun_config.gd` | `GODOT --headless --path . -s tools/generate_sun_config.gd` | res://src/data/configs/environment/day_night_visual_default.tres, res://src/data/configs/environment/sun_config.tres |
 
 ## src/data/assets
 
@@ -56,7 +58,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | Field | Tipe | Nilai |
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
-| `slots` | Array | [63 item] |
+| `slots` | Array | [67 item] |
 
 
 ## src/data/audio
@@ -630,6 +632,29 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 
 ## src/data/configs/environment
 
+### `res://src/data/configs/environment/clock_format.tres`
+
+- Kelas: `clock_format_config.gd` (`res://src/data/resources/environment/clock_format_config.gd`)
+- Tujuan: Jam dunia nyata: jam terbit/terbenam, format 12/24 jam, label periode, flag HUD.
+- Dipakai oleh: DayNightManager, GameClockFormat, TimeHUD, NightSurvivalHUD
+- Pemilik: generator
+- Efek tuning: Menggeser jam terbit/terbenam atau format jam; durasi fase dan siklus tidak berubah.
+- Tes terkait: test_game_clock_format.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `day_start_hour` | float | 6.00 |
+| `night_start_hour` | float | 18.00 |
+| `use_24h` | bool | true |
+| `minute_step` | int | 1 |
+| `period_names` | lain | [Pagi, Siang, Sore, Malam] |
+| `period_start_hours` | lain | [5.0, 10.0, 15.0, 18.0] |
+| `show_period_label` | bool | true |
+| `show_remaining_at_night` | bool | true |
+| `show_remaining_by_day` | bool | false |
+| `sleep_toast` | bool | true |
+
 ### `res://src/data/configs/environment/day_night_debug_fast.tres`
 
 - Kelas: `day_night_config.gd` (`res://src/data/resources/environment/day_night_config.gd`)
@@ -669,7 +694,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `day_night_visual_config.gd` (`res://src/data/resources/environment/day_night_visual_config.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -692,6 +717,26 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `enable_day_motes` | bool | true |
 | `day_mote_amount` | int | 12 |
 | `day_mote_color` | lain | (1.0, 0.95, 0.82, 0.55) |
+
+### `res://src/data/configs/environment/sun_config.tres`
+
+- Kelas: `sun_config.gd` (`res://src/data/resources/environment/sun_config.gd`)
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: generator
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `sweep_enabled` | bool | true |
+| `dawn_side` | int | 0 |
+| `dawn_sweep_seconds` | float | 60.00 |
+| `dusk_sweep_seconds` | float | 60.00 |
+| `softness` | float | 0.35 |
+| `warm_rim_strength` | float | 0.25 |
+| `sun_arc_enabled` | bool | true |
 
 
 ## src/data/configs/fauna
@@ -2152,6 +2197,7 @@ Kelas berikut hanya punya default di kode; ubah lewat kode atau dengan membuat `
 | `res://tools/generate_audio_registry.gd` | `GODOT --headless --path . -s tools/generate_audio_registry.gd` |
 | `res://tools/generate_balance_data.gd` | `GODOT --headless --path . -s tools/generate_balance_data.gd` |
 | `res://tools/generate_body_profiles.gd` | `GODOT --headless --path . -s tools/generate_body_profiles.gd` |
+| `res://tools/generate_clock_format.gd` | `GODOT --headless --path . -s tools/generate_clock_format.gd` |
 | `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` |
 | `res://tools/generate_fauna_configs.gd` | `GODOT --headless --path . -s tools/generate_fauna_configs.gd` |
 | `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` |
@@ -2162,5 +2208,6 @@ Kelas berikut hanya punya default di kode; ubah lewat kode atau dengan membuat `
 | `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` |
 | `res://tools/generate_station_data.gd` | `GODOT --headless --path . -s tools/generate_station_data.gd` |
 | `res://tools/generate_structures.gd` | `GODOT --headless --path . -s tools/generate_structures.gd` |
+| `res://tools/generate_sun_config.gd` | `GODOT --headless --path . -s tools/generate_sun_config.gd` |
 
 <!-- END GENERATED -->

@@ -36,8 +36,8 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 | Night survival loop | Sebagian | Spawner malam + tabel scaling 1-7, Dazzled, Ember Snuff, kuota fajar; timer gagal/survival masih label HUD |
 | Death & respawn | Ada | DeathController, LootBag di lokasi kematian, debuff proficiency, DeathScreen dengan Respawn & Menu Utama (8 tes) |
 | Win condition | Ada | EndgameController, SignalBeacon, banner Hari 7, arrow ke beacon, layar Victory (7 tes); integrasi HUD ada |
-| UI & audio final | Sebagian | HUD waktu, needs, stats, hotbar, interaksi, banner, recap debuff, pause/settings/help, peti ada; audio belum; visual belum dicek manual |
-| Aset & visual | Fondasi ada | `Assets`/`VisualSlot`/`UiSkin` + registry 63 slot; coverage 0/63 (tim seni) |
+| UI & audio final | Sebagian | HUD waktu (termasuk arc matahari/bulan), needs, stats, hotbar, interaksi, banner, recap debuff, pause/settings/help, peti, panel stasiun ada; audio belum (data + panduan); visual belum dicek manual |
+| Aset & visual | Fondasi ada | `Assets`/`VisualSlot`/`UiSkin` + registry 65 slot (SpriteFrames-first + slot `ui_sun`/`ui_moon`); coverage 0/65 (tim seni) |
 | Build & playtest | Belum | Belum ada build/export yang diverifikasi |
 
 ---
@@ -534,8 +534,8 @@ Fase 0-3 jalan; fase 4-6 belum (lihat bagian terpisah di bawah).
 - [x] Needs dikalibrasi ulang (Hunger/Thirst 0.6/0.57), Hunger <= 30 mengunci sprint + hint, HP pulih lambat dengan jeda.
 - [x] Tes baru: `test_raid_director.gd`, `test_boar_mass.gd`, `test_campfire_cold.gd`, `test_freeze_controller.gd`, `test_respawn_protection.gd`, `test_needs_balance.gd`, `test_sprint_blocks.gd`, `test_health_regen.gd`.
 - [x] Fase 4: jongkok (Ctrl) memperlambat + menyamarkan + memblokir sprint; rusa waspada dulu sebelum kabur dan radius deteksinya mengecil saat pemain jongkok; air sungai memperlambat dan memblokir sprint (`WadingComponent`). Tes: `test_sneak.gd`, `test_deer_alert.gd`, `test_wading.gd`.
-- [ ] Fase 5: sweep arah matahari + tab Profil.
-- [ ] Fase 6: SpriteFrames-first + data audio (`AUDIO_GUIDE.md` belum ada).
+- [x] Fase 5: sweep arah matahari + tab Profil — `SunConfig`/`SunSweep`/`SunSweepOverlay` + `SunArc` (Mission 13) dan tab Profisiensi di `BagPanel`; tes `test_sun_sweep.gd`.
+- [x] Fase 6: SpriteFrames-first + data audio — `Assets` menerima `<slot>.tres` di atas PNG (Mission 12); registri audio 103 cue + `AUDIO_GUIDE.md` ada (data saja, tanpa playback); tes `test_assets_spriteframes.gd`, `test_audio_guide_sync.gd`.
 - [ ] Uji rasa manual: berat raid, rasa lapar, jeda regen — needs playtest.
 
 ## 28. Umpan balik pemain (Mission 9 lanjutan)
@@ -574,3 +574,24 @@ Fase 0-3 jalan; fase 4-6 belum (lihat bagian terpisah di bawah).
 - [x] Warning editor di screenshot dibersihkan (shadowing, parameter, unreachable,
   meta tween).
 - [x] Tes baru untuk keempat area di atas.
+
+## 31. Mission 10 — penempatan base, panel stasiun, held item, pause
+
+Fitur Mission 10 yang belum punya baris sendiri di file ini.
+
+- [x] Satu action penempatan base (`base_place`, B) dengan preview pagar: ghost mengikuti kursor, situs invalid diblokir dengan alasan Indonesia, klik kiri mendirikan base — `test_camp_anchor.gd` (memuat `BasePlacementController`).
+- [x] Panel stasiun (Meja Kerja / Api Unggun) terbuka dengan E, mengunci gerak pemain tanpa mem-pause dunia, craft dari panel memakai `CraftingComponent` yang sama — `test_station_panel_craft.gd`.
+- [x] Item di tangan (`HeldItemVisual`) + hotbar memilih item (1-5, `InventoryConfig.hotbar_select_mode`) dan `use_held` (klik kanan/F) — `test_mission10_held_items.gd`.
+- [x] Perilaku pause berlapis (`UiBackStack.close_top`): Esc menutup panel paling atas dulu, skala waktu dipulihkan persis — `test_pause_menu.gd`.
+- [ ] Uji rasa manual: preview pagar, panel stasiun, item di tangan, Esc berlapis.
+
+## 32. Mission 12 — jam dunia nyata
+
+Presentasi saja; siklus/fase/durasi tidak berubah.
+
+- [x] `ClockFormatConfig` + `GameClockFormat` (fungsi murni) + `clock_format.tres` dari generator — `test_game_clock_format.gd`.
+- [x] `DayNightManager.get_clock_hour()/get_clock_text()/get_clock_period()` + sinyal `hour_changed` (sekali per jam, sekali setelah skip/restart, diam saat skala 0) — `test_game_clock_format.gd`.
+- [x] TimeHUD: jam besar + periode + Hari N/7, arc matahari dari jam; NightSurvivalHUD: "Malam N | HH:MM | Fajar dalam mm:ss | Musuh X/Y" — `test_game_clock_format.gd`.
+- [x] DeathScreen "Tewas pada Hari N pukul HH:MM", Victory "Diselamatkan Hari 7 pukul 06:00", toast tidur "Tidur: HH:MM -> HH:MM" — `test_game_clock_format.gd` (teks toast) dan boot island.
+- [x] Debug `Y` (`debug_island_period`) lompat ke awal periode jam — `test_game_clock_format.gd`.
+- [ ] Uji rasa manual: jam terasa wajar di hari 180/300/360 dtk dan saat Jaga Malam.

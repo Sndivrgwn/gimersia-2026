@@ -4,7 +4,7 @@
 > repository. Read this file first, then the linked docs. **Code is the source of
 > truth** when a doc disagrees with it.
 
-Last verified: 2026-11-22, Godot 4.7.2, GUT 9.7.1 — 563/563 tests (556 unit + 7 integration), 3237 asserts, 70 scripts; boots island/practice1/main_menu bersih.
+Last verified: 2026-11-24, Godot 4.7.2, GUT 9.7.1 — 836/836 tests (821 unit + 15 integration), 4432 asserts, 103 scripts; boots island + main_menu bersih (practice1 tidak dipakai lagi).
 Spec cross-check: 2026-11-18 against spec V8. Gaps found are listed in §4
 (missing systems), §7.1-7.8 (spec details), §8 (revised build order) and §13
 (open design questions).
@@ -49,15 +49,15 @@ in `docs/editable/` is maintained by the project.
 |---|---|---|
 | Engine | — | `D:\Programming\Gamedev\Godot_v4.7.2-stable_win64.exe` (console variant exists) |
 | GUT | — | **9.7.1 installed** in `addons/gut` (docs saying otherwise are stale) |
-| Unit tests | `tools/run_tests.ps1` | included in the default suite below |
-| Default suite | `powershell -ExecutionPolicy Bypass -File tools/run_tests.ps1` | **754/754 passing**, 3990 asserts, **~50 s** (hard limit 120 s per command) |
+| Unit tests | `... -Dir res://tests/unit` | **799/799 passing** (93 file di `tests/unit`) |
+| Default suite | `powershell -ExecutionPolicy Bypass -File tools/run_tests.ps1` | **836/836 passing**, 4432 asserts, **103 skrip**. Waktu GUT **> 300 s**, jadi perintah runner 120 s **masih timeout** (exit 124); angka di atas dari invokasi GUT yang sama (`-gdir` unit + integration) tanpa kill runner |
 | One test file | `... -Test res://tests/unit/<file>.gd` | dipakai saat memperbaiki satu kegagalan |
-| Integration tests | `... -Dir res://tests/integration` | **12/12 passing** (S1-S5 + 7-day soak + perf) |
+| Integration tests | `... -Dir res://tests/integration` | **15/15 passing** (10 file: S1-S5 + 7-day soak + perf) |
 | Slow-only tests | `... -Slow` (sets `GIMERSIA_SLOW=1`) | helper `tests/helpers/slow_guard.gd` tersedia; saat ini belum ada file tes yang memakainya |
-| Verified on | — | 23 Nov 2026 (Mission 10) |
-| Main scene boot | see §9 | `practice1.tscn` runs headless for 120 frames with **no errors** |
-| Island boot | see §9 | `src/levels/island/island.tscn` runs headless for 120 frames with **no errors** |
-| Main menu boot | see §9 | `src/ui/menus/main_menu.tscn` runs headless for 60 frames with **no errors** |
+| Verified on | — | 24 Nov 2026 (Mission 11-13) |
+| Main scene boot | `--quit-after 120 res://src/levels/island/island.tscn` | exit 0, **no ERROR/WARNING** (island = `run/main_scene`) |
+| Legacy practice boot | — | `scenes/practice/practice1.tscn` tidak dipakai lagi sejak Mission 11 (tidak dijalankan) |
+| Main menu boot | `--quit-after 120 res://src/ui/menus/main_menu.tscn` | exit 0, **no ERROR/WARNING** |
 | Default clock config | — | `cycle_duration` **600 s** (script default; `.tres` no longer overrides it) |
 | Dusk warning | — | 15 s before night |
 
@@ -135,7 +135,7 @@ Known bugs still present:
 | `HintManager` / `HintDefinition` | `src/ui/hud/hints/`, `src/data/resources/hints/`, `src/data/hints/*.tres`, `tools/generate_hints.gd` | One hint at a time, 5 s each, once per run, reset on restart, skipped when hints are off. Triggers: base missing after 3 s, first interactable, first night (day 1), need tier LOW, structure damaged, neutral animal hit, and `trigger()` for the rest | Implemented; queue/reset/off tested |
 | `ChestPanel` | `src/ui/panels/chest/chest_panel.gd` | 24 chest slots + 12-slot bag mirror (layer 21): right-click transfers, "Ambil semua", Esc/interact/chest destroyed/120 px closes; locks `BagPanel` while open; no pause | Implemented; 5 tests |
 | `small_tree` / `ChopFeedback` | `src/data/gathering/small_tree.tres`, `src/entities/props/resource_node/chop_feedback.gd` | Hand-choppable tree (4.0 s, 2 wood, 3 fatigue, 0.5x with axe) plus chop feedback: shake 2 px/12 Hz, chips every 0.25 s, fall 85 deg/0.6 s, stump until respawn, regrow 0.3→1.0 over 0.5 s, `feedback_event(chop_hit/tree_fall)` | Implemented; 11 tests |
-| `RespawnRecapHUD` / `ProficiencyHUD` / `NightBanner` / `NightSurvivalHUD` | `src/ui/hud/` | Read-only HUD: 8 s death-debuff recap from `DeathController.debuff_applied`, 3 s red row flash, night/dawn banner 4 s (dawn skipped while rescue), night survival "Malam N | Bertahan mm:ss | Musuh X/Y" with progress, hidden by day | Implemented; 4 tests |
+| `RespawnRecapHUD` / `ProficiencyHUD` / `NightBanner` / `NightSurvivalHUD` | `src/ui/hud/` | Read-only HUD: 8 s death-debuff recap from `DeathController.debuff_applied`, 3 s red row flash, night/dawn banner 4 s (dawn skipped while rescue), night survival "Malam N | HH:MM | Fajar dalam mm:ss | Musuh X/Y" (fallback "Bertahan mm:ss" tanpa jam) with progress, hidden by day | Implemented; 4 tests |
 | `InputSetup` | `src/utils/input_setup.gd` | Input Map helper: most actions (`move_*`, `sprint`, `hotbar_1..5`, `debug_*`) are declared in `project.godot` `[input]`; `interact` (E), `repair` (R) and `debug_island_*` (F2/F3/F4/F5) are registered by `ensure_actions()`, which only fills gaps idempotently. Also owns `MOVE_ACTIONS` and `is_movement_pressed()`, the single movement poll used by `CraftingComponent` and `NightWatchController`. **Input rule:** gameplay components poll Input actions (`Input.is_action_pressed()`, `is_action_just_pressed()`, `get_vector()`) inside `_process`/tick and never match raw keycodes; UI panels such as `BagPanel` may use `_unhandled_input` for toggle/close only. No gameplay code uses `_unhandled_input` |
 | `SafeZone` | `scenes/practice/safe_zone.gd` | **Practice-only** camera zoom + speed modifier example |
 | Tests / sandbox / integration | `tests/unit/`, `tests/sandbox/`, `tests/integration/` | GUT unit tests, a manual stats sandbox, and scene-level integration tests on `island.tscn`. `island_harness.gd` (preload, no `class_name`) instantiates the island, resolves the real components, creates `/root/DayNightManager` only when absent (and frees it in teardown), and drives time through `clock.advance()` + the public `tick()` of each node. Scenarios: `test_island_wiring.gd` (S1), `_survival` (S2), `_night` (S3), `_death` (S4), `_endgame` (S5), `_soak` (7-day, 0.5 s step) | Implemented; 7 tests |
@@ -145,6 +145,16 @@ Known bugs still present:
 | `SpawnClearance` | `src/utils/spawn_clearance.gd` | Mission 10. `is_clear(tree, point, min_px := 60.0, ignore)`; dipakai `FaunaQuota` dan `NightSpawner`. Fallback "paling jauh" tidak pernah memakai penanda di dalam ring base |
 | `IslandDeer` (Mission 10 states) | `src/entities/fauna/island_deer/island_deer.gd`, `src/data/resources/fauna/deer_config.gd` | WANDER -> ALERT (0.45 s) -> STARTLE (`startle_seconds` 0.9 s, tetap bisa dipukul) -> FLEE (ramp linear 0 -> 175 px/s selama `flee_accel_seconds` 0.5 s). Damage di WANDER/ALERT/STARTLE langsung FLEE + `hit_stun` 0.35 s. `sneak_notice_floor_px` 24 px adalah lantai radius deteksi jongkok |
 | `AudioCueDefinition` / `AudioRegistry` / `AudioGuideGenerator` | `src/data/resources/audio/`, `src/data/audio/audio_registry.tres`, `src/core/docs/audio_guide_generator.gd` | Mission 10. 103 cue (kategori, trigger Indonesia, hook, loop, spatial, varian, durasi, bus, prioritas, pola file). **Data dan dokumentasi saja**: tidak ada playback, `AudioManager`, atau file `.ogg`. `AUDIO_GUIDE.md` digenerate dari registry; 19 cue masih `HOOK BELUM ADA` |
+
+| `StationPanel` | `src/ui/panels/station/station_panel.gd/.tscn` | Panel Meja Kerja/Api Unggun: `open(station, interactor) -> bool`, `close()`, `is_open()`, `tick(delta)`, `get_rows()`, `get_title_text()`, `get_status_text()`. Esc atau jarak > 120 px menutup; mengunci gerak pemain tanpa mem-pause dunia, craft lewat `CraftingComponent` yang sama | Implemented; `test_station_panel_craft.gd` |
+| `HotbarSelectionComponent` | `src/components/inventory/hotbar_selection_component.gd` | Angka 1-5 memilih slot bila `InventoryConfig.hotbar_select_mode`; `use_held()` dipanggil action `use_held` (klik kanan/F) dan hanya memakai consumable | Implemented; `test_mission10_held_items.gd` |
+| `HeldItemVisual` | `src/components/visual/held_item_visual.gd` | State visual item di tangan (`resolve_item()`, `get_shape_points()`, `notify_swing()`); hanya kosmetik, tanpa aturan gameplay | Implemented; `test_mission10_held_items.gd` |
+| `UiBackStack` | `src/ui/ui_back_stack.gd` | `close_top(context)` menutup lapisan UI paling atas dulu; panel mendaftar/keluar lewat helper ini supaya Esc konsisten | Implemented; `test_pause_menu.gd` |
+| `FaunaBase` (contact stop) | `src/entities/fauna/fauna_base.gd` | Mission 11: `is_touching_player()` + contact-stop di `_wander()`; fauna non-chasing berhenti mendorong badan saat menyentuh pemain. `last_separation` untuk diagnosa | Implemented; `test_mission11_drag_real.gd`, `test_boar_mass.gd` |
+| `PhysicsTraceRecorder` | `src/core/debug/physics_trace_recorder.gd` | Mission 11: `start_recording()`/`stop_recording()` merekam 6 detik jejak fisika (posisi, kecepatan, state, overlap, separation) ke CSV `user://drag_trace_<ts>.csv`; tombol K (`debug_drag_trace`) | Implemented; `test_physics_trace_recorder.gd` |
+| `Assets` (SpriteFrames) / `ResolvedVisual` | `src/core/assets/assets.gd`, `resolved_visual.gd` | Mission 12: `spriteframes_path()`, `sprite_frames_at()` (cache; resource dibagi), `pick_animation()` (rantai fallback sama dengan PNG), `audit_sprite_frames()`; `ResolvedVisual.animation`/`from_spriteframes`; `.tres` menang atas PNG dan fps/loop ikut resource | Implemented; `test_assets_spriteframes.gd`, `test_assets_core.gd`, `test_visual_slot.gd` |
+| `ClockFormatConfig` / `GameClockFormat` (jam dunia nyata) | `src/data/resources/environment/clock_format_config.gd`, `src/core/clock/game_clock_format.gd`, `src/data/configs/environment/clock_format.tres` | Mission 12: presentasi jam tanpa mengubah siklus. Fase DAY = `day_start_hour`->`night_start_hour` (06:00->18:00), NIGHT = 18:00->06:00; kecepatan jam ikut panjang fase. Murni: `hour_of()`, `text()`, `period_of()`, `hours_between()`, `seconds_until_hour()`, `next_period_start_hour()`, `sleep_toast_text()`. Manager: `get_clock_hour()/get_clock_text()/get_clock_period()/get_clock_format()` + sinyal `hour_changed(hour)` | Implemented; `test_game_clock_format.gd` |
+| `SunSweep` / `SunSweepOverlay` / `SunConfig` / `SunArc` | `src/core/environment/sun_sweep.gd`, `src/levels/components/environment/sun_sweep_overlay.gd`, `src/data/resources/environment/sun_config.gd`, `src/ui/hud/time/sun_arc.gd` | Mission 13: `mask()`/`rim()`/`ratio()`/`plan()` murni; overlay CanvasLayer 2 `blend_mul` dengan mask 128x1; `SunConfig` (arah, detik, softness, warm rim, arc); `SunArc` read-only di TimeHUD | Implemented; `test_sun_sweep.gd`, `test_environment_light.gd` |
 
 ### What does NOT exist yet
 
@@ -625,6 +635,18 @@ Campfire `remove_fuel()`/Ember Snuff. 55 new tests in total; F6-F10 debug helper
    node growth 3.96%). 7 integration tests; whole suite 393 tests.
 7. **P3 - polish.** Main menu, pause, audio, sprites/animations, balancing,
    playtest, export. Post-MVP items only after the MVP gate (§12).
+8. **Mission 12 (owner) - jam dunia nyata. — DONE.** `ClockFormatConfig` +
+   `GameClockFormat` + generator `.tres`; `DayNightManager` hanya menambah
+   getter jam dan sinyal `hour_changed` (siklus/fase/durasi tidak berubah);
+   TimeHUD menampilkan jam besar + periode + Hari N/7 (arc matahari ikut jam),
+   NightSurvivalHUD menampilkan jam + "Fajar dalam", DeathScreen/Victory/Tenda
+   memakai jam, debug `Y` melompat ke awal periode. 22 tes
+   (`test_game_clock_format.gd`).
+9. **Mission 11 - fauna drag fix + trace. — DONE.** Contact-stop di
+   `FaunaBase._wander()` (`is_touching_player()`) + `last_separation`, dan
+   `PhysicsTraceRecorder` (tombol K, CSV) untuk diagnosa. `test_mission11_drag_real.gd`
+   (12 kasus tarik, semua < 0.05 rasio geser), `test_physics_trace_recorder.gd`,
+   `test_boar_mass.gd`, `test_mission10_physics_matrix.gd`.
 
 Recommended new locations (keep conventions):
 
@@ -742,6 +764,15 @@ memblokir sprint. Rincian angka: `CONFIG_GUIDE` dan laporan misi.
 - Mission 10: pause memakai back-stack (Esc menutup lapisan paling atas dulu).
 - Mission 10: batas waktu tes 120 s per perintah, dijalankan hanya lewat
   `tools/run_tests.ps1`; `-Slow` untuk tes berat.
+- Mission 11: pemain yang menempel ke fauna tidak menyeretnya; fauna non-chasing
+  berhenti mendorong badannya sendiri saat kontak (contact-stop), tanpa
+  `motion_mode` baru atau penulisan posisi dari luar.
+- Mission 12: SpriteFrames-first — `.tres` per slot di atas strip/PNG, nama
+  animasi `<state>`/`<state>_<dir>`, fps/loop milik resource (config hanya untuk
+  strip), satu `AnimatedSprite2D` berbagi resource tanpa salinan.
+- Mission 13: sapuan fajar dari `dawn_side`, senja dari sisi seberang;
+  CanvasModulate memakai endpoint lebih terang + overlay multiply pada bagian
+  yang belum dilewati; `sweep_enabled=false` tetap fade seragam lama.
 
 ## 9. Commands & upkeep
 
@@ -831,7 +862,9 @@ All of these must be true in one playable session:
 
 Full acceptance detail: `docs/editable/MVP_CHECKLIST.md` §15.
 
-## 13. Open design questions & balance flags (riwayat)
+## 13. Keputusan dan pertanyaan terbuka
+
+### Pertanyaan terbuka (riwayat)
 
 Found while cross-checking spec V8. Confirm with the design owner; keep the
 numbers in `.tres` so tuning stays cheap. Beberapa butir sudah selesai; lihat
@@ -874,7 +907,7 @@ numbers in `.tres` so tuning stays cheap. Beberapa butir sudah selesai; lihat
    dan dipasang di `island.tscn`. Satu sisa nyata:
    `PlayerBaseStats.max_respawn_tokens` belum dipakai (item 6).
 
-## 13. Keputusan yang sudah diambil
+### Keputusan yang sudah diambil
 
 - Deer guarantee **ON** (`FaunaQuota.guarantee_deer_at_rescue = true`).
 - Signal Flare **dikonsumsi** saat Victory.
@@ -891,6 +924,40 @@ numbers in `.tres` so tuning stays cheap. Beberapa butir sudah selesai; lihat
 - Mission 10: aturan spawn 60 px ditambahkan di samping aturan 600 px lama;
   fallback "paling jauh" tetap ada tetapi berhenti di luar ring base.
 - Mission 10: audio hanya data + panduan; playback menunggu `AudioManager`.
+- Mission 11: pemain yang menempel ke fauna tidak menyeretnya; fauna non-chasing
+  berhenti mendorong badannya sendiri saat kontak (contact-stop di
+  `FaunaBase._wander()`), tanpa mengubah `motion_mode`.
+- Mission 12: SpriteFrames-first — `.tres` slot diutamakan di atas strip/PNG,
+  nama animasi `<state>`/`<state>_<dir>`, fps/loop milik resource, satu
+  `AnimatedSprite2D` berbagi resource yang sama.
+- Mission 13: sapuan fajar dari `dawn_side` dan senja dari sisi seberang;
+  CanvasModulate memakai endpoint yang lebih terang dan overlay multiply
+  menggelapkan bagian yang belum dilewati; `sweep_enabled=false` = fade lama.
+
+### Riwayat misi
+
+Label misi dipakai bebas di dokumen lain; tabel ini peta label -> fitur.
+
+| Label | Di dokumen | Yang dikerjakan |
+| --- | --- | --- |
+| P0 | §8 build order | Bersih-bersih fondasi: `set_time_scale(-1)`, tautan docs/README |
+| P1a / P1b / P1c / P2 | §8 build order | Survival core; threat loop; proficiency; death + endgame |
+| Mission 5 | §8 item 6 | Integrasi skala scene: harness `island.tscn`, S1-S5, soak 7 hari |
+| Mission 6 | §8 (Mission 6) | Base dinamis (B), ring pagar, QTE api unggun, juice tempur |
+| Mission 7 | §8 (Mission 7) | `small_tree`, hint, panel Peti, pause/settings/help, HUD malam & debuff, `SettingsService` |
+| Mission 8 | architecture | Sistem aset (`Assets`/`VisualSlot`/`UiSkin`/registry), `StatusEffectsComponent` |
+| Mission 9 (fase 1-3) | MVP §27 | Balance pass 2: raid event + cap, massa babi, api unggun COLD, freeze/proteksi, needs, regen HP |
+| Mission 9 fase 4 | MVP §27, PANDUAN §25c | Jongkok Ctrl, rusa waspada, air sungai, `MotionTell` |
+| Mission 9 lanjutan | MVP §28 | Getaran pohon berirama, isi menu Jeda, tab Profisiensi, `PlaceholderLabels`, `PANDUAN_INPUT` |
+| Mission 9 fase 5 | MVP §27 (fase 5) | Sweep arah matahari — dikerjakan sebagai **Mission 13** |
+| Mission 9 fase 6 | MVP §27 (fase 6) | SpriteFrames-first (**Mission 12**) + data audio (**Mission 10**) |
+| Mission 10 (feedback) | MVP §26 | Channel feedback: toast, angka damage, arah serangan |
+| Mission 10 (fisika + audio) | MVP §29, architecture | `BodyProfile`, `BodySeparation`, `SpawnClearance`, state rusa, registri audio 103 cue |
+| Mission 10 lanjutan (MVP §30) | MVP §30 | Panel stasiun, minum di sungai, koreksi transisi sore/fajar, kunang-kunang, cahaya api |
+| Mission 10 lanjutan (architecture) | architecture | Perbaikan atmosfer/transisi yang sama, ditambah pembersihan warning editor |
+| Mission 11 | §8 item 8 | Anti-seret fauna (contact-stop) + `PhysicsTraceRecorder` (K) |
+| Mission 12 | §4, ASSET_GUIDE | SpriteFrames-first: `.tres` per slot, rantai fallback animasi, `check_assets` validasi, panduan |
+| Mission 13 | §4, CONFIG_GUIDE | Sapuan fajar/senja (`SunConfig`/`SunSweep`/`SunSweepOverlay`) + `SunArc` di TimeHUD |
 
 ## 14. Masih terbuka
 
@@ -900,8 +967,13 @@ numbers in `.tres` so tuning stays cheap. Beberapa butir sudah selesai; lihat
 - `PlayerBaseStats.max_respawn_tokens` belum dipakai kode.
 - Balance setelah playtest manual.
 - `fx_slash`/`fx_dust` sudah punya slot tetapi belum ada node efek pemakainya.
-- Mission 9 fase 5 belum dikerjakan: sweep arah matahari.
-- SpriteFrames-first (Mission 9 fase 6) belum dikerjakan; data audio sudah ada.
+- ~~Mission 9 fase 5 (sweep arah matahari)~~ **DONE** (Mission 13): `SunConfig`,
+  `SunSweep`, `SunSweepOverlay`, `SunArc` — `test_sun_sweep.gd`.
+- ~~SpriteFrames-first (Mission 9 fase 6)~~ **DONE** (Mission 12 blok asset):
+  `assets.gd` SpriteFrames-first + `check_assets` — `test_assets_spriteframes.gd`.
+  Data audio tetap belum punya playback.
+- Tidur Tenda masih `skip_seconds` 45 dtk nyata (≈1,8 jam game); belum ada
+  pilihan "tidur sampai pagi".
 - Audio: playback, `AudioManager`, mixing, dan file `.ogg` belum ada; 19 cue
   berstatus `HOOK BELUM ADA` (lihat `AUDIO_GUIDE.md`).
 

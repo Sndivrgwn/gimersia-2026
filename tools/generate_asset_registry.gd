@@ -56,6 +56,8 @@ func _character_slots() -> Array[AssetSlotDefinition]:
 
 	slots.append(_slot(&"player", &"characters", "characters/player", ["idle", "walk", "sprint", "attack", "hurt", "death"], {
 		"dirs": DIRS4,
+		"prefers_spriteframes": true,
+		"showcase": true,
 		"size": Vector2(26.0, 30.0),
 		"priority": 1,
 		"recommended": Vector2i(32, 32),
@@ -68,6 +70,8 @@ func _character_slots() -> Array[AssetSlotDefinition]:
 
 	slots.append(_slot(&"wild_boar", &"characters", "characters/wild_boar", ["idle", "walk", "telegraph", "dash", "bite", "death"], {
 		"dirs": DIRS4,
+		"prefers_spriteframes": true,
+		"showcase": true,
 		"size": Vector2(34.0, 24.0),
 		"priority": 1,
 		"recommended": Vector2i(48, 32),
@@ -80,6 +84,8 @@ func _character_slots() -> Array[AssetSlotDefinition]:
 
 	slots.append(_slot(&"island_deer", &"characters", "characters/island_deer", ["idle", "walk", "flee", "death"], {
 		"dirs": DIRS4,
+		"prefers_spriteframes": true,
+		"showcase": true,
 		"size": Vector2(36.0, 30.0),
 		"priority": 1,
 		"recommended": Vector2i(48, 40),
@@ -97,10 +103,10 @@ func _character_slots() -> Array[AssetSlotDefinition]:
 func _resource_slots() -> Array[AssetSlotDefinition]:
 	var slots: Array[AssetSlotDefinition] = []
 	var specs := [
-		{"key": &"twig", "size": Vector2(26.0, 18.0), "rec": Vector2i(32, 24), "desc": "Ranting kecil di tanah."},
-		{"key": &"small_tree", "size": Vector2(40.0, 52.0), "rec": Vector2i(48, 64), "desc": "Pohon kecil yang bisa ditebang."},
-		{"key": &"tree", "size": Vector2(60.0, 76.0), "rec": Vector2i(64, 80), "desc": "Pohon besar; animasi tumbang tetap dari kode."},
-		{"key": &"small_rock", "size": Vector2(28.0, 22.0), "rec": Vector2i(32, 24), "desc": "Batu kecil; butuh pickaxe."},
+		{"key": &"twig", "size": Vector2(26.0, 18.0), "rec": Vector2i(32, 24), "desc": "Ranting kecil di tanah.", "showcase": true},
+		{"key": &"small_tree", "size": Vector2(40.0, 52.0), "rec": Vector2i(48, 64), "desc": "Pohon kecil yang bisa ditebang.", "showcase": true},
+		{"key": &"tree", "size": Vector2(60.0, 76.0), "rec": Vector2i(64, 80), "desc": "Pohon besar; animasi tumbang tetap dari kode.", "showcase": true},
+		{"key": &"small_rock", "size": Vector2(28.0, 22.0), "rec": Vector2i(32, 24), "desc": "Batu kecil; butuh pickaxe.", "showcase": true},
 		{"key": &"big_rock", "size": Vector2(46.0, 34.0), "rec": Vector2i(48, 40), "desc": "Batu besar; butuh pickaxe."},
 		{"key": &"fiber_bush", "size": Vector2(34.0, 26.0), "rec": Vector2i(40, 32), "desc": "Semak serat."},
 		{"key": &"berry_bush", "size": Vector2(34.0, 28.0), "rec": Vector2i(40, 32), "desc": "Semak berry."},
@@ -113,6 +119,7 @@ func _resource_slots() -> Array[AssetSlotDefinition]:
 			"size": spec["size"],
 			"pivot": BOTTOM,
 			"priority": 1,
+			"showcase": spec.get("showcase", false),
 			"recommended": spec["rec"],
 			"loop": [],
 			"fps": {"full": 6.0, "depleted": 6.0},
@@ -131,6 +138,7 @@ func _camp_slots() -> Array[AssetSlotDefinition]:
 	slots.append(_slot(&"campfire", &"camp", "props/campfire", ["lit", "ember", "cold"], {
 		"size": Vector2(44.0, 34.0),
 		"priority": 1,
+		"showcase": true,
 		"recommended": Vector2i(48, 40),
 		"loop": ["lit", "ember"],
 		"fps": {"lit": 8.0, "ember": 6.0, "cold": 6.0},
@@ -143,6 +151,7 @@ func _camp_slots() -> Array[AssetSlotDefinition]:
 		"size": Vector2(56.0, 44.0),
 		"pivot": BOTTOM,
 		"priority": 1,
+		"showcase": true,
 		"recommended": Vector2i(64, 48),
 		"used_by": "src/entities/camp/workbench/workbench.tscn",
 		"description": "Meja kerja.",
@@ -163,6 +172,7 @@ func _camp_slots() -> Array[AssetSlotDefinition]:
 		"size": Vector2(68.0, 50.0),
 		"pivot": BOTTOM,
 		"priority": 1,
+		"showcase": true,
 		"recommended": Vector2i(80, 56),
 		"loop": [],
 		"fps": {"default": 6.0, "sleeping": 6.0},
@@ -216,6 +226,7 @@ func _world_slots() -> Array[AssetSlotDefinition]:
 		slots.append(_slot(zone["key"], &"world", "world/ground", ["default"], {
 			"size": Vector2(32.0, 32.0),
 			"priority": 1,
+			"showcase": zone["key"] in [&"ground_camp", &"ground_forest"],
 			"recommended": Vector2i(32, 32),
 			"tiled": true,
 			"tile": Vector2(32.0, 32.0),
@@ -372,6 +383,10 @@ func _ui_slots() -> Array[AssetSlotDefinition]:
 	for icon in icons:
 		slots.append(_ui_slot(icon["key"], "ui/icons", icon["stem"], Vector2(16.0, 16.0), 2, icon["desc"], "Ditampilkan hanya bila art ada.", icon["stem"]))
 
+	slots.append(_ui_slot(&"ui_clock_sun", "ui/icons", "clock_sun", Vector2(16.0, 16.0), 3, "Glyph matahari jam TimeHUD.", "Opsional; fallback ke ui_sun lalu lingkaran placeholder.", "clock_sun"))
+	slots.append(_ui_slot(&"ui_clock_moon", "ui/icons", "clock_moon", Vector2(16.0, 16.0), 3, "Glyph bulan jam TimeHUD.", "Opsional; fallback ke ui_moon lalu bulan sabit placeholder.", "clock_moon"))
+	slots.append(_ui_slot(&"ui_sun", "ui/icons", "sun", Vector2(16.0, 16.0), 3, "Glyph matahari di arc TimeHUD.", "Opsional; tanpa art digambar lingkaran placeholder.", "sun"))
+	slots.append(_ui_slot(&"ui_moon", "ui/icons", "moon", Vector2(16.0, 16.0), 3, "Glyph bulan di arc TimeHUD.", "Opsional; tanpa art digambar bulan sabit placeholder.", "moon"))
 	slots.append(_ui_slot(&"ui_logo", "ui", "logo", Vector2(480.0, 160.0), 2, "Logo di menu utama.", "", "logo"))
 	slots.append(_ui_slot(&"ui_bg_main_menu", "ui", "bg_main_menu", Vector2(1280.0, 720.0), 2, "Latar menu utama.", "Ditampilkan hanya bila ada.", "bg_main_menu"))
 	slots.append(_ui_slot(&"ui_bg_death", "ui", "bg_death", Vector2(1280.0, 720.0), 3, "Latar layar mati.", "", "bg_death"))
@@ -405,6 +420,10 @@ func _slot(key: StringName, category: StringName, folder: String, states: Array,
 	slot.notes = opts.get("notes", "")
 	slot.file_stem = opts.get("stem", "")
 	slot.nine_slice = opts.get("nine_slice", Vector4.ZERO)
+	slot.prefers_spriteframes = opts.get("prefers_spriteframes", false)
+	slot.showcase = opts.get("showcase", false)
+	# Mission 12: slot showcase mencantumkan nama animasi yang disarankan.
+	slot.recommended_animations = slot.animation_names() if slot.showcase else PackedStringArray()
 	return slot
 
 

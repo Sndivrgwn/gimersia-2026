@@ -6,14 +6,16 @@ extends Node
 ## F2: aktifkan debug dan beri Stone Axe + Stone Pickaxe (equip).
 ## F3: teleport ke tengah zona berikutnya.
 ## F4: lompat ke pagi berikutnya lewat DayNightManager.skip_time.
+## Y: lompat ke awal periode jam berikutnya (Pagi 06:00 / Siang 10:00 /
+## Sore 15:00 / Malam 18:00) memakai GameClockFormat + skip_time.
 ##
 ## Tombol dibaca sebagai action Input Map `debug_island_*` yang didaftarkan
 ## `InputSetup` (F2/F3/F4), jadi tidak ada pencocokan raw keycode.
 
 const PLAYER_GROUP := &"player"
 const INVENTORY_NAME := "InventoryComponent"
-const HINT_OFF := "F2: island debug (tools · zona · pagi · kit · fauna · senjata)"
-const HINT_ON := "ISLAND DEBUG ON\nF2 off · F3 zona · F4 pagi · F5 kit · F6 boar · F7 rusa\nF8 malam · F9 heal · F10 senjata · F11 mati · F12 rescue"
+const HINT_OFF := "F2: island debug (tools · zona · waktu · kit · fauna · senjata)"
+const HINT_ON := "ISLAND DEBUG ON\nF2 off · F3 zona · F4 pagi · F5 kit · F6 boar · F7 rusa\nF8 malam · F9 heal · F10 senjata · F11 mati · F12 rescue · Y periode"
 const BOAR_SCENE: PackedScene = preload("res://src/entities/fauna/wild_boar/wild_boar.tscn")
 const DEER_SCENE: PackedScene = preload("res://src/entities/fauna/island_deer/island_deer.tscn")
 const SPAWN_DISTANCE := 250.0
@@ -96,6 +98,8 @@ func _process(_delta: float) -> void:
 		_kill_player()
 	elif Input.is_action_just_pressed(InputSetup.DEBUG_ISLAND_RESCUE):
 		_jump_to_rescue()
+	elif Input.is_action_just_pressed(InputSetup.DEBUG_ISLAND_PERIOD):
+		_jump_to_next_period()
 	elif Input.is_action_just_pressed(InputSetup.DEBUG_RAID):
 		_trigger_raid()
 
@@ -241,6 +245,34 @@ func _skip_to_morning() -> void:
 		seconds += manager.get_night_duration()
 	manager.skip_time(seconds)
 	print("GatherDebug: lompat %.1f detik ke pagi berikutnya" % seconds)
+
+
+## Mission 12: lompat ke awal periode jam berikutnya (Pagi 06:00, Siang 10:00,
+## Sore 15:00, Malam 18:00). Berhenti tepat di jam target: kalau target ada di
+## fase ini, skip persis detiknya; kalau tidak, habiskan fase ini dulu lalu
+## hitung lagi di fase berikutnya (kecepatan jam berbeda per fase).
+func _jump_to_next_period() -> void:
+	var manager := clock
+	if manager == null:
+		manager = get_node_or_null("/root/DayNightManager")
+	if manager == null or not manager.has_method(&"get_clock_hour"):
+		push_warning("GatherDebug: jam dunia nyata tidak tersedia; lompat dilewati.")
+		return
+
+	var format: ClockFormatConfig = manager.get_clock_format()
+	var target := GameClockFormat.next_period_start_hour(manager.get_clock_hour(), format)
+	for step in 6:
+		var hour: float = manager.get_clock_hour()
+		if GameClockFormat.hours_between(hour, target) < 0.02 or GameClockFormat.hours_between(hour, target) > 23.98:
+			break
+		var seconds: float = GameClockFormat.seconds_until_hour(
+			target, manager.is_day(), manager.get_phase_progress(), manager.get_phase_duration(), format
+		)
+		var remaining: float = manager.get_remaining_seconds()
+		manager.skip_time(remaining if seconds >= remaining - 0.001 else seconds)
+	print("GatherDebug: jam sekarang %s (target %s)" % [
+		manager.get_clock_text(), GameClockFormat.text(target, format == null or format.use_24h, 1 if format == null else format.minute_step)
+	])
 
 
 func _spawn_fauna(scene: PackedScene, hostile: bool) -> void:

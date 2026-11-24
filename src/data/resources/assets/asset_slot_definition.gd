@@ -52,6 +52,12 @@ const DIRECTIONS: Array[String] = ["down", "up", "left", "right"]
 @export var optional: bool = false
 ## Catatan untuk tim seni.
 @export var notes: String = ""
+## Mission 12: art utama slot ini sebaiknya berupa SpriteFrames (.tres).
+@export var prefers_spriteframes: bool = false
+## Nama animasi yang disarankan di dalam SpriteFrames (state atau state_dir).
+@export var recommended_animations: PackedStringArray = PackedStringArray()
+## True untuk 12 slot yang paling menentukan kesan pertama build.
+@export var showcase: bool = false
 
 
 ## Nama file dasar: file_stem bila ada, kalau tidak nama state.
@@ -105,6 +111,19 @@ func is_valid() -> bool:
 	if tiled and (tile_size.x <= 0.0 or tile_size.y <= 0.0):
 		return false
 	return true
+
+
+## Nama animasi yang disarankan: `<state>_<dir>` untuk slot 4 arah, `<state>`
+## untuk slot satu arah. Dipakai generator registry dan panduan.
+func animation_names() -> PackedStringArray:
+	var result := PackedStringArray()
+	for state in states:
+		if directions == Direction.FOUR:
+			for dir in DIRECTIONS:
+				result.append("%s_%s" % [state, dir])
+		else:
+			result.append(state)
+	return result
 
 
 ## Pola path untuk panduan (contoh nama file lengkap).

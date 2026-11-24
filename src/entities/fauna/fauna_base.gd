@@ -59,6 +59,9 @@ var _visual: Polygon2D
 var _hp_bar: ProgressBar
 var _ready_done: bool = false
 var _pickup_scene: PackedScene
+## Mission 11: perpindahan yang diterapkan BodySeparation pada tick terakhir
+## (dibaca PhysicsTraceRecorder; tidak mengubah perilaku).
+var last_separation: Vector2 = Vector2.ZERO
 
 
 func _enter_tree() -> void:
@@ -106,7 +109,7 @@ func tick(delta: float) -> void:
 	_tick_flash(delta)
 	_update_dazzle()
 	# Mission 10 Phase 4: jaring pengaman anti-tumpuk, dihormati dinding/sungai.
-	BodySeparation.apply(self, delta, _find_player())
+	last_separation = BodySeparation.apply(self, delta, _find_player())
 
 	if _flee_remaining > 0.0:
 		_tick_flee(delta)
@@ -558,7 +561,24 @@ func face(direction: Vector2) -> void:
 	scale.x = absf(scale.x) * (1.0 if direction.x >= 0.0 else -1.0)
 
 
+## Mission 11: badan fauna ini sudah menempel badan pemain (<= jarak kontak).
+## Dipakai state non-chasing supaya AI tidak terus menggerakkan badan saat
+## pemain menempel; tanpa itu pemain tidak pernah benar-benar terhalang.
+func is_touching_player() -> bool:
+	var target := _find_player()
+	if not (target is Node2D):
+		return false
+	return global_position.distance_to((target as Node2D).global_position) <= get_contact_distance_to_player()
+
+
 func _wander(delta: float) -> void:
+	# Mission 11 (Block A): WANDER/NEUTRAL tidak boleh menggerakkan badan saat
+	# menempel pemain. Dulu babi tetap berjalan, jadi pemain mengikuti babi yang
+	# bergerak (terasa seperti terseret tanpa massa). Contact-stop dan chase
+	# hanya milik CHASE/BITE/DASH_TELEGRAPH/DASH.
+	if is_touching_player():
+		move_in_direction(Vector2.ZERO, 0.0, delta)
+		return
 	if _wander_pause > 0.0:
 		_wander_pause = maxf(_wander_pause - delta, 0.0)
 		move_in_direction(Vector2.ZERO, 0.0, delta)

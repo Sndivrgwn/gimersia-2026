@@ -455,7 +455,8 @@ mengunci toggle BagPanel selama terbuka.
   "Tidak ada debuff"; `ProficiencyHUD` memerahkan baris 3 s.
 - `NightBanner`: "Malam N dimulai" (+ "Ember Snuff aktif" dari malam 5) dan
   "Fajar hari N - kamu selamat dari malam N-1" 4 s; fajar dilewati saat rescue.
-- `NightSurvivalHUD`: "Malam N | Bertahan mm:ss | Musuh X/Y" + progress bar,
+- `NightSurvivalHUD`: "Malam N | HH:MM | Fajar dalam mm:ss | Musuh X/Y" + progress
+  bar (tanpa jam: "Bertahan mm:ss", dipakai tes stub lama),
   hanya malam. `TimeHUD.show_survival_label = false` di island agar tidak ganda.
 
 ### Pohon kecil — `small_tree` + `ChopFeedback`
@@ -1124,6 +1125,7 @@ dari InputMap yang hidup, jadi tidak boleh berbeda dengan kode.
 | `debug_cycle_fatigue` | V |
 | `debug_cycle_hunger` | X |
 | `debug_cycle_thirst` | C |
+| `debug_drag_trace` | K |
 | `debug_eat` | M |
 | `debug_fauna_labels` | Insert |
 | `debug_heal` | H |
@@ -1134,6 +1136,7 @@ dari InputMap yang hidup, jadi tidak boleh berbeda dengan kode.
 | `debug_island_kit` | F5 |
 | `debug_island_morning` | F4 |
 | `debug_island_night` | F8 |
+| `debug_island_period` | Y |
 | `debug_island_rescue` | F12 |
 | `debug_island_toggle` | F2 |
 | `debug_island_weapon` | F10 |
@@ -1234,7 +1237,17 @@ pemain mati (`DeathController.died`). `StatusEffectHUD` menampilkan
 | F10 | `debug_island_weapon` | Siklus senjata |
 | F11 | `debug_island_kill` | Matikan pemain |
 | F12 | `debug_island_rescue` | Lompat ke fajar Hari 7 |
+| Y | `debug_island_period` | Lompat ke awal periode jam berikutnya (Pagi 06:00 / Siang 10:00 / Sore 15:00 / Malam 18:00) |
 | Insert | `debug_fauna_labels` | Label temperament/state fauna |
+| K | `debug_drag_trace` | Rekam 6 detik jejak fisika (CSV di `user://`) |
+
+### Kalau fauna masih terseret (Mission 11)
+
+Kalau masih keseret: tekan `K`, ulangi gerakannya (menempel ke fauna lalu jalan),
+tunggu 6 detik, lalu kirim file CSV `user://drag_trace_<timestamp>.csv` yang
+namanya muncul di toast "Jejak disimpan: ...". Isinya satu baris per frame per
+badan (pemain + 2 fauna terdekat): posisi, kecepatan, state, kecepatan AI,
+kedalaman tumpuk, dan pemisahan badan yang diterapkan.
 
 ## 25b. Balance pass 2 (Mission 9, fase 1-3) — aturan yang berubah
 
@@ -1494,3 +1507,133 @@ tools\run_tests.ps1 -Test res://tests/unit/test_river_drink_zone.gd
 tools\run_tests.ps1 -Test res://tests/unit/test_day_light_curve.gd
 tools\run_tests.ps1 -Test res://tests/unit/test_environment_light.gd
 ```
+
+---
+
+## 32. Mission 11 — anti-seret fauna + jejak fisika
+
+`FaunaBase` (Mission 11). Saat badan fauna menyentuh pemain, fauna non-chasing
+berhenti mendorong badannya sendiri untuk sementara (`is_touching_player()`
+dicek di awal `_wander()`). `last_separation` menyimpan hasil pemisahan terakhir
+untuk diagnosa. Tidak ada `motion_mode` baru dan tidak ada kode yang menulis
+posisi/velocity badan lain.
+
+`PhysicsTraceRecorder` (`src/core/debug/physics_trace_recorder.gd`, dipasang di
+`island.tscn`). `start_recording()` merekam 6 detik, `stop_recording()` menulis
+CSV ke `user://drag_trace_<timestamp>.csv` dan mengembalikan path-nya;
+`build_csv(rows)` murni sehingga bisa dites tanpa file.
+
+**Uji manual:** menempel ke babi lalu berjalan; pemain tidak boleh menyeret babi.
+Kalau masih terlihat geser, tekan `K`, ulangi gerakannya, tunggu 6 detik, kirim
+CSV yang namanya muncul di toast.
+
+**Tes:** `tools\run_tests.ps1 -Test res://tests/unit/test_mission11_drag_real.gd`
+(berat, ~30-50 dtk) dan `... -Test res://tests/unit/test_physics_trace_recorder.gd`.
+
+## 33. Mission 12 — SpriteFrames-first (`<slot>.tres`)
+
+Satu file `res://assets/<folder>/<slot>.tres` berisi `SpriteFrames` untuk slot
+mana pun (karakter, api unggun, pohon, properti). Urutan prioritas:
+`.tres` > strip PNG `_<N>f`/PNG statis > placeholder.
+
+- Nama animasi: `<state>` atau `<state>_<dir>` (`down`/`up`/`left`/`right`).
+- Fallback: `<state>_<dir>` -> `<state>` -> `<state>_<arah cermin>` (flip_h) ->
+  `idle_<dir>` -> `idle` -> `default` -> placeholder.
+- fps/loop dibaca dari resource; `AssetConfig` hanya untuk strip PNG.
+- `VisualSlot` membuat satu `AnimatedSprite2D` yang memakai resource yang sama
+  (`Assets.sprite_frames_at()` menyimpan cache; tidak ada salinan).
+- Auto-scale/pivot memakai frame pertama animasi terpilih.
+- `Assets.audit_sprite_frames()` + `tools/check_assets.gd` melaporkan nama
+  animasi asing, animasi kosong, idle hilang, dan ukuran frame tidak konsisten.
+
+**Uji manual:** simpan `player.tres` berisi `idle_down` + `walk_left`, tekan
+Backtick di island, lalu bandingkan dengan sebelumnya; hapus file + Backtick
+untuk kembali ke strip PNG.
+
+**Tes:** `tools\run_tests.ps1 -Test res://tests/unit/test_assets_spriteframes.gd`.
+
+## 34. Mission 13 — sapuan fajar/senja + `SunArc`
+
+`SunConfig` (`src/data/resources/environment/sun_config.gd`, instance
+`src/data/configs/environment/sun_config.tres` dari `tools/generate_sun_config.gd`):
+`sweep_enabled`, `dawn_side` (`RIGHT` bawaan), `dawn_sweep_seconds` /
+`dusk_sweep_seconds` (60 dtk = durasi transisi visual), `softness` 0.35,
+`warm_rim_strength` 0.25, `sun_arc_enabled`.
+
+- `SunSweep.mask(progress, side, softness, x_norm)` 0..1: 1 = front sudah lewat.
+  `SunSweep.rim()` = pita hangat, `SunSweep.ratio()` = faktor multiply <= 1, dan
+  `SunSweep.plan()` mengembalikan {sweep, color, target, ratio, progress, side,
+  seconds} untuk satu frame transisi.
+- `SunSweepOverlay` (CanvasLayer 2, `blend_mul`) mengalikan bagian layar yang
+  belum dilewati front dengan `ratio`; `DayNightVisual` tetap satu-satunya
+  `CanvasModulate` dan memakai endpoint yang lebih terang.
+- `sweep_enabled = false` mengembalikan fade seragam lama persis.
+- `SunArc` (anak `Root` di `time_hud.tscn`) menggambar busur + glyph matahari
+  (siang) / bulan (malam) dari `get_phase_progress()`; art opsional dari slot
+  `ui_sun`/`ui_moon`.
+
+**Uji manual:** tunggu menit terakhir siang di island; bayangan harus masuk dari
+sisi berlawanan dengan fajar (fajar dari kanan secara bawaan). Matikan
+`sweep_enabled` lalu ulangi: kembali ke fade seragam.
+
+**Tes:** `tools\run_tests.ps1 -Test res://tests/unit/test_sun_sweep.gd`.
+
+## 35. Modul Mission 10 yang belum berdokumen
+
+| Modul | File | Inti |
+| --- | --- | --- |
+| `StationPanel` | `src/ui/panels/station/station_panel.gd/.tscn` | `open(station, interactor)`, `close()`, `is_open()`, `get_rows()`; Esc atau jarak > 120 px menutup; gerak pemain dikunci tanpa mem-pause dunia |
+| `HeldItemVisual` | `src/components/visual/held_item_visual.gd` | `resolve_item()`, `get_shape_points()`, `notify_swing()`; kosmetik saja |
+| `HotbarSelectionComponent` | `src/components/inventory/hotbar_selection_component.gd` | 1-5 memilih slot (`InventoryConfig.hotbar_select_mode`), `use_held()` (klik kanan/F) hanya untuk consumable |
+| `UiBackStack` | `src/ui/ui_back_stack.gd` | `close_top(context)` menutup lapisan UI paling atas dulu |
+| `BasePlacementController` + preview | `src/components/base/`, `src/levels/camp/fence_ring.gd` | satu action `base_place` (B): ghost pagar mengikuti kursor, situs invalid diblokir dengan alasan, klik kiri mendirikan base |
+
+**Uji manual:** buka Meja Kerja dengan E lalu tekan Esc (panel tertutup, gerak
+kembali); angkat item dengan 1-5 lalu klik kanan; tekan B di tanah valid dan
+tidak valid; buka peti lalu tas lalu Esc dua kali (lapisan teratas dulu).
+
+**Tes:** `test_station_panel_craft.gd`, `test_mission10_held_items.gd`,
+`test_pause_menu.gd`, `test_camp_anchor.gd` (semua lewat `tools/run_tests.ps1 -Test`).
+
+## 36. Jam dunia nyata — `ClockFormatConfig` + `GameClockFormat`
+
+Siklus gameplay tidak berubah (fase, durasi, sinyal, siklus 600 dtk, rasio
+siang:malam). Yang ditambahkan hanya presentasi: fase DAY dipetakan ke
+`day_start_hour -> night_start_hour` (bawaan 06:00 -> 18:00) dan fase NIGHT ke
+`night_start_hour -> day_start_hour + 24` (18:00 -> 06:00 besok). Jadi matahari
+selalu terbit 06:00 dan terbenam 18:00, tetapi jarum jam lebih cepat/lambat
+sesuai panjang fase hari itu:
+
+| Hari (rasio) | Siang | Malam | Detik per jam (siang / malam) |
+| --- | --- | --- | --- |
+| 300 dtk / 300 dtk | 12 jam | 12 jam | **25 dtk** / 25 dtk |
+| 360 dtk / 240 dtk (0.6) | 12 jam | 12 jam | 30 dtk / 20 dtk |
+| 180 dtk / 420 dtk (0.3) | 12 jam | 12 jam | **15 dtk** / 35 dtk |
+
+Jaga Malam (x2) membuat jam berjalan 2x lebih cepat. Tidur memakai
+`skip_time`, jadi jam melompat (toast "Tidur: 22:10 -> 05:20"). Fajar terakhir
+(skala 0) menampilkan 06:00 beku.
+
+**Config:** `src/data/configs/environment/clock_format.tres`
+(`tools/generate_clock_format.gd`) berisi `day_start_hour`, `night_start_hour`,
+`use_24h`, `minute_step`, `period_names` + `period_start_hours` (paralel),
+`show_period_label`, `show_remaining_at_night`, `show_remaining_by_day`,
+`sleep_toast`.
+
+**Mengubah jam terbit/terbenam:** ubah `day_start_hour`/`night_start_hour` di
+.tres (atau di generator lalu jalankan ulang). Jam 06:00/18:00 di HUD, arc
+matahari, toast tidur, dan baris DeathScreen/Victory semuanya ikut; durasi fase
+tidak berubah, hanya sebaran jamnya.
+
+**API:** `DayNightManager.get_clock_hour()`, `get_clock_text()`,
+`get_clock_period()`, `get_clock_format()`, sinyal `hour_changed(hour)` (sekali
+per jam; satu kali setelah `skip_time`/`restart`). Fungsi murni di
+`GameClockFormat`: `hour_of()`, `text()`, `period_of()`, `hours_between()`,
+`seconds_until_hour()`, `next_period_start_hour()`, `sleep_toast_text()`.
+
+**Uji manual:** boot island, lihat panel jam kiri atas (jam besar, periode,
+Hari N/7, arc matahari). Tekan `Y` berulang: jam mendarat di 06:00, 10:00,
+15:00, 18:00. Nyalakan Jaga Malam: jam berjalan 2x. Tidur di Tenda saat siang:
+toast menampilkan jam sebelum -> sesudah.
+
+**Tes:** `tools\run_tests.ps1 -Test res://tests/unit/test_game_clock_format.gd`.

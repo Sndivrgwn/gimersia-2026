@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://4sp1wmk1bf24" path="res://src/levels/components/environment/day_night_visual.gd" id="1_visual"]
 [ext_resource type="Resource" uid="uid://30tpkfqrabo3" path="res://src/data/configs/environment/day_night_visual_default.tres" id="2_visual_config"]
 [ext_resource type="Script" uid="uid://cb3uqucomoeo1" path="res://src/levels/components/environment/sun_overlay.gd" id="3_sun"]
+[ext_resource type="Resource" path="res://src/data/configs/environment/sun_config.tres" id="4_sun_config"]
+[ext_resource type="Script" path="res://src/levels/components/environment/sun_sweep_overlay.gd" id="5_sweep"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_firefly"]
 blend_mode = 1
@@ -28,8 +30,12 @@ colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
 process_mode = 1
 script = ExtResource("1_visual")
 visual_config = ExtResource("2_visual_config")
+sun_config = ExtResource("4_sun_config")
 
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=740272269]
+
+[node name="SunSweepOverlay" type="CanvasLayer" parent="."]
+script = ExtResource("5_sweep")
 
 [node name="SunOverlay" type="CanvasLayer" parent="." unique_id=854190042]
 script = ExtResource("3_sun")

@@ -14,6 +14,8 @@ const VICTORY_DETAIL := "Suar darurat menyala. Kapal penyelamat menemukanmu."
 var _banner: Label
 var _arrow: Label
 var _victory_panel: PanelContainer
+## Mission 12: baris "Diselamatkan Hari N pukul HH:MM".
+var _victory_detail: Label
 var _restart_button: Button
 var _menu_button: Button
 var _controller: EndgameController
@@ -94,6 +96,7 @@ func _build() -> void:
 	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail.custom_minimum_size = Vector2(320, 40)
 	column.add_child(detail)
+	_victory_detail = detail
 
 	_restart_button = Button.new()
 	_restart_button.name = "RestartButton"
@@ -128,6 +131,16 @@ func _on_rescue_ready() -> void:
 
 func _on_victory() -> void:
 	_victory_panel.visible = true
+	if _victory_detail != null:
+		_victory_detail.text = VICTORY_DETAIL + _rescue_time_line()
+
+
+## Mission 12: "Diselamatkan Hari 7 pukul 06:00" bila jam tersedia.
+func _rescue_time_line() -> String:
+	var clock := get_node_or_null("/root/DayNightManager")
+	if clock == null or not clock.has_method(&"get_clock_text"):
+		return ""
+	return "\nDiselamatkan Hari %d pukul %s" % [int(clock.get_current_day()), clock.get_clock_text()]
 
 
 func _tick_banner(delta: float) -> void:

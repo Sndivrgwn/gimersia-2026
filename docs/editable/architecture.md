@@ -136,7 +136,25 @@ Empty placeholder folders such as `src/entities/enemies`, `src/entities/props`, 
 
 ---
 
+| **ClockFormatConfig / GameClockFormat** | `src/data/resources/environment/clock_format_config.gd`, `src/core/clock/game_clock_format.gd`, `src/data/configs/environment/clock_format.tres` | Presentasi jam dunia nyata (Mission 12) tanpa mengubah siklus waktu | `hour_of()`, `text()`, `period_of()`, `hours_between()`, `seconds_until_hour()`, `next_period_start_hour()`, `sleep_toast_text()` (semua statis); `DayNightManager.get_clock_hour()/get_clock_text()/get_clock_period()`, sinyal `hour_changed(hour)` | Implemented; `test_game_clock_format.gd` |
+| **StationPanel** | `src/ui/panels/station/station_panel.gd/.tscn` | Panel Meja Kerja/Api Unggun: craft lewat `CraftingComponent`, kunci gerak tanpa pause | `open(station, interactor)`, `close()`, `is_open()`, `tick(delta)`, `get_rows()`, `get_title_text()`, `get_status_text()` | Implemented; `test_station_panel_craft.gd` |
+| **HotbarSelectionComponent** | `src/components/inventory/hotbar_selection_component.gd` | Pilihan slot hotbar + pemakaian item | `select(index)`, `get_selected()`, `use_held()`; menghormati `InventoryConfig.hotbar_select_mode` | Implemented; `test_mission10_held_items.gd` |
+| **HeldItemVisual** | `src/components/visual/held_item_visual.gd` | Visual item di tangan (kosmetik) | `resolve_item()`, `get_shape_points()`, `notify_swing()`, `is_holding()` | Implemented; `test_mission10_held_items.gd` |
+| **UiBackStack** | `src/ui/ui_back_stack.gd` | Urutan tutup panel untuk Esc | `register(context)`, `unregister(context)`, `close_top(context)` (statis) | Implemented; `test_pause_menu.gd` |
+| **PhysicsTraceRecorder** | `src/core/debug/physics_trace_recorder.gd` | Rekaman jejak fisika 6 dtk untuk diagnosa seret (Mission 11) | `start_recording()`, `stop_recording() -> String`, `is_recording()`, `get_rows()`, static `build_csv(rows)` | Implemented; `test_physics_trace_recorder.gd` |
+| **Assets / ResolvedVisual (SpriteFrames)** | `src/core/assets/assets.gd`, `resolved_visual.gd`, `src/components/visual/visual_slot.gd` | Aset berbasis `SpriteFrames` `.tres` di atas PNG (Mission 12) | `spriteframes_path()`, `sprite_frames_at()`, `pick_animation()`, `audit_sprite_frames()`, `animation_name()`; `ResolvedVisual.animation`, `from_spriteframes`, `is_sprite_frames()` | Implemented; `test_assets_spriteframes.gd` |
+| **SunSweep / SunSweepOverlay / SunConfig / SunArc** | `src/core/environment/sun_sweep.gd`, `src/levels/components/environment/sun_sweep_overlay.gd`, `src/data/resources/environment/sun_config.gd`, `src/ui/hud/time/sun_arc.gd` | Sapuan fajar/senja + arc matahari HUD (Mission 13) | `SunSweep.mask()`, `rim()`, `ratio()`, `plan()`; `SunSweepOverlay.apply(progress, side, softness, warm, ratio)`, `clear()`; `SunConfig.dusk_side()`, `side_for()`, `sweep_seconds_for()`; `SunArc.arc_position()`, `set_phase()` | Implemented; `test_sun_sweep.gd` |
+
 ## 4. Dependency Direction
+
+New in Missions 11-13: `FaunaBase` hanya membaca `InteractorComponent`/pemain lewat grup
+(tidak ada import pemain); `PhysicsTraceRecorder` adalah leaf yang membaca
+`PhysicsServer`/node fauna tanpa menulis state apa pun. `Assets` tetap leaf;
+`ResolvedVisual` membawa `SpriteFrames` ke `VisualSlot` tanpa menyalin resource.
+`SunSweep` hanya bergantung pada `SunConfig` + `DayLightCurve` (fungsi murni),
+`DayNightVisual` memanggilnya dan meneruskan hasil ke `SunSweepOverlay` lewat
+duck typing (`call("apply")`), dan `SunArc` hanya membaca fase dari
+`DayNightManager` lewat `TimeHUD`. Tidak ada `CanvasModulate` kedua.
 
 New in Mission 7: `SettingsService` is a leaf node read by `CombatFeedback`
 (via group lookup, no hard dependency); `HintManager` only consumes existing

@@ -79,7 +79,7 @@ func set_state(state: StringName, dir: StringName = &"") -> void:
 func play(state: StringName, dir: StringName = &"") -> void:
 	set_state(state, dir)
 	if _art is AnimatedSprite2D:
-		(_art as AnimatedSprite2D).play(&"default")
+		(_art as AnimatedSprite2D).play()
 
 
 func get_state() -> StringName:
@@ -193,11 +193,16 @@ func _build_art(slot: AssetSlotDefinition, resolved: ResolvedVisual) -> void:
 	_art_scale = _compute_scale(slot, art_size)
 	_art_pivot_offset = _compute_pivot_offset(slot, art_size)
 
-	if resolved.is_animated():
+	if resolved.is_animated() or resolved.is_sprite_frames():
 		var animated := AnimatedSprite2D.new()
 		animated.name = ART_NAME
+		# Mission 12: satu AnimatedSprite2D berbagi resource SpriteFrames apa adanya
+		# (tanpa salinan); fps/loop yang ditulis tim seni di resource tetap dipakai.
 		animated.sprite_frames = resolved.sprite_frames
-		animated.animation = &"default"
+		var animation := resolved.animation
+		if String(animation).is_empty() or not resolved.sprite_frames.has_animation(animation):
+			animation = &"default"
+		animated.animation = animation
 		animated.centered = true
 		animated.offset = _art_pivot_offset + slot.offset
 		animated.flip_h = resolved.flip_h
@@ -221,7 +226,7 @@ func _build_art(slot: AssetSlotDefinition, resolved: ResolvedVisual) -> void:
 
 	add_child(_art)
 	if _art is AnimatedSprite2D:
-		(_art as AnimatedSprite2D).play(&"default")
+		(_art as AnimatedSprite2D).play()
 	_sync_from_placeholder()
 
 
@@ -310,5 +315,8 @@ func _sync_from_placeholder() -> void:
 
 func _on_animation_finished() -> void:
 	if _state == &"":
+		return
+	# Mission 12: SpriteFrames yang loop tidak dianggap "selesai" per putaran.
+	if _resolved != null and _resolved.is_sprite_frames() and _resolved.loop:
 		return
 	animation_finished.emit(_state)

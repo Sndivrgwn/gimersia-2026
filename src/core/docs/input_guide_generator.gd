@@ -53,6 +53,8 @@ const PURPOSES: Dictionary = {
 	"debug_raid": ["debug_island", "Picu satu raid sekarang tanpa menunggu jadwal malam."],
 	"debug_reload_assets": ["debug_island", "Muat ulang semua art aset tanpa restart game."],
 	"debug_asset_boxes": ["debug_island", "Tampilkan kotak/garis bantu untuk setiap slot aset."],
+	"debug_drag_trace": ["debug_island", "Rekam 6 detik jejak fisika pemain + 2 fauna terdekat ke CSV user:// (laporan fauna terseret)."],
+	"debug_island_period": ["debug_island", "Lompat ke awal periode jam berikutnya (Pagi 06:00 / Siang 10:00 / Sore 15:00 / Malam 18:00)"],
 	# --- Debug practice (sandbox) ---
 	"debug_str_up": ["debug_practice", "Naikkan Strength 1 level (sandbox)."],
 	"debug_str_down": ["debug_practice", "Turunkan Strength 1 level (sandbox)."],

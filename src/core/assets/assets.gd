@@ -14,6 +14,8 @@ const DEFAULT_ROOT := "res://assets"
 const REGISTRY_PATH := "res://src/data/assets/asset_registry.tres"
 const CONFIG_PATH := "res://src/data/configs/asset_config.tres"
 const EXTENSIONS: Array[String] = ["png", "webp"]
+## Mission 12: satu file SpriteFrames per slot, diutamakan di atas PNG.
+const SPRITEFRAMES_EXTENSION := "tres"
 const ITEM_ICON_FOLDER := "icons/items"
 const DEFAULT_STATE := &"default"
 
@@ -22,6 +24,7 @@ static var _registry_override: bool = false
 static var _registry: AssetRegistry
 static var _config: AssetConfig
 static var _texture_cache: Dictionary = {}
+static var _sprite_frames_cache: Dictionary = {}
 static var _icon_cache: Dictionary = {}
 static var _listing_cache: Dictionary = {}
 static var _warned: Dictionary = {}
@@ -76,6 +79,7 @@ static func set_warning_sink(sink: Callable) -> void:
 static func set_roots(roots: PackedStringArray) -> void:
 	_roots_override = roots
 	_texture_cache.clear()
+	_sprite_frames_cache.clear()
 	_icon_cache.clear()
 	_listing_cache.clear()
 	_resolve_cache.clear()
@@ -96,6 +100,7 @@ static func roots() -> PackedStringArray:
 ## Catatan: namanya bukan `reload` karena bentrok dengan GDScript.reload().
 static func reload_assets() -> void:
 	_texture_cache.clear()
+	_sprite_frames_cache.clear()
 	_icon_cache.clear()
 	_listing_cache.clear()
 	_resolve_cache.clear()
@@ -129,6 +134,19 @@ static func resolve(key: StringName, state: StringName = DEFAULT_STATE, dir: Str
 		return result
 
 	result.slot = slot
+	# Mission 12: .tres SpriteFrames menang atas strip/PNG statis.
+	var frames_path := spriteframes_path(slot)
+	if not frames_path.is_empty():
+		var frames := sprite_frames_at(frames_path)
+		var picked := pick_animation(slot, frames, String(state), String(dir))
+		if not picked.is_empty():
+			var sprite_visual := _build_sprite_visual(frames_path, frames, picked)
+			sprite_visual.key = key
+			sprite_visual.slot = slot
+			sprite_visual.from_fallback = String(picked["animation"]) != animation_name(String(state), String(dir))
+			_resolve_cache[cache_key] = sprite_visual
+			return sprite_visual
+
 	for entry in _fallback_chain(slot, String(state), String(dir)):
 		var fall_state: String = entry[0]
 		var fall_dir: String = entry[1]
@@ -269,6 +287,110 @@ static func fallback_chain(slot: AssetSlotDefinition, state: String, dir: String
 	return _fallback_chain(slot, state, dir)
 
 
+# --- SpriteFrames (.tres) ---------------------------------------------------
+
+## Nama animasi untuk (state, dir): "walk_down" atau "walk".
+static func animation_name(state: String, dir: String) -> String:
+	return state if dir.is_empty() else state + "_" + dir
+
+
+## Path .tres slot: <root>/<folder>/<key>.tres (root pertama yang punya file).
+static func spriteframes_path(slot: AssetSlotDefinition) -> String:
+	if slot == null:
+		return ""
+	for root in roots():
+		var path := _join(root, slot.folder) + "/" + String(slot.key) + ".tres"
+		if _file_exists(path):
+			return path
+	return ""
+
+
+## Muat SpriteFrames dari .tres. Instance di-cache dan dipakai bersama
+## (AnimatedSprite2D memakai resource yang sama, tanpa salinan).
+static func sprite_frames_at(path: String) -> SpriteFrames:
+	if path.is_empty():
+		return null
+	if _sprite_frames_cache.has(path):
+		return _sprite_frames_cache[path] as SpriteFrames
+	if not _file_exists(path):
+		return null
+	var loaded := ResourceLoader.load(path) if path.begins_with("res://") else ResourceLoader.load(path)
+	var frames := loaded as SpriteFrames
+	if frames == null:
+		_warn_once(path)
+		return null
+	_sprite_frames_cache[path] = frames
+	return frames
+
+
+## Pilih animasi memakai rantai fallback yang sama dengan PNG:
+## state_dir -> state -> state_mirror (flip_h) -> idle_dir -> idle -> default.
+## Animasi kosong (0 frame) dianggap tidak ada. {} bila tidak ada yang cocok.
+static func pick_animation(slot: AssetSlotDefinition, frames: SpriteFrames, state: String, dir: String) -> Dictionary:
+	if frames == null:
+		return {}
+	for entry in _fallback_chain(slot, state, dir):
+		var fall_state: String = entry[0]
+		var fall_dir: String = entry[1]
+		var anim := animation_name(fall_state, fall_dir)
+		if not frames.has_animation(anim):
+			continue
+		if frames.get_frame_count(anim) <= 0:
+			continue
+		return {
+			"animation": anim,
+			"state": fall_state,
+			"dir": fall_dir,
+			"flip": bool(entry[2]),
+		}
+	return {}
+
+
+## Pemeriksaan SpriteFrames satu slot (dipakai tools/check_assets.gd dan tes).
+## Mengembalikan {animations, problems} tanpa menyentuh file.
+static func audit_sprite_frames(slot: AssetSlotDefinition, frames: SpriteFrames) -> Dictionary:
+	var animations := PackedStringArray()
+	var problems := PackedStringArray()
+	if slot == null or frames == null:
+		return {"animations": animations, "problems": problems}
+	for name in frames.get_animation_names():
+		var anim := String(name)
+		animations.append(anim)
+		var count := frames.get_frame_count(name)
+		if count <= 0:
+			problems.append("%s: animasi kosong (0 frame)" % anim)
+			continue
+		var parts := anim.split("_")
+		var dir := ""
+		if parts.size() > 1 and Dir4.is_direction(parts[parts.size() - 1]):
+			dir = parts[parts.size() - 1]
+			parts.remove_at(parts.size() - 1)
+		var state := "_".join(parts)
+		if not slot.states.has(state):
+			problems.append("%s: state '%s' tidak ada di slot" % [anim, state])
+		elif not dir.is_empty() and not slot.dirs().has(dir):
+			problems.append("%s: slot ini tidak memakai arah '%s'" % [anim, dir])
+		var first := frames.get_frame_texture(name, 0)
+		var first_size := first.get_size() if first != null else Vector2.ZERO
+		for index in range(1, count):
+			var texture := frames.get_frame_texture(name, index)
+			if texture != null and texture.get_size() != first_size:
+				problems.append("%s: ukuran frame tidak konsisten (frame %d %s vs frame 0 %s)" % [
+					anim, index, str(texture.get_size()), str(first_size)
+				])
+				break
+	if slot.states.has("idle"):
+		var has_idle := false
+		for name in frames.get_animation_names():
+			var anim := String(name)
+			if anim == "idle" or anim.begins_with("idle_"):
+				has_idle = true
+				break
+		if not has_idle:
+			problems.append("idle: tidak ada animasi idle")
+	return {"animations": animations, "problems": problems}
+
+
 ## Potong strip horizontal N frame menjadi AtlasTexture.
 static func frame_textures(texture: Texture2D, frames: int) -> Array[AtlasTexture]:
 	var result: Array[AtlasTexture] = []
@@ -316,6 +438,28 @@ static func _fallback_chain(slot: AssetSlotDefinition, state: String, dir: Strin
 		chain.append(["idle", "", false])
 	chain.append(["default", "", false])
 	return chain
+
+
+## Hasil resolve dari SpriteFrames: fps dan loop ikut resource, bukan config.
+static func _build_sprite_visual(path: String, frames: SpriteFrames, picked: Dictionary) -> ResolvedVisual:
+	var animation := StringName(picked["animation"])
+	var result := ResolvedVisual.new()
+	result.path = path
+	result.state = StringName(picked["state"])
+	result.dir = StringName(picked["dir"])
+	result.animation = animation
+	result.from_spriteframes = true
+	result.sprite_frames = frames
+	result.flip_h = bool(picked["flip"])
+	result.frame_count = frames.get_frame_count(animation)
+	result.fps = frames.get_animation_speed(animation)
+	result.loop = frames.get_animation_loop(animation)
+	var first := frames.get_frame_texture(animation, 0)
+	result.texture = first
+	if first != null:
+		result.set_art_size(first.get_size())
+	result.found = true
+	return result
 
 
 static func _build_visual(slot: AssetSlotDefinition, path: String, state: String, dir: String) -> ResolvedVisual:

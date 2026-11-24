@@ -63,6 +63,7 @@ Hanya berguna di `island.tscn`; dipasang `GatherDebug` dan diabaikan di scene la
 | Action | Tombol | Fungsi |
 | --- | --- | --- |
 | `debug_asset_boxes` | Home | Tampilkan kotak/garis bantu untuk setiap slot aset. |
+| `debug_drag_trace` | K | Rekam 6 detik jejak fisika pemain + 2 fauna terdekat ke CSV user:// (laporan fauna terseret). |
 | `debug_fauna_labels` | Insert | Tampilkan label temperament/state di atas setiap fauna. |
 | `debug_island_boar` | F6 | Spawn babi hutan di dekat pemain. |
 | `debug_island_deer` | F7 | Spawn rusa di dekat pemain. |
@@ -71,6 +72,7 @@ Hanya berguna di `island.tscn`; dipasang `GatherDebug` dan diabaikan di scene la
 | `debug_island_kit` | F5 | Beri kit bahan crafting (kayu, batu, fiber, bambu, tulang, kulit, daging, beri). |
 | `debug_island_morning` | F4 | Lompat ke pagi hari berikutnya. |
 | `debug_island_night` | F8 | Lompat ke malam (uji raid dan Jaga Malam). |
+| `debug_island_period` | Y | Lompat ke awal periode jam berikutnya (Pagi 06:00 / Siang 10:00 / Sore 15:00 / Malam 18:00) |
 | `debug_island_rescue` | F12 | Lompat ke fajar Hari 7 (urutan rescue/endgame). |
 | `debug_island_toggle` | F2 | Aktifkan/matikan mode debug pulau (menampilkan status debug). |
 | `debug_island_weapon` | F10 | Siklus senjata di tangan (tangan kosong, tombak, kapak, ...). |

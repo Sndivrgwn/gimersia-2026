@@ -1,7 +1,9 @@
 class_name NightSurvivalHUD
 extends Control
 
-## Mission 7: "Malam N | Bertahan mm:ss | Musuh X/Y" hanya saat malam.
+## Mission 7 + 12: hanya saat malam.
+## Dengan jam dunia nyata: "Malam N | HH:MM | Fajar dalam mm:ss | Musuh X/Y".
+## Stub/manager lama tanpa `get_clock_text()` tetap memakai "Bertahan mm:ss".
 
 @export var clock: Node
 @export var spawner: Node
@@ -51,6 +53,12 @@ func is_night() -> bool:
 func get_text() -> String:
 	if not is_night():
 		return ""
+	# Mission 12: kalau jam dunia nyata tersedia, tampilkan jam + hitung mundur
+	# fajar. Stub/tes lama tanpa get_clock_text tetap memakai teks lama.
+	if clock != null and clock.has_method(&"get_clock_text"):
+		return "Malam %d | %s | Fajar dalam %s | Musuh %d/%d" % [
+			_day, clock.get_clock_text(), format_seconds(_remaining), get_hostile_count(), get_max_enemies()
+		]
 	return "Malam %d | Bertahan %s | Musuh %d/%d" % [
 		_day, format_seconds(_remaining), get_hostile_count(), get_max_enemies()
 	]

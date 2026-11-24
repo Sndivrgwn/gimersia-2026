@@ -22,6 +22,8 @@ signal day_changed(day: int)
 signal phase_changed(phase: int)
 signal time_updated(day: int, phase: int, remaining_seconds: float)
 signal rescue_started
+## Mission 12: jam dinding (0..23) berubah. Satu kali per jam.
+signal hour_changed(hour: int)
 
 # Penambahan Modul 2 (backward-compatible).
 signal started
@@ -37,9 +39,13 @@ const MIN_PHASE_DURATION := 0.001
 const DUSK_WARNING_SECONDS := 15.0
 const NIGHT_WATCH_TIME_SCALE := 2.0
 const DEFAULT_CONFIG: DayNightConfig = preload("res://src/data/configs/environment/day_night_default.tres")
+const DEFAULT_CLOCK_FORMAT: ClockFormatConfig = preload("res://src/data/configs/environment/clock_format.tres")
 
 ## Gameplay config. Defaults to the 600s / 7-day resource.
 @export var config: DayNightConfig = DEFAULT_CONFIG
+
+## Mission 12: presentasi jam dunia nyata. Tidak mengubah durasi/fase apa pun.
+@export var clock_format: ClockFormatConfig = DEFAULT_CLOCK_FORMAT
 
 ## Optional accelerated config (60s cycle) for debugging.
 @export var debug_config: DayNightConfig
@@ -58,6 +64,8 @@ var rescue_triggered: bool = false
 var _active_config: DayNightConfig = DEFAULT_CONFIG
 var _time_scale_override: float = -1.0
 var _last_reported_second: int = -1
+var _last_clock_hour: int = -1
+var _suppress_hour_signal: bool = false
 var _night_watch_active: bool = false
 var _dusk_announced_day: int = 0
 
@@ -128,7 +136,11 @@ func skip_time(seconds: float) -> void:
 		return
 
 	var before := get_total_elapsed_seconds()
+	# Mission 12: satu lompatan = satu sinyal hour_changed (jam akhir saja).
+	_suppress_hour_signal = true
 	_advance_game_seconds(seconds)
+	_suppress_hour_signal = false
+	_emit_hour_if_changed()
 	var advanced := get_total_elapsed_seconds() - before
 	if advanced > 0.0:
 		time_skipped.emit(advanced)
@@ -201,6 +213,30 @@ func get_total_elapsed_seconds() -> float:
 		total += _active_config.get_day_duration(current_day)
 	total += phase_elapsed
 	return maxf(total, 0.0)
+
+
+## Mission 12: jam dinding [0, 24) untuk fase + progress saat ini.
+func get_clock_hour() -> float:
+	return GameClockFormat.hour_of(is_day(), get_phase_progress(), get_clock_format())
+
+
+## Teks jam siap tampil ("14:35" atau "02:35 PM").
+func get_clock_text() -> String:
+	var format := get_clock_format()
+	return GameClockFormat.text(
+		get_clock_hour(),
+		format == null or format.use_24h,
+		1 if format == null else format.minute_step
+	)
+
+
+## Nama periode ("Pagi" / "Siang" / "Sore" / "Malam").
+func get_clock_period() -> String:
+	return GameClockFormat.period_of(get_clock_hour(), get_clock_format())
+
+
+func get_clock_format() -> ClockFormatConfig:
+	return clock_format if clock_format != null else DEFAULT_CLOCK_FORMAT
 
 
 ## Teks sisa waktu fase dalam format "MM:SS".
@@ -359,8 +395,19 @@ func _trigger_rescue() -> void:
 	rescue_started.emit()
 
 
+func _emit_hour_if_changed() -> void:
+	if _suppress_hour_signal:
+		return
+	var hour := int(floor(fposmod(get_clock_hour(), 24.0)))
+	if hour == _last_clock_hour:
+		return
+	_last_clock_hour = hour
+	hour_changed.emit(hour)
+
+
 func _report_time(force: bool = false) -> void:
 	_emit_dusk_if_due()
+	_emit_hour_if_changed()
 	var remaining := get_remaining_seconds()
 	var displayed_second := int(ceilf(remaining))
 	if not force and displayed_second == _last_reported_second:

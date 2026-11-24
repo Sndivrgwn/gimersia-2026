@@ -45,8 +45,8 @@ Dokumen ini untuk tim kreatif: cara mengganti tampilan game tanpa menyentuh kode
 1. Taruh file di path yang benar, mis. `res://assets/props/campfire/lit.png`
    (ukuran bebas, sebaiknya mendekati "ukuran sumber disarankan").
 2. Import sekali: `GODOT --headless --import --path .` (atau buka editor sekali).
-3. Tekan **F1** di island (atau jalankan ulang scene) untuk memuat ulang art
-   tanpa restart. Hapus file + F1 untuk kembali ke placeholder.
+3. Tekan **Backtick (`)** di island (`debug_reload_assets`) untuk memuat ulang
+   art tanpa restart. Hapus file + tombol itu untuk kembali ke placeholder.
 
 ## Aturan global
 
@@ -91,19 +91,61 @@ diletakkan tapi belum di-import akan hilang di build ekspor. Jalankan
 - `GODOT --headless --path . -s tools/check_assets.gd` — cek cakupan slot,
   **ikon item & held item**, file typo, duplikat `.png`/`.webp`, strip yang salah,
   dan rasio aspek menyimpang.
-- **F1** di island — muat ulang semua art.
+- **Backtick (`)** di island (`debug_reload_assets`) — muat ulang semua art.
 - **Home** di island — tampilkan kotak slot + pivot + toast "Aset: X/Y terisi".
 - `res://assets/README.md` — pengingat singkat.
 
-## Minimum untuk build pertama (prioritas 1)
+## Pakai SpriteFrames (disarankan untuk karakter)
 
-Slot prioritas 1 adalah yang paling menentukan "enak dilihat". Bila kosong,
-game tetap jalan dengan placeholder.
+Satu file `.tres` berisi semua animasi slot. Game memakai file ini lebih dulu daripada PNG, jadi strip tidak perlu dipotong manual.
 
+### Langkah di editor
+
+1. Buat resource `SpriteFrames`: klik kanan di FileSystem → **New Resource...** → `SpriteFrames` (atau lewat panel **Animation** pada `AnimatedSprite2D`, tombol **New SpriteFrames**).
+2. Tambah animasi dengan nama PERSIS seperti tabel di bawah: `<state>` atau `<state>_<dir>` dengan `dir` = `down`, `up`, `left`, `right`. Contoh: `idle_down`, `walk_left`, `lit`, `cold`.
+3. Isi frame tiap animasi: **Add frames from sprite sheet** (pilih PNG strip + jumlah frame) atau tambah file per frame.
+4. Atur **fps** dan **loop** tiap animasi di panel Animation. Nilai inilah yang dipakai game; `asset_config.tres` hanya berlaku untuk strip PNG.
+5. Simpan ke path di tabel: `res://assets/<folder>/<slot>.tres`.
+6. Import sekali (`GODOT --headless --import --path .` atau buka editor), lalu tekan **Backtick (`)** di island (`debug_reload_assets`) tanpa restart.
+
+### Urutan prioritas
+
+1. `res://assets/<folder>/<slot>.tres` (SpriteFrames) — **paling diutamakan**.
+2. Strip PNG `_<N>f` atau PNG satu frame di folder slot (metode lama, tetap didukung).
+3. Placeholder bawaan scene.
+
+Di dalam SpriteFrames, animasi dicari berurutan: `<state>_<dir>` → `<state>` → `<state>_<arah cermin>` (flip_h) → `idle_<dir>` → `idle` → `default` → placeholder. Auto-scale dan pivot memakai frame PERTAMA animasi terpilih, sama seperti PNG.
+
+### Nama animasi disarankan (12 slot showcase)
+
+| Slot | Path .tres | Animasi disarankan |
+| --- | --- | --- |
+| `player` | `res://assets/characters/player/player.tres` | idle_<dir>, walk_<dir>, sprint_<dir>, attack_<dir>, hurt_<dir>, death_<dir> (`<dir>` = down/up/left/right) |
+| `wild_boar` | `res://assets/characters/wild_boar/wild_boar.tres` | idle_<dir>, walk_<dir>, telegraph_<dir>, dash_<dir>, bite_<dir>, death_<dir> (`<dir>` = down/up/left/right) |
+| `island_deer` | `res://assets/characters/island_deer/island_deer.tres` | idle_<dir>, walk_<dir>, flee_<dir>, death_<dir> (`<dir>` = down/up/left/right) |
+| `twig` | `res://assets/props/twig/twig.tres` | full, depleted |
+| `small_tree` | `res://assets/props/small_tree/small_tree.tres` | full, depleted |
+| `tree` | `res://assets/props/tree/tree.tres` | full, depleted |
+| `small_rock` | `res://assets/props/small_rock/small_rock.tres` | full, depleted |
+| `campfire` | `res://assets/props/campfire/campfire.tres` | lit, ember, cold |
+| `workbench` | `res://assets/props/workbench/workbench.tres` | default |
+| `tent` | `res://assets/props/tent/tent.tres` | default, sleeping |
+| `ground_camp` | `res://assets/world/ground/ground_camp.tres` | default |
+| `ground_forest` | `res://assets/world/ground/ground_forest.tres` | default |
+
+## Minimum untuk build pertama — tier Showcase (12 slot)
+
+Slot yang paling menentukan kesan pertama. Karakter sebaiknya SpriteFrames; sisanya PNG sudah cukup. Bila kosong, game tetap jalan dengan placeholder.
+
+- `player`, `wild_boar`, `island_deer`, `twig`, `small_tree`, `tree`, `small_rock`, `campfire`, `workbench`, `tent`, `ground_camp`, `ground_forest`
+
+## Minimum untuk build pertama — tier Sisanya
+
+Slot prioritas 1 di luar showcase.
+
+- `big_rock`, `fiber_bush`, `berry_bush`, `coconut_palm`, `bamboo_clump`, `chest`, `ground_south_beach`, `ground_east_beach`, `ground_west_cliffs`, `ground_river`, `plane_wreckage`, `emergency_suitcase`, `signal_beacon`, `ui_panel`
 
 <!-- BEGIN GENERATED -->
-- `player`, `wild_boar`, `island_deer`, `twig`, `small_tree`, `tree`, `small_rock`, `big_rock`, `fiber_bush`, `berry_bush`, `coconut_palm`, `bamboo_clump`, `campfire`, `workbench`, `chest`, `tent`, `ground_camp`, `ground_south_beach`, `ground_east_beach`, `ground_west_cliffs`, `ground_river`, `ground_forest`, `plane_wreckage`, `emergency_suitcase`, `signal_beacon`, `ui_panel`
-
 ## Karakter
 
 | Slot | Pola file | Wajib/Opsional | Ukuran tampil | Sumber disarankan | Pivot | Arah | State | Dipakai di | Fallback |
@@ -186,6 +228,8 @@ game tetap jalan dengan placeholder.
 | `ui_button_hover` | `res://assets/ui/button_hover[_dir][_Nf].png`<br>contoh: `res://assets/ui/button_hover.png` | Penting | 160 × 40 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_button_normal` | `res://assets/ui/button_normal[_dir][_Nf].png`<br>contoh: `res://assets/ui/button_normal.png` | Penting | 160 × 40 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_button_pressed` | `res://assets/ui/button_pressed[_dir][_Nf].png`<br>contoh: `res://assets/ui/button_pressed.png` | Penting | 160 × 40 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
+| `ui_clock_moon` | `res://assets/ui/icons/clock_moon[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/clock_moon.png` | Opsional | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
+| `ui_clock_sun` | `res://assets/ui/icons/clock_sun[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/clock_sun.png` | Opsional | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_font_bold` | `res://assets/ui/fonts/bold[_dir][_Nf].png`<br>contoh: `res://assets/ui/fonts/bold.png` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_font_main` | `res://assets/ui/fonts/main[_dir][_Nf].png`<br>contoh: `res://assets/ui/fonts/main.png` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_icon_fatigue` | `res://assets/ui/icons/fatigue[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/fatigue.png` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
@@ -193,8 +237,10 @@ game tetap jalan dengan placeholder.
 | `ui_icon_hunger` | `res://assets/ui/icons/hunger[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/hunger.png` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_icon_thirst` | `res://assets/ui/icons/thirst[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/thirst.png` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_logo` | `res://assets/ui/logo[_dir][_Nf].png`<br>contoh: `res://assets/ui/logo.png` | Penting | 480 × 160 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
+| `ui_moon` | `res://assets/ui/icons/moon[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/moon.png` | Opsional | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_panel` | `res://assets/ui/panel[_dir][_Nf].png`<br>contoh: `res://assets/ui/panel.png` | Wajib | 256 × 128 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_slot_frame` | `res://assets/ui/slot_frame[_dir][_Nf].png`<br>contoh: `res://assets/ui/slot_frame.png` | Penting | 48 × 48 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
+| `ui_sun` | `res://assets/ui/icons/sun[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/sun.png` | Opsional | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_vignette_low_hp` | `res://assets/ui/vignette_low_hp[_dir][_Nf].png`<br>contoh: `res://assets/ui/vignette_low_hp.png` | Opsional | 1280 × 720 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 
 ## Ikon item (23 item)
@@ -288,8 +334,8 @@ Dihitung dari file `.png`/`.webp` yang ada di folder tiap slot. Jalankan ulang g
 | Camp & struktur | 11 | 0 | 11 |
 | Dunia | 13 | 0 | 13 |
 | Efek | 4 | 0 | 4 |
-| UI & ikon | 23 | 0 | 23 |
-| **Total** | 63 | 1 | 62 |
+| UI & ikon | 27 | 0 | 27 |
+| **Total** | 67 | 1 | 66 |
 
 - Ikon item: **0/23** ada di `res://assets/icons/items/`.
 - Item di tangan: **0/23** ada di `res://assets/held/`.

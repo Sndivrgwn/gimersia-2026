@@ -39,7 +39,9 @@ func _lf(text: String) -> String:
 
 func build_asset_guide() -> String:
 	var text := _asset_intro()
-	text += "\n" + BEGIN + "\n"
+	text += _spriteframes_section()
+	text += _minimum_tiers()
+	text += BEGIN + "\n"
 	text += _asset_tables()
 	text += END + "\n"
 	return _lf(text)
@@ -93,8 +95,8 @@ Dokumen ini untuk tim kreatif: cara mengganti tampilan game tanpa menyentuh kode
 1. Taruh file di path yang benar, mis. `res://assets/props/campfire/lit.png`
    (ukuran bebas, sebaiknya mendekati "ukuran sumber disarankan").
 2. Import sekali: `GODOT --headless --import --path .` (atau buka editor sekali).
-3. Tekan **F1** di island (atau jalankan ulang scene) untuk memuat ulang art
-   tanpa restart. Hapus file + F1 untuk kembali ke placeholder.
+3. Tekan **Backtick (`)** di island (`debug_reload_assets`) untuk memuat ulang
+   art tanpa restart. Hapus file + tombol itu untuk kembali ke placeholder.
 
 ## Aturan global
 
@@ -139,26 +141,83 @@ diletakkan tapi belum di-import akan hilang di build ekspor. Jalankan
 - `GODOT --headless --path . -s tools/check_assets.gd` — cek cakupan slot,
   **ikon item & held item**, file typo, duplikat `.png`/`.webp`, strip yang salah,
   dan rasio aspek menyimpang.
-- **F1** di island — muat ulang semua art.
+- **Backtick (`)** di island (`debug_reload_assets`) — muat ulang semua art.
 - **Home** di island — tampilkan kotak slot + pivot + toast "Aset: X/Y terisi".
 - `res://assets/README.md` — pengingat singkat.
 
-## Minimum untuk build pertama (prioritas 1)
-
-Slot prioritas 1 adalah yang paling menentukan "enak dilihat". Bila kosong,
-game tetap jalan dengan placeholder.
-
 """
+
+
+## Mission 12: bagian puncak alur SpriteFrames + tabel nama animasi showcase.
+func _spriteframes_section() -> String:
+	var registry := Assets.registry()
+	var text := "## Pakai SpriteFrames (disarankan untuk karakter)\n\n"
+	text += "Satu file `.tres` berisi semua animasi slot. Game memakai file ini lebih dulu daripada PNG, jadi strip tidak perlu dipotong manual.\n\n"
+	text += "### Langkah di editor\n\n"
+	text += "1. Buat resource `SpriteFrames`: klik kanan di FileSystem → **New Resource...** → `SpriteFrames` (atau lewat panel **Animation** pada `AnimatedSprite2D`, tombol **New SpriteFrames**).\n"
+	text += "2. Tambah animasi dengan nama PERSIS seperti tabel di bawah: `<state>` atau `<state>_<dir>` dengan `dir` = `down`, `up`, `left`, `right`. Contoh: `idle_down`, `walk_left`, `lit`, `cold`.\n"
+	text += "3. Isi frame tiap animasi: **Add frames from sprite sheet** (pilih PNG strip + jumlah frame) atau tambah file per frame.\n"
+	text += "4. Atur **fps** dan **loop** tiap animasi di panel Animation. Nilai inilah yang dipakai game; `asset_config.tres` hanya berlaku untuk strip PNG.\n"
+	text += "5. Simpan ke path di tabel: `res://assets/<folder>/<slot>.tres`.\n"
+	text += "6. Import sekali (`GODOT --headless --import --path .` atau buka editor), lalu tekan **Backtick (`)** di island (`debug_reload_assets`) tanpa restart.\n\n"
+	text += "### Urutan prioritas\n\n"
+	text += "1. `res://assets/<folder>/<slot>.tres` (SpriteFrames) — **paling diutamakan**.\n"
+	text += "2. Strip PNG `_<N>f` atau PNG satu frame di folder slot (metode lama, tetap didukung).\n"
+	text += "3. Placeholder bawaan scene.\n\n"
+	text += "Di dalam SpriteFrames, animasi dicari berurutan: `<state>_<dir>` → `<state>` → `<state>_<arah cermin>` (flip_h) → `idle_<dir>` → `idle` → `default` → placeholder. Auto-scale dan pivot memakai frame PERTAMA animasi terpilih, sama seperti PNG.\n\n"
+	text += "### Nama animasi disarankan (12 slot showcase)\n\n"
+	text += "| Slot | Path .tres | Animasi disarankan |\n| --- | --- | --- |\n"
+	for slot in _showcase_slots(registry):
+		text += "| `%s` | `res://assets/%s/%s.tres` | %s |\n" % [
+			slot.key, slot.folder, slot.key, _animation_cell(slot)
+		]
+	text += "\n"
+	return text
+
+
+func _showcase_slots(registry: AssetRegistry) -> Array[AssetSlotDefinition]:
+	var result: Array[AssetSlotDefinition] = []
+	for slot in registry.slots:
+		if slot != null and slot.showcase:
+			result.append(slot)
+	return result
+
+
+func _animation_cell(slot: AssetSlotDefinition) -> String:
+	if slot.recommended_animations.is_empty():
+		return "—"
+	if slot.directions == AssetSlotDefinition.Direction.FOUR:
+		var states := PackedStringArray()
+		for state in slot.states:
+			states.append("%s_<dir>" % state)
+		return ", ".join(states) + " (`<dir>` = down/up/left/right)"
+	return ", ".join(slot.recommended_animations)
+
+
+## Mission 12: "Minimum untuk build pertama" dipecah jadi Showcase + Sisanya.
+func _minimum_tiers() -> String:
+	var registry := Assets.registry()
+	var showcase := PackedStringArray()
+	var rest := PackedStringArray()
+	for slot in registry.slots:
+		if slot == null or slot.priority != 1:
+			continue
+		if slot.showcase:
+			showcase.append("`%s`" % slot.key)
+		else:
+			rest.append("`%s`" % slot.key)
+	var text := "## Minimum untuk build pertama — tier Showcase (%d slot)\n\n" % showcase.size()
+	text += "Slot yang paling menentukan kesan pertama. Karakter sebaiknya SpriteFrames; sisanya PNG sudah cukup. Bila kosong, game tetap jalan dengan placeholder.\n\n"
+	text += "- " + (", ".join(showcase) if not showcase.is_empty() else "—") + "\n\n"
+	text += "## Minimum untuk build pertama — tier Sisanya\n\n"
+	text += "Slot prioritas 1 di luar showcase.\n\n"
+	text += "- " + (", ".join(rest) if not rest.is_empty() else "—") + "\n\n"
+	return text
 
 
 func _asset_tables() -> String:
 	var registry := Assets.registry()
 	var text := ""
-	var priority1 := PackedStringArray()
-	for slot in registry.slots:
-		if slot != null and slot.priority == 1:
-			priority1.append("`%s`" % slot.key)
-	text += "- " + ", ".join(priority1) + "\n\n"
 
 	for category in CATEGORY_ORDER:
 		var slots := _sorted_slots(registry, category)
@@ -559,6 +618,12 @@ func _fields_table(resource: Resource) -> String:
 
 func _tres_meta() -> Dictionary:
 	return {
+		"res://src/data/configs/environment/clock_format.tres": {
+			"purpose": "Jam dunia nyata: jam terbit/terbenam, format 12/24 jam, label periode, flag HUD.",
+			"used_by": "DayNightManager, GameClockFormat, TimeHUD, NightSurvivalHUD",
+			"effect": "Menggeser jam terbit/terbenam atau format jam; durasi fase dan siklus tidak berubah.",
+			"tests": "test_game_clock_format.gd",
+		},
 		"res://src/data/configs/asset_config.tres": {
 			"purpose": "Filter pixel-art, fallback mirror, fps default animasi.",
 			"used_by": "Assets, VisualSlot",

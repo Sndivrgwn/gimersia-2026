@@ -32,7 +32,7 @@ func _ready() -> void:
 
 func show_death(respawns_remaining: int) -> void:
 	_title.text = TITLE_DEATH
-	_detail.text = HINT_DEATH % maxi(respawns_remaining, 0)
+	_detail.text = HINT_DEATH % maxi(respawns_remaining, 0) + _death_time_line()
 	_respawn_button.visible = true
 	_panel.visible = true
 
@@ -42,6 +42,14 @@ func show_game_over() -> void:
 	_detail.text = HINT_GAME_OVER
 	_respawn_button.visible = false
 	_panel.visible = true
+
+
+## Mission 12: "Tewas pada Hari 3 pukul 22:14" bila jam tersedia.
+func _death_time_line() -> String:
+	var clock := get_node_or_null("/root/DayNightManager")
+	if clock == null or not clock.has_method(&"get_clock_text"):
+		return ""
+	return "\nTewas pada Hari %d pukul %s" % [int(clock.get_current_day()), clock.get_clock_text()]
 
 
 func hide_screen() -> void:

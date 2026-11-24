@@ -27,6 +27,7 @@ func _init() -> void:
 	_report_item_assets()
 	_report_unmatched(registry)
 	_report_strips(registry)
+	_report_spriteframes(registry)
 	_report_aspect(registry)
 	quit(0)
 
@@ -123,6 +124,37 @@ func _report_aspect(registry: AssetRegistry) -> void:
 		print("Rasio aspek: semua dalam toleransi %.0f%%." % (ASPECT_TOLERANCE * 100.0))
 	else:
 		print("Rasio aspek menyimpang (%d):" % problems.size())
+		for problem in problems:
+			print("  - " + problem)
+
+
+## Mission 12: validasi file SpriteFrames (.tres) yang ada di folder slot.
+## Mencetak nama animasi dan menandai nama asing, idle hilang, animasi kosong,
+## dan ukuran frame yang tidak konsisten dalam satu animasi.
+func _report_spriteframes(registry: AssetRegistry) -> void:
+	var found := 0
+	var problems: Array[String] = []
+	for slot in registry.slots:
+		if slot == null:
+			continue
+		var path := Assets.spriteframes_path(slot)
+		if path.is_empty():
+			continue
+		found += 1
+		var frames := Assets.sprite_frames_at(path)
+		var audit := Assets.audit_sprite_frames(slot, frames)
+		print("SpriteFrames %s (%s): %s" % [
+			String(slot.key), _relative(path), ", ".join(audit["animations"])
+		])
+		for problem in audit["problems"]:
+			problems.append("%s: %s" % [String(slot.key), problem])
+
+	if found == 0:
+		print("SpriteFrames: belum ada file .tres (opsional; PNG tetap dipakai).")
+	elif problems.is_empty():
+		print("SpriteFrames: %d file, semua nama/frame aman." % found)
+	else:
+		print("SpriteFrames perlu perhatian (%d):" % problems.size())
 		for problem in problems:
 			print("  - " + problem)
 

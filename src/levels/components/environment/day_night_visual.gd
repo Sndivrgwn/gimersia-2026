@@ -27,10 +27,14 @@ const MANAGER_PATH := "/root/DayNightManager"
 
 @export var visual_config: DayNightVisualConfig
 
+## Mission 13: arah/durasi sapuan fajar-senja + arc HUD.
+@export var sun_config: SunConfig
+
 ## Keeps the particle emitter centered on the active Camera2D.
 @export var effects_follow_camera: bool = true
 
 @onready var _canvas_modulate: CanvasModulate = get_node_or_null("CanvasModulate") as CanvasModulate
+@onready var _sweep_overlay: CanvasLayer = get_node_or_null("SunSweepOverlay") as CanvasLayer
 @onready var _effects: Node2D = get_node_or_null("Effects") as Node2D
 @onready var _fireflies: CPUParticles2D = get_node_or_null("Effects/Fireflies") as CPUParticles2D
 @onready var _day_motes: CPUParticles2D = get_node_or_null("Effects/DayMotes") as CPUParticles2D
@@ -41,6 +45,8 @@ const MANAGER_PATH := "/root/DayNightManager"
 var _manager
 var _atmosphere: int = DayNightVisualConfig.Atmosphere.DAY
 var _has_atmosphere: bool = false
+## Warna blend seragam (bukan tint sapuan) untuk perhitungan kegelapan api.
+var _world_target_color: Color = Color.WHITE
 
 
 func _ready() -> void:
@@ -106,12 +112,12 @@ func get_transition_duration() -> float:
 ## 0.0 = tint siang, 1.0 = tint malam. Dipakai PointLight2D api unggun supaya
 ## cahayanya tidak terlihat sekuat malam saat siang.
 func get_world_darkness() -> float:
-	if visual_config == null or _canvas_modulate == null:
+	if visual_config == null:
 		return 0.0
 	var day_luminance := DayLightCurve.luminance(visual_config.get_effective_color(DayNightVisualConfig.Atmosphere.DAY))
 	var night_luminance := DayLightCurve.luminance(visual_config.get_effective_color(DayNightVisualConfig.Atmosphere.NIGHT))
 	return DayLightCurve.darkness_from_luminance(
-		DayLightCurve.luminance(_canvas_modulate.color),
+		DayLightCurve.luminance(_world_target_color),
 		day_luminance,
 		night_luminance
 	)
@@ -133,20 +139,54 @@ func _update_visuals() -> void:
 	if progress <= 0.0:
 		var steady := DayNightVisualConfig.Atmosphere.NIGHT if is_night else DayNightVisualConfig.Atmosphere.DAY
 		_set_atmosphere(steady)
-		_set_world_color(visual_config.get_effective_color(steady))
+		var steady_color := visual_config.get_effective_color(steady)
+		_set_world_color(steady_color)
+		_world_target_color = steady_color
+		_clear_sweep()
 	else:
 		var start_atmosphere := DayNightVisualConfig.Atmosphere.NIGHT if is_night else DayNightVisualConfig.Atmosphere.DAY
 		var mid_atmosphere := DayNightVisualConfig.Atmosphere.MORNING if is_night else DayNightVisualConfig.Atmosphere.EVENING
 		var end_atmosphere := DayNightVisualConfig.Atmosphere.DAY if is_night else DayNightVisualConfig.Atmosphere.NIGHT
 		_set_atmosphere(mid_atmosphere)
-		_set_world_color(DayLightCurve.blend_through(
+		# Mission 13 approximation: CanvasModulate memakai endpoint yang lebih
+		# terang, SunSweepOverlay mengalikan bagian yang belum dilewati front ke
+		# warna blend seragam lama. Titik awal/akhir tetap sama dengan fade lama;
+		# sweep nonaktif jatuh ke blend_through yang lama persis.
+		var plan := SunSweep.plan(
+			sun_config,
+			is_night,
+			remaining,
+			duration,
 			visual_config.get_effective_color(start_atmosphere),
 			visual_config.get_effective_color(mid_atmosphere),
-			visual_config.get_effective_color(end_atmosphere),
-			progress
-		))
+			visual_config.get_effective_color(end_atmosphere)
+		)
+		_set_world_color(plan["color"])
+		_world_target_color = plan["target"]
+		if bool(plan["sweep"]):
+			_apply_sweep(plan)
+		else:
+			_clear_sweep()
 
 	_update_sun(is_night, remaining, duration)
+
+
+func _apply_sweep(plan: Dictionary) -> void:
+	if _sweep_overlay == null or sun_config == null:
+		return
+	_sweep_overlay.call(
+		&"apply",
+		float(plan["progress"]),
+		int(plan["side"]),
+		sun_config.softness,
+		sun_config.warm_rim_strength,
+		plan["ratio"]
+	)
+
+
+func _clear_sweep() -> void:
+	if _sweep_overlay != null and _sweep_overlay.has_method(&"clear"):
+		_sweep_overlay.call(&"clear")
 
 
 func _update_sun(is_night: bool, remaining: float, duration: float) -> void:

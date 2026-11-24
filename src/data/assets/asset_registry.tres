@@ -25,6 +25,9 @@ fps = {
 priority = 1
 recommended_px = Vector2i(32, 32)
 notes = "State attack/hurt/death tidak berulang."
+prefers_spriteframes = true
+recommended_animations = PackedStringArray("idle_down", "idle_up", "idle_left", "idle_right", "walk_down", "walk_up", "walk_left", "walk_right", "sprint_down", "sprint_up", "sprint_left", "sprint_right", "attack_down", "attack_up", "attack_left", "attack_right", "hurt_down", "hurt_up", "hurt_left", "hurt_right", "death_down", "death_up", "death_left", "death_right")
+showcase = true
 
 [sub_resource type="Resource" id="Resource_cmmpw"]
 script = ExtResource("2_4ma4l")
@@ -48,6 +51,9 @@ fps = {
 priority = 1
 recommended_px = Vector2i(48, 32)
 notes = "telegraph = saat garis dash merah; dash = serudukan."
+prefers_spriteframes = true
+recommended_animations = PackedStringArray("idle_down", "idle_up", "idle_left", "idle_right", "walk_down", "walk_up", "walk_left", "walk_right", "telegraph_down", "telegraph_up", "telegraph_left", "telegraph_right", "dash_down", "dash_up", "dash_left", "dash_right", "bite_down", "bite_up", "bite_left", "bite_right", "death_down", "death_up", "death_left", "death_right")
+showcase = true
 
 [sub_resource type="Resource" id="Resource_rlobg"]
 script = ExtResource("2_4ma4l")
@@ -68,6 +74,9 @@ fps = {
 }
 priority = 1
 recommended_px = Vector2i(48, 40)
+prefers_spriteframes = true
+recommended_animations = PackedStringArray("idle_down", "idle_up", "idle_left", "idle_right", "walk_down", "walk_up", "walk_left", "walk_right", "flee_down", "flee_up", "flee_left", "flee_right", "death_down", "death_up", "death_left", "death_right")
+showcase = true
 
 [sub_resource type="Resource" id="Resource_rdpli"]
 script = ExtResource("2_4ma4l")
@@ -87,6 +96,8 @@ fps = {
 priority = 1
 recommended_px = Vector2i(32, 24)
 notes = "state depleted hanya terlihat bila node masih tampil; node yang habis tetap disembunyikan seperti sekarang."
+recommended_animations = PackedStringArray("full", "depleted")
+showcase = true
 
 [sub_resource type="Resource" id="Resource_62bso"]
 script = ExtResource("2_4ma4l")
@@ -106,6 +117,8 @@ fps = {
 priority = 1
 recommended_px = Vector2i(48, 64)
 notes = "state depleted hanya terlihat bila node masih tampil; node yang habis tetap disembunyikan seperti sekarang."
+recommended_animations = PackedStringArray("full", "depleted")
+showcase = true
 
 [sub_resource type="Resource" id="Resource_qp6px"]
 script = ExtResource("2_4ma4l")
@@ -125,6 +138,8 @@ fps = {
 priority = 1
 recommended_px = Vector2i(64, 80)
 notes = "state depleted hanya terlihat bila node masih tampil; node yang habis tetap disembunyikan seperti sekarang."
+recommended_animations = PackedStringArray("full", "depleted")
+showcase = true
 
 [sub_resource type="Resource" id="Resource_d8pge"]
 script = ExtResource("2_4ma4l")
@@ -144,6 +159,8 @@ fps = {
 priority = 1
 recommended_px = Vector2i(32, 24)
 notes = "state depleted hanya terlihat bila node masih tampil; node yang habis tetap disembunyikan seperti sekarang."
+recommended_animations = PackedStringArray("full", "depleted")
+showcase = true
 
 [sub_resource type="Resource" id="Resource_58v06"]
 script = ExtResource("2_4ma4l")
@@ -163,6 +180,7 @@ fps = {
 priority = 1
 recommended_px = Vector2i(48, 40)
 notes = "state depleted hanya terlihat bila node masih tampil; node yang habis tetap disembunyikan seperti sekarang."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_35vb4"]
 script = ExtResource("2_4ma4l")
@@ -182,6 +200,7 @@ fps = {
 priority = 1
 recommended_px = Vector2i(40, 32)
 notes = "state depleted hanya terlihat bila node masih tampil; node yang habis tetap disembunyikan seperti sekarang."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_aklxx"]
 script = ExtResource("2_4ma4l")
@@ -201,6 +220,7 @@ fps = {
 priority = 1
 recommended_px = Vector2i(40, 32)
 notes = "state depleted hanya terlihat bila node masih tampil; node yang habis tetap disembunyikan seperti sekarang."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_l55ag"]
 script = ExtResource("2_4ma4l")
@@ -220,6 +240,7 @@ fps = {
 priority = 1
 recommended_px = Vector2i(64, 96)
 notes = "state depleted hanya terlihat bila node masih tampil; node yang habis tetap disembunyikan seperti sekarang."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_40fbp"]
 script = ExtResource("2_4ma4l")
@@ -239,6 +260,7 @@ fps = {
 priority = 1
 recommended_px = Vector2i(48, 80)
 notes = "state depleted hanya terlihat bila node masih tampil; node yang habis tetap disembunyikan seperti sekarang."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_5ndwp"]
 script = ExtResource("2_4ma4l")
@@ -258,6 +280,8 @@ fps = {
 priority = 1
 recommended_px = Vector2i(48, 40)
 notes = "Cahaya PointLight2D tetap memakai radius dari CampfireConfig."
+recommended_animations = PackedStringArray("lit", "ember", "cold")
+showcase = true
 
 [sub_resource type="Resource" id="Resource_c0r3d"]
 script = ExtResource("2_4ma4l")
@@ -272,6 +296,8 @@ pivot = 1
 loop_states = PackedStringArray()
 priority = 1
 recommended_px = Vector2i(64, 48)
+recommended_animations = PackedStringArray("default")
+showcase = true
 
 [sub_resource type="Resource" id="Resource_nywrt"]
 script = ExtResource("2_4ma4l")
@@ -290,6 +316,7 @@ fps = {
 }
 priority = 1
 recommended_px = Vector2i(56, 48)
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_4jwsi"]
 script = ExtResource("2_4ma4l")
@@ -308,6 +335,8 @@ fps = {
 }
 priority = 1
 recommended_px = Vector2i(80, 56)
+recommended_animations = PackedStringArray("default", "sleeping")
+showcase = true
 
 [sub_resource type="Resource" id="Resource_javlu"]
 script = ExtResource("2_4ma4l")
@@ -321,6 +350,7 @@ display_size = Vector2(40, 40)
 loop_states = PackedStringArray()
 priority = 2
 recommended_px = Vector2i(40, 40)
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_gld8t"]
 script = ExtResource("2_4ma4l")
@@ -335,6 +365,7 @@ loop_states = PackedStringArray()
 priority = 2
 recommended_px = Vector2i(48, 48)
 notes = "Dipakai hanya saat slot kosong."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_05us6"]
 script = ExtResource("2_4ma4l")
@@ -349,6 +380,7 @@ loop_states = PackedStringArray()
 priority = 2
 recommended_px = Vector2i(48, 48)
 notes = "Dipakai hanya saat slot kosong."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_btrgj"]
 script = ExtResource("2_4ma4l")
@@ -363,6 +395,7 @@ loop_states = PackedStringArray()
 priority = 2
 recommended_px = Vector2i(48, 48)
 notes = "Dipakai hanya saat slot kosong."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_glx4n"]
 script = ExtResource("2_4ma4l")
@@ -377,6 +410,7 @@ loop_states = PackedStringArray()
 priority = 2
 recommended_px = Vector2i(48, 48)
 notes = "Dipakai hanya saat slot kosong."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_hokpn"]
 script = ExtResource("2_4ma4l")
@@ -391,6 +425,7 @@ loop_states = PackedStringArray()
 priority = 2
 recommended_px = Vector2i(48, 48)
 notes = "Dipakai hanya saat slot kosong."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_3oluu"]
 script = ExtResource("2_4ma4l")
@@ -406,6 +441,7 @@ loop_states = PackedStringArray()
 priority = 2
 recommended_px = Vector2i(256, 256)
 notes = "Radius cahaya tetap dari config; tekstur hanya diskalakan."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_fmtt5"]
 script = ExtResource("2_4ma4l")
@@ -422,6 +458,8 @@ tile_size = Vector2(32, 32)
 priority = 1
 recommended_px = Vector2i(32, 32)
 notes = "Ubin seamless; diulang per 32 px dunia."
+recommended_animations = PackedStringArray("default")
+showcase = true
 
 [sub_resource type="Resource" id="Resource_eauu1"]
 script = ExtResource("2_4ma4l")
@@ -438,6 +476,7 @@ tile_size = Vector2(32, 32)
 priority = 1
 recommended_px = Vector2i(32, 32)
 notes = "Ubin seamless; diulang per 32 px dunia."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_cropr"]
 script = ExtResource("2_4ma4l")
@@ -454,6 +493,7 @@ tile_size = Vector2(32, 32)
 priority = 1
 recommended_px = Vector2i(32, 32)
 notes = "Ubin seamless; diulang per 32 px dunia."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_ag3nb"]
 script = ExtResource("2_4ma4l")
@@ -470,6 +510,7 @@ tile_size = Vector2(32, 32)
 priority = 1
 recommended_px = Vector2i(32, 32)
 notes = "Ubin seamless; diulang per 32 px dunia."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_4uoxt"]
 script = ExtResource("2_4ma4l")
@@ -486,6 +527,7 @@ tile_size = Vector2(32, 32)
 priority = 1
 recommended_px = Vector2i(32, 32)
 notes = "Ubin seamless; diulang per 32 px dunia."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_hjh4f"]
 script = ExtResource("2_4ma4l")
@@ -502,6 +544,8 @@ tile_size = Vector2(32, 32)
 priority = 1
 recommended_px = Vector2i(32, 32)
 notes = "Ubin seamless; diulang per 32 px dunia."
+recommended_animations = PackedStringArray("default")
+showcase = true
 
 [sub_resource type="Resource" id="Resource_di20l"]
 script = ExtResource("2_4ma4l")
@@ -518,6 +562,7 @@ tile_size = Vector2(32, 32)
 recommended_px = Vector2i(32, 32)
 optional = true
 notes = "Belum ada node-nya di island.tscn; slot disiapkan untuk nanti."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_688xh"]
 script = ExtResource("2_4ma4l")
@@ -531,6 +576,7 @@ display_size = Vector2(140, 70)
 loop_states = PackedStringArray()
 priority = 1
 recommended_px = Vector2i(160, 80)
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_kxunx"]
 script = ExtResource("2_4ma4l")
@@ -548,6 +594,7 @@ fps = {
 }
 priority = 1
 recommended_px = Vector2i(48, 40)
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_6ck2d"]
 script = ExtResource("2_4ma4l")
@@ -565,6 +612,7 @@ fps = {
 }
 priority = 1
 recommended_px = Vector2i(48, 56)
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_xetga"]
 script = ExtResource("2_4ma4l")
@@ -578,6 +626,7 @@ display_size = Vector2(22, 22)
 loop_states = PackedStringArray()
 recommended_px = Vector2i(24, 24)
 optional = true
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_sqi0e"]
 script = ExtResource("2_4ma4l")
@@ -591,6 +640,7 @@ display_size = Vector2(30, 22)
 loop_states = PackedStringArray()
 priority = 2
 recommended_px = Vector2i(32, 24)
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_cm01d"]
 script = ExtResource("2_4ma4l")
@@ -605,6 +655,7 @@ loop_states = PackedStringArray()
 recommended_px = Vector2i(24, 12)
 optional = true
 notes = "Dipakai sebagai texture ikon pickup bila ada."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_ompxn"]
 script = ExtResource("2_4ma4l")
@@ -618,6 +669,7 @@ display_size = Vector2(48, 48)
 loop_states = PackedStringArray()
 priority = 2
 recommended_px = Vector2i(64, 64)
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_26ewd"]
 script = ExtResource("2_4ma4l")
@@ -631,6 +683,7 @@ display_size = Vector2(8, 8)
 loop_states = PackedStringArray()
 priority = 2
 recommended_px = Vector2i(8, 8)
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_71y0v"]
 script = ExtResource("2_4ma4l")
@@ -644,6 +697,7 @@ display_size = Vector2(6, 6)
 loop_states = PackedStringArray()
 priority = 2
 recommended_px = Vector2i(8, 8)
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_n7hxw"]
 script = ExtResource("2_4ma4l")
@@ -658,6 +712,7 @@ loop_states = PackedStringArray()
 recommended_px = Vector2i(8, 8)
 optional = true
 notes = "Opsional; tanpa art tidak ada yang berubah."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_dj7h6"]
 script = ExtResource("2_4ma4l")
@@ -672,6 +727,7 @@ display_size = Vector2(16, 16)
 loop_states = PackedStringArray()
 priority = 2
 notes = "Hanya .ttf/.otf, dimuat lewat ResourceLoader."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_601hj"]
 script = ExtResource("2_4ma4l")
@@ -686,6 +742,7 @@ display_size = Vector2(16, 16)
 loop_states = PackedStringArray()
 priority = 2
 notes = "Hanya .ttf/.otf."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_y8ogb"]
 script = ExtResource("2_4ma4l")
@@ -701,6 +758,7 @@ loop_states = PackedStringArray()
 nine_slice = Vector4(8, 8, 8, 8)
 priority = 1
 notes = "Nine-slice 8 px."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_1lkrp"]
 script = ExtResource("2_4ma4l")
@@ -716,6 +774,7 @@ loop_states = PackedStringArray()
 nine_slice = Vector4(8, 8, 8, 8)
 priority = 2
 notes = "Nine-slice 8 px."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_stung"]
 script = ExtResource("2_4ma4l")
@@ -731,6 +790,7 @@ loop_states = PackedStringArray()
 nine_slice = Vector4(8, 8, 8, 8)
 priority = 2
 notes = "Nine-slice 8 px."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_nfn3t"]
 script = ExtResource("2_4ma4l")
@@ -746,6 +806,7 @@ loop_states = PackedStringArray()
 nine_slice = Vector4(8, 8, 8, 8)
 priority = 2
 notes = "Nine-slice 8 px."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_0jwik"]
 script = ExtResource("2_4ma4l")
@@ -760,6 +821,7 @@ display_size = Vector2(160, 40)
 loop_states = PackedStringArray()
 nine_slice = Vector4(8, 8, 8, 8)
 notes = "Nine-slice 8 px."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_2gsqc"]
 script = ExtResource("2_4ma4l")
@@ -775,6 +837,7 @@ loop_states = PackedStringArray()
 nine_slice = Vector4(8, 8, 8, 8)
 priority = 2
 notes = "Nine-slice 8 px."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_xxybk"]
 script = ExtResource("2_4ma4l")
@@ -790,6 +853,7 @@ loop_states = PackedStringArray()
 nine_slice = Vector4(4, 4, 4, 4)
 priority = 2
 notes = "Nine-slice 4 px."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_c2exp"]
 script = ExtResource("2_4ma4l")
@@ -805,6 +869,7 @@ loop_states = PackedStringArray()
 nine_slice = Vector4(4, 4, 4, 4)
 priority = 2
 notes = "Nine-slice 4 px."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_hijbe"]
 script = ExtResource("2_4ma4l")
@@ -820,6 +885,7 @@ loop_states = PackedStringArray()
 nine_slice = Vector4(4, 4, 4, 4)
 priority = 2
 notes = "Nine-slice 4 px."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_c261i"]
 script = ExtResource("2_4ma4l")
@@ -835,6 +901,7 @@ loop_states = PackedStringArray()
 nine_slice = Vector4(4, 4, 4, 4)
 priority = 2
 notes = "Nine-slice 4 px."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_xj6g7"]
 script = ExtResource("2_4ma4l")
@@ -850,6 +917,7 @@ loop_states = PackedStringArray()
 nine_slice = Vector4(4, 4, 4, 4)
 priority = 2
 notes = "Nine-slice 4 px."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_dwywb"]
 script = ExtResource("2_4ma4l")
@@ -864,6 +932,7 @@ display_size = Vector2(16, 16)
 loop_states = PackedStringArray()
 priority = 2
 notes = "Ditampilkan hanya bila art ada."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_hgtwp"]
 script = ExtResource("2_4ma4l")
@@ -878,6 +947,7 @@ display_size = Vector2(16, 16)
 loop_states = PackedStringArray()
 priority = 2
 notes = "Ditampilkan hanya bila art ada."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_r7pnl"]
 script = ExtResource("2_4ma4l")
@@ -892,6 +962,7 @@ display_size = Vector2(16, 16)
 loop_states = PackedStringArray()
 priority = 2
 notes = "Ditampilkan hanya bila art ada."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_0217j"]
 script = ExtResource("2_4ma4l")
@@ -906,8 +977,65 @@ display_size = Vector2(16, 16)
 loop_states = PackedStringArray()
 priority = 2
 notes = "Ditampilkan hanya bila art ada."
+recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_tpwhp"]
+script = ExtResource("2_4ma4l")
+key = &"ui_clock_sun"
+category = &"ui"
+folder = "ui/icons"
+file_stem = "clock_sun"
+description_id = "Glyph matahari jam TimeHUD."
+used_by = "src/ui/ui_skin.gd (UiSkin)"
+states = PackedStringArray("default")
+display_size = Vector2(16, 16)
+loop_states = PackedStringArray()
+notes = "Opsional; fallback ke ui_sun lalu lingkaran placeholder."
+recommended_animations = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_20v4d"]
+script = ExtResource("2_4ma4l")
+key = &"ui_clock_moon"
+category = &"ui"
+folder = "ui/icons"
+file_stem = "clock_moon"
+description_id = "Glyph bulan jam TimeHUD."
+used_by = "src/ui/ui_skin.gd (UiSkin)"
+states = PackedStringArray("default")
+display_size = Vector2(16, 16)
+loop_states = PackedStringArray()
+notes = "Opsional; fallback ke ui_moon lalu bulan sabit placeholder."
+recommended_animations = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_stugf"]
+script = ExtResource("2_4ma4l")
+key = &"ui_sun"
+category = &"ui"
+folder = "ui/icons"
+file_stem = "sun"
+description_id = "Glyph matahari di arc TimeHUD."
+used_by = "src/ui/ui_skin.gd (UiSkin)"
+states = PackedStringArray("default")
+display_size = Vector2(16, 16)
+loop_states = PackedStringArray()
+notes = "Opsional; tanpa art digambar lingkaran placeholder."
+recommended_animations = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_eb2gt"]
+script = ExtResource("2_4ma4l")
+key = &"ui_moon"
+category = &"ui"
+folder = "ui/icons"
+file_stem = "moon"
+description_id = "Glyph bulan di arc TimeHUD."
+used_by = "src/ui/ui_skin.gd (UiSkin)"
+states = PackedStringArray("default")
+display_size = Vector2(16, 16)
+loop_states = PackedStringArray()
+notes = "Opsional; tanpa art digambar bulan sabit placeholder."
+recommended_animations = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_4cw4l"]
 script = ExtResource("2_4ma4l")
 key = &"ui_logo"
 category = &"ui"
@@ -919,8 +1047,9 @@ states = PackedStringArray("default")
 display_size = Vector2(480, 160)
 loop_states = PackedStringArray()
 priority = 2
+recommended_animations = PackedStringArray()
 
-[sub_resource type="Resource" id="Resource_20v4d"]
+[sub_resource type="Resource" id="Resource_6e64t"]
 script = ExtResource("2_4ma4l")
 key = &"ui_bg_main_menu"
 category = &"ui"
@@ -933,8 +1062,9 @@ display_size = Vector2(1280, 720)
 loop_states = PackedStringArray()
 priority = 2
 notes = "Ditampilkan hanya bila ada."
+recommended_animations = PackedStringArray()
 
-[sub_resource type="Resource" id="Resource_stugf"]
+[sub_resource type="Resource" id="Resource_jnnlq"]
 script = ExtResource("2_4ma4l")
 key = &"ui_bg_death"
 category = &"ui"
@@ -945,8 +1075,9 @@ used_by = "src/ui/ui_skin.gd (UiSkin)"
 states = PackedStringArray("default")
 display_size = Vector2(1280, 720)
 loop_states = PackedStringArray()
+recommended_animations = PackedStringArray()
 
-[sub_resource type="Resource" id="Resource_eb2gt"]
+[sub_resource type="Resource" id="Resource_tu08a"]
 script = ExtResource("2_4ma4l")
 key = &"ui_bg_game_over"
 category = &"ui"
@@ -957,8 +1088,9 @@ used_by = "src/ui/ui_skin.gd (UiSkin)"
 states = PackedStringArray("default")
 display_size = Vector2(1280, 720)
 loop_states = PackedStringArray()
+recommended_animations = PackedStringArray()
 
-[sub_resource type="Resource" id="Resource_4cw4l"]
+[sub_resource type="Resource" id="Resource_ug45r"]
 script = ExtResource("2_4ma4l")
 key = &"ui_bg_victory"
 category = &"ui"
@@ -969,8 +1101,9 @@ used_by = "src/ui/ui_skin.gd (UiSkin)"
 states = PackedStringArray("default")
 display_size = Vector2(1280, 720)
 loop_states = PackedStringArray()
+recommended_animations = PackedStringArray()
 
-[sub_resource type="Resource" id="Resource_6e64t"]
+[sub_resource type="Resource" id="Resource_4s63d"]
 script = ExtResource("2_4ma4l")
 key = &"ui_vignette_low_hp"
 category = &"ui"
@@ -982,7 +1115,8 @@ states = PackedStringArray("default")
 display_size = Vector2(1280, 720)
 loop_states = PackedStringArray()
 notes = "Overlay layar penuh, opsional."
+recommended_animations = PackedStringArray()
 
 [resource]
 script = ExtResource("1_5iyxd")
-slots = Array[ExtResource("2_4ma4l")]([SubResource("Resource_mydko"), SubResource("Resource_cmmpw"), SubResource("Resource_rlobg"), SubResource("Resource_rdpli"), SubResource("Resource_62bso"), SubResource("Resource_qp6px"), SubResource("Resource_d8pge"), SubResource("Resource_58v06"), SubResource("Resource_35vb4"), SubResource("Resource_aklxx"), SubResource("Resource_l55ag"), SubResource("Resource_40fbp"), SubResource("Resource_5ndwp"), SubResource("Resource_c0r3d"), SubResource("Resource_nywrt"), SubResource("Resource_4jwsi"), SubResource("Resource_javlu"), SubResource("Resource_gld8t"), SubResource("Resource_05us6"), SubResource("Resource_btrgj"), SubResource("Resource_glx4n"), SubResource("Resource_hokpn"), SubResource("Resource_3oluu"), SubResource("Resource_fmtt5"), SubResource("Resource_eauu1"), SubResource("Resource_cropr"), SubResource("Resource_ag3nb"), SubResource("Resource_4uoxt"), SubResource("Resource_hjh4f"), SubResource("Resource_di20l"), SubResource("Resource_688xh"), SubResource("Resource_kxunx"), SubResource("Resource_6ck2d"), SubResource("Resource_xetga"), SubResource("Resource_sqi0e"), SubResource("Resource_cm01d"), SubResource("Resource_ompxn"), SubResource("Resource_26ewd"), SubResource("Resource_71y0v"), SubResource("Resource_n7hxw"), SubResource("Resource_dj7h6"), SubResource("Resource_601hj"), SubResource("Resource_y8ogb"), SubResource("Resource_1lkrp"), SubResource("Resource_stung"), SubResource("Resource_nfn3t"), SubResource("Resource_0jwik"), SubResource("Resource_2gsqc"), SubResource("Resource_xxybk"), SubResource("Resource_c2exp"), SubResource("Resource_hijbe"), SubResource("Resource_c261i"), SubResource("Resource_xj6g7"), SubResource("Resource_dwywb"), SubResource("Resource_hgtwp"), SubResource("Resource_r7pnl"), SubResource("Resource_0217j"), SubResource("Resource_tpwhp"), SubResource("Resource_20v4d"), SubResource("Resource_stugf"), SubResource("Resource_eb2gt"), SubResource("Resource_4cw4l"), SubResource("Resource_6e64t")])
+slots = Array[ExtResource("2_4ma4l")]([SubResource("Resource_mydko"), SubResource("Resource_cmmpw"), SubResource("Resource_rlobg"), SubResource("Resource_rdpli"), SubResource("Resource_62bso"), SubResource("Resource_qp6px"), SubResource("Resource_d8pge"), SubResource("Resource_58v06"), SubResource("Resource_35vb4"), SubResource("Resource_aklxx"), SubResource("Resource_l55ag"), SubResource("Resource_40fbp"), SubResource("Resource_5ndwp"), SubResource("Resource_c0r3d"), SubResource("Resource_nywrt"), SubResource("Resource_4jwsi"), SubResource("Resource_javlu"), SubResource("Resource_gld8t"), SubResource("Resource_05us6"), SubResource("Resource_btrgj"), SubResource("Resource_glx4n"), SubResource("Resource_hokpn"), SubResource("Resource_3oluu"), SubResource("Resource_fmtt5"), SubResource("Resource_eauu1"), SubResource("Resource_cropr"), SubResource("Resource_ag3nb"), SubResource("Resource_4uoxt"), SubResource("Resource_hjh4f"), SubResource("Resource_di20l"), SubResource("Resource_688xh"), SubResource("Resource_kxunx"), SubResource("Resource_6ck2d"), SubResource("Resource_xetga"), SubResource("Resource_sqi0e"), SubResource("Resource_cm01d"), SubResource("Resource_ompxn"), SubResource("Resource_26ewd"), SubResource("Resource_71y0v"), SubResource("Resource_n7hxw"), SubResource("Resource_dj7h6"), SubResource("Resource_601hj"), SubResource("Resource_y8ogb"), SubResource("Resource_1lkrp"), SubResource("Resource_stung"), SubResource("Resource_nfn3t"), SubResource("Resource_0jwik"), SubResource("Resource_2gsqc"), SubResource("Resource_xxybk"), SubResource("Resource_c2exp"), SubResource("Resource_hijbe"), SubResource("Resource_c261i"), SubResource("Resource_xj6g7"), SubResource("Resource_dwywb"), SubResource("Resource_hgtwp"), SubResource("Resource_r7pnl"), SubResource("Resource_0217j"), SubResource("Resource_tpwhp"), SubResource("Resource_20v4d"), SubResource("Resource_stugf"), SubResource("Resource_eb2gt"), SubResource("Resource_4cw4l"), SubResource("Resource_6e64t"), SubResource("Resource_jnnlq"), SubResource("Resource_tu08a"), SubResource("Resource_ug45r"), SubResource("Resource_4s63d")])

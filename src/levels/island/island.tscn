@@ -1,4 +1,4 @@
-[gd_scene load_steps=62 format=3]
+[gd_scene load_steps=63 format=3]
 
 [ext_resource type="Script" path="res://src/levels/island/island.gd" id="1_island"]
 [ext_resource type="PackedScene" path="res://src/entities/player/player.tscn" id="2_player"]
@@ -61,6 +61,7 @@
 [ext_resource type="Script" path="res://src/components/camera/camera_feel.gd" id="61_camerafeel"]
 [ext_resource type="Script" path="res://src/ui/fx/low_hp_vignette.gd" id="62_lowhp"]
 [ext_resource type="Script" path="res://src/ui/hud/hints/opening_sequence.gd" id="63_opening"]
+[ext_resource type="Script" path="res://src/core/debug/physics_trace_recorder.gd" id="64_physicstrace"]
 [ext_resource type="Script" path="res://src/ui/hud/compass/camp_arrow.gd" id="64_camparrow"]
 [ext_resource type="Script" path="res://src/ui/fx/death_fx.gd" id="65_deathfx"]
 [ext_resource type="Script" path="res://src/ui/fx/victory_fx.gd" id="66_victoryfx"]
@@ -378,6 +379,9 @@ script = ExtResource("55_statuseffecthud")
 
 [node name="AssetDebug" type="Node" parent="."]
 script = ExtResource("56_assetdebug")
+
+[node name="PhysicsTraceRecorder" type="Node" parent="."]
+script = ExtResource("64_physicstrace")
 
 [node name="AmbientLife" type="Node2D" parent="."]
 script = ExtResource("60_ambient")
