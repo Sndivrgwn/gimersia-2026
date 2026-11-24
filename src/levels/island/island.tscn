@@ -1,4 +1,4 @@
-[gd_scene load_steps=63 format=3]
+[gd_scene load_steps=67 format=3]
 
 [ext_resource type="Script" path="res://src/levels/island/island.gd" id="1_island"]
 [ext_resource type="PackedScene" path="res://src/entities/player/player.tscn" id="2_player"]
@@ -78,6 +78,10 @@
 [ext_resource type="PackedScene" path="res://src/ui/panels/station/station_panel.tscn" id="76_station"]
 [ext_resource type="Script" path="res://src/components/inventory/hotbar_selection_component.gd" id="77_hotbar_sel"]
 [ext_resource type="Script" path="res://src/components/visual/held_item_visual.gd" id="78_held_visual"]
+[ext_resource type="Script" path="res://src/core/managers/daily_run_stats.gd" id="79_daily_stats"]
+[ext_resource type="Script" path="res://src/ui/hud/goals/daily_goal_hud.gd" id="80_goalhud"]
+[ext_resource type="Script" path="res://src/ui/hud/recap/dawn_recap_hud.gd" id="81_recaphud"]
+[ext_resource type="Script" path="res://src/components/visual/player_light.gd" id="82_playerlight"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
 size = Vector2(5000, 100)
@@ -310,6 +314,9 @@ spawner = NodePath("../NightSpawner")
 fauna_parent = NodePath("../Fauna")
 config = ExtResource("72_raidconfig")
 
+[node name="DailyRunStats" type="Node" parent="."]
+script = ExtResource("79_daily_stats")
+
 [node name="DayNightVisual" parent="." instance=ExtResource("9_daynight")]
 
 [node name="TimeHUD" parent="." instance=ExtResource("10_timehud")]
@@ -343,6 +350,13 @@ script = ExtResource("53_proficiencyhud")
 
 [node name="ProtectionHUD" type="Control" parent="."]
 script = ExtResource("74_protection")
+
+[node name="DailyGoalHUD" type="CanvasLayer" parent="."]
+script = ExtResource("80_goalhud")
+
+[node name="DawnRecapHUD" type="CanvasLayer" parent="."]
+script = ExtResource("81_recaphud")
+stats = NodePath("../DailyRunStats")
 
 [node name="PlaceholderLabels" type="Control" parent="."]
 script = ExtResource("75_placeholder")
@@ -412,3 +426,6 @@ script = ExtResource("77_hotbar_sel")
 
 [node name="HeldItemVisual" type="Node2D" parent="Player"]
 script = ExtResource("78_held_visual")
+
+[node name="PlayerLight" type="Node2D" parent="Player"]
+script = ExtResource("82_playerlight")

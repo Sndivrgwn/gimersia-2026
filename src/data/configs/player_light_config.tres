@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="PlayerLightConfig" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/environment/player_light_config.gd" id="1_budde"]
+[ext_resource type="Resource" path="res://src/data/items/torch.tres" id="2_egcrn"]
+
+[resource]
+script = ExtResource("1_budde")
+torch_item = ExtResource("2_egcrn")

@@ -1,0 +1,129 @@
+[gd_resource type="Resource" script_class="DailyGoalConfig" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/goals/daily_goal.gd" id="1_uwps2"]
+[ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_2nip6"]
+[ext_resource type="Resource" path="res://src/data/items/stone_axe.tres" id="3_at6b1"]
+[ext_resource type="Resource" path="res://src/data/items/hide.tres" id="4_bpdny"]
+[ext_resource type="Resource" path="res://src/data/items/cooked_meat.tres" id="5_mrawl"]
+[ext_resource type="Resource" path="res://src/data/items/stone.tres" id="6_ktbe2"]
+[ext_resource type="Resource" path="res://src/data/items/stone_spear.tres" id="7_kitcs"]
+[ext_resource type="Resource" path="res://src/data/items/bone.tres" id="8_sb65w"]
+[ext_resource type="Resource" path="res://src/data/items/torch.tres" id="9_ivo53"]
+[ext_resource type="Resource" path="res://src/data/items/signal_flare.tres" id="10_wcu00"]
+[ext_resource type="Resource" path="res://src/data/items/bone_spear.tres" id="11_kcuc8"]
+[ext_resource type="Script" path="res://src/data/resources/goals/daily_goal_config.gd" id="12_e8wvv"]
+
+[sub_resource type="Resource" id="Resource_txbx0"]
+script = ExtResource("1_uwps2")
+text = "bangun api unggun"
+kind = 3
+structure_id = &"campfire"
+
+[sub_resource type="Resource" id="Resource_fsdge"]
+script = ExtResource("1_uwps2")
+text = "kumpulkan 4 Kayu"
+item = ExtResource("2_2nip6")
+count = 4
+
+[sub_resource type="Resource" id="Resource_eu3ul"]
+script = ExtResource("1_uwps2")
+text = "petakan base (tekan B)"
+kind = 4
+
+[sub_resource type="Resource" id="Resource_jjrix"]
+script = ExtResource("1_uwps2")
+day = 2
+text = "bangun meja kerja"
+kind = 3
+structure_id = &"workbench"
+
+[sub_resource type="Resource" id="Resource_nms2x"]
+script = ExtResource("1_uwps2")
+day = 2
+text = "buat Kapak Batu"
+kind = 1
+item = ExtResource("3_at6b1")
+
+[sub_resource type="Resource" id="Resource_034dt"]
+script = ExtResource("1_uwps2")
+day = 2
+text = "cari 2 Kulit dari rusa"
+item = ExtResource("4_bpdny")
+count = 2
+
+[sub_resource type="Resource" id="Resource_la3xl"]
+script = ExtResource("1_uwps2")
+day = 3
+text = "bangun Peti"
+kind = 3
+structure_id = &"chest"
+
+[sub_resource type="Resource" id="Resource_810vt"]
+script = ExtResource("1_uwps2")
+day = 3
+text = "masak 1 Daging"
+item = ExtResource("5_mrawl")
+
+[sub_resource type="Resource" id="Resource_kpx3i"]
+script = ExtResource("1_uwps2")
+day = 3
+text = "kumpulkan 6 Batu"
+item = ExtResource("6_ktbe2")
+count = 6
+
+[sub_resource type="Resource" id="Resource_4lc5l"]
+script = ExtResource("1_uwps2")
+day = 4
+text = "buat Tombak Batu"
+kind = 2
+item = ExtResource("7_kitcs")
+
+[sub_resource type="Resource" id="Resource_y61tb"]
+script = ExtResource("1_uwps2")
+day = 4
+text = "bangun Tenda"
+kind = 3
+structure_id = &"tent"
+
+[sub_resource type="Resource" id="Resource_036nq"]
+script = ExtResource("1_uwps2")
+day = 5
+text = "kumpulkan 3 Tulang"
+item = ExtResource("8_sb65w")
+count = 3
+
+[sub_resource type="Resource" id="Resource_87iaj"]
+script = ExtResource("1_uwps2")
+day = 5
+text = "buat Obor untuk malam"
+item = ExtResource("9_ivo53")
+
+[sub_resource type="Resource" id="Resource_r6yp8"]
+script = ExtResource("1_uwps2")
+day = 6
+text = "kumpulkan 5 Kayu untuk Suar"
+item = ExtResource("2_2nip6")
+count = 5
+
+[sub_resource type="Resource" id="Resource_m0wil"]
+script = ExtResource("1_uwps2")
+day = 6
+text = "pakai Obor di malam gelap"
+item = ExtResource("9_ivo53")
+
+[sub_resource type="Resource" id="Resource_m7nt1"]
+script = ExtResource("1_uwps2")
+day = 7
+text = "buat Suar Darurat"
+item = ExtResource("10_wcu00")
+
+[sub_resource type="Resource" id="Resource_qhkae"]
+script = ExtResource("1_uwps2")
+day = 7
+text = "bawa Tombak Tulang"
+kind = 2
+item = ExtResource("11_kcuc8")
+
+[resource]
+script = ExtResource("12_e8wvv")
+goals = Array[ExtResource("1_uwps2")]([SubResource("Resource_txbx0"), SubResource("Resource_fsdge"), SubResource("Resource_eu3ul"), SubResource("Resource_jjrix"), SubResource("Resource_nms2x"), SubResource("Resource_034dt"), SubResource("Resource_la3xl"), SubResource("Resource_810vt"), SubResource("Resource_kpx3i"), SubResource("Resource_4lc5l"), SubResource("Resource_y61tb"), SubResource("Resource_036nq"), SubResource("Resource_87iaj"), SubResource("Resource_r6yp8"), SubResource("Resource_m0wil"), SubResource("Resource_m7nt1"), SubResource("Resource_qhkae")])

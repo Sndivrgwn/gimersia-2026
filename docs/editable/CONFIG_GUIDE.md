@@ -33,11 +33,13 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `res://tools/generate_body_profiles.gd` | `GODOT --headless --path . -s tools/generate_body_profiles.gd` | res://src/data/configs/physics/body_island_deer.tres, res://src/data/configs/physics/body_player.tres, res://src/data/configs/physics/body_wild_boar.tres |
 | `res://tools/generate_clock_format.gd` | `GODOT --headless --path . -s tools/generate_clock_format.gd` | res://src/data/configs/environment/clock_format.tres |
 | `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` | res://src/data/configs/combat_config.tres, res://src/data/configs/fauna/boar_config.tres, res://src/data/configs/fauna/deer_config.tres, res://src/data/configs/fauna/ember_snuff_config.tres, res://src/data/configs/fauna/night_scaling_config.tres, res://src/data/configs/fauna/raid_config.tres |
+| `res://tools/generate_daily_goals.gd` | `GODOT --headless --path . -s tools/generate_daily_goals.gd` | res://src/data/configs/daily_goals.tres, res://src/data/configs/dawn_recap_config.tres |
 | `res://tools/generate_fauna_configs.gd` | `GODOT --headless --path . -s tools/generate_fauna_configs.gd` | res://src/data/configs/fauna/boar_config.tres, res://src/data/configs/fauna/deer_config.tres |
 | `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` | — (tidak menulis .tres) |
 | `res://tools/generate_held_item_data.gd` | `GODOT --headless --path . -s tools/generate_held_item_data.gd` | res://src/data/configs/held_item_config.tres |
 | `res://tools/generate_hints.gd` | `GODOT --headless --path . -s tools/generate_hints.gd` | res://src/data/hints/base_place.tres, res://src/data/hints/campfire_cold.tres, res://src/data/hints/crafting.tres, res://src/data/hints/dusk.tres, res://src/data/hints/fence.tres, res://src/data/hints/gather.tres, res://src/data/hints/hunger_sprint_lock.tres, res://src/data/hints/need_low.tres, res://src/data/hints/neutral_hit.tres, res://src/data/hints/repair.tres |
 | `res://tools/generate_input_guide.gd` | `GODOT --headless --path . -s tools/generate_input_guide.gd` | — (tidak menulis .tres) |
+| `res://tools/generate_player_light.gd` | `GODOT --headless --path . -s tools/generate_player_light.gd` | res://src/data/configs/player_light_config.tres, res://src/data/items/torch.tres |
 | `res://tools/generate_proficiency_data.gd` | `GODOT --headless --path . -s tools/generate_proficiency_data.gd` | res://src/data/configs/proficiency_config.tres |
 | `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` | res://src/data/recipes/boiled_water.tres, res://src/data/recipes/bone_broth.tres, res://src/data/recipes/bone_spear.tres, res://src/data/recipes/cooked_meat.tres, res://src/data/recipes/herbal_bandage.tres, res://src/data/recipes/leather_vest.tres, res://src/data/recipes/signal_flare.tres, res://src/data/recipes/stone_axe.tres, res://src/data/recipes/stone_pickaxe.tres, res://src/data/recipes/stone_spear.tres, res://src/data/recipes/torch.tres, res://src/data/recipes/waterskin.tres, res://src/data/recipes/wooden_spear.tres |
 | `res://tools/generate_station_data.gd` | `GODOT --headless --path . -s tools/generate_station_data.gd` | res://src/data/configs/station_config.tres |
@@ -266,6 +268,35 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `bleed_duration` | float | 3.00 |
 | `bleed_weapon_ids` | Array | [1 item] |
 | `floating_text_lifetime` | float | 0.80 |
+
+### `res://src/data/configs/daily_goals.tres`
+
+- Kelas: `daily_goal_config.gd` (`res://src/data/resources/goals/daily_goal_config.gd`)
+- Tujuan: Daftar tujuan harian (HUD kiri bawah) untuk Hari 1-7.
+- Dipakai oleh: DailyGoalHUD, DailyGoalConfig, DailyGoal
+- Pemilik: generator
+- Efek tuning: Mengubah teks/urutan tujuan; kondisi dibaca dari tas, struktur, dan base.
+- Tes terkait: test_daily_goals_and_light.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `goals` | Array | [17 item] |
+
+### `res://src/data/configs/dawn_recap_config.tres`
+
+- Kelas: `dawn_recap_config.gd` (`res://src/data/resources/recap/dawn_recap_config.gd`)
+- Tujuan: Durasi panel rekap fajar.
+- Dipakai oleh: DawnRecapHUD, DawnRecapConfig
+- Pemilik: generator
+- Efek tuning: Berapa lama panel rekap tampil sebelum menutup sendiri.
+- Tes terkait: test_daily_goals_and_light.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `panel_seconds` | float | 6.00 |
+| `fade_seconds` | float | 0.35 |
 
 ### `res://src/data/configs/fence_config.tres`
 
@@ -508,6 +539,26 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `fatigue_gather_time` | float | 0.30 |
 | `fatigue_zero_move_speed` | float | -0.45 |
 | `fatigue_zero_attack_speed` | float | -0.50 |
+
+### `res://src/data/configs/player_light_config.tres`
+
+- Kelas: `player_light_config.gd` (`res://src/data/resources/environment/player_light_config.gd`)
+- Tujuan: Radius dan energi cahaya pemain malam (110 px, obor 190 px).
+- Dipakai oleh: PlayerLight, PlayerLightConfig
+- Pemilik: generator
+- Efek tuning: Mengubah terang/radius cahaya pemain; tidak mengubah tint dunia.
+- Tes terkait: test_daily_goals_and_light.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `player_radius` | float | 110.00 |
+| `torch_radius` | float | 190.00 |
+| `day_energy` | float | 0.00 |
+| `night_energy` | float | 1.00 |
+| `torch_energy_bonus` | float | 0.00 |
+| `color` | lain | (1.0, 0.86, 0.62, 1.0) |
+| `torch_item` | Resource | (res://src/data/items/torch.tres):<Resource#-... |
 
 ### `res://src/data/configs/proficiency_config.tres`
 
@@ -1821,7 +1872,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 - Kelas: `item_definition.gd` (`res://src/data/resources/items/item_definition.gd`)
 - Tujuan: belum didokumentasikan
 - Dipakai oleh: —
-- Pemilik: edit tangan
+- Pemilik: generator
 - Efek tuning: —
 - Tes terkait: —
 
@@ -2199,11 +2250,13 @@ Kelas berikut hanya punya default di kode; ubah lewat kode atau dengan membuat `
 | `res://tools/generate_body_profiles.gd` | `GODOT --headless --path . -s tools/generate_body_profiles.gd` |
 | `res://tools/generate_clock_format.gd` | `GODOT --headless --path . -s tools/generate_clock_format.gd` |
 | `res://tools/generate_combat_data.gd` | `GODOT --headless --path . -s tools/generate_combat_data.gd` |
+| `res://tools/generate_daily_goals.gd` | `GODOT --headless --path . -s tools/generate_daily_goals.gd` |
 | `res://tools/generate_fauna_configs.gd` | `GODOT --headless --path . -s tools/generate_fauna_configs.gd` |
 | `res://tools/generate_guides.gd` | `GODOT --headless --path . -s tools/generate_guides.gd` |
 | `res://tools/generate_held_item_data.gd` | `GODOT --headless --path . -s tools/generate_held_item_data.gd` |
 | `res://tools/generate_hints.gd` | `GODOT --headless --path . -s tools/generate_hints.gd` |
 | `res://tools/generate_input_guide.gd` | `GODOT --headless --path . -s tools/generate_input_guide.gd` |
+| `res://tools/generate_player_light.gd` | `GODOT --headless --path . -s tools/generate_player_light.gd` |
 | `res://tools/generate_proficiency_data.gd` | `GODOT --headless --path . -s tools/generate_proficiency_data.gd` |
 | `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` |
 | `res://tools/generate_station_data.gd` | `GODOT --headless --path . -s tools/generate_station_data.gd` |

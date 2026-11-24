@@ -595,3 +595,11 @@ Presentasi saja; siklus/fase/durasi tidak berubah.
 - [x] DeathScreen "Tewas pada Hari N pukul HH:MM", Victory "Diselamatkan Hari 7 pukul 06:00", toast tidur "Tidur: HH:MM -> HH:MM" — `test_game_clock_format.gd` (teks toast) dan boot island.
 - [x] Debug `Y` (`debug_island_period`) lompat ke awal periode jam — `test_game_clock_format.gd`.
 - [ ] Uji rasa manual: jam terasa wajar di hari 180/300/360 dtk dan saat Jaga Malam.
+
+## 33. Fase 1 — orientasi pemain (tujuan, rekap, cahaya)
+
+- [x] Tujuan harian dinamis dari data (`DailyGoalConfig`/`DailyGoal`, `daily_goals.tres`) + baris HUD `DailyGoalHUD` — `test_daily_goals_and_light.gd`.
+- [x] Rekap fajar (`DailyRunStats` + `DawnRecapHUD`, config `dawn_recap_config.tres`) — `test_daily_goals_and_light.gd`.
+- [x] Cahaya pemain malam 110 px / 190 px dengan Obor (`PlayerLight`, `player_light_config.tres`) — `test_daily_goals_and_light.gd`.
+- [ ] Uji rasa manual: keterbacaan baris tujuan, panel rekap tidak mengganggu, malam terasa gelap tapi tetap adil.
+- [ ] Pertanyaan terbuka: apakah Obor perlu durasi/habis? Belum ditambahkan (spec tidak menyebut).

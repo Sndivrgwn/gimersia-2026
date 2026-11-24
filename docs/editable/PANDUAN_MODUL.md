@@ -1637,3 +1637,55 @@ Hari N/7, arc matahari). Tekan `Y` berulang: jam mendarat di 06:00, 10:00,
 toast menampilkan jam sebelum -> sesudah.
 
 **Tes:** `tools\run_tests.ps1 -Test res://tests/unit/test_game_clock_format.gd`.
+
+## 37. Fase 1 — tujuan harian, rekap fajar, cahaya pemain
+
+### 37a. Tujuan harian (`DailyGoalConfig` + `DailyGoalHUD`)
+
+- Data: `src/data/configs/daily_goals.tres` (generator
+  `tools/generate_daily_goals.gd`). Tiap `DailyGoal` berisi `day`, `text`,
+  `kind`, `item`/`count`/`structure_id`.
+- `Kind`: `ITEM_COUNT`, `TOOL_OWNED`, `WEAPON_EQUIPPED`, `STRUCTURE_BUILT`,
+  `BASE_FOUNDED`. Semua dibaca dari state hidup (tas, struktur, base) — tidak ada
+  progres yang disimpan, jadi tidak bisa basi.
+- HUD: `DailyGoalHUD` (CanvasLayer, kiri bawah) menampilkan satu baris:
+  `Hari 2: buat Kapak Batu  (1/3)`. Tujuan yang selesai diganti tujuan
+  berikutnya; semua selesai -> `Hari 2: semua tujuan selesai  (3/3)`.
+- Menambah tujuan: ubah generator lalu jalankan ulang (atau edit `.tres` di
+  Inspector; generator menimpa kalau dijalankan lagi).
+
+### 37b. Rekap fajar (`DailyRunStats` + `DawnRecapHUD`)
+
+- `DailyRunStats` (node di `island.tscn`, **bukan** autoload) menyambung
+  `ResourceNode.gathered`, `CombatComponent.enemy_killed`,
+  `CampStructure.damaged`/`destroyed`. Saat `day_started` hari ke-2 dst. ia
+  memancarkan `day_summary(dictionary)` lalu me-reset hitungan harian; total
+  seluruh run disimpan di `get_totals()` (untuk layar akhir Fase 5).
+- `DawnRecapHUD` menampilkan `Hari N selesai` + `12 resource · 2 babi · base
+  utuh` (atau `base rusak` / `base rusak (2 hancur)`). Tidak mem-pause game dan
+  tidak mengunci kontrol; menutup sendiri setelah `panel_seconds` (6 s) atau Esc.
+- Angka durasi panel: `src/data/configs/dawn_recap_config.tres`.
+
+### 37c. Cahaya pemain (`PlayerLight`)
+
+- `PlayerLight` (Node2D anak Player di `island.tscn`) membuat `PointLight2D`:
+  radius **110 px**, dan **190 px** kalau Obor (`torch`) ada di slot hotbar
+  terpilih. Energi = lerp(`day_energy`..`night_energy`,
+  `DayNightVisual.get_world_darkness()`), jadi menyala halus saat senja dan
+  padam saat fajar. CanvasModulate tetap satu-satunya milik `DayNightVisual`.
+- Config: `src/data/configs/player_light_config.tres` — `player_radius`,
+  `torch_radius`, `day_energy`, `night_energy`, `torch_energy_bonus`, `color`,
+  `torch_item`. Generator `tools/generate_player_light.gd`.
+- Obor **belum** punya durasi/habis (spesifikasi tidak menyebut) — pertanyaan
+  terbuka, belum ditambahkan.
+
+### 37d. Uji manual
+
+1. Boot island: baris `Hari 1: ...` muncul di kiri bawah.
+2. Panen kayu atau bangun api unggun: tujuan berganti / angka `(n/3)` naik.
+3. F4 (lompat pagi) atau tunggu fajar: panel rekap muncul dan menutup sendiri
+   (atau Esc).
+4. F8 (malam): cahaya pemain terlihat; craft Obor lalu pilih slotnya (1-5):
+   radius membesar ke 190 px.
+
+**Tes:** `tools\run_tests.ps1 -Test res://tests/unit/test_daily_goals_and_light.gd`.

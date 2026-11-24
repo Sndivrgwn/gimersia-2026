@@ -618,6 +618,24 @@ func _fields_table(resource: Resource) -> String:
 
 func _tres_meta() -> Dictionary:
 	return {
+		"res://src/data/configs/daily_goals.tres": {
+			"purpose": "Daftar tujuan harian (HUD kiri bawah) untuk Hari 1-7.",
+			"used_by": "DailyGoalHUD, DailyGoalConfig, DailyGoal",
+			"effect": "Mengubah teks/urutan tujuan; kondisi dibaca dari tas, struktur, dan base.",
+			"tests": "test_daily_goals_and_light.gd",
+		},
+		"res://src/data/configs/dawn_recap_config.tres": {
+			"purpose": "Durasi panel rekap fajar.",
+			"used_by": "DawnRecapHUD, DawnRecapConfig",
+			"effect": "Berapa lama panel rekap tampil sebelum menutup sendiri.",
+			"tests": "test_daily_goals_and_light.gd",
+		},
+		"res://src/data/configs/player_light_config.tres": {
+			"purpose": "Radius dan energi cahaya pemain malam (110 px, obor 190 px).",
+			"used_by": "PlayerLight, PlayerLightConfig",
+			"effect": "Mengubah terang/radius cahaya pemain; tidak mengubah tint dunia.",
+			"tests": "test_daily_goals_and_light.gd",
+		},
 		"res://src/data/configs/environment/clock_format.tres": {
 			"purpose": "Jam dunia nyata: jam terbit/terbenam, format 12/24 jam, label periode, flag HUD.",
 			"used_by": "DayNightManager, GameClockFormat, TimeHUD, NightSurvivalHUD",
