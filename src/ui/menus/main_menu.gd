@@ -2,6 +2,10 @@ extends Control
 
 ## Menu utama memakai latar dan tombol dari assets/textures/ui lewat
 ## src/ui/theme/ui_theme.tres (StyleBoxTexture 9-slice + font Nunito).
+const ScreenFade := preload("res://src/ui/fx/screen_fade.gd")
+
+## Menu Utama placeholder. Scene ini BUKAN main scene (project tetap memakai
+## practice1.tscn); dibuka dari DeathScreen / RunController.
 ##
 ## "MULAI"   : restart siklus hari lalu pindah ke island.tscn.
 ## "KONTROL" : overlay berisi daftar kontrol (HelpPanel.HELP_LINES).
@@ -85,6 +89,28 @@ func open_info(title: String, lines: Array[String]) -> void:
 
 func close_info() -> void:
 	if not _info_overlay.visible:
+	_build()
+	_ensure_settings_ui()
+	UiSkin.apply(self)
+	UiSkin.add_background(self, &"ui_bg_main_menu")
+	UiSkin.add_logo(self)
+	ScreenFade.fade_in(self)
+
+
+## Mission 7: panel pengaturan dipakai ulang di menu utama.
+func _ensure_settings_ui() -> void:
+	var service := get_node_or_null("SettingsService") as SettingsService
+	if service == null:
+		service = SettingsService.new()
+		service.name = "SettingsService"
+		add_child(service)
+	var panel := get_node_or_null("SettingsPanel") as SettingsPanel
+	if panel == null:
+		panel = SettingsPanel.new()
+		panel.name = "SettingsPanel"
+		add_child(panel)
+	panel.setup(service)
+	if find_child("SettingsButton", true, false) != null:
 		return
 	_kill(_overlay_tween)
 	_overlay_tween = create_tween().set_parallel(true)
@@ -131,7 +157,8 @@ func _enter_game() -> void:
 	var clock := get_node_or_null("/root/DayNightManager")
 	if clock != null and clock.has_method(&"restart"):
 		clock.restart()
-	get_tree().change_scene_to_file(GAME_SCENE)
+	var tree := get_tree()
+	ScreenFade.fade_out_then(tree, func() -> void: tree.change_scene_to_file(GAME_SCENE))
 
 
 func _quit() -> void:

@@ -16,6 +16,25 @@ extends Resource
 @export var flee_despawn_distance: float = 600.0
 @export var flee_despawn_timeout: float = 8.0
 
+@export_group("Bar HP")
+## Fase 2C: bar HP hanya tampil saat hewan terluka dan disembunyikan lagi
+## setelah sekian detik tanpa damage (detik nyata).
+@export_range(0.0, 30.0, 0.5) var hp_bar_hide_seconds: float = 3.0
+
 @export_group("Jatuhan")
 @export var loot_ids: Array[StringName] = []
 @export var loot_counts: Array[int] = []
+
+@export_group("Tabrakan")
+## Mission 9: fauna dengan blocks_player true berada di layer FAUNA_BODY,
+## sehingga pemain (mask memuat FAUNA_BODY) tidak bisa menembusnya.
+@export var blocks_player: bool = false
+## Pengali perpindahan knockback yang diterima fauna (1.0 = penuh).
+@export var knockback_resistance: float = 1.0
+## Jarak henti tambahan di atas jumlah radius badan (px) saat mengejar target.
+@export var contact_stop_extra: float = 2.0
+
+
+## Jarak pusat-ke-pusat saat fauna mengejar target sudah dianggap menempel.
+func get_contact_distance(target_radius: float, self_radius: float) -> float:
+	return self_radius + target_radius + maxf(contact_stop_extra, 0.0)

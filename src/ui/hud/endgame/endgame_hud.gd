@@ -14,6 +14,8 @@ const VICTORY_DETAIL := "Suar darurat menyala. Kapal penyelamat menemukanmu."
 var _banner: Label
 var _arrow: Label
 var _victory_panel: PanelContainer
+## Mission 12: baris "Diselamatkan Hari N pukul HH:MM".
+var _victory_detail: Label
 var _restart_button: Button
 var _menu_button: Button
 var _controller: EndgameController
@@ -24,6 +26,8 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 25
 	_build()
+	UiSkin.apply_all(self)
+	UiSkin.add_canvas_background(self, &"ui_bg_victory")
 	_controller = get_tree().get_first_node_in_group(&"endgame_controller") as EndgameController
 	if _controller != null:
 		_controller.banner_shown.connect(_on_banner_shown)
@@ -44,6 +48,11 @@ func get_banner_text() -> String:
 
 func is_victory_visible() -> bool:
 	return _victory_panel != null and _victory_panel.visible
+
+
+## Teks panel Victory lengkap (dipakai tes).
+func get_victory_text() -> String:
+	return "" if _victory_detail == null else _victory_detail.text
 
 
 # --- Internal ---------------------------------------------------------------
@@ -71,8 +80,8 @@ func _build() -> void:
 
 	_victory_panel = PanelContainer.new()
 	_victory_panel.name = "Victory"
-	_victory_panel.position = Vector2(400, 260)
-	_victory_panel.custom_minimum_size = Vector2(352, 140)
+	_victory_panel.position = Vector2(370, 220)
+	_victory_panel.custom_minimum_size = Vector2(420, 300)
 	_victory_panel.visible = false
 	add_child(_victory_panel)
 
@@ -92,6 +101,7 @@ func _build() -> void:
 	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail.custom_minimum_size = Vector2(320, 40)
 	column.add_child(detail)
+	_victory_detail = detail
 
 	_restart_button = Button.new()
 	_restart_button.name = "RestartButton"
@@ -126,6 +136,17 @@ func _on_rescue_ready() -> void:
 
 func _on_victory() -> void:
 	_victory_panel.visible = true
+	if _victory_detail != null:
+		# Fase 5: ringkasan run ikut ditampilkan di panel Victory.
+		_victory_detail.text = VICTORY_DETAIL + _rescue_time_line() + RunSummary.block_for(self)
+
+
+## Mission 12: "Diselamatkan Hari 7 pukul 06:00" bila jam tersedia.
+func _rescue_time_line() -> String:
+	var clock := get_node_or_null("/root/DayNightManager")
+	if clock == null or not clock.has_method(&"get_clock_text"):
+		return ""
+	return "\nDiselamatkan Hari %d pukul %s" % [int(clock.get_current_day()), clock.get_clock_text()]
 
 
 func _tick_banner(delta: float) -> void:

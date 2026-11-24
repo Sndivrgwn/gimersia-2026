@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
+
 ## Read-only HUD untuk Hunger/Thirst/Fatigue.
 ##
 ## Hanya membaca NeedsComponent (lewat sinyal dan getter) dan tidak menyimpan
@@ -17,6 +19,8 @@ const ROW_PATHS: Array[String] = [
 	"Root/Panel/Margin/VBox/Thirst",
 	"Root/Panel/Margin/VBox/Fatigue",
 ]
+const NEED_SLUGS: Array[String] = ["hunger", "thirst", "fatigue"]
+const ICON_SIZE := Vector2(16.0, 16.0)
 
 ## Opsional; bila kosong dicari lewat grup "player" -> NeedsComponent.
 @export var needs_component: NeedsComponent
@@ -57,7 +61,24 @@ func _collect_rows() -> void:
 		_value_labels.append(row.get_node_or_null("Value") as Label)
 
 		var fill := _bars[-1].get_theme_stylebox("fill")
-		_fills.append(fill.duplicate() as StyleBoxFlat)
+		_fills.append(fill.duplicate() as StyleBoxFlat if fill is StyleBoxFlat else null)
+		_add_icon(row, _bars.size() - 1)
+
+
+## Ikon di kiri baris hanya dibuat bila art-nya ada (tanpa art: tidak ada node).
+func _add_icon(row: Control, index: int) -> void:
+	var texture := Assets.ui_texture(StringName("ui_icon_%s" % NEED_SLUGS[index]))
+	if texture == null:
+		return
+	var icon := TextureRect.new()
+	icon.name = "Icon"
+	icon.texture = texture
+	icon.custom_minimum_size = ICON_SIZE
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(icon)
+	row.move_child(icon, 0)
 
 
 func _find_component() -> NeedsComponent:
@@ -85,9 +106,13 @@ func _refresh(need: int, value: float, tier: int) -> void:
 	var is_warning := tier != NeedsComponent.Tier.NORMAL
 	var text_color := WARNING_TEXT if is_warning else NORMAL_TEXT
 
-	_bars[need].value = value
-	_fills[need].bg_color = WARNING_COLOR if is_warning else NORMAL_COLOR
-	_bars[need].add_theme_stylebox_override("fill", _fills[need])
+	UiMotion.tween_bar(_bars[need], value)
+	var themed := _bars[need].get_theme_stylebox(StringName("fill_%s" % NEED_SLUGS[need]))
+	if themed != null:
+		_bars[need].add_theme_stylebox_override("fill", themed)
+	elif _fills[need] != null:
+		_fills[need].bg_color = WARNING_COLOR if is_warning else NORMAL_COLOR
+		_bars[need].add_theme_stylebox_override("fill", _fills[need])
 
 	_value_labels[need].text = "%d" % int(roundf(value))
 	_value_labels[need].add_theme_color_override("font_color", text_color)

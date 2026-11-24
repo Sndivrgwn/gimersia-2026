@@ -27,6 +27,8 @@ const CONFIG: FireStarterConfig = preload("res://src/data/configs/fire_starter_c
 func _make_campfire() -> Array:
 	var campfire := Campfire.new()
 	add_child_autofree(campfire)
+	# Mission 9 (R4): api baru COLD; tes di file ini butuh api menyala dulu.
+	campfire.ignite()
 	var refuel := CampfireRefuel.new()
 	campfire.add_child(refuel)
 	return [campfire, refuel]

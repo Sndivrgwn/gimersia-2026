@@ -6,8 +6,17 @@ extends Resource
 ## Semua angka berasal dari spesifikasi §7.4. Instance `campfire_config.tres`
 ## tidak menimpa apa pun; nilai bawaan script yang dipakai.
 
+@export_group("Awal")
+## Mission 9 (keputusan owner): bangunan hanya menaruh DASAR api unggun. Api
+## menyala lewat minigame gesek batu. True = perilaku lama (langsung menyala).
+@export var start_lit: bool = false
+## Bahan bakar awal (detik) yang disimpan walau api masih COLD.
+@export var initial_fuel_seconds: float = 240.0
+## Radius cahaya sebelum api pernah menyala (0 = tidak ada cahaya sama sekali).
+@export var unlit_light_radius: float = 0.0
+
 @export_group("Fuel")
-## Bahan bakar awal saat Campfire selesai dibangun (detik).
+## Lama, tidak dipakai lagi: digantikan `initial_fuel_seconds` (Mission 9).
 @export var start_fuel: float = 240.0
 ## Bahan bakar maksimum (detik).
 @export var max_fuel: float = 600.0

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="BodyProfile" format=3 uid="uid://dw2tb7gwmr0cy"]
+
+[ext_resource type="Script" uid="uid://bq83wgnbde64f" path="res://src/data/resources/physics/body_profile.gd" id="1_8sxt4"]
+
+[resource]
+script = ExtResource("1_8sxt4")
+id = &"island_deer"
+radius = 10.0
+collision_layer = 2
+collision_mask = 15
+knockback_taken_multiplier = 0.6

@@ -8,15 +8,20 @@ extends CanvasLayer
 ## DayNightVisual CanvasModulate tint cannot darken them.
 
 const MANAGER_PATH := "/root/DayNightManager"
+const DEFAULT_SUN_CONFIG := preload("res://src/data/configs/environment/sun_config.tres")
 const DAY_PHASE_COLOR := Color(1.0, 0.86, 0.5, 1.0)
 const NIGHT_PHASE_COLOR := Color(0.62, 0.76, 1.0, 1.0)
 
+@onready var _clock_label: Label = $Root/Panel/Margin/VBox/ClockLabel
 @onready var _day_label: Label = $Root/Panel/Margin/VBox/DayLabel
 @onready var _phase_label: Label = $Root/Panel/Margin/VBox/PhaseLabel
 @onready var _remaining_label: Label = $Root/Panel/Margin/VBox/RemainingLabel
 @onready var _survival_label: Label = $Root/Panel/Margin/VBox/SurvivalLabel
 ## Mission 7: dimatikan di island karena NightSurvivalHUD menggantikannya.
 @export var show_survival_label: bool = true
+## Mission 13: sumber `sun_arc_enabled` dan sisi terbit arc matahari.
+@export var sun_config: SunConfig = DEFAULT_SUN_CONFIG
+@onready var _sun_arc: SunArc = get_node_or_null("Root/SunArc") as SunArc
 @onready var _phase_progress: ProgressBar = $Root/Panel/Margin/VBox/PhaseProgress
 
 # Untyped: see the note in day_night_visual.gd.
@@ -30,11 +35,14 @@ var _has_state: bool = false
 
 func _ready() -> void:
 	_manager = get_node_or_null(MANAGER_PATH)
+	_configure_sun_arc()
 	if _manager == null:
 		push_warning("TimeHUD: DayNightManager autoload not found.")
-		_day_label.text = "Day -- / --"
+		_clock_label.text = "--:--"
+		_day_label.text = "Hari -- / --"
 		_phase_label.text = "--"
 		_remaining_label.text = "--:--"
+		_remaining_label.visible = false
 		_survival_label.visible = false
 		_phase_progress.value = 0.0
 		return
@@ -49,6 +57,42 @@ func _process(_delta: float) -> void:
 	if not show_survival_label:
 		_survival_label.visible = false
 	_update_progress()
+	_update_sun_arc()
+
+
+## Mission 13: arc hanya membaca fase; tidak pernah menghitung waktu sendiri.
+func _clock_format() -> ClockFormatConfig:
+	if _manager == null:
+		return null
+	if _manager.has_method(&"get_clock_format"):
+		return _manager.get_clock_format() as ClockFormatConfig
+	return null
+
+
+func _update_sun_arc() -> void:
+	if _sun_arc == null or not _sun_arc.visible or _manager == null:
+		return
+	# Mission 12: posisi glyph mengikuti jam dinding (terbit/terbenam di batas fase).
+	if _manager.has_method(&"get_clock_hour"):
+		_sun_arc.set_clock_hour(
+			float(_manager.get_clock_hour()),
+			bool(_manager.is_day()),
+			_clock_format(),
+			float(_manager.get_phase_progress())
+		)
+		return
+	_sun_arc.set_phase(float(_manager.get_phase_progress()), bool(_manager.is_night()))
+
+
+func _configure_sun_arc() -> void:
+	if _sun_arc == null:
+		return
+	if sun_config != null:
+		_sun_arc.visible = sun_config.sun_arc_enabled
+		_sun_arc.set_dawn_side(sun_config.dawn_side)
+	else:
+		_sun_arc.visible = true
+	_sun_arc.set_phase(0.0, false)
 
 
 func _on_time_updated(day: int, _phase: int, remaining_seconds: float) -> void:
@@ -76,15 +120,30 @@ func _refresh(day: int, remaining_seconds: float) -> void:
 	_last_is_night = is_night
 	_has_state = true
 
-	_day_label.text = "Day %d / %d" % [day, _manager.get_max_days()]
-	_phase_label.text = "NIGHT" if is_night else "DAY"
+	# Mission 12: jam dunia nyata sebagai teks utama; periode + hari di sebelahnya.
+	var format: ClockFormatConfig = _clock_format()
+	if _clock_label != null:
+		_clock_label.text = _manager.get_clock_text() if _manager.has_method(&"get_clock_text") else _format_seconds(remaining_seconds)
+	_day_label.text = "Hari %d / %d" % [day, _manager.get_max_days()]
+	var period := ""
+	if _manager.has_method(&"get_clock_period"):
+		period = _manager.get_clock_period()
+	if period.is_empty():
+		period = "NIGHT" if is_night else "DAY"
+	_phase_label.text = period if format == null or format.show_period_label else ""
 	_phase_label.add_theme_color_override("font_color", NIGHT_PHASE_COLOR if is_night else DAY_PHASE_COLOR)
 	_remaining_label.text = _format_seconds(remaining_seconds)
+	var show_remaining := true
+	if format != null:
+		show_remaining = format.show_remaining_at_night if is_night else format.show_remaining_by_day
+	_remaining_label.visible = show_remaining
 
 	# The survival timer is not a separate clock; it mirrors the remaining
-	# night time already tracked by the manager.
-	_survival_label.visible = is_night
-	_survival_label.text = "Survival: %s" % _format_seconds(remaining_seconds)
+	# night time already tracked by the manager. Island mematikannya karena
+	# NightSurvivalHUD sudah menampilkan hal yang sama.
+	_survival_label.visible = is_night and show_survival_label
+	if show_survival_label:
+		_survival_label.text = "Survival: %s" % _format_seconds(remaining_seconds)
 
 
 func _update_progress() -> void:

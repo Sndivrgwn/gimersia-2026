@@ -82,6 +82,8 @@ func test_dazzle_from_lit_campfire() -> void:
 	add_child_autofree(fire)
 	fire.global_position = _fauna.global_position + Vector2(50.0, 0.0)
 	fire.set_fuel(100.0)
+	# Mission 9 (R4): api unggun baru dibangun COLD.
+	fire.ignite()
 	_fauna.tick(0.1)
 	assert_almost_eq(_fauna.get_speed_factor(), 0.7, 0.001)
 	assert_almost_eq(_fauna.get_attack_speed_factor(), 0.75, 0.001)

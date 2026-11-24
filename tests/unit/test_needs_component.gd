@@ -57,6 +57,13 @@ func before_each() -> void:
 	add_child_autofree(stats)
 
 	needs = NeedsComponentScript.new()
+	# Mission 9 (R4): tes di file ini menguji laju drain MENTAH (day_drain /
+	# night_drain). Pengali balance (0.6/0.57/by_day) diuji di
+	# test_needs_balance.gd, jadi di sini pengalinya dinetralkan.
+	needs.config = NeedsConfig.new()
+	needs.config.global_drain_multiplier = 1.0
+	needs.config.hunger_drain_multiplier = 1.0
+	needs.config.thirst_drain_multiplier = 1.0
 	needs.setup(clock, stats, player)
 	add_child_autofree(needs)
 	needs.set_process(false)

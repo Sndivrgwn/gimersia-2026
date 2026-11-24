@@ -8,6 +8,11 @@ var _harness: IslandHarness
 func before_each() -> void:
 	_harness = IslandHarness.new()
 	_harness.setup(self)
+	# Mission 9 (R4): soak adalah simulasi invariant 7 hari, bukan tes kematian.
+	# Sejak layar mati membekukan jam (keputusan owner), kehabisan token respawn
+	# akan menghentikan jam permanen dan rescue tidak pernah tercapai.
+	if _harness.death != null:
+		_harness.death.respawns_remaining = 1000
 
 
 func after_each() -> void:
@@ -49,6 +54,8 @@ func test_7_day_soak() -> void:
 	var tent := camp.get_structure(&"tent") as CampStructure
 	assert_not_null(campfire, "Campfire harus berdiri")
 	assert_not_null(tent, "Tent harus berdiri")
+	# Mission 9 (R4): bangunan baru COLD; harness menyalakan api lewat jalur resmi.
+	campfire.ignite()
 	assert_true(campfire.is_lit(), "Campfire harus menyala")
 
 	var step := 0.5

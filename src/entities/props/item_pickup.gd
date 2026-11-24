@@ -75,3 +75,24 @@ func _apply_config() -> void:
 func _refresh_visual() -> void:
 	if _count_label != null:
 		_count_label.text = "x%d" % count
+	_refresh_icon()
+
+
+## Ikon item dari assets/icons/items/<id>.png bila ada; polygon lama disembunyikan.
+func _refresh_icon() -> void:
+	if item == null:
+		return
+	var texture := Assets.item_icon(item.id)
+	if texture == null:
+		return
+	var sprite := get_node_or_null("Icon") as Sprite2D
+	if sprite == null:
+		sprite = Sprite2D.new()
+		sprite.name = "Icon"
+		sprite.z_index = 1
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		add_child(sprite)
+	sprite.texture = texture
+	var visual := get_node_or_null("Visual") as CanvasItem
+	if visual != null:
+		visual.visible = false

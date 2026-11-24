@@ -3,8 +3,8 @@ extends CanvasLayer
 
 ## Hint lokasi base (read-only). Tersembunyi setelah base ditentukan.
 
-const HINT := "Tekan B untuk menentukan lokasi base"
-const PREVIEW_OFFER := "B: pasang - Esc: batal"
+const HINT := "Tekan B untuk menentukan lokasi camp (termasuk pagar)."
+const PREVIEW_OFFER := "B: pasang camp + pagar - Esc: batal"
 
 @export var anchor: CampAnchor
 @export var placement: BasePlacementController
@@ -29,6 +29,11 @@ func get_text() -> String:
 
 func is_showing() -> bool:
 	return _label != null and _label.visible
+
+
+## Petunjuk base hanyalah teks HUD, bukan panel modal: jangan blokir menu Jeda.
+func blocks_pause() -> bool:
+	return false
 
 
 func refresh() -> void:

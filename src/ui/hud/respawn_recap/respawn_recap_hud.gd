@@ -45,8 +45,8 @@ func format_recap(changes: Array) -> String:
 	var parts: Array[String] = []
 	for entry in changes:
 		var prof := int(entry.get("prof", -1))
-		var name := "Proficiency" if prof < 0 or prof >= PROF_NAMES.size() else PROF_NAMES[prof]
-		parts.append("%s Lv %d -> %d" % [name, int(entry.get("from_level", 0)), int(entry.get("to_level", 0))])
+		var prof_name := "Proficiency" if prof < 0 or prof >= PROF_NAMES.size() else PROF_NAMES[prof]
+		parts.append("%s Lv %d -> %d" % [prof_name, int(entry.get("from_level", 0)), int(entry.get("to_level", 0))])
 	return "Debuff kematian: " + ", ".join(parts)
 
 

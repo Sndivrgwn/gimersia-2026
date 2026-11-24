@@ -1,5 +1,7 @@
 extends Node2D
 
+const ScreenFade := preload("res://src/ui/fx/screen_fade.gd")
+
 ## Root scene pulau minimum.
 ##
 ## Clock tidak diurus di sini: autoload DayNightManager sudah `auto_start`
@@ -22,7 +24,7 @@ extends Node2D
 @onready var _beacon: SignalBeacon = get_node_or_null("Beacon") as SignalBeacon
 
 
-func _wire_hud(player: Node) -> void:
+func _wire_hud() -> void:
 	var spawner := find_child("NightSpawner", true, false)
 	var quota := find_child("FaunaQuota", true, false)
 	var death := find_child("DeathController", true, false)
@@ -44,6 +46,14 @@ func _wire_hud(player: Node) -> void:
 		death.debuff_applied.connect(prof_hud.flash_rows)
 
 
+## Mission 10: toast, angka damage, dan busur arah serangan (semua read-only).
+func _wire_feedback_hud(player: Node) -> void:
+	for node_name in ["ToastHUD", "DamageNumbers", "HitDirection"]:
+		var hud := get_node_or_null(node_name)
+		if hud != null and hud.has_method(&"bind_player"):
+			hud.call(&"bind_player", player)
+
+
 func _wire_chest_panel(player: Node) -> void:
 	var panel := get_node_or_null("ChestPanel") as ChestPanel
 	if panel == null or player == null:
@@ -53,11 +63,45 @@ func _wire_chest_panel(player: Node) -> void:
 	panel.bag_panel = find_child("BagPanel", true, false)
 
 
+## Mission 10: E pada stasiun membuka StationPanel (struktur dibangun belakangan).
+func _wire_station_panel() -> void:
+	var panel := get_node_or_null("StationPanel") as StationPanel
+	if panel == null:
+		return
+	var camp := get_node_or_null("CampController") as CampController
+	if camp == null:
+		return
+	if not camp.structure_built.is_connected(_on_station_structure_built):
+		camp.structure_built.connect(_on_station_structure_built)
+	for structure in camp.get_structures():
+		_connect_station(panel, structure)
+
+
+func _on_station_structure_built(_id: StringName) -> void:
+	var panel := get_node_or_null("StationPanel") as StationPanel
+	var camp := get_node_or_null("CampController") as CampController
+	if panel == null or camp == null:
+		return
+	for structure in camp.get_structures():
+		_connect_station(panel, structure)
+
+
+func _connect_station(panel: StationPanel, structure: Node) -> void:
+	# Hanya stasiun (2 argumen: station, interactor); peti punya sinyal 1 argumen.
+	if structure == null or not structure.has_method(&"request_station_panel"):
+		return
+	if not structure.has_signal(&"interaction_requested"):
+		return
+	var callback := Callable(panel, &"open")
+	if not structure.interaction_requested.is_connected(callback):
+		structure.interaction_requested.connect(callback)
+
+
 func _wire_pause_menu() -> void:
 	var menu := get_node_or_null("PauseMenu") as PauseMenu
 	if menu == null:
 		return
-	var names := ["BaseHUD", "FireStarterHUD", "BagPanel", "ChestPanel", "DeathScreen", "GameOverScreen", "EndgameHUD"]
+	var names := ["BaseHUD", "FireStarterHUD", "BagPanel", "ChestPanel", "StationPanel", "DeathScreen", "GameOverScreen", "EndgameHUD"]
 	var blockers: Array[Node] = []
 	for node_name in names:
 		var node := find_child(node_name, true, false)
@@ -83,10 +127,30 @@ func _ready() -> void:
 	var player := get_node_or_null(player_path)
 	if player != null:
 		player.set("facing_direction", start_facing)
+	_attach_world_visuals()
 	_wire_endgame(player as Node2D)
 	_wire_pause_menu()
+	_wire_station_panel()
 	_wire_chest_panel(player)
-	_wire_hud(player)
+	_wire_hud()
+	_wire_feedback_hud(player)
+	UiSkin.apply_all(self)
+	ScreenFade.fade_in(self)
+
+
+## Satu baris attach per slot world; tanpa art tidak ada yang berubah.
+func _attach_world_visuals() -> void:
+	var ground := get_node_or_null("Ground")
+	if ground != null:
+		VisualSlot.attach(ground, &"ground_forest", [ground.get_node_or_null("Forest")])
+		VisualSlot.attach(ground, &"ground_south_beach", [ground.get_node_or_null("SouthBeach")])
+		VisualSlot.attach(ground, &"ground_east_beach", [ground.get_node_or_null("EastBeach")])
+		VisualSlot.attach(ground, &"ground_west_cliffs", [ground.get_node_or_null("WestCliffs")])
+		VisualSlot.attach(ground, &"ground_river", [ground.get_node_or_null("River")])
+		VisualSlot.attach(ground, &"ground_camp", [ground.get_node_or_null("Camp")])
+	var wreckage := get_node_or_null("Wreckage")
+	if wreckage != null:
+		VisualSlot.attach(wreckage, &"plane_wreckage", [wreckage.get_node_or_null("Visual")])
 
 
 func _wire_endgame(player: Node2D) -> void:

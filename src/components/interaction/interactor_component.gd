@@ -219,8 +219,16 @@ func _find_nearest() -> Interactable:
 		return null
 
 	var origin := _origin()
+	var limit: float = maxf(_config().interaction_range, 0.0)
+	# Utamakan target yang benar-benar bisa dipakai. Blueprint yang sudah
+	# dibangun tetap di grup interactable dan bisa berada tepat di atas
+	# stasiun/peti; tanpa filter ini E memilih "Sudah dibangun" dan panel
+	# tidak pernah terbuka. Target terblokir hanya dipakai sebagai fallback
+	# supaya InteractionHUD tetap bisa menampilkan alasannya.
 	var best: Interactable = null
-	var best_distance: float = maxf(_config().interaction_range, 0.0)
+	var best_distance := limit
+	var blocked: Interactable = null
+	var blocked_distance := limit
 
 	for node in tree.get_nodes_in_group(Interactable.GROUP):
 		var candidate := node as Interactable
@@ -229,10 +237,16 @@ func _find_nearest() -> Interactable:
 		if not candidate.is_inside_tree():
 			continue
 		var distance := origin.distance_to(candidate.global_position)
-		if distance <= best_distance:
-			best_distance = distance
-			best = candidate
-	return best
+		if distance > limit:
+			continue
+		if candidate.can_interact(self):
+			if distance <= best_distance:
+				best_distance = distance
+				best = candidate
+		elif distance <= blocked_distance:
+			blocked_distance = distance
+			blocked = candidate
+	return best if best != null else blocked
 
 
 func _distance_to(target: Interactable) -> float:

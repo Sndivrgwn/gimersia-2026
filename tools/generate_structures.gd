@@ -72,7 +72,19 @@ func _initialize() -> void:
 
 	print("generate_structures: %d struktur disimpan." % saved)
 	_save_fence_config()
+	_save_campfire_config()
 	quit(0 if saved == STRUCTURES.size() else 1)
+
+
+## Mission 9: tuning api unggun (cold-by-default, bahan bakar awal, cahaya).
+func _save_campfire_config() -> void:
+	var config := CampfireConfig.new()
+	var path := "res://src/data/configs/campfire_config.tres"
+	var err := ResourceSaver.save(config, path)
+	if err != OK:
+		push_error("generate_structures: gagal menyimpan %s (err %d)" % [path, err])
+		return
+	print("generate_structures: %s" % path)
 
 
 func _save_fence_config() -> void:

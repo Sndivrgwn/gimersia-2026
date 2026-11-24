@@ -3,6 +3,14 @@ extends FaunaConfig
 
 ## Babi hutan (spesifikasi §7.3).
 
+@export_group("Timing")
+## Lama state BITE ditahan supaya animasi gigit terlihat (detik nyata).
+@export var bite_hold_time: float = 0.22
+## Lama state RECOVER setelah dash menabrak (detik nyata).
+@export var dash_recover_time: float = 0.3
+## Jarak dorongan dash ke pemain (piksel; durasi ada di CombatConfig).
+@export var dash_knockback_distance: float = 60.0
+
 @export_group("Gigit")
 @export var bite_damage: float = 12.0
 @export var bite_range: float = 50.0
@@ -18,6 +26,12 @@ extends FaunaConfig
 @export var dash_player_damage: float = 20.0
 @export var dash_structure_damage: float = 40.0
 @export var dash_hit_radius: float = 40.0
+
+## Mission 9: babi memblokir pemain dan tahan sebagian knockback.
+func _init() -> void:
+	blocks_player = true
+	knockback_resistance = 0.35
+
 
 @export_group("Persepsi")
 @export var detect_radius: float = 300.0

@@ -105,7 +105,10 @@ func test_s2_survival_loop() -> void:
 	# 5. Cook meat at the lit Campfire and eat it (needs rise)
 	var campfire := camp.get_structure(&"campfire") as Campfire
 	assert_not_null(campfire, "Campfire instance harus valid")
-	assert_true(campfire.is_lit(), "Campfire yang baru dibangun harus dalam keadaan menyala")
+	# Mission 9 (R4): bangunan baru dingin; dinyalakan lewat jalur resmi.
+	assert_false(campfire.is_lit(), "Campfire yang baru dibangun harus COLD")
+	campfire.ignite()
+	assert_true(campfire.is_lit(), "Campfire menyala setelah digesek")
 
 	# Move player close to Campfire (0, 0)
 	player.global_position = Vector2(0, 0)

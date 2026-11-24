@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="HeldItemConfig" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/items/held_item_config.gd" id="1_uvdag"]
+
+[resource]
+script = ExtResource("1_uvdag")

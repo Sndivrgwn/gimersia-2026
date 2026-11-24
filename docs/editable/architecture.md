@@ -126,9 +126,9 @@ Empty placeholder folders such as `src/entities/enemies`, `src/entities/props`, 
 | **FaunaBase / WildBoar / IslandDeer** | `src/entities/fauna/`, `src/data/resources/fauna/`, `src/data/configs/fauna/*.tres` | Fauna bodies, temperament, AI states, night scaling, Dazzled, loot | `FaunaBase`: `tick(delta)`, `provoke()`, `can_be_auto_targeted()`, `get_speed_factor()`, `get_attack_speed_factor()`, `apply_night_scaling()`, `reset_night_scaling()`, `begin_flee()`, `drop_loot()`, `flash_hit()`, `despawn()`; group `fauna`, layer 0 / mask 1. `WildBoar`: states WANDER/CHASE/BITE/DASH_TELEGRAPH/DASH/RECOVER/FLEE, `raid_camp`, `dash_ended(hit)`. `IslandDeer`: WANDER/FLEE | Implemented; 15 tests |
 | **SettingsService / PauseMenu / SettingsPanel / HelpPanel / HintManager** | `src/core/managers/settings_service.gd`, `src/ui/menus/`, `src/ui/hud/hints/`, `src/data/resources/hints/` | Settings persistence, guarded pause with clock-scale restore, help, once-per-run hints | `SettingsService`: `get_value/set_value`, `changed`, `save_settings/load_settings`; `PauseMenu`: `can_open/open/close/toggle`, `get_previous_time_scale`; `HintManager`: `trigger(id)`, `tick`, `reset`, `is_showing` | Implemented; 10 tests |
 | **ChestPanel** | `src/ui/panels/chest/chest_panel.gd` | Chest UI over `ChestComponent` (24 slots) with 12-slot bag mirror; no pause | `setup()`, `open_for()`, `close()`, `is_open()`, `take_all()`, `refresh()`, `closed` | Implemented; 5 tests |
-| **ChopFeedback / small_tree** | `src/entities/props/resource_node/chop_feedback.gd`, `src/data/gathering/small_tree.tres` | Chop feedback child for tree definitions; hand-choppable small tree | `tick(delta)`, `is_chopping()`, `is_fallen()`, `get_stump()`, `feedback_event(kind, position)`; `ResourceNodeDefinition.speed_tool/speed_factor/chop_feedback_enabled` | Implemented; 11 tests |
+| **ChopFeedback / small_tree** | `src/entities/props/resource_node/chop_feedback.gd`, `src/data/gathering/small_tree.tres` | Chop feedback child for tree definitions; hand-choppable small tree | `tick(delta)`, `is_chopping()`, `is_fallen()`, `get_stump()`, `feedback_event(kind, position)`; `ResourceNodeDefinition.speed_tool/speed_factor/chop_feedback_enabled` | Implemented; 16 tests. Shake guard: progress > 0, no release pending, and `InteractorComponent.get_target() == _target` (a `null` target no longer counts as this tree) |
 | **RespawnRecapHUD / ProficiencyHUD / NightBanner / NightSurvivalHUD** | `src/ui/hud/respawn_recap/`, `src/ui/hud/proficiency/`, `src/ui/hud/night/` | Read-only death recap, row flash, night/dawn banner, night survival panel | `show_recap()`, `flash_rows()`, `show_night/show_dawn`, `get_text()`, `is_showing()`; `TimeHUD.show_survival_label` | Implemented; 4 tests |
-| **CampAnchor / BaseSiteRules / BasePlacementController** | `src/core/managers/camp_anchor.gd`, `src/utils/base_site_rules.gd`, `src/components/base/base_placement_controller.gd`, `src/ui/hud/base/` | Founded-base centre/radius and placement validation; consumers fall back to `Vector2.ZERO` / 180 px | `founded`, `get_center()`, `get_ring_radius()`, static `find_anchor/camp_center/ring_radius`; `placement_changed`, `base_founded` | Implemented; 13 tests |
+| **CampAnchor / BaseSiteRules / BasePlacementController** | `src/core/managers/camp_anchor.gd`, `src/utils/base_site_rules.gd`, `src/components/base/base_placement_controller.gd`, `src/ui/hud/base/` | Founded-base centre/radius and placement validation; consumers fall back to `Vector2.ZERO` / 180 px | `founded`, `get_center()`, `get_ring_radius()`, static `find_anchor/camp_center/ring_radius`; `placement_changed`, `base_founded`; `base_rotate` (Q) memutar ring 15° dan pusat di-snap grid 16 px | Implemented; 13 + 5 tests (ring rotation) |
 | **FenceRing / FenceSegment / FenceGeometry** | `src/levels/camp/fence_ring.gd`, `fence_geometry.gd`, `src/entities/camp/fence/` | Ring of fence segments on their own physics layer; blocking, chewing, breakthrough | `get_segments()`, `rebuild(center, radius)`; `FenceSegment`: `get_endpoints()`, `get_current_hp()`, `take_damage()`, `repair()`; `FenceGeometry.segments_cross()`, `first_blocking_segment()` (untyped return to avoid a cyclic class dependency) | Implemented; 9 tests |
 | **FireStarterController / FireStarterHUD** | `src/components/crafting/fire_starter_controller.gd`, `src/ui/hud/crafting/` | Ignition QTE for a COLD campfire | `start(campfire: Node)`, `tick(delta)`, `cancel(reason)`, `is_active()`; campfire side: `ignite()`, `needs_ignition()`, `can_ignite()`, `get_ignite_block_reason()`, `request_ignition()` | Implemented; 7 tests |
 | **CombatFeedback / JuiceConfig** | `src/components/combat/combat_feedback.gd`, `src/data/configs/juice_config.tres` | Pure feedback: hit-stop, shake, flash/squash, particles, events, corpse visual, input buffer | `notify_hit(target, damage, heavy)`, `tick(delta)`, `get_shake_offset()`, `is_hit_stopped()`, `get_squash_scale()`, `feedback_event(kind, position)`; values live in `JuiceConfig` | Implemented; 10 tests |
@@ -136,7 +136,28 @@ Empty placeholder folders such as `src/entities/enemies`, `src/entities/props`, 
 
 ---
 
+| **ClockFormatConfig / GameClockFormat** | `src/data/resources/environment/clock_format_config.gd`, `src/core/clock/game_clock_format.gd`, `src/data/configs/environment/clock_format.tres` | Presentasi jam dunia nyata (Mission 12) tanpa mengubah siklus waktu | `hour_of()`, `text()`, `period_of()`, `hours_between()`, `seconds_until_hour()`, `next_period_start_hour()`, `sleep_toast_text()` (semua statis); `DayNightManager.get_clock_hour()/get_clock_text()/get_clock_period()`, sinyal `hour_changed(hour)` | Implemented; `test_game_clock_format.gd` |
+| **DailyGoal / DailyGoalConfig / DailyGoalHUD** | `src/data/resources/goals/`, `src/data/configs/daily_goals.tres`, `src/ui/hud/goals/` | Fase 1A: satu baris tujuan harian dari data, dievaluasi dari state hidup | `DailyGoal.is_met(inventory, camp, anchor)`, `DailyGoalConfig.get_goals_for_day(day)`, `DailyGoalHUD.get_text()/refresh()` | Implemented; `test_daily_goals_and_light.gd` |
+| **DailyRunStats / DawnRecapHUD / DawnRecapConfig** | `src/core/managers/daily_run_stats.gd`, `src/ui/hud/recap/`, `src/data/configs/dawn_recap_config.tres` | Fase 1B: hitungan harian (resource, kill, kerusakan base) + panel rekap fajar non-blocking | `day_summary(dictionary)`, `record_*`, `finish_day()`, `build_summary()`, `get_totals()`; `DawnRecapHUD.show_summary()/close()/is_open()`, `format_summary()` statis | Implemented; `test_daily_goals_and_light.gd` |
+| **PlayerLight / PlayerLightConfig** | `src/components/visual/player_light.gd`, `src/data/configs/player_light_config.tres` | Fase 1C: PointLight2D pemain 110 px / 190 px dengan Obor, energi ikut `DayNightVisual.get_world_darkness()` | `get_radius()`, `get_energy(darkness)`, `is_torch_active()`, `get_world_darkness()`, `get_light_node()` | Implemented; `test_daily_goals_and_light.gd` |
+| **StationPanel** | `src/ui/panels/station/station_panel.gd/.tscn` | Panel Meja Kerja/Api Unggun: craft lewat `CraftingComponent`, kunci gerak tanpa pause | `open(station, interactor)`, `close()`, `is_open()`, `tick(delta)`, `get_rows()`, `get_title_text()`, `get_status_text()` | Implemented; `test_station_panel_craft.gd` |
+| **HotbarSelectionComponent** | `src/components/inventory/hotbar_selection_component.gd` | Pilihan slot hotbar + pemakaian item | `select(index)`, `get_selected()`, `use_held()`; menghormati `InventoryConfig.hotbar_select_mode` | Implemented; `test_mission10_held_items.gd` |
+| **HeldItemVisual** | `src/components/visual/held_item_visual.gd` | Visual item di tangan (kosmetik) | `resolve_item()`, `get_shape_points()`, `notify_swing()`, `is_holding()` | Implemented; `test_mission10_held_items.gd` |
+| **UiBackStack** | `src/ui/ui_back_stack.gd` | Urutan tutup panel untuk Esc | `register(context)`, `unregister(context)`, `close_top(context)` (statis) | Implemented; `test_pause_menu.gd` |
+| **PhysicsTraceRecorder** | `src/core/debug/physics_trace_recorder.gd` | Rekaman jejak fisika 6 dtk untuk diagnosa seret (Mission 11) | `start_recording()`, `stop_recording() -> String`, `is_recording()`, `get_rows()`, static `build_csv(rows)` | Implemented; `test_physics_trace_recorder.gd` |
+| **Assets / ResolvedVisual (SpriteFrames)** | `src/core/assets/assets.gd`, `resolved_visual.gd`, `src/components/visual/visual_slot.gd` | Aset berbasis `SpriteFrames` `.tres` di atas PNG (Mission 12) | `spriteframes_path()`, `sprite_frames_at()`, `pick_animation()`, `audit_sprite_frames()`, `animation_name()`; `ResolvedVisual.animation`, `from_spriteframes`, `is_sprite_frames()` | Implemented; `test_assets_spriteframes.gd` |
+| **SunSweep / SunSweepOverlay / SunConfig / SunArc** | `src/core/environment/sun_sweep.gd`, `src/levels/components/environment/sun_sweep_overlay.gd`, `src/data/resources/environment/sun_config.gd`, `src/ui/hud/time/sun_arc.gd` | Sapuan fajar/senja + arc matahari HUD (Mission 13) | `SunSweep.mask()`, `rim()`, `ratio()`, `plan()`; `SunSweepOverlay.apply(progress, side, softness, warm, ratio)`, `clear()`; `SunConfig.dusk_side()`, `side_for()`, `sweep_seconds_for()`; `SunArc.arc_position()`, `set_phase()` | Implemented; `test_sun_sweep.gd` |
+
 ## 4. Dependency Direction
+
+New in Missions 11-13: `FaunaBase` hanya membaca `InteractorComponent`/pemain lewat grup
+(tidak ada import pemain); `PhysicsTraceRecorder` adalah leaf yang membaca
+`PhysicsServer`/node fauna tanpa menulis state apa pun. `Assets` tetap leaf;
+`ResolvedVisual` membawa `SpriteFrames` ke `VisualSlot` tanpa menyalin resource.
+`SunSweep` hanya bergantung pada `SunConfig` + `DayLightCurve` (fungsi murni),
+`DayNightVisual` memanggilnya dan meneruskan hasil ke `SunSweepOverlay` lewat
+duck typing (`call("apply")`), dan `SunArc` hanya membaca fase dari
+`DayNightManager` lewat `TimeHUD`. Tidak ada `CanvasModulate` kedua.
 
 New in Mission 7: `SettingsService` is a leaf node read by `CombatFeedback`
 (via group lookup, no hard dependency); `HintManager` only consumes existing
@@ -462,3 +483,183 @@ Additional project rules:
 | [`docs/editable/MVP_CHECKLIST.md`](MVP_CHECKLIST.md) | Actionable MVP checklist and current status |
 | [`docs/editable/PANDUAN_MODUL.md`](PANDUAN_MODUL.md) | How to use every implemented module |
 | `docs/editable/architecture.md` (this file) | Structure, ownership, dependency rules, and technical debt |
+
+## Mission 8 — Sistem aset, UI skin, status effects
+
+| Module | Files | Responsibility | Public contract | State |
+| --- | --- | --- | --- | --- |
+| **Assets** | `src/core/assets/assets.gd` | Satu-satunya jembatan file seni -> gameplay; cache, fallback chain, coverage | `resolve()`, `has_art()`, `item_icon()`, `ui_texture()`, `font()`, `coverage()`, `reload_assets()` (bukan `reload` — bentrok dengan `GDScript.reload`) | Implemented; static, bukan autoload |
+| **AssetRegistry / AssetSlotDefinition / AssetConfig** | `src/data/resources/assets/`, `src/data/assets/asset_registry.tres`, `src/data/configs/asset_config.tres` | Tabel slot + flag pixel-art/mirror/fps | `get_slot()`, `keys()`, slot fields | Implemented (registry digenerate) |
+| **VisualSlot** | `src/components/visual/visual_slot.gd` | Node art per entity; menyembunyikan placeholder saat art ada; meniru transform placeholder | `attach()`, `set_state()`, `play()`, `refresh()`, `animation_finished` | Implemented |
+| **Visual drivers** | `src/components/visual/*_visual.gd`, `visual_state_map.gd` | State gameplay -> nama animasi (murni + tipis) | `step()`, `VisualStateMap.*` | Implemented |
+| **UiSkin** | `src/ui/ui_skin.gd` | Theme dari art (font, 9-slice, bar, latar layar) | `theme()`, `apply()`, `apply_all()`, `add_background()` | Implemented; tanpa art = null |
+| **StatusEffectsComponent** | `src/components/status/status_effects_component.gd` | Efek berdurasi (regen HP) memakai waktu game | `apply()`, `tick()`, `get_effects()`, signal started/ended | Implemented |
+| **StatusEffectHUD** | `src/ui/hud/status/status_effect_hud.gd` | Daftar efek aktif (read-only) | `refresh()`, `get_text()` | Implemented |
+
+### Aturan dependensi (Mission 8)
+
+- Visual adalah **leaf**: entity tahu `VisualSlot`, gameplay tidak pernah membaca
+  node visual. Menghapus art tidak mengubah angka, hitbox, atau urutan tick.
+- `Assets` tidak bergantung pada scene/UI; `UiSkin` boleh bergantung pada `Assets`.
+- `StatusEffectsComponent` bergantung pada `InventoryComponent.item_used` dan
+  `StatsComponent.heal()`; tidak sebaliknya.
+
+### Test layout
+
+- `tests/unit/` — logika murni/komponen, tanpa scene berat; aset memakai gambar
+  sementara di `user://test_assets` (tidak ada biner di repo).
+- `tests/integration/` — boot `island.tscn`/harness (death, endgame, soak).
+- `tests/unit/test_docs_in_sync.gd` — docs-sync: panduan = hasil generator,
+  semua slot/.tres/generator/action terdokumentasi.
+
+### Known gaps (Mission 8)
+
+- `fx_slash` dan `fx_dust` belum punya node efek; slot disiapkan.
+- `ui_vignette_low_hp` dan `world_water` belum dipasang di scene.
+- `StatusEffectHUD` masih teks saja.
+
+## Mission 9 — Polish pass
+
+| Module | Files | Responsibility | Public contract | State |
+| --- | --- | --- | --- | --- |
+| **ScreenFade** | `src/ui/fx/screen_fade.gd` | Transisi layar (fade out/in, flash) | `is_visual_disabled()`, `fade_out_then(tree, callable)`, `fade_in(root)`, `flash(root, color, hold)` | Implemented; di-preload, bukan `class_name` |
+| **UiMotion** | `src/ui/fx/ui_motion.gd` | Animasi UI kecil | `tween_bar()`, `pop_in()`, `pop()`, `is_instant()` | Implemented; no-op di headless |
+| **LowHpVignette** | `src/ui/fx/low_hp_vignette.gd` | Feedback HP rendah | `get_strength()`, `get_overlay()` | Implemented |
+| **AmbientLife** | `src/levels/components/environment/ambient_life.gd` | Partikel suasana siang/malam | `is_night_mode()` | Implemented |
+| **CameraFeel** | `src/components/camera/camera_feel.gd` | Look-ahead + zoom siang/malam | `get_offset()`, `find_pcam()` | Implemented |
+| **DeathFX / VictoryFX** | `src/ui/fx/death_fx.gd`, `victory_fx.gd` | Urutan kematian dan kemenangan | — (mendengar sinyal) | Implemented |
+| **OpeningSequence** | `src/ui/hud/hints/opening_sequence.gd` | 3 prompt pembuka lewat saluran HintManager | `is_running()`, `reset_played()` | Implemented; satu kanal + antrean prioritas `HintManager.show_text(priority: true)` |
+| **CampArrow** | `src/ui/hud/compass/camp_arrow.gd` | Penunjuk arah camp (anchor viewport) | `get_text()`, `get_label()`, `find_anchor()` | Implemented |
+
+### Aturan dependensi (Mission 9)
+
+- Semua node polish adalah **leaf pasif**: hanya membaca komponen gameplay dan
+  menulis properti presentasi (kamera, modulate, particle, label).
+- Tidak ada state gameplay yang disimpan di komponen polish, jadi menghapus
+  node-nya tidak mengubah simulasi.
+- Efek visual memakai `DisplayServer.get_name() == "headless"` sebagai saklar
+  no-op, sehingga GUT tetap deterministik (tanpa tween/timing tersembunyi).
+- Fade memakai callback `Tween.finished`, bukan `await`, supaya method
+  `RunController._change_scene()` tetap sinkron dan dapat ditimpa tes.
+- `SettingsService` tetap satu-satunya pemilik preferensi; kunci baru:
+  `fullscreen` (diterapkan lewat `DisplayServer`, bukan `project.godot`).
+
+### Penyederhanaan setelah review
+
+- `ScreenFade` memakai satu helper `_spawn()` untuk fade in/out/flash (tidak ada
+  tiga blok pembuatan layer yang sama).
+- `CameraFeel` hanya punya satu jalur zoom (`_apply_zoom`) dan field `_pcam`
+  dicari sekali; tidak ada `_zoom` ganda.
+- `DeathFX`/`VictoryFX` menemukan controller sebagai sibling (`get_parent()`),
+  bukan lewat grup; `DeathFX` mematikan `_process` saat tidak sekarat.
+- Prompt pembuka tidak lagi punya label/timer sendiri: seluruh tampilan dan
+  durasi milik `HintManager`.
+
+## Mission 10 — Feedback channel
+
+| Module | Files | Responsibility | Public contract | State |
+| --- | --- | --- | --- | --- |
+| **ToastHUD** | `src/ui/hud/toast/toast_hud.gd` | Satu saluran pesan kegagalan | `show_toast(text)`, `get_visible_texts()`, `bind_player(player)`, `tick(delta)` | Implemented; maks 3 baris, dedupe 0.4 s |
+| **DamageNumbers** | `src/ui/hud/fx/damage_numbers.gd` | Angka damage melayang | `show_damage(world, amount, color)`, `get_active_count()`, `get_last_text()`, `bind_player()`, `tick()` | Implemented; pool maks 20 label |
+| **HitDirection** | `src/ui/hud/fx/hit_direction.gd` | Busur arah sumber serangan | `show_direction(angle)`, `show_from(player, source)`, `is_active()`, `get_angle()`, `bind_player()`, `tick()` | Implemented |
+| **InventoryComponent (sinyal baru)** | `src/components/inventory/inventory_component.gd` | Kabar item tidak muat | `signal add_blocked(item, remaining)` | Additive; dipancarkan hanya bila ada sisa |
+
+Aturan:
+
+- Semua node feedback hanya **membaca** sinyal gameplay; menghapusnya tidak
+  mengubah simulasi.
+- `ToastHUD` menyambung campfire dinamis lewat `SceneTree.node_added` karena
+  struktur camp lahir saat runtime.
+- World → screen untuk angka damage memakai
+  `get_viewport().get_canvas_transform()`, bukan offset tetap, sehingga aman
+  terhadap zoom kamera.
+
+## Mission 9 — Balance & Feel, pass 2 (fase 1-3)
+
+| Modul | File | Peran | Kontrak | Catatan |
+| --- | --- | --- | --- | --- |
+| **RaidDirector** | `src/core/managers/raid_director.gd` | Penjadwal raid malam | `tick(delta)`, `trigger_raid_now()`, `is_raid_active()`, sinyal `raid_warning`/`raid_started`/`raid_ended` | Grup `raid_director`; clock/RNG/fauna/spawner bisa di-inject; tanpa autoload |
+| **RaidConfig** | `src/data/resources/fauna/raid_config.gd` | Angka raid + cap | `mode`, `raids_per_night`, `warning_seconds`, `night_active_hostile_cap`, `day_boar_cap`, `day_deer_cap`, `global_pressure_multiplier` | `.tres` digenerate `tools/generate_combat_data.gd` |
+| **FreezeController** | `src/core/managers/freeze_controller.gd` | Beku berbasis alasan | `request(reason)`, `release(reason)`, `is_frozen()`, `get_reasons()` | Grup `game_freeze`; skala waktu dipulihkan persis |
+| **HealthRegenComponent** | `src/components/needs/health_regen_component.gd` | Regen HP lambat | `tick(delta)`, `get_multiplier()` | Anak `Player`; sampel kurva min(Hunger, Thirst) |
+| **RunConfig** | `src/data/resources/run/run_config.gd` | Angka perlindungan respawn | `respawn_protection_seconds`, `protection_ignored_by_enemies`, `protection_ends_on_attack` | `.tres` digenerate `tools/generate_balance_data.gd` |
+| **PlayerDamageReceiver (proteksi)** | `src/components/combat/player_damage_receiver.gd` | Kebal pasca-respawn | `start_protection()`, `stop_protection()`, `is_protected()`, sinyal `protection_started`/`protection_ended` | `receive_hit()` mengembalikan `false` saat terlindungi |
+| **RaidWarningHUD / ProtectionHUD** | `src/ui/hud/night/`, `src/ui/hud/protection/` | Teks status | `show_warning(seconds)`, `set_protection(seconds)` | Read-only, no-op di headless |
+| **SneakConfig / WadingConfig** | `src/data/resources/movement/` | Angka mode gerak fase 4 | `speed_multiplier`, `detection_multiplier` / `blocks_sprint` | `.tres` digenerate `tools/generate_balance_data.gd` |
+| **WadingComponent** | `src/components/movement/wading_component.gd` | Deteksi zona sungai | `tick()`, `is_in_water()` | Anak `Player`; hanya memanggil `set_wading()` |
+| **MotionTell** | `src/components/movement/motion_tell.gd` | Tell visual mode gerak | `tick()`, `get_text()`, `is_showing()` | Label runtime, read-only; `AlertMark` "!" di rusa memakai pola sama |
+
+Aturan:
+
+- Raid tidak pernah memanggil spawner di luar `NightSpawner`; cap dibaca dari
+  `RaidConfig` dan hanya menahan spawn baru.
+- Massa fauna dipilih lewat `FaunaConfig.blocks_player`, bukan tipe kelas, supaya
+  rusa dan babi berbagi satu jalur fisika.
+- `needs_config.tres` menyimpan multiplier balans; `NeedsComponent` tidak
+  menyimpan angka sendiri.
+
+## Mission 10 — Physics matrix, deer states, audio data
+
+| Module | Files | Responsibility | Public contract | State |
+| --- | --- | --- | --- | --- |
+| **BodyProfile / BodyProfileApplier** | `src/data/resources/physics/body_profile.gd`, `body_profile_applier.gd`; `.tres` in `src/data/configs/physics/` | Profil massa/kolisi per badan (LIGHT/MEDIUM/HEAVY) dan satu titik pasang | `mass_class`, `radius`, `collision_layer/mask`, `blocks_player`, `pushable_by_others`, `knockback_taken_multiplier`, `contact_stop_extra`, `separation_speed`, `max_overlap_px`; `apply(body, profile, apply_layers := false)`, `profile_of()`, `knockback_multiplier()` | Implemented; 4 + 8 tests |
+| **BodySeparation** | `src/components/fauna/body_separation.gd` | Melepas badan yang bertumpuk lebih dari `max_overlap_px` tanpa menembus dinding/pagar/sungai dan tanpa mendorong ke arah pemain | `apply(body, delta, player := null) -> Vector2`, `radius_of(body)` | Implemented; 5 tests |
+| **SpawnClearance** | `src/utils/spawn_clearance.gd` | Aturan spawn 60 px dari pemain dan badan fauna lain | `is_clear(tree, point, min_px := 60.0, ignore := null)` | Implemented; dipakai FaunaQuota + NightSpawner |
+| **IslandDeer (state)** | `src/entities/fauna/island_deer/island_deer.gd`, `src/data/resources/fauna/deer_config.gd` | WANDER -> ALERT -> STARTLE -> FLEE, hit-stun dan ramp kecepatan | `get_state()`, `is_alerted()`, `is_startling()`, `get_startle_remaining()`, `get_hit_stun_remaining()`, `get_current_flee_speed()`, sinyal `alerted`; `startle_seconds`, `flee_accel_seconds`, `sneak_notice_floor_px`, `hit_stun` | Implemented; 4 + 11 tests |
+| **AudioCueDefinition / AudioRegistry** | `src/data/resources/audio/`, `src/data/audio/audio_registry.tres` | Data cue audio (kategori, trigger, hook, bus, prioritas, pola file) | `key`, `category_key()`, `bus_name()`, `has_hook()`, `expected_pattern()`, `is_valid()`; registry: `get_cue()`, `keys()`, `cues_in_category()`, `cues_with_priority()`, `missing_hook_cues()` | Implemented; 103 cue; **tanpa playback** |
+| **AudioGuideGenerator** | `src/core/docs/audio_guide_generator.gd`, `tools/generate_guides.gd` | Menulis `docs/editable/AUDIO_GUIDE.md` dari registry | `build_audio_guide()` | Implemented; dijaga `test_audio_guide_sync.gd` |
+
+### Physics layers (Mission 10)
+
+| Konstanta | Nilai | Dipakai |
+| --- | --- | --- |
+| `PhysicsLayers.WORLD` | 1 | Dinding pantai, badan dunia |
+| `PhysicsLayers.FAUNA_BODY` | 2 | Badan fauna yang memblokir pemain |
+| `PhysicsLayers.PLAYER_BODY` | 4 | Badan pemain |
+| `PhysicsLayers.FENCE_LAYER` | 8 | Pagar (hanya fauna yang bertabrakan) |
+
+### Body profiles
+
+| Profil | Massa | Radius | Layer | Mask | Knockback diterima |
+| --- | --- | --- | --- | --- | --- |
+| `body_player.tres` | LIGHT | 12 | 5 (WORLD\|PLAYER_BODY) | 3 (WORLD\|FAUNA_BODY) | 1.0 |
+| `body_wild_boar.tres` | HEAVY | 12 | 2 (FAUNA_BODY) | 15 (WORLD\|FAUNA\|PLAYER\|FENCE) | 0.35 |
+| `body_island_deer.tres` | MEDIUM | 10 | 2 (FAUNA_BODY) | 15 (WORLD\|FAUNA\|PLAYER\|FENCE) | 0.6 |
+
+Matriks kolisi: pemain <-> babi padat, pemain <-> rusa padat, babi <-> rusa padat,
+sesama spesies padat; tidak ada body yang mendorong body lain lewat kontak
+(semua `pushable_by_others = false`). Pagar memblokir fauna saja. Struktur
+non-pagar, node resource, pickup, dan loot bag tetap non-solid.
+
+### Dependency direction (Mission 10)
+
+- `BodyProfileApplier` hanya bergantung pada `BodyProfile`; `Player` dan
+  `FaunaBase` memanggilnya satu kali di `_ready` (additive, tanpa API baru).
+- `BodySeparation` membaca profil + `IslandZones` + ray fisika; tidak pernah
+  memanggil AI fauna atau mengubah `global_position` lewat jalur lain.
+- `FaunaQuota`/`NightSpawner` bergantung pada `SpawnClearance` untuk aturan
+  60 px; fallback "paling jauh" tidak boleh memakai penanda di dalam ring base.
+- Registri audio adalah **daun data**: tidak ada autoload, tidak ada playback,
+  dan tidak ada komponen gameplay yang membacanya. Generator panduan hanya
+  membaca registry.
+
+## Perbaikan gameplay & atmosfer (Mission 10 lanjutan)
+
+- **UI stasiun dan gerak pemain.** `StationPanel` memiliki lock input lewat
+  `Player.set_input_locked()`; tidak ada pause global. `CraftingComponent` membaca
+  lock itu sebelum membatalkan craft karena gerak. Batas tanggung jawab tetap:
+  panel = UI, komponen = aturan craft, Player = gerak.
+- **Sinyal peti vs stasiun.** `ChestPanel` sekarang memfilter `node is Chest`
+  sebelum menyambung `interaction_requested(interactor)`. `island.gd` memfilter
+  struktur dengan `request_station_panel()` untuk `StationPanel.open(station,
+  interactor)`. Dua kontrak sinyal yang berbeda tidak lagi tercampur.
+- **Air sungai.** `RiverDrinkZone` (komponen Interactable anak Player) menjadi
+  jalur minum di seluruh zona sungai; `RiverEdge` tetap ada untuk tepi di luar
+  zona dan menyediakan `apply_drink()` sebagai satu-satunya implementasi efek.
+- **Waktu visual.** `DayNightVisual` membaca sisa detik fase dari
+  `DayNightManager` setiap frame (tanpa tween), dengan kurva murni di
+  `DayLightCurve`. `SunOverlay` memakai arah matahari dari kurva yang sama.
+  `Campfire` memakai `get_world_darkness()` untuk energi cahayanya.
+- **Tes.** Empat berkas baru: `test_station_panel_craft.gd`,
+  `test_river_drink_zone.gd`, `test_day_light_curve.gd`,
+  `test_environment_light.gd`.

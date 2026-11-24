@@ -33,6 +33,8 @@ enum Tier { NORMAL, LOW, ZERO }
 
 const NEED_COUNT := 3
 const SOURCE_IDS: Array[StringName] = [&"lapar", &"haus", &"lelah"]
+## Mission 9: blokir sprint saat Hunger rendah (source_id tetap).
+const HUNGER_SPRINT_BLOCK := &"hunger"
 const DEFAULT_CONFIG: NeedsConfig = preload("res://src/data/configs/needs_config.tres")
 const MANAGER_PATH := "/root/DayNightManager"
 
@@ -192,8 +194,11 @@ func tick(delta: float) -> void:
 	var game_delta := delta * _time_scale()
 	if game_delta > 0.0:
 		var night := _is_night()
+		var day := _day()
 		var hunger_rate := config.hunger_night_drain if night else config.hunger_day_drain
 		var thirst_rate := config.thirst_night_drain if night else config.thirst_day_drain
+		hunger_rate *= config.hunger_drain_scale(day)
+		thirst_rate *= config.thirst_drain_scale(day)
 		_apply_value(Need.HUNGER, _values[Need.HUNGER] - hunger_rate * game_delta)
 		_apply_value(Need.THIRST, _values[Need.THIRST] - thirst_rate * game_delta)
 		_apply_zero_tier_hp_loss(game_delta)
@@ -311,6 +316,8 @@ func _apply_value(need: int, value: float) -> void:
 		value_changed.emit(need, clamped)
 		if need == Need.FATIGUE:
 			_refresh_sprint_lock()
+		elif need == Need.HUNGER:
+			_refresh_hunger_sprint_lock()
 	_update_tier(need)
 
 
@@ -393,8 +400,11 @@ func _on_time_skipped(seconds: float) -> void:
 	_set_fatigue_cap(_fatigue_cap + config.sleep_fatigue_cap_restore)
 	_apply_value(Need.FATIGUE, _fatigue_cap)
 	var night := _is_night()
+	var day := _day()
 	var hunger_rate := config.hunger_night_drain if night else config.hunger_day_drain
 	var thirst_rate := config.thirst_night_drain if night else config.thirst_day_drain
+	hunger_rate *= config.hunger_drain_scale(day)
+	thirst_rate *= config.thirst_drain_scale(day)
 	_apply_sleep_drain(Need.HUNGER, hunger_rate * seconds)
 	_apply_sleep_drain(Need.THIRST, thirst_rate * seconds)
 
@@ -420,6 +430,23 @@ func _refresh_sprint_lock() -> void:
 	player.can_sprint = _values[Need.FATIGUE] > config.low_threshold
 
 
+## Mission 9: Hunger <= threshold memblokir sprint lewat Player.add_sprint_block().
+func _refresh_hunger_sprint_lock() -> void:
+	if player == null or _values.is_empty():
+		return
+	if not player.has_method(&"add_sprint_block"):
+		return
+	if _values[Need.HUNGER] <= config.hunger_sprint_lock_threshold:
+		player.add_sprint_block(HUNGER_SPRINT_BLOCK)
+	else:
+		player.remove_sprint_block(HUNGER_SPRINT_BLOCK)
+
+
+func is_hunger_sprint_locked() -> bool:
+	_ensure_state()
+	return _values[Need.HUNGER] <= config.hunger_sprint_lock_threshold
+
+
 ## Player tidak punya sinyal gerak, jadi velocity dibaca langsung bila tersedia.
 ## Stub/entity tanpa velocity dianggap diam.
 func _is_moving() -> bool:
@@ -442,3 +469,22 @@ func _is_night() -> bool:
 	if clock == null or not clock.has_method("is_night"):
 		return false
 	return clock.is_night()
+
+
+func _day() -> int:
+	if clock == null or not clock.has_method("get_current_day"):
+		return 1
+	return int(clock.get_current_day())
+
+
+## Hook untuk HealthRegenComponent: multiplier min dari kurva Hunger/Thirst.
+func get_hunger_value() -> float:
+	return get_value(Need.HUNGER)
+
+
+func get_thirst_value() -> float:
+	return get_value(Need.THIRST)
+
+
+func is_zero_tier(need: int) -> bool:
+	return get_tier(need) == Tier.ZERO

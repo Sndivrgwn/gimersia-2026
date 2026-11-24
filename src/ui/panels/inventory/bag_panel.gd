@@ -1,6 +1,9 @@
 extends CanvasLayer
 
+const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
+
 ## Panel tas interaktif (Step 2B): 12 slot tas + kolom equipment.
+## Nama/deskripsi item hanya ada di tooltip slot, bukan teks di dalam slot.
 ##
 ## Bukan HUD: panel ini menerima mouse dan memanggil `move_slot()` /
 ## `use_slot()`. Ia tidak menyimpan state gameplay dan tidak mem-pause game:
@@ -13,6 +16,18 @@ const PLAYER_GROUP := &"player"
 const INVENTORY_NAME := "InventoryComponent"
 const CRAFTING_NAME := "CraftingComponent"
 const CRAFTING_TAB_PATH := "Root/Frame/Margin/VBox/Tabs/Crafting"
+const VBOX_PATH := "Root/Frame/Margin/VBox"
+<<<<<<< Updated upstream
+## Kolom Peralatan sudah 210 px; alat tas ditaruh di sana supaya grid 6 kolom
+## tidak melebar keluar frame.
+const BAG_TOOLS_PATH := "Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"
+const BAG_HINT := "Klik kanan: pakai\nShift+klik: pecah"
+## Ditampilkan di bawah judul: pemain perlu tahu Profisiensi ada di tab ketiga.
+const TABS_HINT := "Tab / I: buka-tutup · tab panel: Tas · Crafting · Profisiensi · Esc: tutup"
+=======
+## Petunjuk singkat tab panel di bawah judul.
+const TABS_HINT := "Tab / I: buka-tutup · tab panel: Tas · Crafting · Esc: tutup"
+>>>>>>> Stashed changes
 const TOGGLE_ACTION := &"inventory_toggle"
 ## Esc hanya menutup panel; tidak membukanya.
 const CLOSE_ACTION := &"ui_cancel"
@@ -32,6 +47,7 @@ const TOOL_ITEMS: Array[ItemDefinition] = [
 @export var crafting_component: CraftingComponent
 ## Buka panel saat scene mulai (default: tersembunyi).
 @export var open_on_start: bool = false
+var _sort_button: Button
 
 @onready var _root: Control = $Root
 @onready var _tabs: TabContainer = $Root/Frame/Margin/VBox/Tabs
@@ -48,6 +64,7 @@ var _crafting_progress: ProgressBar
 var _crafting_status: Label
 var _crafting_cancel: Button
 var _crafting_rows: Array[CraftingRow] = []
+var _tabs_hint: Label
 
 
 func _ready() -> void:
@@ -57,6 +74,8 @@ func _ready() -> void:
 
 	if inventory == null:
 		inventory = _find_inventory()
+	_build_tabs_hint()
+	_build_bag_tools()
 	_build_slots()
 
 	if inventory == null:
@@ -107,6 +126,9 @@ func is_open() -> bool:
 func toggle_panel() -> void:
 	if _locked:
 		return
+	# Mission 10: panel stasiun / UI lain yang terbuka menahan tas.
+	if not is_open() and UiBackStack.has_open(self, self):
+		return
 	_apply_visible(not is_open())
 
 
@@ -115,6 +137,10 @@ func get_slots() -> Array[BagSlot]:
 
 
 # --- Teks equipment (dipakai tes) -------------------------------------------
+
+func get_tabs_hint_text() -> String:
+	return "" if _tabs_hint == null else _tabs_hint.text
+
 
 func get_weapon_text() -> String:
 	return _weapon_value.text
@@ -132,6 +158,69 @@ func get_armor_text() -> String:
 
 func _apply_visible(value: bool) -> void:
 	_root.visible = value
+	if value:
+		UiBackStack.register(self)
+		UiMotion.pop_in(_root)
+		refresh()
+		# Mission 10: daftar resep dihitung ulang saat dibuka supaya stasiun
+		# yang baru dibangun tidak tetap tampil "Butuh Meja Kerja".
+		refresh_crafting()
+	else:
+		UiBackStack.unregister(self)
+
+
+## Satu baris petunjuk tab di bawah panel.
+func _build_tabs_hint() -> void:
+	var vbox := get_node_or_null(VBOX_PATH) as VBoxContainer
+	if vbox == null:
+		return
+	_tabs_hint = Label.new()
+	_tabs_hint.name = "TabsHint"
+	_tabs_hint.text = TABS_HINT
+	_tabs_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tabs_hint.add_theme_font_size_override("font_size", 10)
+	_tabs_hint.add_theme_color_override("font_color", Color(0.36, 0.27, 0.19, 1.0))
+	vbox.add_child(_tabs_hint)
+	vbox.move_child(_tabs_hint, 1)
+
+
+## Fase 4A: tombol urutkan + petunjuk pecah tumpukan di tab Tas.
+func _build_bag_tools() -> void:
+	var column := get_node_or_null(BAG_TOOLS_PATH) as VBoxContainer
+	if column == null:
+		return
+
+	var tools := VBoxContainer.new()
+	tools.name = "BagTools"
+	tools.add_theme_constant_override("separation", 6)
+	column.add_child(tools)
+
+	var hint := Label.new()
+	hint.name = "Hint"
+	hint.text = BAG_HINT
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.custom_minimum_size = Vector2(96.0, 0.0)
+	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hint.add_theme_font_size_override("font_size", 9)
+	hint.add_theme_color_override("font_color", Color(0.72, 0.78, 0.72, 1.0))
+	tools.add_child(hint)
+
+	_sort_button = Button.new()
+	_sort_button.name = "SortButton"
+	_sort_button.text = "Urutkan"
+	_sort_button.tooltip_text = "Gabung dan urutkan isi tas"
+	_sort_button.custom_minimum_size = Vector2(96.0, 26.0)
+	_sort_button.pressed.connect(_on_sort_pressed)
+	tools.add_child(_sort_button)
+
+
+func get_sort_button() -> Button:
+	return _sort_button
+
+
+func _on_sort_pressed() -> void:
+	if inventory != null:
+		inventory.sort()
 
 
 func _build_slots() -> void:
@@ -262,10 +351,6 @@ func _build_crafting_tab() -> void:
 	if _crafting_tab == null:
 		return
 
-	for child in _crafting_tab.get_children():
-		_crafting_tab.remove_child(child)
-		child.free()
-
 	var vbox := VBoxContainer.new()
 	vbox.name = "CraftingBox"
 	vbox.add_theme_constant_override("separation", 8)
@@ -331,18 +416,13 @@ func refresh_crafting() -> void:
 		_crafting_status.text = "Crafting tidak tersedia (CraftingComponent tidak ditemukan)."
 		return
 
+	# Semua resep tampil: yang langsung bisa dibuat dan yang butuh stasiun.
+	# Resep stasiun yang belum tersedia tetap tampil dengan status di kartunya.
 	for recipe in crafting_component.get_available_recipes():
 		_add_crafting_row(recipe, false)
 
-	var locked := crafting_component.get_locked_recipes()
-	if not locked.is_empty():
-		var header := Label.new()
-		header.text = "TERKUNCI"
-		header.add_theme_font_size_override("font_size", 10)
-		header.add_theme_color_override("font_color", Color(0.72, 0.78, 0.72, 1.0))
-		_crafting_list.add_child(header)
-		for recipe in locked:
-			_add_crafting_row(recipe, true)
+	for recipe in crafting_component.get_locked_recipes():
+		_add_crafting_row(recipe, true)
 
 	# Status terakhir ("Selesai"/"Batal") dipertahankan sampai aksi berikutnya.
 	if not crafting_component.is_crafting():
@@ -401,3 +481,5 @@ func _on_craft_cancelled(recipe: RecipeDefinition, reason: String) -> void:
 func _on_stations_changed() -> void:
 	if is_open():
 		refresh_crafting()
+
+

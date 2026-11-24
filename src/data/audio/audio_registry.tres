@@ -1,0 +1,1327 @@
+[gd_resource type="Resource" script_class="AudioRegistry" format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/audio/audio_cue_definition.gd" id="1_dedpb"]
+[ext_resource type="Script" path="res://src/data/resources/audio/audio_registry.gd" id="2_ddtdn"]
+
+[sub_resource type="Resource" id="Resource_lw5pu"]
+script = ExtResource("1_dedpb")
+key = &"player_footstep_sand"
+description_id = "Langkah pemain di pasir pantai."
+trigger = "Setiap langkah saat pemain berjalan di zona pantai."
+hook = "HOOK BELUM ADA"
+spatial = true
+variants_recommended = 4
+duration_hint = "0.15-0.30 s"
+priority = 1
+file_pattern = "res://assets/audio/sfx/player_footstep_sand[_1.._4].ogg"
+notes = "Butuh footstep emitter; jarak antar langkah mengikuti kecepatan."
+
+[sub_resource type="Resource" id="Resource_tdny5"]
+script = ExtResource("1_dedpb")
+key = &"player_footstep_grass"
+description_id = "Langkah pemain di rumput atau hutan."
+trigger = "Setiap langkah saat pemain berjalan di zona hutan atau camp."
+hook = "HOOK BELUM ADA"
+spatial = true
+variants_recommended = 4
+duration_hint = "0.15-0.30 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/player_footstep_grass[_1.._4].ogg"
+notes = "Pasangan pasir; beda tekstur, bukan beda volume."
+
+[sub_resource type="Resource" id="Resource_x27xa"]
+script = ExtResource("1_dedpb")
+key = &"player_footstep_water"
+description_id = "Langkah pemain di air dangkal."
+trigger = "Setiap langkah saat pemain berada di zona sungai."
+hook = "HOOK BELUM ADA"
+spatial = true
+variants_recommended = 3
+duration_hint = "0.15-0.30 s"
+file_pattern = "res://assets/audio/sfx/player_footstep_water[_1.._3].ogg"
+optional = true
+notes = "Zona sungai sudah terbaca lewat IslandZones.zone_at."
+
+[sub_resource type="Resource" id="Resource_mf4di"]
+script = ExtResource("1_dedpb")
+key = &"player_footstep_wade"
+description_id = "Langkah berat saat mengarungi air."
+trigger = "Setiap langkah saat pemain wading."
+hook = "HOOK BELUM ADA"
+spatial = true
+variants_recommended = 3
+duration_hint = "0.25-0.40 s"
+file_pattern = "res://assets/audio/sfx/player_footstep_wade[_1.._3].ogg"
+optional = true
+notes = "Lebih pelan dan lebih basah dari langkah air dangkal."
+
+[sub_resource type="Resource" id="Resource_hfwb3"]
+script = ExtResource("1_dedpb")
+key = &"player_sneak_step"
+description_id = "Langkah sangat pelan saat jongkok."
+trigger = "Setiap langkah saat pemain jongkok."
+hook = "HOOK BELUM ADA"
+spatial = true
+variants_recommended = 3
+duration_hint = "0.10-0.20 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/player_sneak_step[_1.._3].ogg"
+notes = "Hampir tidak terdengar; jangan lebih keras dari langkah biasa."
+
+[sub_resource type="Resource" id="Resource_wyc01"]
+script = ExtResource("1_dedpb")
+key = &"player_sprint_breath"
+description_id = "Napas pemain saat sprint."
+trigger = "Selama pemain sprint."
+hook = "Player.sprint_state_changed(is_sprinting)"
+loop = true
+variants_recommended = 2
+duration_hint = "loop"
+priority = 2
+file_pattern = "res://assets/audio/sfx/player_sprint_breath[_1.._2].ogg"
+notes = "Loop pendek, fade cepat saat sprint berhenti."
+
+[sub_resource type="Resource" id="Resource_8pnmh"]
+script = ExtResource("1_dedpb")
+key = &"player_hurt"
+description_id = "Pemain terluka."
+trigger = "Pemain menerima damage."
+hook = "CombatFeedback.feedback_event kind `player_hurt`"
+variants_recommended = 3
+duration_hint = "0.20-0.35 s"
+priority = 1
+file_pattern = "res://assets/audio/sfx/player_hurt[_1.._3].ogg"
+notes = "Satu-satunya jalur damage pemain yang sudah punya kind."
+
+[sub_resource type="Resource" id="Resource_7ey5h"]
+script = ExtResource("1_dedpb")
+key = &"player_death"
+description_id = "Pemain mati."
+trigger = "Pemain kehabisan HP."
+hook = "DeathController.died(respawns_remaining)"
+variants_recommended = 2
+duration_hint = "0.8-1.2 s"
+priority = 1
+file_pattern = "res://assets/audio/sfx/player_death[_1.._2].ogg"
+notes = "Dipisah dari sting musik kematian."
+
+[sub_resource type="Resource" id="Resource_y6iv2"]
+script = ExtResource("1_dedpb")
+key = &"player_respawn"
+description_id = "Pemain hidup kembali."
+trigger = "Pemain memilih respawn."
+hook = "DeathController.respawned"
+variants_recommended = 2
+duration_hint = "0.5-0.8 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/player_respawn[_1.._2].ogg"
+notes = "Terdengar setelah layar kematian ditutup."
+
+[sub_resource type="Resource" id="Resource_gauog"]
+script = ExtResource("1_dedpb")
+key = &"player_protection_loop"
+description_id = "Dengung perlindungan respawn."
+trigger = "Selama perlindungan respawn aktif."
+hook = "PlayerDamageReceiver.protection_started / protection_ended"
+loop = true
+duration_hint = "loop"
+file_pattern = "res://assets/audio/sfx/player_protection_loop.ogg"
+optional = true
+notes = "Sengaja halus; hanya penanda status."
+
+[sub_resource type="Resource" id="Resource_nerd1"]
+script = ExtResource("1_dedpb")
+key = &"player_dodge"
+description_id = "Pemain mengelak."
+trigger = "Dodge berhasil."
+hook = "CombatFeedback.feedback_event kind `dodge`"
+variants_recommended = 2
+duration_hint = "0.15-0.25 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/player_dodge[_1.._2].ogg"
+notes = "Sama dengan teks melayang DODGE."
+
+[sub_resource type="Resource" id="Resource_nfgk7"]
+script = ExtResource("1_dedpb")
+key = &"player_attack_swing"
+description_id = "Ayunan serangan pemain."
+trigger = "Pemain menyerang (klik atau Space)."
+hook = "CombatComponent.swing(aim_direction, hit_count)"
+spatial = true
+variants_recommended = 3
+duration_hint = "0.15-0.25 s"
+priority = 1
+file_pattern = "res://assets/audio/sfx/player_attack_swing[_1.._3].ogg"
+notes = "Berbunyi walau tidak mengenai apa pun."
+
+[sub_resource type="Resource" id="Resource_lhfi1"]
+script = ExtResource("1_dedpb")
+key = &"player_hit_flesh"
+description_id = "Pukulan mengenai tubuh hewan."
+trigger = "Serangan pemain mengenai target."
+hook = "CombatComponent.hit_dealt(target, damage)"
+spatial = true
+variants_recommended = 3
+duration_hint = "0.15-0.30 s"
+priority = 1
+file_pattern = "res://assets/audio/sfx/player_hit_flesh[_1.._3].ogg"
+notes = "Menumpuk dengan ayunan; jaga headroom."
+
+[sub_resource type="Resource" id="Resource_viyku"]
+script = ExtResource("1_dedpb")
+key = &"player_kill_confirm"
+description_id = "Konfirmasi target mati."
+trigger = "Hewan mati oleh serangan pemain."
+hook = "CombatFeedback.feedback_event kind `kill`"
+duration_hint = "0.25-0.40 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/player_kill_confirm.ogg"
+notes = "Melengkapi teks KO di damage numbers."
+
+[sub_resource type="Resource" id="Resource_wudv1"]
+script = ExtResource("1_dedpb")
+key = &"proficiency_level_up"
+description_id = "Naik level profisiensi."
+trigger = "Level profisiensi bertambah."
+hook = "ProficiencyComponent.level_changed(prof, level)"
+duration_hint = "0.6-0.9 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/proficiency_level_up.ogg"
+notes = "Tidak diputar untuk XP yang hanya naik sebagian."
+
+[sub_resource type="Resource" id="Resource_gpjfq"]
+script = ExtResource("1_dedpb")
+key = &"proficiency_passive_unlocked"
+description_id = "Passive baru terbuka."
+trigger = "Passive profisiensi terbuka."
+hook = "ProficiencyComponent.passive_unlocked(prof, level)"
+duration_hint = "0.8-1.2 s"
+file_pattern = "res://assets/audio/sfx/proficiency_passive_unlocked.ogg"
+optional = true
+notes = "Boleh menumpuk dengan level up; beri jeda 0.2 s."
+
+[sub_resource type="Resource" id="Resource_0b15a"]
+script = ExtResource("1_dedpb")
+key = &"player_low_hp_loop"
+description_id = "Detak jantung saat HP rendah."
+trigger = "HP pemain di bawah ambang bahaya."
+hook = "StatsComponent.hp_changed(current, max_value)"
+loop = true
+duration_hint = "loop"
+priority = 2
+file_pattern = "res://assets/audio/sfx/player_low_hp_loop.ogg"
+notes = "Volume naik saat HP makin rendah; hentikan saat di atas ambang."
+
+[sub_resource type="Resource" id="Resource_5mftf"]
+script = ExtResource("1_dedpb")
+key = &"player_hunger_warning"
+description_id = "Peringatan lapar."
+trigger = "Tier Hunger turun ke LOW atau ZERO."
+hook = "NeedsComponent.tier_changed(need, tier)"
+variants_recommended = 2
+duration_hint = "0.25-0.40 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/sfx/player_hunger_warning[_1.._2].ogg"
+notes = "Ditumpuk ke peringatan thirst? Beri jeda 0.3 s."
+
+[sub_resource type="Resource" id="Resource_xqvy8"]
+script = ExtResource("1_dedpb")
+key = &"player_thirst_warning"
+description_id = "Peringatan haus."
+trigger = "Tier Thirst turun ke LOW atau ZERO."
+hook = "NeedsComponent.tier_changed(need, tier)"
+variants_recommended = 2
+duration_hint = "0.25-0.40 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/sfx/player_thirst_warning[_1.._2].ogg"
+notes = "Nada berbeda dari lapar supaya bisa dibedakan."
+
+[sub_resource type="Resource" id="Resource_hpn7d"]
+script = ExtResource("1_dedpb")
+key = &"player_eat"
+description_id = "Pemain makan."
+trigger = "Item makanan dipakai."
+hook = "InventoryComponent.item_used(item, slot_index)"
+variants_recommended = 2
+duration_hint = "0.3-0.5 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/player_eat[_1.._2].ogg"
+notes = "Bedakan lewat kategori item, bukan sinyal baru."
+
+[sub_resource type="Resource" id="Resource_b4gfi"]
+script = ExtResource("1_dedpb")
+key = &"player_drink"
+description_id = "Pemain minum."
+trigger = "Item minuman dipakai."
+hook = "InventoryComponent.item_used(item, slot_index)"
+variants_recommended = 2
+duration_hint = "0.3-0.5 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/player_drink[_1.._2].ogg"
+notes = "Termasuk air matang dan air kelapa."
+
+[sub_resource type="Resource" id="Resource_3vuiv"]
+script = ExtResource("1_dedpb")
+key = &"player_bandage"
+description_id = "Pemain membalut luka."
+trigger = "Item perban dipakai."
+hook = "InventoryComponent.item_used(item, slot_index)"
+variants_recommended = 2
+duration_hint = "0.4-0.6 s"
+file_pattern = "res://assets/audio/sfx/player_bandage[_1.._2].ogg"
+optional = true
+notes = "Hanya item dengan efek regen HP."
+
+[sub_resource type="Resource" id="Resource_vbq3v"]
+script = ExtResource("1_dedpb")
+key = &"player_swap_held"
+description_id = "Menukar item di tangan."
+trigger = "Slot hotbar berganti."
+hook = "HotbarSelectionComponent.selected_changed(index, stack)"
+variants_recommended = 3
+duration_hint = "0.05-0.10 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/player_swap_held[_1.._3].ogg"
+notes = "Sangat pendek; jangan menutupi ayunan."
+
+[sub_resource type="Resource" id="Resource_7hbk2"]
+script = ExtResource("1_dedpb")
+key = &"player_use_item"
+description_id = "Item dipakai (umum)."
+trigger = "Item apa pun dipakai dari hotbar."
+hook = "InventoryComponent.item_used(item, slot_index)"
+variants_recommended = 2
+duration_hint = "0.2-0.3 s"
+file_pattern = "res://assets/audio/sfx/player_use_item[_1.._2].ogg"
+optional = true
+notes = "Dipakai hanya untuk item yang tidak punya cue khusus."
+
+[sub_resource type="Resource" id="Resource_y8x4v"]
+script = ExtResource("1_dedpb")
+key = &"gathering_chop_hit"
+description_id = "Kapak mengenai pohon."
+trigger = "Progres menebang berjalan."
+hook = "CombatFeedback.feedback_event kind `chop_hit`"
+spatial = true
+variants_recommended = 3
+duration_hint = "0.10-0.20 s"
+priority = 1
+file_pattern = "res://assets/audio/sfx/gathering_chop_hit[_1.._3].ogg"
+notes = "Berirama 0.22 s mengikuti ChopFeedback.CHOP_INTERVAL."
+
+[sub_resource type="Resource" id="Resource_dnruh"]
+script = ExtResource("1_dedpb")
+key = &"gathering_tree_fall"
+description_id = "Pohon tumbang."
+trigger = "Pohon selesai ditebang."
+hook = "CombatFeedback.feedback_event kind `tree_fall`"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.8-1.4 s"
+priority = 1
+file_pattern = "res://assets/audio/sfx/gathering_tree_fall[_1.._2].ogg"
+notes = "Sinkron dengan animasi jatuh 0.6 s."
+
+[sub_resource type="Resource" id="Resource_lusox"]
+script = ExtResource("1_dedpb")
+key = &"gathering_mine_hit"
+description_id = "Beliung mengenai batu."
+trigger = "Progres menambang berjalan."
+hook = "HOOK BELUM ADA"
+spatial = true
+variants_recommended = 3
+duration_hint = "0.10-0.20 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/gathering_mine_hit[_1.._3].ogg"
+notes = "ResourceNode belum punya sinyal progres per pukulan."
+
+[sub_resource type="Resource" id="Resource_tp4qj"]
+script = ExtResource("1_dedpb")
+key = &"gathering_rock_break"
+description_id = "Batu pecah."
+trigger = "Node batu selesai ditambang."
+hook = "ResourceNode.gathered(definition, amount, interactor)"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.5-0.9 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/gathering_rock_break[_1.._2].ogg"
+notes = "Bedakan batu kecil dan besar lewat ukuran, bukan key baru."
+
+[sub_resource type="Resource" id="Resource_icwpp"]
+script = ExtResource("1_dedpb")
+key = &"gathering_pick_fiber"
+description_id = "Memetik serat."
+trigger = "Semak serat selesai dipanen."
+hook = "ResourceNode.gathered(definition, amount, interactor)"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.2-0.3 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/gathering_pick_fiber[_1.._2].ogg"
+notes = "Tidak ada bunyi per tarikan; hanya saat selesai."
+
+[sub_resource type="Resource" id="Resource_54j7x"]
+script = ExtResource("1_dedpb")
+key = &"gathering_pick_berry"
+description_id = "Memetik buah beri."
+trigger = "Semak beri selesai dipanen."
+hook = "ResourceNode.gathered(definition, amount, interactor)"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.2-0.3 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/gathering_pick_berry[_1.._2].ogg"
+notes = "Boleh memakai keluarga yang sama dengan serat."
+
+[sub_resource type="Resource" id="Resource_b3ye4"]
+script = ExtResource("1_dedpb")
+key = &"gathering_pick_coconut"
+description_id = "Menurunkan kelapa."
+trigger = "Pohon kelapa selesai dipanen."
+hook = "ResourceNode.gathered(definition, amount, interactor)"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.3-0.5 s"
+file_pattern = "res://assets/audio/sfx/gathering_pick_coconut[_1.._2].ogg"
+optional = true
+notes = "Bunyi jatuh ke pasir."
+
+[sub_resource type="Resource" id="Resource_ls1vg"]
+script = ExtResource("1_dedpb")
+key = &"gathering_cut_bambu"
+description_id = "Memotong bambu."
+trigger = "Rumpun bambu selesai dipanen."
+hook = "ResourceNode.gathered(definition, amount, interactor)"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.3-0.5 s"
+file_pattern = "res://assets/audio/sfx/gathering_cut_bambu[_1.._2].ogg"
+optional = true
+notes = "Lebih berongga dari kayu."
+
+[sub_resource type="Resource" id="Resource_esbiu"]
+script = ExtResource("1_dedpb")
+key = &"item_pickup"
+description_id = "Item masuk ke tas."
+trigger = "Item terambil dari tanah."
+hook = "InventoryComponent.inventory_changed()"
+variants_recommended = 3
+duration_hint = "0.10-0.20 s"
+priority = 1
+file_pattern = "res://assets/audio/sfx/item_pickup[_1.._3].ogg"
+notes = "Termasuk pickup otomatis dan sisa stack yang gagal masuk."
+
+[sub_resource type="Resource" id="Resource_e3yli"]
+script = ExtResource("1_dedpb")
+key = &"loot_bag"
+description_id = "Membuka kantung jarahan."
+trigger = "Kantung jarahan diambil."
+hook = "LootBag.looted"
+variants_recommended = 2
+duration_hint = "0.3-0.5 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/loot_bag[_1.._2].ogg"
+notes = "Juga dipakai untuk koper darurat (EmergencySuitcase.looted)."
+
+[sub_resource type="Resource" id="Resource_82afm"]
+script = ExtResource("1_dedpb")
+key = &"station_open"
+description_id = "Membuka stasiun kerja."
+trigger = "Panel Meja Kerja atau Api Unggun dibuka."
+hook = "StationPanel.opened(station)"
+variants_recommended = 2
+duration_hint = "0.2-0.3 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/sfx/station_open[_1.._2].ogg"
+notes = "Sama untuk kedua stasiun; panel tetap membedakan isi."
+
+[sub_resource type="Resource" id="Resource_wvshb"]
+script = ExtResource("1_dedpb")
+key = &"station_close"
+description_id = "Menutup stasiun kerja."
+trigger = "Panel Meja Kerja atau Api Unggun ditutup."
+hook = "StationPanel.closed(station)"
+variants_recommended = 2
+duration_hint = "0.15-0.25 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/sfx/station_close[_1.._2].ogg"
+notes = "Termasuk penutupan karena pemain menjauh."
+
+[sub_resource type="Resource" id="Resource_f3c6c"]
+script = ExtResource("1_dedpb")
+key = &"craft_loop"
+description_id = "Suara proses crafting."
+trigger = "Selama crafting berjalan."
+hook = "CraftingComponent.craft_progress(ratio)"
+loop = true
+duration_hint = "loop"
+priority = 2
+file_pattern = "res://assets/audio/sfx/craft_loop.ogg"
+notes = "Boleh satu loop untuk semua resep."
+
+[sub_resource type="Resource" id="Resource_msw7x"]
+script = ExtResource("1_dedpb")
+key = &"craft_done"
+description_id = "Crafting selesai."
+trigger = "Resep selesai dibuat."
+hook = "CraftingComponent.craft_completed(recipe)"
+variants_recommended = 2
+duration_hint = "0.4-0.6 s"
+priority = 1
+file_pattern = "res://assets/audio/sfx/craft_done[_1.._2].ogg"
+notes = "Jangan berbunyi saat craft dibatalkan."
+
+[sub_resource type="Resource" id="Resource_580hl"]
+script = ExtResource("1_dedpb")
+key = &"build_loop"
+description_id = "Proses membangun struktur."
+trigger = "Menahan E pada BlueprintSlot."
+hook = "InteractorComponent.progress_changed(ratio)"
+loop = true
+duration_hint = "loop"
+priority = 2
+file_pattern = "res://assets/audio/sfx/build_loop.ogg"
+notes = "BlueprintSlot memakai InteractorComponent untuk progres."
+
+[sub_resource type="Resource" id="Resource_e2rw4"]
+script = ExtResource("1_dedpb")
+key = &"build_done"
+description_id = "Struktur selesai dibangun."
+trigger = "BlueprintSlot selesai dibangun."
+hook = "BlueprintSlot.built(structure)"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.5-0.8 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/build_done[_1.._2].ogg"
+notes = "Termasuk segmen pagar."
+
+[sub_resource type="Resource" id="Resource_70bas"]
+script = ExtResource("1_dedpb")
+key = &"repair_loop"
+description_id = "Proses memperbaiki."
+trigger = "Menahan R pada struktur rusak."
+hook = "RepairComponent.progress_changed(ratio)"
+loop = true
+duration_hint = "loop"
+priority = 2
+file_pattern = "res://assets/audio/sfx/repair_loop.ogg"
+notes = "Sama seperti build loop, boleh variasi pitch."
+
+[sub_resource type="Resource" id="Resource_tu3v2"]
+script = ExtResource("1_dedpb")
+key = &"repair_done"
+description_id = "Perbaikan selesai."
+trigger = "RepairComponent menyelesaikan perbaikan."
+hook = "RepairComponent.repair_completed(structure)"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.4-0.6 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/repair_done[_1.._2].ogg"
+notes = "Tidak berbunyi saat bahan kurang."
+
+[sub_resource type="Resource" id="Resource_g3psn"]
+script = ExtResource("1_dedpb")
+key = &"base_place_confirm"
+description_id = "Base berhasil didirikan."
+trigger = "Titik base valid dan dikonfirmasi."
+hook = "BasePlacementController.base_placed(center)"
+duration_hint = "0.8-1.2 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/base_place_confirm.ogg"
+notes = "Momen besar; satu kali per run."
+
+[sub_resource type="Resource" id="Resource_rkuxc"]
+script = ExtResource("1_dedpb")
+key = &"base_place_invalid"
+description_id = "Titik base tidak valid."
+trigger = "Preview base berubah menjadi tidak valid."
+hook = "BasePlacementController.preview_changed(valid, reason)"
+variants_recommended = 2
+duration_hint = "0.15-0.25 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/sfx/base_place_invalid[_1.._2].ogg"
+notes = "Throttle: maksimal 4 kali per detik."
+
+[sub_resource type="Resource" id="Resource_dsp4r"]
+script = ExtResource("1_dedpb")
+key = &"fence_hit"
+description_id = "Pagar terkena serangan."
+trigger = "Segmen pagar menerima damage."
+hook = "CampStructure.damaged(amount, source) pada FenceSegment"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.15-0.25 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/fence_hit[_1.._2].ogg"
+notes = "Sama untuk gigitan boar dan serangan lain."
+
+[sub_resource type="Resource" id="Resource_vbhj5"]
+script = ExtResource("1_dedpb")
+key = &"fence_break"
+description_id = "Segmen pagar hancur."
+trigger = "HP segmen pagar habis."
+hook = "CampStructure.destroyed pada FenceSegment"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.5-0.8 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/fence_break[_1.._2].ogg"
+notes = "Berbeda dari struktur camp yang hancur."
+
+[sub_resource type="Resource" id="Resource_0cpcd"]
+script = ExtResource("1_dedpb")
+key = &"structure_destroyed"
+description_id = "Struktur camp hancur."
+trigger = "CampStructure apa pun hancur."
+hook = "CampStructure.destroyed"
+spatial = true
+duration_hint = "0.8-1.2 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/structure_destroyed.ogg"
+notes = "Termasuk peti yang menjatuhkan isinya."
+
+[sub_resource type="Resource" id="Resource_g3ksl"]
+script = ExtResource("1_dedpb")
+key = &"fire_flint_strike"
+description_id = "Gesekan batu api."
+trigger = "Pemain menekan strike pada QTE api."
+hook = "FireStarterController.strike_result(quality, success)"
+variants_recommended = 3
+duration_hint = "0.10-0.20 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/fire_flint_strike[_1.._3].ogg"
+notes = "Bunyi dasar sebelum kualitas dinilai."
+
+[sub_resource type="Resource" id="Resource_xxaa7"]
+script = ExtResource("1_dedpb")
+key = &"fire_qte_good"
+description_id = "Hasil QTE bagus."
+trigger = "Strike masuk zona GOOD."
+hook = "FireStarterController.strike_result(quality, success)"
+variants_recommended = 2
+duration_hint = "0.15-0.25 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/fire_qte_good[_1.._2].ogg"
+notes = "Nada pendek yang menandakan kemajuan."
+
+[sub_resource type="Resource" id="Resource_iqwak"]
+script = ExtResource("1_dedpb")
+key = &"fire_qte_perfect"
+description_id = "Hasil QTE sempurna."
+trigger = "Strike masuk zona PERFECT."
+hook = "FireStarterController.strike_result(quality, success)"
+duration_hint = "0.25-0.35 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/fire_qte_perfect.ogg"
+notes = "Lebih terang dari GOOD."
+
+[sub_resource type="Resource" id="Resource_f0eut"]
+script = ExtResource("1_dedpb")
+key = &"fire_qte_miss"
+description_id = "QTE meleset."
+trigger = "Strike gagal atau di luar zona."
+hook = "FireStarterController.strike_result(quality, success)"
+variants_recommended = 2
+duration_hint = "0.15-0.25 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/sfx/fire_qte_miss[_1.._2].ogg"
+notes = "Batu dihabiskan pada percobaan gagal."
+
+[sub_resource type="Resource" id="Resource_gxqg1"]
+script = ExtResource("1_dedpb")
+key = &"campfire_ignite"
+description_id = "Api unggun menyala."
+trigger = "Percobaan ignition berhasil."
+hook = "FireStarterController.finished(success) + Campfire.lit_changed(is_lit)"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.6-1.0 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/campfire_ignite[_1.._2].ogg"
+notes = "Awal loop api; jangan tumpang tindih dengan loop."
+
+[sub_resource type="Resource" id="Resource_7m075"]
+script = ExtResource("1_dedpb")
+key = &"campfire_loop"
+description_id = "Loop api unggun menyala."
+trigger = "Selama api unggun menyala."
+hook = "Campfire.lit_changed(is_lit)"
+loop = true
+spatial = true
+variants_recommended = 2
+duration_hint = "loop"
+bus = 3
+priority = 1
+file_pattern = "res://assets/audio/sfx/campfire_loop[_1.._2].ogg"
+notes = "Seamless; volume turun saat pemain menjauh (spatial)."
+
+[sub_resource type="Resource" id="Resource_52q5l"]
+script = ExtResource("1_dedpb")
+key = &"campfire_ember_loop"
+description_id = "Loop bara api."
+trigger = "Api unggun menyala dengan bahan bakar rendah."
+hook = "Campfire.fuel_changed(seconds)"
+loop = true
+spatial = true
+variants_recommended = 2
+duration_hint = "loop"
+bus = 3
+priority = 2
+file_pattern = "res://assets/audio/sfx/campfire_ember_loop[_1.._2].ogg"
+notes = "Pengganti loop utama saat bahan bakar menipis."
+
+[sub_resource type="Resource" id="Resource_wyx3q"]
+script = ExtResource("1_dedpb")
+key = &"campfire_out"
+description_id = "Api unggun padam."
+trigger = "Bahan bakar habis."
+hook = "Campfire.fuel_depleted"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.5-0.8 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/campfire_out[_1.._2].ogg"
+notes = "Juga berhenti saat struktur hancur."
+
+[sub_resource type="Resource" id="Resource_6trmh"]
+script = ExtResource("1_dedpb")
+key = &"cook_sizzle"
+description_id = "Mendesis saat memasak."
+trigger = "Resep stasiun CAMPFIRE selesai."
+hook = "CraftingComponent.craft_completed(recipe) dengan stasiun CAMPFIRE"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.4-0.6 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/cook_sizzle[_1.._2].ogg"
+notes = "Hanya resep bertipe CAMPFIRE."
+
+[sub_resource type="Resource" id="Resource_nvqeq"]
+script = ExtResource("1_dedpb")
+key = &"campfire_refuel"
+description_id = "Menambah bahan bakar."
+trigger = "Pemain menambahkan kayu ke api unggun."
+hook = "Campfire.fuel_changed(seconds)"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.3-0.5 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/campfire_refuel[_1.._2].ogg"
+notes = "Bunyi kayu masuk ke api."
+
+[sub_resource type="Resource" id="Resource_uasvs"]
+script = ExtResource("1_dedpb")
+key = &"tent_sleep"
+description_id = "Tidur di tenda."
+trigger = "Tidur siang berhasil."
+hook = "Tent.sleep_completed"
+variants_recommended = 2
+duration_hint = "0.8-1.2 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/tent_sleep[_1.._2].ogg"
+notes = "Waktu di-skip setelah bunyi ini."
+
+[sub_resource type="Resource" id="Resource_81730"]
+script = ExtResource("1_dedpb")
+key = &"night_watch_start"
+description_id = "Mulai jaga malam."
+trigger = "Jaga Malam dinyalakan."
+hook = "NightWatchController.watch_started"
+variants_recommended = 2
+duration_hint = "0.4-0.6 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/night_watch_start[_1.._2].ogg"
+notes = "Boleh jadi bagian awal musik malam."
+
+[sub_resource type="Resource" id="Resource_p42gs"]
+script = ExtResource("1_dedpb")
+key = &"night_watch_stop"
+description_id = "Berhenti jaga malam."
+trigger = "Jaga Malam berhenti karena alasan apa pun."
+hook = "NightWatchController.watch_stopped(reason)"
+variants_recommended = 2
+duration_hint = "0.3-0.5 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/night_watch_stop[_1.._2].ogg"
+notes = "Alasan tidak perlu dibedakan oleh suara."
+
+[sub_resource type="Resource" id="Resource_gjhwv"]
+script = ExtResource("1_dedpb")
+key = &"chest_open"
+description_id = "Membuka peti."
+trigger = "Pemain berinteraksi dengan peti."
+hook = "Chest.interaction_requested(interactor)"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.3-0.5 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/chest_open[_1.._2].ogg"
+notes = "Panel peti dibuka setelah sinyal ini."
+
+[sub_resource type="Resource" id="Resource_8cf15"]
+script = ExtResource("1_dedpb")
+key = &"chest_close"
+description_id = "Menutup peti."
+trigger = "Panel peti ditutup."
+hook = "ChestPanel.closed"
+variants_recommended = 2
+duration_hint = "0.2-0.3 s"
+file_pattern = "res://assets/audio/sfx/chest_close[_1.._2].ogg"
+optional = true
+notes = "Termasuk penutupan karena jarak."
+
+[sub_resource type="Resource" id="Resource_0n2mv"]
+script = ExtResource("1_dedpb")
+key = &"raid_warning_horn"
+description_id = "Tanduk peringatan raid."
+trigger = "Raid dijadwalkan malam ini."
+hook = "RaidDirector.raid_warning(day, count, seconds) + feedback_event kind `raid_warning`"
+variants_recommended = 2
+duration_hint = "1.0-1.6 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/raid_warning_horn[_1.._2].ogg"
+notes = "Harus terdengar di atas ambience malam."
+
+[sub_resource type="Resource" id="Resource_3f3qg"]
+script = ExtResource("1_dedpb")
+key = &"boar_idle"
+description_id = "Babi mendengus pelan."
+trigger = "Babi mengembara tanpa ancaman."
+hook = "HOOK BELUM ADA"
+spatial = true
+variants_recommended = 4
+duration_hint = "0.3-0.5 s"
+file_pattern = "res://assets/audio/sfx/boar_idle[_1.._4].ogg"
+optional = true
+notes = "Diputar acak saat WANDER."
+
+[sub_resource type="Resource" id="Resource_iy504"]
+script = ExtResource("1_dedpb")
+key = &"boar_alert"
+description_id = "Babi menyadari pemain."
+trigger = "Babi mulai mengejar."
+hook = "HOOK BELUM ADA"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.3-0.5 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/boar_alert[_1.._2].ogg"
+notes = "Penanda sebelum dash ditelegraf."
+
+[sub_resource type="Resource" id="Resource_qnkfn"]
+script = ExtResource("1_dedpb")
+key = &"boar_telegraph"
+description_id = "Babi bersiap menyeruduk."
+trigger = "Awal DASH_TELEGRAPH."
+hook = "HOOK BELUM ADA"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.4-0.6 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/boar_telegraph[_1.._2].ogg"
+notes = "Sinkron dengan garis telegraph di CombatFeedback."
+
+[sub_resource type="Resource" id="Resource_i28hh"]
+script = ExtResource("1_dedpb")
+key = &"boar_charge"
+description_id = "Babi menyeruduk."
+trigger = "Awal DASH."
+hook = "HOOK BELUM ADA"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.4-0.7 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/boar_charge[_1.._2].ogg"
+notes = "WildBoar.dash_ended hanya menandai akhir dash."
+
+[sub_resource type="Resource" id="Resource_h3g0e"]
+script = ExtResource("1_dedpb")
+key = &"boar_bite"
+description_id = "Gigitan babi."
+trigger = "Babi menggigit pemain atau struktur."
+hook = "HOOK BELUM ADA"
+spatial = true
+variants_recommended = 3
+duration_hint = "0.20-0.30 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/boar_bite[_1.._3].ogg"
+notes = "Belum ada sinyal gigitan di FaunaBase."
+
+[sub_resource type="Resource" id="Resource_y5ksp"]
+script = ExtResource("1_dedpb")
+key = &"boar_hurt"
+description_id = "Babi terluka."
+trigger = "Babi menerima damage."
+hook = "HealthComponent.damaged(amount, source)"
+spatial = true
+variants_recommended = 3
+duration_hint = "0.20-0.30 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/boar_hurt[_1.._3].ogg"
+notes = "Bersama dengan flash_hit."
+
+[sub_resource type="Resource" id="Resource_nv3w7"]
+script = ExtResource("1_dedpb")
+key = &"boar_death"
+description_id = "Babi mati."
+trigger = "HP babi habis."
+hook = "FaunaBase.died(node)"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.6-1.0 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/boar_death[_1.._2].ogg"
+notes = "Jasad visual animasi tetap diputar CombatFeedback."
+
+[sub_resource type="Resource" id="Resource_3nbvt"]
+script = ExtResource("1_dedpb")
+key = &"deer_alert_snort"
+description_id = "Rusa mendengus waspada."
+trigger = "Rusa masuk state ALERT."
+hook = "IslandDeer.alerted"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.25-0.40 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/deer_alert_snort[_1.._2].ogg"
+notes = "Satu-satunya tanda bunyi sebelum STARTLE."
+
+[sub_resource type="Resource" id="Resource_2gxh7"]
+script = ExtResource("1_dedpb")
+key = &"deer_startle"
+description_id = "Rusa terpaku kaget."
+trigger = "Rusa masuk state STARTLE."
+hook = "HOOK BELUM ADA"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.3-0.5 s"
+file_pattern = "res://assets/audio/sfx/deer_startle[_1.._2].ogg"
+optional = true
+notes = "Tidak ada sinyal STARTLE; state hanya bisa dibaca lewat get_state."
+
+[sub_resource type="Resource" id="Resource_jxyq3"]
+script = ExtResource("1_dedpb")
+key = &"deer_flee_steps"
+description_id = "Langkah rusa kabur."
+trigger = "Selama rusa FLEE."
+hook = "HOOK BELUM ADA"
+spatial = true
+variants_recommended = 3
+duration_hint = "0.15-0.25 s"
+file_pattern = "res://assets/audio/sfx/deer_flee_steps[_1.._3].ogg"
+optional = true
+notes = "Langkah per frame belum punya sinyal."
+
+[sub_resource type="Resource" id="Resource_jbjvw"]
+script = ExtResource("1_dedpb")
+key = &"deer_hurt"
+description_id = "Rusa terluka."
+trigger = "Rusa menerima damage."
+hook = "HealthComponent.damaged(amount, source)"
+spatial = true
+variants_recommended = 3
+duration_hint = "0.20-0.30 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/deer_hurt[_1.._3].ogg"
+notes = "Hit pertama langsung memicu FLEE."
+
+[sub_resource type="Resource" id="Resource_ubyi4"]
+script = ExtResource("1_dedpb")
+key = &"deer_death"
+description_id = "Rusa mati."
+trigger = "HP rusa habis."
+hook = "FaunaBase.died(node)"
+spatial = true
+variants_recommended = 2
+duration_hint = "0.6-1.0 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/deer_death[_1.._2].ogg"
+notes = "Jatuh tanpa suara serangan."
+
+[sub_resource type="Resource" id="Resource_kl6q3"]
+script = ExtResource("1_dedpb")
+key = &"ambience_day"
+category = 2
+description_id = "Suasana siang pulau."
+trigger = "Fase siang dimulai."
+hook = "DayNightManager.phase_changed(phase)"
+loop = true
+duration_hint = "loop"
+bus = 3
+priority = 2
+file_pattern = "res://assets/audio/ambience/ambience_day.ogg"
+notes = "Loop panjang 60-90 s; crossfade dengan malam."
+
+[sub_resource type="Resource" id="Resource_d7t05"]
+script = ExtResource("1_dedpb")
+key = &"ambience_night"
+category = 2
+description_id = "Suasana malam pulau."
+trigger = "Fase malam dimulai."
+hook = "DayNightManager.night_started(day)"
+loop = true
+duration_hint = "loop"
+bus = 3
+priority = 1
+file_pattern = "res://assets/audio/ambience/ambience_night.ogg"
+notes = "Dasar ketegangan malam; jangan menutupi raid horn."
+
+[sub_resource type="Resource" id="Resource_xsyqr"]
+script = ExtResource("1_dedpb")
+key = &"river_loop"
+category = 2
+description_id = "Suara sungai mengalir."
+trigger = "Pemain dekat sungai."
+hook = "HOOK BELUM ADA"
+loop = true
+spatial = true
+duration_hint = "loop"
+bus = 3
+file_pattern = "res://assets/audio/ambience/river_loop.ogg"
+optional = true
+notes = "Zona sungai terbaca, tetapi belum ada node sungai bersuara."
+
+[sub_resource type="Resource" id="Resource_xopv6"]
+script = ExtResource("1_dedpb")
+key = &"dawn_transition"
+category = 2
+description_id = "Transisi menjelang fajar."
+trigger = "Malam berakhir."
+hook = "DayNightManager.night_ended(day)"
+duration_hint = "3-5 s"
+bus = 3
+priority = 2
+file_pattern = "res://assets/audio/ambience/dawn_transition.ogg"
+notes = "Menutup transisi visual fajar."
+
+[sub_resource type="Resource" id="Resource_f5tbj"]
+script = ExtResource("1_dedpb")
+key = &"dusk_transition"
+category = 2
+description_id = "Transisi menjelang malam."
+trigger = "Senja dimulai."
+hook = "DayNightManager.dusk_started(day)"
+duration_hint = "3-5 s"
+bus = 3
+priority = 2
+file_pattern = "res://assets/audio/ambience/dusk_transition.ogg"
+notes = "Peringatan 15 s sebelum malam."
+
+[sub_resource type="Resource" id="Resource_qddr1"]
+script = ExtResource("1_dedpb")
+key = &"night_start_sting"
+description_id = "Sting malam dimulai."
+trigger = "Malam resmi dimulai."
+hook = "DayNightManager.night_started(day)"
+duration_hint = "1.5-2.5 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/night_start_sting.ogg"
+notes = "Satu kali per pergantian fase."
+
+[sub_resource type="Resource" id="Resource_nktcw"]
+script = ExtResource("1_dedpb")
+key = &"dawn_sting"
+description_id = "Sting fajar."
+trigger = "Pagi resmi dimulai."
+hook = "DayNightManager.day_started(day)"
+duration_hint = "1.5-2.5 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/dawn_sting.ogg"
+notes = "Berbeda dari sting menang."
+
+[sub_resource type="Resource" id="Resource_kwftv"]
+script = ExtResource("1_dedpb")
+key = &"music_menu"
+category = 1
+description_id = "Musik menu utama."
+trigger = "Menu utama tampil."
+hook = "RunController.main_menu_requested"
+loop = true
+duration_hint = "loop"
+bus = 1
+priority = 2
+file_pattern = "res://assets/audio/music/music_menu.ogg"
+notes = "Loop 60-120 s; duck saat panel pengaturan."
+
+[sub_resource type="Resource" id="Resource_f3rnk"]
+script = ExtResource("1_dedpb")
+key = &"music_day"
+category = 1
+description_id = "Musik eksplorasi siang."
+trigger = "Hari dimulai."
+hook = "DayNightManager.day_started(day)"
+loop = true
+duration_hint = "loop"
+bus = 1
+priority = 2
+file_pattern = "res://assets/audio/music/music_day.ogg"
+notes = "Tenang, rendah dinamika."
+
+[sub_resource type="Resource" id="Resource_jcho3"]
+script = ExtResource("1_dedpb")
+key = &"music_night_tension"
+category = 1
+description_id = "Musik ketegangan malam."
+trigger = "Malam dimulai."
+hook = "DayNightManager.night_started(day)"
+loop = true
+duration_hint = "loop"
+bus = 1
+priority = 2
+file_pattern = "res://assets/audio/music/music_night_tension.ogg"
+notes = "Naik intensitas saat raid aktif."
+
+[sub_resource type="Resource" id="Resource_0yu8w"]
+script = ExtResource("1_dedpb")
+key = &"music_rescue"
+category = 1
+description_id = "Musik penyelamatan."
+trigger = "Fase rescue dimulai."
+hook = "DayNightManager.rescue_started"
+loop = true
+duration_hint = "loop"
+bus = 1
+file_pattern = "res://assets/audio/music/music_rescue.ogg"
+optional = true
+notes = "Hanya di Hari 7."
+
+[sub_resource type="Resource" id="Resource_o2qpk"]
+script = ExtResource("1_dedpb")
+key = &"music_victory"
+category = 1
+description_id = "Musik kemenangan."
+trigger = "Victory tercapai."
+hook = "EndgameController.victory"
+duration_hint = "8-12 s"
+bus = 1
+priority = 2
+file_pattern = "res://assets/audio/music/music_victory.ogg"
+notes = "Hentikan musik hari/malam saat mulai."
+
+[sub_resource type="Resource" id="Resource_65sva"]
+script = ExtResource("1_dedpb")
+key = &"music_game_over"
+category = 1
+description_id = "Musik game over."
+trigger = "Token respawn habis."
+hook = "DeathController.game_over"
+loop = true
+duration_hint = "loop"
+bus = 1
+priority = 2
+file_pattern = "res://assets/audio/music/music_game_over.ogg"
+notes = "Layar game over tidak pause game."
+
+[sub_resource type="Resource" id="Resource_7t7o4"]
+script = ExtResource("1_dedpb")
+key = &"music_death_sting"
+category = 1
+description_id = "Sting kematian."
+trigger = "Pemain mati."
+hook = "DeathController.died(respawns_remaining)"
+duration_hint = "2-4 s"
+bus = 1
+file_pattern = "res://assets/audio/music/music_death_sting.ogg"
+optional = true
+notes = "Duck musik utama 1.5 s."
+
+[sub_resource type="Resource" id="Resource_atd4f"]
+script = ExtResource("1_dedpb")
+key = &"ui_click"
+category = 3
+description_id = "Klik tombol."
+trigger = "Tombol UI ditekan."
+hook = "HOOK BELUM ADA"
+variants_recommended = 2
+duration_hint = "0.05-0.10 s"
+bus = 4
+priority = 1
+file_pattern = "res://assets/audio/ui/ui_click[_1.._2].ogg"
+notes = "UiSkin membuat tombol runtime, belum ada sinyal bersama."
+
+[sub_resource type="Resource" id="Resource_xliwa"]
+script = ExtResource("1_dedpb")
+key = &"ui_hover"
+category = 3
+description_id = "Hover tombol."
+trigger = "Kursor masuk tombol UI."
+hook = "HOOK BELUM ADA"
+variants_recommended = 2
+duration_hint = "0.03-0.08 s"
+bus = 4
+file_pattern = "res://assets/audio/ui/ui_hover[_1.._2].ogg"
+optional = true
+notes = "Sangat pelan; hanya umpan balik halus."
+
+[sub_resource type="Resource" id="Resource_7qhc4"]
+script = ExtResource("1_dedpb")
+key = &"ui_panel_open"
+category = 3
+description_id = "Panel terbuka."
+trigger = "Panel stasiun dibuka."
+hook = "StationPanel.opened(station)"
+variants_recommended = 2
+duration_hint = "0.15-0.25 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/ui/ui_panel_open[_1.._2].ogg"
+notes = "Sama untuk Meja Kerja dan Api Unggun."
+
+[sub_resource type="Resource" id="Resource_idhpr"]
+script = ExtResource("1_dedpb")
+key = &"ui_panel_close"
+category = 3
+description_id = "Panel tertutup."
+trigger = "Panel stasiun atau peti ditutup."
+hook = "StationPanel.closed(station) / ChestPanel.closed"
+variants_recommended = 2
+duration_hint = "0.12-0.20 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/ui/ui_panel_close[_1.._2].ogg"
+notes = "Nada turun, kebalikan panel_open."
+
+[sub_resource type="Resource" id="Resource_s6tju"]
+script = ExtResource("1_dedpb")
+key = &"ui_error"
+category = 3
+description_id = "Aksi ditolak."
+trigger = "Interaksi diblokir dengan alasan."
+hook = "InteractorComponent.interaction_blocked(target, reason)"
+variants_recommended = 2
+duration_hint = "0.15-0.25 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/ui/ui_error[_1.._2].ogg"
+notes = "Jangan diulang tiap frame; throttle 0.3 s."
+
+[sub_resource type="Resource" id="Resource_nw3ng"]
+script = ExtResource("1_dedpb")
+key = &"ui_toast"
+category = 3
+description_id = "Toast informasi muncul."
+trigger = "ToastHUD menampilkan pesan."
+hook = "HOOK BELUM ADA"
+variants_recommended = 2
+duration_hint = "0.12-0.20 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/ui/ui_toast[_1.._2].ogg"
+notes = "ToastHUD belum punya sinyal; hanya Label runtime."
+
+[sub_resource type="Resource" id="Resource_xwu5n"]
+script = ExtResource("1_dedpb")
+key = &"ui_hint"
+category = 3
+description_id = "Petunjuk muncul."
+trigger = "HintManager menampilkan hint."
+hook = "HintManager.hint_shown(id, text)"
+variants_recommended = 2
+duration_hint = "0.25-0.40 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/ui/ui_hint[_1.._2].ogg"
+notes = "Sekali per hint; hint_hidden tanpa suara."
+
+[sub_resource type="Resource" id="Resource_l352i"]
+script = ExtResource("1_dedpb")
+key = &"ui_pause_on"
+category = 3
+description_id = "Game dijeda."
+trigger = "Pause menu dibuka."
+hook = "HOOK BELUM ADA"
+variants_recommended = 2
+duration_hint = "0.15-0.25 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/ui/ui_pause_on[_1.._2].ogg"
+notes = "PauseMenu hanya punya sinyal resumed."
+
+[sub_resource type="Resource" id="Resource_cn1cc"]
+script = ExtResource("1_dedpb")
+key = &"ui_pause_off"
+category = 3
+description_id = "Game dilanjutkan."
+trigger = "Pause menu ditutup."
+hook = "PauseMenu.resumed"
+variants_recommended = 2
+duration_hint = "0.12-0.20 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/ui/ui_pause_off[_1.._2].ogg"
+notes = "Termasuk tombol Lanjutkan."
+
+[sub_resource type="Resource" id="Resource_o1wo8"]
+script = ExtResource("1_dedpb")
+key = &"ui_banner"
+category = 3
+description_id = "Banner besar muncul."
+trigger = "Banner endgame tampil."
+hook = "EndgameController.banner_shown(text)"
+variants_recommended = 2
+duration_hint = "0.4-0.6 s"
+bus = 4
+priority = 2
+file_pattern = "res://assets/audio/ui/ui_banner[_1.._2].ogg"
+notes = "Banner Hari 7 dan rescue."
+
+[sub_resource type="Resource" id="Resource_xu5fs"]
+script = ExtResource("1_dedpb")
+key = &"ui_tab_switch"
+category = 3
+description_id = "Ganti tab panel."
+trigger = "Tab Tas atau Crafting dipilih."
+hook = "HOOK BELUM ADA"
+variants_recommended = 2
+duration_hint = "0.05-0.10 s"
+bus = 4
+file_pattern = "res://assets/audio/ui/ui_tab_switch[_1.._2].ogg"
+optional = true
+notes = "BagPanel tidak punya sinyal ganti tab."
+
+[sub_resource type="Resource" id="Resource_2yaie"]
+script = ExtResource("1_dedpb")
+key = &"beacon_activate"
+description_id = "Mengaktifkan beacon."
+trigger = "SignalBeacon dipakai saat rescue."
+hook = "SignalBeacon.victory_triggered"
+spatial = true
+duration_hint = "1.0-1.5 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/beacon_activate.ogg"
+notes = "Suar darurat dikonsumsi setelah ini."
+
+[sub_resource type="Resource" id="Resource_e70b3"]
+script = ExtResource("1_dedpb")
+key = &"flare_launch"
+description_id = "Suar diluncurkan."
+trigger = "Rescue siap dan suar dipakai."
+hook = "EndgameController.rescue_ready"
+duration_hint = "0.8-1.2 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/flare_launch.ogg"
+notes = "Naik dan memudar; jangan loop."
+
+[sub_resource type="Resource" id="Resource_2v128"]
+script = ExtResource("1_dedpb")
+key = &"ship_horn"
+description_id = "Klakson kapal penyelamat."
+trigger = "Victory tercapai."
+hook = "EndgameController.victory"
+duration_hint = "2-3 s"
+priority = 2
+file_pattern = "res://assets/audio/sfx/ship_horn.ogg"
+notes = "Penutup naratif; biarkan musik menang di bawahnya."
+
+[resource]
+script = ExtResource("2_ddtdn")
+cues = Array[ExtResource("1_dedpb")]([SubResource("Resource_lw5pu"), SubResource("Resource_tdny5"), SubResource("Resource_x27xa"), SubResource("Resource_mf4di"), SubResource("Resource_hfwb3"), SubResource("Resource_wyc01"), SubResource("Resource_8pnmh"), SubResource("Resource_7ey5h"), SubResource("Resource_y6iv2"), SubResource("Resource_gauog"), SubResource("Resource_nerd1"), SubResource("Resource_nfgk7"), SubResource("Resource_lhfi1"), SubResource("Resource_viyku"), SubResource("Resource_wudv1"), SubResource("Resource_gpjfq"), SubResource("Resource_0b15a"), SubResource("Resource_5mftf"), SubResource("Resource_xqvy8"), SubResource("Resource_hpn7d"), SubResource("Resource_b4gfi"), SubResource("Resource_3vuiv"), SubResource("Resource_vbq3v"), SubResource("Resource_7hbk2"), SubResource("Resource_y8x4v"), SubResource("Resource_dnruh"), SubResource("Resource_lusox"), SubResource("Resource_tp4qj"), SubResource("Resource_icwpp"), SubResource("Resource_54j7x"), SubResource("Resource_b3ye4"), SubResource("Resource_ls1vg"), SubResource("Resource_esbiu"), SubResource("Resource_e3yli"), SubResource("Resource_82afm"), SubResource("Resource_wvshb"), SubResource("Resource_f3c6c"), SubResource("Resource_msw7x"), SubResource("Resource_580hl"), SubResource("Resource_e2rw4"), SubResource("Resource_70bas"), SubResource("Resource_tu3v2"), SubResource("Resource_g3psn"), SubResource("Resource_rkuxc"), SubResource("Resource_dsp4r"), SubResource("Resource_vbhj5"), SubResource("Resource_0cpcd"), SubResource("Resource_g3ksl"), SubResource("Resource_xxaa7"), SubResource("Resource_iqwak"), SubResource("Resource_f0eut"), SubResource("Resource_gxqg1"), SubResource("Resource_7m075"), SubResource("Resource_52q5l"), SubResource("Resource_wyx3q"), SubResource("Resource_6trmh"), SubResource("Resource_nvqeq"), SubResource("Resource_uasvs"), SubResource("Resource_81730"), SubResource("Resource_p42gs"), SubResource("Resource_gjhwv"), SubResource("Resource_8cf15"), SubResource("Resource_0n2mv"), SubResource("Resource_3f3qg"), SubResource("Resource_iy504"), SubResource("Resource_qnkfn"), SubResource("Resource_i28hh"), SubResource("Resource_h3g0e"), SubResource("Resource_y5ksp"), SubResource("Resource_nv3w7"), SubResource("Resource_3nbvt"), SubResource("Resource_2gxh7"), SubResource("Resource_jxyq3"), SubResource("Resource_jbjvw"), SubResource("Resource_ubyi4"), SubResource("Resource_kl6q3"), SubResource("Resource_d7t05"), SubResource("Resource_xsyqr"), SubResource("Resource_xopv6"), SubResource("Resource_f5tbj"), SubResource("Resource_qddr1"), SubResource("Resource_nktcw"), SubResource("Resource_kwftv"), SubResource("Resource_f3rnk"), SubResource("Resource_jcho3"), SubResource("Resource_0yu8w"), SubResource("Resource_o2qpk"), SubResource("Resource_65sva"), SubResource("Resource_7t7o4"), SubResource("Resource_atd4f"), SubResource("Resource_xliwa"), SubResource("Resource_7qhc4"), SubResource("Resource_idhpr"), SubResource("Resource_s6tju"), SubResource("Resource_nw3ng"), SubResource("Resource_xwu5n"), SubResource("Resource_l352i"), SubResource("Resource_cn1cc"), SubResource("Resource_o1wo8"), SubResource("Resource_xu5fs"), SubResource("Resource_2yaie"), SubResource("Resource_e70b3"), SubResource("Resource_2v128")])

@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3 uid="uid://djvj5gykndlnn"]
 
-[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_7u01f"]
+[ext_resource type="Script" uid="uid://cqvbhuloggkye" path="res://src/data/resources/items/item_amount.gd" id="1_7u01f"]
 [ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_vitm3"]
 [ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="3_lbfq4"]
 [ext_resource type="Resource" path="res://src/data/items/wooden_spear.tres" id="4_no6tu"]
-[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="5_x7wwn"]
+[ext_resource type="Script" uid="uid://cbccgqc2noef3" path="res://src/data/resources/crafting/recipe_definition.gd" id="5_x7wwn"]
 
 [sub_resource type="Resource" id="Resource_gqlh4"]
 script = ExtResource("1_7u01f")

@@ -325,6 +325,12 @@ func _attack_damage_factor() -> float:
 	return maxf(base.percent_modifier_floor, 1.0 + level_bonus + _sum_percent(&"attack_damage"))
 
 
+## Nilai dasar yang benar-benar dipakai (termasuk fallback default).
+## Dipakai modul lain yang membaca setting "satu run", mis. jumlah token respawn.
+func get_base_stats() -> PlayerBaseStats:
+	return _resolve_base()
+
+
 func _resolve_base() -> PlayerBaseStats:
 	if _base_stats != null:
 		return _base_stats

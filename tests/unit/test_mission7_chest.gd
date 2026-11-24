@@ -107,6 +107,42 @@ func test_take_all_with_full_bag() -> void:
 	assert_eq(chest.component.count_of(ItemCatalog.WOOD), 5, "tas penuh -> tidak ada yang pindah")
 
 
+func test_left_click_moves_items_both_ways() -> void:
+	var chest := _make_chest()
+	var player := _make_player()
+	var inv := player.get_node("InventoryComponent") as InventoryComponent
+	inv.add_item(ItemCatalog.STONE, 5)
+	var panel := _make_panel(chest, player)
+	panel.open_for(chest, inv, player)
+
+	var button := panel.get_node("Root/ChestGrid").get_child(0) as Button
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	panel.call(&"_on_slot_input", click, button, 0, false)
+	assert_eq(chest.component.count_of(ItemCatalog.STONE), 5, "klik kiri tas menyimpan ke peti")
+	assert_eq(inv.count_of(ItemCatalog.STONE), 0)
+
+	panel.call(&"_on_slot_input", click, button, 0, true)
+	assert_eq(inv.count_of(ItemCatalog.STONE), 5, "klik kiri peti mengambil ke tas")
+	assert_eq(chest.component.count_of(ItemCatalog.STONE), 0)
+
+
+func test_store_all_deposits_every_bag_stack() -> void:
+	var chest := _make_chest()
+	var player := _make_player()
+	var inv := player.get_node("InventoryComponent") as InventoryComponent
+	inv.add_item(ItemCatalog.WOOD, 4)
+	inv.add_item(ItemCatalog.STONE, 3)
+	var panel := _make_panel(chest, player)
+	panel.open_for(chest, inv, player)
+
+	panel.store_all()
+	assert_eq(chest.component.count_of(ItemCatalog.WOOD), 4)
+	assert_eq(chest.component.count_of(ItemCatalog.STONE), 3)
+	assert_eq(inv.count_of(ItemCatalog.WOOD), 0)
+
+
 func test_auto_close_on_destruction_and_distance() -> void:
 	var chest := _make_chest()
 	var player := _make_player()

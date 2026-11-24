@@ -21,7 +21,7 @@ var inventory: InventoryComponent
 @onready var _key: Label = $VBox/Top/Key
 @onready var _count: Label = $VBox/Top/Count
 @onready var _icon: TextureRect = $VBox/Icon
-@onready var _name: Label = $VBox/Name
+@onready var _dummy: Label = $VBox/DummyIcon
 
 
 func _ready() -> void:
@@ -35,10 +35,13 @@ func refresh() -> void:
 	var count := get_count()
 	var empty := item == null or count <= 0
 
-	_name.text = "" if empty else item.display_name
 	_count.text = "" if empty else "x%d" % count
-	_icon.texture = null if empty else item.icon
-	_icon.visible = not empty and item.icon != null
+	var icon: Texture2D = null if empty else item.get_icon()
+	_icon.texture = icon
+	_icon.visible = icon != null
+	# Nama item tidak lagi tampil di slot; ikon dummy huruf + tooltip.
+	_dummy.visible = not empty and icon == null
+	_dummy.text = "" if empty or icon != null else item.display_name.left(1).to_upper()
 	tooltip_text = "" if empty else describe_item(item)
 
 
@@ -60,8 +63,9 @@ func get_key_text() -> String:
 	return _key.text
 
 
+## Nama item hanya ada di tooltip; slot tidak menampilkan teks deskripsi.
 func get_label_text() -> String:
-	return _name.text
+	return ""
 
 
 func get_count_text() -> String:
@@ -100,7 +104,7 @@ static func describe_effect(item: ItemDefinition) -> String:
 		_add_amount(parts, "HP", effect.hp)
 		if effect.regen_hp_per_second > 0.0:
 			parts.append(
-				"Regen +%.1f HP/dtk selama %d dtk (belum diterapkan)"
+				"Regen +%.1f HP/dtk selama %d dtk"
 				% [effect.regen_hp_per_second, int(roundf(effect.regen_duration))]
 			)
 
@@ -117,8 +121,8 @@ static func describe_effect(item: ItemDefinition) -> String:
 static func _add_amount(parts: PackedStringArray, label: String, amount: float) -> void:
 	if is_zero_approx(amount):
 		return
-	var sign := "+" if amount > 0.0 else ""
-	parts.append("%s %s%.0f" % [label, sign, amount])
+	var sign_text := "+" if amount > 0.0 else ""
+	parts.append("%s %s%.0f" % [label, sign_text, amount])
 
 
 # --- Drag & drop ------------------------------------------------------------
@@ -184,6 +188,12 @@ func _show_drag_preview(item: ItemDefinition, count: int) -> void:
 func _gui_input(event: InputEvent) -> void:
 	var mouse := event as InputEventMouseButton
 	if mouse == null or not mouse.pressed:
+		return
+	# Shift + klik kiri = pecah tumpukan ke slot kosong pertama (Fase 4A).
+	if mouse.button_index == MOUSE_BUTTON_LEFT and mouse.shift_pressed:
+		accept_event()
+		if inventory != null:
+			inventory.split_slot(slot_index)
 		return
 	if mouse.button_index != MOUSE_BUTTON_RIGHT:
 		return

@@ -1,6 +1,8 @@
 [gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://src/ui/hud/time/time_hud.gd" id="1_hud"]
+[ext_resource type="Resource" path="res://src/data/configs/environment/sun_config.tres" id="2_sun_config"]
+[ext_resource type="Script" path="res://src/ui/hud/time/sun_arc.gd" id="3_sunarc"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 content_margin_left = 12.0
@@ -35,6 +37,7 @@ corner_radius_bottom_left = 3
 [node name="TimeHUD" type="CanvasLayer"]
 layer = 10
 script = ExtResource("1_hud")
+sun_config = ExtResource("2_sun_config")
 
 [node name="Root" type="Control" parent="."]
 layout_mode = 3
@@ -45,13 +48,22 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="SunArc" type="Control" parent="Root"]
+layout_mode = 0
+offset_left = 244.0
+offset_top = 16.0
+offset_right = 304.0
+offset_bottom = 56.0
+mouse_filter = 2
+script = ExtResource("3_sunarc")
+
 [node name="Panel" type="PanelContainer" parent="Root"]
 layout_mode = 1
 anchors_preset = 0
 offset_left = 16.0
 offset_top = 16.0
 offset_right = 236.0
-offset_bottom = 172.0
+offset_bottom = 210.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
@@ -64,10 +76,15 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 2
 
+[node name="ClockLabel" type="Label" parent="Root/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "06:00"
+
 [node name="DayLabel" type="Label" parent="Root/Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Day 1 / 7"
+theme_override_font_sizes/font_size = 18
+text = "Hari 1 / 7"
 
 [node name="PhaseLabel" type="Label" parent="Root/Panel/Margin/VBox"]
 layout_mode = 2

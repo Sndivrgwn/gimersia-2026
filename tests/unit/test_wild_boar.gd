@@ -76,6 +76,9 @@ func test_bite_damages_player_in_range() -> void:
 	var before: float = player.stats.current_hp
 	boar.tick(0.01)
 	assert_eq(player.stats.current_hp, before - 12.0)
+	assert_eq(boar.get_state(), WildBoar.State.BITE, "gigitan ditahan supaya animasi bite terlihat")
+	boar.tick((boar.config as BoarConfig).bite_hold_time + 0.01)
+	assert_eq(boar.get_state(), WildBoar.State.CHASE, "kembali mengejar setelah gigitan")
 
 
 func test_dash_telegraph_then_hit_with_knockback() -> void:
@@ -128,7 +131,9 @@ func test_boar_targets_camp_structure_when_raiding() -> void:
 	boar.global_position = Vector2(80.0, 0.0)
 	var player := setup[1] as StubPlayer
 	player.global_position = Vector2(900.0, 0.0)
-	boar.raid_camp = true
+	# Mission 9 (R4): struktur hanya diserang raider (EVENT_ONLY) atau saat mode
+	# ALWAYS; tes lama mengasumsikan semua boar hostile menyerang struktur.
+	boar.set_raider(true)
 	var before: float = structure.get_current_hp()
 	boar.tick(0.01)
 	assert_lt(structure.get_current_hp(), before)

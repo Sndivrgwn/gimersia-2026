@@ -13,6 +13,7 @@ config_version=5
 config/name="gimersia-2026"
 run/main_scene="res://src/ui/menus/main_menu.tscn"
 config/version="v1.0.0"
+run/main_scene="res://src/levels/island/island.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -23,6 +24,8 @@ DayNightManager="*res://src/core/managers/day_night_manager.tscn"
 
 [display]
 
+window/size/viewport_width=1280
+window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 

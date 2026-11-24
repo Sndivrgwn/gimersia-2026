@@ -1,11 +1,11 @@
-[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3 uid="uid://gh5esphog8ky"]
 
-[ext_resource type="Script" path="res://src/data/resources/items/item_amount.gd" id="1_enmnv"]
+[ext_resource type="Script" uid="uid://cqvbhuloggkye" path="res://src/data/resources/items/item_amount.gd" id="1_enmnv"]
 [ext_resource type="Resource" path="res://src/data/items/wooden_spear.tres" id="2_0r63x"]
 [ext_resource type="Resource" path="res://src/data/items/stone.tres" id="3_jnqf2"]
 [ext_resource type="Resource" path="res://src/data/items/fiber.tres" id="4_oe8yg"]
 [ext_resource type="Resource" path="res://src/data/items/stone_spear.tres" id="5_6gwa4"]
-[ext_resource type="Script" path="res://src/data/resources/crafting/recipe_definition.gd" id="6_gq0i2"]
+[ext_resource type="Script" uid="uid://cbccgqc2noef3" path="res://src/data/resources/crafting/recipe_definition.gd" id="6_gq0i2"]
 
 [sub_resource type="Resource" id="Resource_04vs2"]
 script = ExtResource("1_enmnv")

@@ -1,13 +1,17 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://src/entities/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://src/components/stats/stats_component.gd" id="2_stats"]
 [ext_resource type="Script" path="res://src/components/needs/needs_component.gd" id="3_needs"]
+[ext_resource type="Script" path="res://src/components/movement/wading_component.gd" id="4_wading"]
+[ext_resource type="Script" path="res://src/components/movement/motion_tell.gd" id="5_tell"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 12.0
 
 [node name="Player" type="CharacterBody2D"]
+collision_layer = 5
+collision_mask = 3
 motion_mode = 1
 script = ExtResource("1_player")
 
@@ -23,3 +27,9 @@ script = ExtResource("2_stats")
 
 [node name="NeedsComponent" type="Node" parent="."]
 script = ExtResource("3_needs")
+
+[node name="WadingComponent" type="Node" parent="."]
+script = ExtResource("4_wading")
+
+[node name="MotionTell" type="Node2D" parent="."]
+script = ExtResource("5_tell")

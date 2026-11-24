@@ -96,6 +96,19 @@ func test_manual_and_auto_share_cooldown() -> void:
 	assert_eq(target.health.get_current_hp(), 64.0)
 
 
+func test_swing_shows_fading_slash_arc() -> void:
+	_combat.swing_manual(Vector2.RIGHT)
+	var slash := _combat.get_node_or_null("SlashArc") as Polygon2D
+	assert_not_null(slash, "ayunan membuat busur visual")
+	assert_true(slash.visible)
+	assert_gt(slash.modulate.a, 0.0)
+
+	_combat.tick(0.05)
+	assert_true(slash.visible, "busur masih terlihat saat animasi")
+	_combat.tick(1.0)
+	assert_false(slash.visible, "busur hilang setelah waktunya")
+
+
 func test_manual_swing_without_target_still_uses_cooldown() -> void:
 	_combat.swing_manual(Vector2.RIGHT)
 	assert_gt(_combat.get_cooldown_remaining(), 0.0)

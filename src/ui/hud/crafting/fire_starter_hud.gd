@@ -69,7 +69,6 @@ func _resolve_text() -> String:
 			return TEXT_GOOD
 		_:
 			return TEXT_MISS if controller.get_strikes() > 0 else ""
-	return TEXT_IDLE
 
 
 func _find_controller() -> FireStarterController:

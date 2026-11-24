@@ -54,6 +54,8 @@ const RECIPE_FILES: Array[String] = [
 
 ## Jarak maksimum stasiun dari pemain.
 @export var station_range: float = CRAFT_STATION_RANGE
+## Mission 10: tuning panel stasiun (satu sumber angka, lihat StationConfig).
+@export var station_config: StationConfig = preload("res://src/data/configs/station_config.tres")
 ## Daftar resep. Kosong = memuat `RECIPE_FILES`.
 @export var recipes: Array[RecipeDefinition] = []
 ## Opsional; diisi otomatis dari parent (Player) bila kosong.
@@ -70,6 +72,13 @@ var _last_ratio: float = 0.0
 var _hp_at_start: float = -1.0
 var _loaded: bool = false
 var _station_key: String = ""
+## Stasiun yang dipakai craft berjalan (null = perilaku lama).
+var _active_station: Node
+## Fase 4B: craft berulang (xN). Null = tidak ada batch berjalan.
+var _batch_recipe: RecipeDefinition
+var _batch_station: Node
+var _batch_total: int = 0
+var _batch_done: int = 0
 
 
 func _ready() -> void:
@@ -191,16 +200,26 @@ func count_available(item: ItemDefinition) -> int:
 
 # --- Kontrol ----------------------------------------------------------------
 
-func start_craft(recipe: RecipeDefinition) -> bool:
+## Station opsional: craft hanya sah selama stasiun itu aktif dan dekat.
+## `count` > 1 mengulang resep yang sama sampai bahan habis atau selesai
+## (Fase 4B: tombol Craft xN).
+func start_craft(recipe: RecipeDefinition, station: Node = null, count: int = 1) -> bool:
 	if _recipe != null:
+		return false
+	if station != null and not _station_valid(station, recipe):
 		return false
 	if not can_craft(recipe):
 		return false
+	_active_station = station
 	_recipe = recipe
 	_elapsed = 0.0
 	_last_ratio = 0.0
 	_hp_at_start = _current_hp()
 	_duration = maxf(recipe.craft_time * _craft_time_factor(), 0.0)
+	_batch_recipe = recipe
+	_batch_station = station
+	_batch_total = maxi(count, 1)
+	_batch_done = 0
 	craft_started.emit(recipe)
 	if _duration <= 0.0:
 		_complete()
@@ -212,6 +231,7 @@ func cancel_craft(reason: String = "") -> void:
 		return
 	var recipe := _recipe
 	_clear_state()
+	_end_batch()
 	craft_progress.emit(0.0)
 	craft_cancelled.emit(recipe, reason)
 
@@ -221,13 +241,17 @@ func tick(delta: float) -> void:
 	_refresh_station_key()
 	if _recipe == null or delta <= 0.0:
 		return
-	if input_enabled and InputSetup.is_movement_pressed():
+	if input_enabled and not _player_input_locked() and InputSetup.is_movement_pressed():
 		cancel_craft(REASON_MOVED)
 		return
 	if _hp_dropped():
 		cancel_craft(REASON_DAMAGED)
 		return
-	if not _station_available(_recipe.station):
+	if _active_station != null:
+		if not _station_valid(_active_station, _recipe):
+			cancel_craft(REASON_STATION_LOST)
+			return
+	elif not _station_available(_recipe.station):
 		cancel_craft(REASON_STATION_LOST)
 		return
 
@@ -243,6 +267,8 @@ func tick(delta: float) -> void:
 # --- Internal ---------------------------------------------------------------
 
 func _bind() -> void:
+	if station_config != null and is_equal_approx(station_range, CRAFT_STATION_RANGE):
+		station_range = station_config.use_range
 	if player == null:
 		player = get_parent()
 	if inventory == null and player != null:
@@ -261,6 +287,66 @@ func _ensure_recipes() -> void:
 		if recipe != null:
 			recipes.append(recipe)
 	_loaded = true
+
+
+func get_station_config() -> StationConfig:
+	if station_config == null:
+		station_config = StationConfig.new()
+	return station_config
+
+
+## Resep milik satu jenis stasiun (WORKBENCH/CAMPFIRE/HAND).
+func get_recipes_for(station_type: int) -> Array[RecipeDefinition]:
+	_ensure_recipes()
+	var result: Array[RecipeDefinition] = []
+	for recipe in recipes:
+		if recipe != null and recipe.station == station_type:
+			result.append(recipe)
+	return result
+
+
+## Stasiun valid untuk resep ini: hidup, jenis sama, dan dalam jangkauan.
+func _station_valid(station: Node, recipe: RecipeDefinition) -> bool:
+	if station == null or recipe == null or not is_instance_valid(station):
+		return false
+	if not station.is_inside_tree() or recipe.station == RecipeDefinition.Station.HAND:
+		return false
+	if not _is_station_usable(station):
+		return false
+	if not ("station_type" in station) or int(station.get("station_type")) != recipe.station:
+		return false
+	var node := station as Node2D
+	if node == null:
+		return false
+	return _origin().distance_to(node.global_position) <= get_station_config().use_range
+
+
+func get_active_station() -> Node:
+	return _active_station
+
+
+# --- Batch xN (Fase 4B) ------------------------------------------------------
+
+## Jumlah craft yang diminta pada batch berjalan (0 = tidak ada batch).
+func get_batch_total() -> int:
+	return _batch_total
+
+
+## Jumlah craft yang sudah selesai pada batch berjalan.
+func get_batch_done() -> int:
+	return _batch_done
+
+
+## Sisa craft pada batch berjalan (0 = selesai/tidak ada batch).
+func get_batch_remaining() -> int:
+	return maxi(_batch_total - _batch_done, 0)
+
+
+## Panel stasiun mengunci gerak pemain; tombol gerak saat itu tidak dihitung
+## sebagai "bergerak" supaya craft tidak batal sendiri.
+func _player_input_locked() -> bool:
+	return player != null and is_instance_valid(player) \
+		and player.has_method(&"is_input_locked") and bool(player.call(&"is_input_locked"))
 
 
 func _origin() -> Vector2:
@@ -343,6 +429,7 @@ func _complete() -> void:
 	craft_progress.emit(1.0)
 
 	if not _consume_ingredients(recipe):
+		_end_batch()
 		craft_cancelled.emit(recipe, REASON_NO_INGREDIENTS)
 		return
 
@@ -353,12 +440,50 @@ func _complete() -> void:
 	else:
 		inventory.add_or_drop(result, count)
 
+	_batch_done += 1
 	craft_completed.emit(recipe)
 	crafted.emit(recipe, count if result != null else 0)
+	_continue_batch()
 
 
+## Lanjutkan siklus berikutnya bila batch masih berjalan dan bahan/stasiun sah.
+func _continue_batch() -> void:
+	if _batch_recipe == null:
+		return
+	if _batch_done >= _batch_total:
+		_end_batch()
+		return
+	if _batch_station != null and not _station_valid(_batch_station, _batch_recipe):
+		_end_batch()
+		return
+	if not can_craft(_batch_recipe):
+		_end_batch()
+		return
+
+	_active_station = _batch_station
+	_recipe = _batch_recipe
+	_elapsed = 0.0
+	_last_ratio = 0.0
+	_hp_at_start = _current_hp()
+	_duration = maxf(_recipe.craft_time * _craft_time_factor(), 0.0)
+	craft_started.emit(_recipe)
+	if _duration <= 0.0:
+		_complete()
+
+
+## Selesai/batal: `_batch_done` sengaja disimpan supaya UI bisa melaporkan
+## berapa siklus yang sudah jadi dari batch terakhir.
+func _end_batch() -> void:
+	_batch_recipe = null
+	_batch_station = null
+	_batch_total = 0
+
+
+## Batch sengaja tidak direset di sini: `_complete()` masih memakainya untuk
+## melanjutkan siklus, dan `cancel_craft()` memanggil `_end_batch()` sendiri.
 func _clear_state() -> void:
 	_recipe = null
+	_active_station = null
 	_elapsed = 0.0
 	_duration = 0.0
 	_hp_at_start = -1.0

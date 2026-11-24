@@ -85,7 +85,7 @@ func build(parent: Node = null) -> Array[Dictionary]:
 ## Rencana layout tanpa menyentuh SceneTree. Deterministik untuk layout yang sama.
 func plan() -> Array[Dictionary]:
 	_rng = RandomNumberGenerator.new()
-	_rng.seed = layout.seed
+	_rng.seed = layout.layout_seed
 	_placed.clear()
 
 	var entries: Array[Dictionary] = []

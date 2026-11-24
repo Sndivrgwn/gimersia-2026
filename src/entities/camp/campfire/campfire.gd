@@ -7,8 +7,10 @@ extends CampStructure
 ## `DayNightManager.get_time_scale()` (0 saat final dawn membekukan fuel).
 ## Clock bisa di-inject lewat `clock` untuk tes.
 ##
-## Menyala = fuel > 0. Saat habis, api menjadi ember (cahaya 80 px) dan
-## `fuel_depleted` dipancarkan; struktur tetap berdiri sampai dihancurkan.
+## Menyala = fuel > 0 dan tidak COLD. Mission 9: bangunan baru menaruh dasar api
+## (COLD) dengan bahan bakar tersimpan; api dinyalakan minigame gesek batu.
+## Saat bahan bakar habis, api menjadi ember (cahaya 80 px) dan `fuel_depleted`
+## dipancarkan; struktur tetap berdiri sampai dihancurkan.
 ##
 ## Bonus rest: pemain dalam `rest_radius` mendapat override idle regen
 ## `&"campfire"` sebesar `rest_regen`, dicek tiap `rest_check_interval`.
@@ -17,11 +19,17 @@ signal fuel_changed(seconds: float)
 signal lit_changed(is_lit: bool)
 signal fuel_depleted
 
+signal interaction_requested(station: Node, interactor: Node)
+
 const STATION_GROUP := &"crafting_station"
 const STATION_TYPE := RecipeDefinition.Station.CAMPFIRE
+const PROMPT := "E: Api Unggun"
 const PLAYER_GROUP := &"player"
 const NEEDS_NAME := "NeedsComponent"
 const REST_SOURCE := &"campfire"
+## Siang hari api tetap terlihat redup; malam penuh.
+const DAY_LIGHT_ENERGY := 0.12
+const NIGHT_LIGHT_ENERGY := 1.0
 
 ## Tuning. Null berarti memakai CampfireConfig() bawaan.
 @export var config: CampfireConfig
@@ -32,12 +40,14 @@ const REST_SOURCE := &"campfire"
 
 var _fuel: float = 0.0
 ## D3: api mati (fuel 0) tetap COLD setelah diisi bahan bakar sampai
-## dinyalakan dengan minigame gesek batu.
+## dinyalakan dengan minigame gesek batu. Mission 9: bangunan baru juga COLD.
 var _cold: bool = false
+## Mission 9: pernah menyala? Ember hanya muncul setelah api pernah menyala.
+var has_been_lit: bool = false
 var _rest_timer: float = 0.0
 var _rest_players: Array[Node] = []
 var _light: PointLight2D
-var _light_texture: GradientTexture2D
+var _light_texture: Texture2D
 
 
 func _enter_tree() -> void:
@@ -50,13 +60,22 @@ func _ready() -> void:
 	_ensure_config()
 	if clock == null:
 		clock = get_node_or_null("/root/DayNightManager")
-	_fuel = clampf(config.start_fuel, 0.0, config.max_fuel)
+	_fuel = clampf(config.initial_fuel_seconds, 0.0, config.max_fuel)
+	_cold = not config.start_lit
+	has_been_lit = config.start_lit and _fuel > 0.0
+	var link := StationInteractable.new()
+	link.name = "StationInteractable"
+	link.station = self
+	add_child(link)
 	_ensure_light()
 	_refresh_light()
+	VisualSlot.attach(self, &"campfire", [get_node_or_null("Visual"), get_node_or_null("Flame")], null, CampfireVisual.new())
 
 
 func _process(delta: float) -> void:
 	tick(delta)
+	# Tint dunia berubah selama senja/fajar; energi cahaya ikut meredup.
+	_refresh_light()
 
 
 func _exit_tree() -> void:
@@ -69,6 +88,14 @@ func _exit_tree() -> void:
 
 ## `station_type` dibaca CraftingComponent lewat properti dinamis.
 var station_type: int = STATION_TYPE
+
+
+func get_interaction_prompt() -> String:
+	return PROMPT
+
+
+func request_station_panel(interactor: Node) -> void:
+	interaction_requested.emit(self, interactor)
 
 
 func is_station_active() -> bool:
@@ -99,6 +126,7 @@ func ignite() -> bool:
 	if not can_ignite():
 		return false
 	_cold = false
+	has_been_lit = true
 	_refresh_light()
 	lit_changed.emit(true)
 	return true
@@ -130,9 +158,12 @@ func get_max_fuel() -> float:
 	return config.max_fuel if config != null else 600.0
 
 
+## Mission 9: belum pernah menyala = `unlit_light_radius` (0 = gelap).
 func get_light_radius() -> float:
 	if is_lit():
 		return config.lit_light_radius
+	if not has_been_lit:
+		return config.unlit_light_radius
 	return config.ember_light_radius
 
 
@@ -256,6 +287,8 @@ func _set_fuel(value: float) -> void:
 	fuel_changed.emit(_fuel)
 	_refresh_light()
 	var now_lit := is_lit()
+	if now_lit:
+		has_been_lit = true
 	if was_lit and not now_lit:
 		lit_changed.emit(false)
 		fuel_depleted.emit()
@@ -366,6 +399,10 @@ func _ensure_light() -> void:
 	_light_texture.width = 256
 	_light_texture.height = 256
 
+	var art := Assets.ui_texture(&"light_campfire")
+	if art != null:
+		_light_texture = art
+
 	_light = PointLight2D.new()
 	_light.name = "Light"
 	_light.texture = _light_texture
@@ -378,6 +415,18 @@ func _refresh_light() -> void:
 	if _light == null or _light_texture == null:
 		return
 	var radius := get_light_radius()
-	var width := maxf(float(_light_texture.width), 1.0)
+	var width := maxf(float(_light_texture.get_width()), 1.0)
 	_light.texture_scale = (radius * 2.0) / width
-	_light.visible = true
+	_light.visible = radius > 0.0
+	_light.energy = lerpf(DAY_LIGHT_ENERGY, NIGHT_LIGHT_ENERGY, _world_darkness())
+
+
+## 0 siang terang, 1 malam; dibaca dari tint CanvasModulate DayNightVisual.
+func _world_darkness() -> float:
+	var tree := get_tree()
+	if tree == null:
+		return 0.0
+	var visual := tree.get_first_node_in_group(&"day_night_visual")
+	if visual != null and visual.has_method(&"get_world_darkness"):
+		return clampf(float(visual.call(&"get_world_darkness")), 0.0, 1.0)
+	return 0.0

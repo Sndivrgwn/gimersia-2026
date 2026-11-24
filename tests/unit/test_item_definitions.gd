@@ -22,8 +22,8 @@ func before_all() -> void:
 
 
 func test_every_item_file_loads() -> void:
-	assert_eq(_definitions.size(), 23, "semua item di src/data/items harus termuat")
-	assert_eq(ItemCatalog.ALL.size(), 23, "ItemCatalog harus mendaftar semua item")
+	assert_eq(_definitions.size(), 24, "semua item di src/data/items harus termuat")
+	assert_eq(ItemCatalog.ALL.size(), 24, "ItemCatalog harus mendaftar semua item")
 
 
 func test_ids_are_unique_and_stack_is_at_least_one() -> void:
@@ -50,6 +50,7 @@ func test_display_names_match_spec() -> void:
 		&"boiled_water": "Air Matang",
 		&"herbal_bandage": "Perban Herbal",
 		&"waterskin": "Kantung Air Kulit",
+		&"waterskin_empty": "Kantung Air Kosong",
 		&"signal_flare": "Suar Darurat",
 		&"torch": "Obor",
 		&"wooden_spear": "Tombak Kayu",
@@ -107,15 +108,24 @@ func test_consumables_match_spec() -> void:
 	var bandage := _definition(&"herbal_bandage")
 	assert_almost_eq(bandage.consume_effect.hp, 35.0, 0.001)
 
+	# Fase 3C: Waterskin penuh diminum lalu jadi kantung kosong (varian item).
+	var waterskin := _definition(&"waterskin")
+	assert_eq(waterskin.category, ItemDefinition.Category.CONSUMABLE)
+	assert_almost_eq(waterskin.consume_effect.thirst, 25.0, 0.001)
+	assert_almost_eq(waterskin.consume_effect.hunger, -5.0, 0.001)
+	assert_eq(waterskin.use_result, _definition(&"waterskin_empty"))
+
 	# Hanya Bone Broth yang membawa HoT.
 	assert_almost_eq(berry.consume_effect.regen_hp_per_second, 0.0, 0.001)
 	assert_almost_eq(coconut.consume_effect.regen_duration, 0.0, 0.001)
 
 
 func test_special_items_match_spec() -> void:
-	var waterskin := _definition(&"waterskin")
-	assert_eq(waterskin.category, ItemDefinition.Category.SPECIAL)
-	assert_eq(waterskin.max_stack, 1)
+	var empty_skin := _definition(&"waterskin_empty")
+	assert_eq(empty_skin.category, ItemDefinition.Category.SPECIAL)
+	assert_eq(empty_skin.max_stack, 1)
+	assert_null(empty_skin.consume_effect)
+	assert_null(empty_skin.use_result)
 
 	var flare := _definition(&"signal_flare")
 	assert_eq(flare.category, ItemDefinition.Category.SPECIAL)

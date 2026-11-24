@@ -29,6 +29,10 @@ enum EquipmentSlot { NONE, WEAPON, TOOL, ARMOR }
 @export var icon: Texture2D
 ## Efek saat dipakai. Null berarti item tidak berefek.
 @export var consume_effect: ItemEffect
+## Varian item yang menggantikan item ini setelah dipakai (mis. Waterskin
+## penuh -> `waterskin_empty.tres`). Null berarti item habis seperti biasa.
+## Berlaku untuk stack berisi satu item (max_stack 1).
+@export var use_result: ItemDefinition
 ## Slot peralatan bila item ini bisa dipasang.
 @export var equipment_slot: EquipmentSlot = EquipmentSlot.NONE
 ## Damage senjata (dipakai combat nanti; belum di-wire).
@@ -43,3 +47,11 @@ enum EquipmentSlot { NONE, WEAPON, TOOL, ARMOR }
 
 func is_consumable() -> bool:
 	return category == Category.CONSUMABLE and consume_effect != null
+
+
+## Ikon untuk UI: field icon bila diisi, kalau tidak art dari
+## assets/icons/items/<id>.png. Null berarti UI memakai teks saja.
+func get_icon() -> Texture2D:
+	if icon != null:
+		return icon
+	return Assets.item_icon(id)

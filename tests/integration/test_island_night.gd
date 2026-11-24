@@ -31,6 +31,10 @@ func test_s3_night_loop() -> void:
 	campfire_slot.interact(inter)
 	var campfire := camp.get_structure(&"campfire") as Campfire
 	assert_not_null(campfire, "Campfire harus terbangun")
+	# Mission 9 (R4): bangunan baru menaruh dasar api COLD; harness menyalakannya
+	# lewat jalur resmi (gesek batu) sebelum menguji malam.
+	assert_false(campfire.is_lit(), "Campfire baru dibangun dingin")
+	campfire.ignite()
 	assert_true(campfire.is_lit(), "Campfire harus menyala")
 
 	# 1. Advance to night 1 (day_seconds is 450)
@@ -85,6 +89,8 @@ func test_s3_night_loop() -> void:
 	# so boar triggers raid_camp and prioritizes structures over the player
 	_harness.player.global_position = Vector2(0.0, 160.0)
 	camp_boar.global_position = Vector2(0.0, 0.0)
+	# Mission 9 (R4): EVENT_ONLY hanya raider yang menyerang struktur camp.
+	camp_boar.set_raider(true)
 	camp_boar.tick(0.1)
 	camp_boar.tick(0.1)
 	assert_true(camp_boar.raid_camp, "Boar HOSTILE di dalam area camp harus raid_camp")

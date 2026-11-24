@@ -144,7 +144,9 @@ func move_from_bag(inventory: InventoryComponent, index: int) -> bool:
 	var moved := stack.count - leftover
 	if moved <= 0:
 		return false
-	inventory.remove_item(stack.item, moved)
+	# Kurangi persis slot yang diklik; `remove_item` bisa mengambil dari slot
+	# lain dengan item sama sehingga slot yang diklik tidak berubah.
+	inventory.remove_from_slot(index, moved)
 	return true
 
 

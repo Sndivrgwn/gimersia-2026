@@ -9,10 +9,15 @@ extends Node
 
 const BOAR_SCENE: PackedScene = preload("res://src/entities/fauna/wild_boar/wild_boar.tscn")
 const DEFAULT_SCALING: NightScalingConfig = preload("res://src/data/configs/fauna/night_scaling_config.tres")
+const DEFAULT_RAID_CONFIG: RaidConfig = preload("res://src/data/configs/fauna/raid_config.tres")
 
 @export var clock: Node
 @export var fauna_parent: Node2D
+## Mission 10 Phase 4: jarak bersih minimum ke pemain/badan fauna lain.
+@export var min_body_clearance: float = 60.0
 @export var night_scaling: NightScalingConfig = DEFAULT_SCALING
+## Mission 9: batas hostile malam + pengali interval spawn.
+@export var raid_config: RaidConfig = DEFAULT_RAID_CONFIG
 
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
@@ -45,12 +50,34 @@ func tick(delta: float) -> void:
 	if not _active or delta <= 0.0:
 		return
 	_timer += delta * _time_scale()
-	if _timer < night_scaling.get_spawn_interval(_night):
+	if _timer < get_spawn_interval():
 		return
 	_timer = 0.0
-	if get_hostile_count() >= night_scaling.get_max_enemies(_night):
+	if get_hostile_count() >= get_hostile_cap():
 		return
 	_spawn_boar()
+
+
+## Batas hostile hidup malam ini (Mission 9: RaidConfig menimpa tabel spec).
+func get_hostile_cap() -> int:
+	if raid_config != null:
+		return raid_config.get_night_hostile_cap(_night)
+	return night_scaling.get_max_enemies(_night)
+
+
+func get_spawn_interval() -> float:
+	var base := night_scaling.get_spawn_interval(_night)
+	if raid_config == null:
+		return base
+	return base * raid_config.get_spawn_interval_multiplier()
+
+
+## Mission 9: RaidDirector minta boar tambahan untuk satu raid (batas hostile
+## tetap dihormati).
+func spawn_raid_boar() -> WildBoar:
+	if get_hostile_count() >= get_hostile_cap():
+		return null
+	return _spawn_boar()
 
 
 func _process(delta: float) -> void:
@@ -130,6 +157,7 @@ func _spawn_position() -> Vector2:
 	var far: Array[Vector2] = []
 	var all: Array[Vector2] = []
 	var raw: Array[Vector2] = []
+	var outside_base: Array[Vector2] = []
 	for node in tree.get_nodes_in_group(&"night_spawn_point"):
 		var marker := node as Node2D
 		if marker == null:
@@ -137,17 +165,23 @@ func _spawn_position() -> Vector2:
 		raw.append(marker.global_position)
 		if base_clear > 0.0 and marker.global_position.distance_to(base_center) < base_clear:
 			continue
+		# Root cause Mission 10: fallback tidak boleh memakai penanda di ring base.
+		outside_base.append(marker.global_position)
+		# Mission 10: jangan menumpuk dengan pemain/badan fauna yang sudah ada.
+		if not SpawnClearance.is_clear(tree, marker.global_position, min_body_clearance):
+			continue
 		all.append(marker.global_position)
 		if marker.global_position.distance_to(player_position) >= 600.0:
 			far.append(marker.global_position)
-	if all.is_empty():
-		all = raw
 	if not far.is_empty():
 		return far[rng.randi_range(0, far.size() - 1)]
-	if all.is_empty():
+	var pool: Array[Vector2] = all if not all.is_empty() else outside_base
+	if pool.is_empty():
+		pool = raw
+	if pool.is_empty():
 		return Vector2.ZERO
-	var best := all[0]
-	for point in all:
+	var best := pool[0]
+	for point in pool:
 		if point.distance_to(player_position) > best.distance_to(player_position):
 			best = point
 	return best

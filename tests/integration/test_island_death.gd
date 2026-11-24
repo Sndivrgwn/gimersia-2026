@@ -63,11 +63,10 @@ func test_s4_death_loop() -> void:
 	assert_eq(inv.count_of(ItemCatalog.BERRY), 0, "Tas pemain harus kosong setelah mati")
 	assert_not_null(inv.get_equipped(ItemDefinition.EquipmentSlot.WEAPON), "Equipment harus tetap terpasang")
 
-	# Clock keeps running while dead
-	var time_before: float = clock.get_phase_elapsed()
-	_harness.advance_time(10.0)
-	var time_after: float = clock.get_phase_elapsed()
-	assert_gt(time_after, time_before, "Waktu clock harus tetap berjalan saat pemain mati")
+	# Mission 9 (R4, keputusan owner): selama layar mati seluruh game dibekukan
+	# (FreezeController alasan &"death") sehingga jam game berhenti.
+	assert_true(get_tree().paused, "game dibekukan saat mati")
+	assert_almost_eq(clock.get_time_scale(), 0.0, 0.001, "jam berhenti saat mati")
 
 	# Respawn
 	var max_hp_at_respawn := stats.get_max_hp()

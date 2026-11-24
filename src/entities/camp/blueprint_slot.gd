@@ -33,6 +33,13 @@ var _probe_result: bool = false
 
 func _ready() -> void:
 	_build_placeholder()
+	if definition != null:
+		VisualSlot.attach(
+			self,
+			StringName("blueprint_" + String(definition.id)),
+			[_placeholder.get_node_or_null("Outline"), _placeholder.get_node_or_null("Label")],
+			_placeholder
+		)
 	_refresh_placeholder()
 
 

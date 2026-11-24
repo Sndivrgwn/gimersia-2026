@@ -7,20 +7,20 @@
 [ext_resource type="Script" uid="uid://bhexx6mj1xv3q" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_2d.gd" id="5_lp57q"]
 [ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="6_nu6o2"]
 [ext_resource type="Script" uid="uid://dk8r7t2xb8jlq" path="res://scenes/practice/safe_zone.gd" id="7_lp57q"]
-[ext_resource type="PackedScene" path="res://src/levels/components/environment/day_night_visual.tscn" id="8_daynight"]
+[ext_resource type="PackedScene" uid="uid://dlotstni4ab6i" path="res://src/levels/components/environment/day_night_visual.tscn" id="8_daynight"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/time/time_hud.tscn" id="9_timehud"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/needs/needs_hud.tscn" id="10_needshud"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/stats/stats_hud.tscn" id="11_statshud"]
-[ext_resource type="Script" path="res://scenes/practice/needs_debug.gd" id="12_needsdebug"]
-[ext_resource type="Script" path="res://src/components/inventory/inventory_component.gd" id="13_inventory"]
+[ext_resource type="Script" uid="uid://hg838huke75u" path="res://scenes/practice/needs_debug.gd" id="12_needsdebug"]
+[ext_resource type="Script" uid="uid://blohqgmeds6xe" path="res://src/components/inventory/inventory_component.gd" id="13_inventory"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/inventory/hotbar_hud.tscn" id="14_hotbarhud"]
 [ext_resource type="PackedScene" path="res://src/entities/props/item_pickup.tscn" id="15_pickup"]
 [ext_resource type="Resource" path="res://src/data/items/wood.tres" id="16_wood"]
 [ext_resource type="Resource" path="res://src/data/items/stone.tres" id="17_stone"]
-[ext_resource type="Resource" path="res://src/data/items/berry.tres" id="18_berry"]
-[ext_resource type="Resource" path="res://src/data/items/raw_meat.tres" id="19_rawmeat"]
+[ext_resource type="Resource" uid="uid://b240mdc3iugqd" path="res://src/data/items/berry.tres" id="18_berry"]
+[ext_resource type="Resource" uid="uid://catylpawxjsea" path="res://src/data/items/raw_meat.tres" id="19_rawmeat"]
 [ext_resource type="PackedScene" path="res://src/ui/panels/inventory/bag_panel.tscn" id="20_bagpanel"]
-[ext_resource type="Script" path="res://src/components/interaction/interactor_component.gd" id="21_interactor"]
+[ext_resource type="Script" uid="uid://r3ifbe0bkhxx" path="res://src/components/interaction/interactor_component.gd" id="21_interactor"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/interaction/interaction_hud.tscn" id="22_interactionhud"]
 [ext_resource type="PackedScene" path="res://src/entities/props/resource_node/resource_node.tscn" id="23_resourcenode"]
 [ext_resource type="Resource" path="res://src/data/gathering/twig.tres" id="24_twig"]
@@ -1638,6 +1638,12 @@ tile_set = SubResource("TileSet_c5gkv")
 [node name="Player" parent="." unique_id=1238520018 groups=["player"] instance=ExtResource("2_player")]
 position = Vector2(-94, 34)
 
+[node name="InventoryComponent" type="Node" parent="Player" unique_id=680781178]
+script = ExtResource("13_inventory")
+
+[node name="InteractorComponent" type="Node" parent="Player" unique_id=1046662233]
+script = ExtResource("21_interactor")
+
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=924491676]
 tile_map_data = PackedByteArray("AADy/wYAAAAYABEAAADy/wcAAAAYABIAAADy/wgAAAAYABMAAADy/wkAAAAYABQAAADy/woAAAAYABUAAADy/wsAAAAYABYAAADy/wwAAAAYABcAAADz/wYAAAAZABEAAADz/wcAAAAZABIAAADz/wgAAAAZABMAAADz/wkAAAAZABQAAADz/woAAAAZABUAAADz/wsAAAAZABYAAADz/wwAAAAZABcAAAD0/wYAAAAaABEAAAD0/wcAAAAaABIAAAD0/wgAAAAaABMAAAD0/wkAAAAaABQAAAD0/woAAAAaABUAAAD0/wsAAAAaABYAAAD0/wwAAAAaABcAAAD1/wYAAAAYABEAAAD1/wcAAAAYABIAAAD1/wgAAAAYABMAAAD1/wkAAAAYABQAAAD1/woAAAAYABUAAAD1/wsAAAAYABYAAAD1/wwAAAAYABcAAAD2/wYAAAAZABEAAAD2/wcAAAAZABIAAAD2/wgAAAAZABMAAAD2/wkAAAAZABQAAAD2/woAAAAZABUAAAD2/wsAAAAZABYAAAD2/wwAAAAZABcAAAD3/wYAAAAaABEAAAD3/wcAAAAaABIAAAD3/wgAAAAaABMAAAD3/wkAAAAaABQAAAD3/woAAAAaABUAAAD3/wsAAAAaABYAAAD3/wwAAAAaABcAAAD4/wYAAAAbABEAAAD4/wcAAAAbABIAAAD4/wgAAAAbABMAAAD4/wkAAAAbABQAAAD4/woAAAAbABUAAAD4/wsAAAAbABYAAAD4/wwAAAAbABcAAAD5/wYAAAAcABEAAAD5/wcAAAAcABIAAAD5/wgAAAAcABMAAAD5/wkAAAAcABQAAAD5/woAAAAcABUAAAD5/wsAAAAcABYAAAD5/wwAAAAcABcAAAD6/wYAAAAdABEAAAD6/wcAAAAdABIAAAD6/wgAAAAdABMAAAD6/wkAAAAdABQAAAD6/woAAAAdABUAAAD6/wsAAAAdABYAAAD6/wwAAAAdABcAAAD7/wYAAAAeABEAAAD7/wcAAAAeABIAAAD7/wgAAAAeABMAAAD7/wkAAAAeABQAAAD7/woAAAAeABUAAAD7/wsAAAAeABYAAAD7/wwAAAAeABcAAAD8/wYAAAAfABEAAAD8/wcAAAAfABIAAAD8/wgAAAAfABMAAAD8/wkAAAAfABQAAAD8/woAAAAfABUAAAD8/wsAAAAfABYAAAD8/wwAAAAfABcAAAD9/wYAAAAgABEAAAD9/wcAAAAgABIAAAD9/wgAAAAgABMAAAD9/wkAAAAgABQAAAD9/woAAAAgABUAAAD9/wsAAAAgABYAAAD9/wwAAAAgABcAAAD+/wYAAAAhABEAAAD+/wcAAAAhABIAAAD+/wgAAAAhABMAAAD+/wkAAAAhABQAAAD+/woAAAAhABUAAAD+/wsAAAAhABYAAAD+/wwAAAAhABcAAAD//wYAAAAiABEAAAD//wcAAAAiABIAAAD//wgAAAAiABMAAAD//wkAAAAiABQAAAD//woAAAAiABUAAAD//wsAAAAiABYAAAD//wwAAAAiABcAAAAAAAYAAAAjABEAAAAAAAcAAAAjABIAAAAAAAgAAAAjABMAAAAAAAkAAAAjABQAAAAAAAoAAAAjABUAAAAAAAsAAAAjABYAAAAAAAwAAAAjABcAAAABAAYAAAAkABEAAAABAAcAAAAkABIAAAABAAgAAAAkABMAAAABAAkAAAAkABQAAAABAAoAAAAkABUAAAABAAsAAAAkABYAAAABAAwAAAAkABcAAAACAAYAAAAlABEAAAACAAcAAAAlABIAAAACAAgAAAAlABMAAAACAAkAAAAlABQAAAACAAoAAAAlABUAAAACAAsAAAAlABYAAAACAAwAAAAlABcAAAADAAYAAAAmABEAAAADAAcAAAAmABIAAAADAAgAAAAmABMAAAADAAkAAAAmABQAAAADAAoAAAAmABUAAAADAAsAAAAmABYAAAADAAwAAAAmABcAAAAEAAYAAAAnABEAAAAEAAcAAAAnABIAAAAEAAgAAAAnABMAAAAEAAkAAAAnABQAAAAEAAoAAAAnABUAAAAEAAsAAAAnABYAAAAEAAwAAAAnABcAAAAFAAYAAAAoABEAAAAFAAcAAAAoABIAAAAFAAgAAAAoABMAAAAFAAkAAAAoABQAAAAFAAoAAAAoABUAAAAFAAsAAAAoABYAAAAFAAwAAAAoABcAAAAGAAYAAAApABEAAAAGAAcAAAApABIAAAAGAAgAAAApABMAAAAGAAkAAAApABQAAAAGAAoAAAApABUAAAAGAAsAAAApABYAAAAGAAwAAAApABcAAAAHAAYAAAAqABEAAAAHAAcAAAAqABIAAAAHAAgAAAAqABMAAAAHAAkAAAAqABQAAAAHAAoAAAAqABUAAAAHAAsAAAAqABYAAAAHAAwAAAAqABcAAAAIAAYAAAArABEAAAAIAAcAAAArABIAAAAIAAgAAAArABMAAAAIAAkAAAArABQAAAAIAAoAAAArABUAAAAIAAsAAAArABYAAAAIAAwAAAArABcAAAAJAAYAAAAsABEAAAAJAAcAAAAsABIAAAAJAAgAAAAsABMAAAAJAAkAAAAsABQAAAAJAAoAAAAsABUAAAAJAAsAAAAsABYAAAAJAAwAAAAsABcAAAAKAAYAAAAtABEAAAAKAAcAAAAtABIAAAAKAAgAAAAtABMAAAAKAAkAAAAtABQAAAAKAAoAAAAtABUAAAAKAAsAAAAtABYAAAAKAAwAAAAtABcAAAALAAYAAAAuABEAAAALAAcAAAAuABIAAAALAAgAAAAuABMAAAALAAkAAAAuABQAAAALAAoAAAAuABUAAAALAAsAAAAuABYAAAALAAwAAAAuABcAAAAMAAYAAAAvABEAAAAMAAcAAAAvABIAAAAMAAgAAAAvABMAAAAMAAkAAAAvABQAAAAMAAoAAAAvABUAAAAMAAsAAAAvABYAAAAMAAwAAAAvABcAAAA=")
 tile_set = SubResource("TileSet_3ijr5")
@@ -1678,61 +1684,54 @@ shape = SubResource("RectangleShape2D_ohrhu")
 
 [node name="TimeHUD" parent="." unique_id=2049610334 instance=ExtResource("9_timehud")]
 
-[node name="NeedsHUD" parent="." instance=ExtResource("10_needshud")]
+[node name="NeedsHUD" parent="." unique_id=342029459 instance=ExtResource("10_needshud")]
 
-[node name="StatsHUD" parent="." instance=ExtResource("11_statshud")]
+[node name="StatsHUD" parent="." unique_id=1021911731 instance=ExtResource("11_statshud")]
 
-[node name="NeedsDebug" type="Node" parent="."]
+[node name="NeedsDebug" type="Node" parent="." unique_id=104062412]
 script = ExtResource("12_needsdebug")
 
-[node name="InventoryComponent" type="Node" parent="Player"]
-script = ExtResource("13_inventory")
+[node name="HotbarHUD" parent="." unique_id=926797187 instance=ExtResource("14_hotbarhud")]
 
-[node name="InteractorComponent" type="Node" parent="Player"]
-script = ExtResource("21_interactor")
+[node name="InteractionHUD" parent="." unique_id=607027029 instance=ExtResource("22_interactionhud")]
 
-[node name="HotbarHUD" parent="." instance=ExtResource("14_hotbarhud")]
+[node name="BagPanel" parent="." unique_id=863711390 instance=ExtResource("20_bagpanel")]
 
-[node name="InteractionHUD" parent="." instance=ExtResource("22_interactionhud")]
+[node name="DemoPickups" type="Node2D" parent="." unique_id=758851295]
 
-[node name="BagPanel" parent="." instance=ExtResource("20_bagpanel")]
-
-[node name="DemoPickups" type="Node2D" parent="."]
-
-[node name="WoodPickup" parent="DemoPickups" instance=ExtResource("15_pickup")]
+[node name="WoodPickup" parent="DemoPickups" unique_id=1942922092 instance=ExtResource("15_pickup")]
 position = Vector2(-150, 82)
 item = ExtResource("16_wood")
 count = 3
 
-[node name="StonePickup" parent="DemoPickups" instance=ExtResource("15_pickup")]
+[node name="StonePickup" parent="DemoPickups" unique_id=339057873 instance=ExtResource("15_pickup")]
 position = Vector2(-120, 82)
 item = ExtResource("17_stone")
 count = 2
 
-[node name="BerryPickup" parent="DemoPickups" instance=ExtResource("15_pickup")]
+[node name="BerryPickup" parent="DemoPickups" unique_id=633795908 instance=ExtResource("15_pickup")]
 position = Vector2(-90, 82)
 item = ExtResource("18_berry")
 count = 2
 
-[node name="RawMeatPickup" parent="DemoPickups" instance=ExtResource("15_pickup")]
+[node name="RawMeatPickup" parent="DemoPickups" unique_id=498913766 instance=ExtResource("15_pickup")]
 position = Vector2(-60, 82)
 item = ExtResource("19_rawmeat")
-count = 1
 
-[node name="GatherDemo" type="Node2D" parent="."]
+[node name="GatherDemo" type="Node2D" parent="." unique_id=1775626435]
 
-[node name="TwigNode" parent="GatherDemo" instance=ExtResource("23_resourcenode")]
+[node name="TwigNode" parent="GatherDemo" unique_id=608554268 instance=ExtResource("23_resourcenode")]
 position = Vector2(-160, 44)
 definition = ExtResource("24_twig")
 
-[node name="SmallRockNode" parent="GatherDemo" instance=ExtResource("23_resourcenode")]
+[node name="SmallRockNode" parent="GatherDemo" unique_id=1050000120 instance=ExtResource("23_resourcenode")]
 position = Vector2(-150, 92)
 definition = ExtResource("25_smallrock")
 
-[node name="FiberBushNode" parent="GatherDemo" instance=ExtResource("23_resourcenode")]
+[node name="FiberBushNode" parent="GatherDemo" unique_id=670056706 instance=ExtResource("23_resourcenode")]
 position = Vector2(-40, 44)
 definition = ExtResource("26_fiberbush")
 
-[node name="BerryBushNode" parent="GatherDemo" instance=ExtResource("23_resourcenode")]
+[node name="BerryBushNode" parent="GatherDemo" unique_id=1005230210 instance=ExtResource("23_resourcenode")]
 position = Vector2(-40, 92)
 definition = ExtResource("27_berrybush")

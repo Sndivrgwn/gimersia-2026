@@ -4,8 +4,10 @@ extends CharacterBody2D
 ## Basis fauna: HP, temperament, modifier kecepatan/kecepatan serang,
 ## scaling malam, Dazzled, gerak mengembara, kabur, dan jatuhan item.
 ##
-## Body memakai collision_layer 0 (tidak ada yang bertabrakan dengannya) dan
-## collision_mask 1 (dinding pantai), sehingga pemain bisa menembus hewan.
+## Mission 9: fauna dengan `config.blocks_player` true (babi) berada di layer
+## FAUNA_BODY sehingga pemain tidak bisa menembusnya; fauna lain tetap layer 0
+## (bisa ditembus). Mask fauna: dinding pantai + pagar + FAUNA_BODY (fauna tidak
+## saling menumpuk) + PLAYER_BODY bila memblokir pemain.
 ## Komponen ini tidak memakai physics query untuk menyerang; itu tugas subclass.
 
 signal died(node: Node)
@@ -55,8 +57,13 @@ var _flee_direction: Vector2 = Vector2.ZERO
 var _flash_remaining: float = 0.0
 var _visual: Polygon2D
 var _hp_bar: ProgressBar
+## Fase 2C: sisa detik bar HP tetap terlihat sejak damage terakhir.
+var _hp_bar_timeout: float = 0.0
 var _ready_done: bool = false
 var _pickup_scene: PackedScene
+## Mission 11: perpindahan yang diterapkan BodySeparation pada tick terakhir
+## (dibaca PhysicsTraceRecorder; tidak mengubah perilaku).
+var last_separation: Vector2 = Vector2.ZERO
 
 
 func _enter_tree() -> void:
@@ -64,7 +71,22 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	_apply_body_profile()
 	ensure_ready()
+
+
+## Mission 10 Phase 4: profil massa per spesies (satu baris, additive).
+func _apply_body_profile() -> void:
+	var profile_id: StringName = &""
+	if self is IslandDeer:
+		profile_id = &"island_deer"
+	elif self is WildBoar:
+		profile_id = &"wild_boar"
+	if profile_id == &"":
+		return
+	var path := "res://src/data/configs/physics/body_%s.tres" % profile_id
+	if ResourceLoader.exists(path):
+		BodyProfileApplier.apply(self, load(path) as BodyProfile)
 
 
 func _physics_process(delta: float) -> void:
@@ -80,11 +102,17 @@ func tick(delta: float) -> void:
 		_freeze_remaining = maxf(_freeze_remaining - delta, 0.0)
 		return
 	if _knockback_remaining > 0.0:
-		global_position += _knockback_velocity * delta
+		# Mission 9: dorongan lewat fisika (bukan tulis global_position langsung)
+		# supaya dinding/pagar/pemain tetap dihormati.
+		var step := minf(delta, _knockback_remaining)
+		move_and_collide(_knockback_velocity * step)
 		_knockback_remaining = maxf(_knockback_remaining - delta, 0.0)
 	health.tick(delta)
+	_tick_hp_bar(delta)
 	_tick_flash(delta)
 	_update_dazzle()
+	# Mission 10 Phase 4: jaring pengaman anti-tumpuk, dihormati dinding/sungai.
+	last_separation = BodySeparation.apply(self, delta, _find_player())
 
 	if _flee_remaining > 0.0:
 		_tick_flee(delta)
@@ -104,8 +132,11 @@ func ensure_ready() -> void:
 	if player == null:
 		player = _find_player()
 	_home = global_position
-	collision_layer = 0
-	collision_mask = PhysicsLayers.WORLD | PhysicsLayers.FENCE_LAYER
+	collision_layer = PhysicsLayers.FAUNA_BODY if config.blocks_player else 0
+	var mask := PhysicsLayers.WORLD | PhysicsLayers.FENCE_LAYER | PhysicsLayers.FAUNA_BODY
+	if config.blocks_player:
+		mask |= PhysicsLayers.PLAYER_BODY
+	collision_mask = mask
 	_ensure_health()
 	_ensure_visual()
 	_ensure_hp_bar()
@@ -119,10 +150,15 @@ func get_health() -> HealthComponent:
 	return health
 
 
-## Bar HP kecil di atas hewan; hanya terlihat setelah terkena damage.
+## Bar HP kecil di atas hewan; hanya terlihat setelah terkena damage dan
+## hilang lagi setelah `config.hp_bar_hide_seconds` tanpa damage (Fase 2C).
 func get_hp_bar() -> ProgressBar:
 	ensure_ready()
 	return _hp_bar
+
+
+func is_hp_bar_visible() -> bool:
+	return _hp_bar != null and _hp_bar.visible
 
 
 func get_temperament() -> int:
@@ -165,6 +201,15 @@ func get_move_speed() -> float:
 
 func is_fleeing() -> bool:
 	return _flee_remaining > 0.0
+
+
+## Mission 9 fase 4: pengali radius deteksi terhadap `target`. Pemain yang
+## jongkok melaporkan `get_stealth_multiplier()` < 1 sehingga fauna baru
+## menyadarinya dari jarak lebih dekat. Target lain selalu 1.0.
+func get_detection_multiplier(target: Node) -> float:
+	if target == null or not target.has_method(&"get_stealth_multiplier"):
+		return 1.0
+	return clampf(float(target.call(&"get_stealth_multiplier")), 0.05, 1.0)
 
 
 # --- Modifier ---------------------------------------------------------------
@@ -228,13 +273,20 @@ func is_frozen() -> bool:
 
 
 ## D5: dorongan visual/kinematik diterapkan di tick. Diabaikan saat dash/telegraph.
+## Mission 9: perpindahan dikali `config.knockback_resistance`.
 func apply_knockback(direction: Vector2, distance: float, duration: float) -> void:
 	if direction.length_squared() <= 0.0001 or distance <= 0.0 or duration <= 0.0:
 		return
 	if is_knockback_ignored():
 		return
+	ensure_ready()
+	# Profil massa (Mission 10) adalah sumber utama; config tetap jadi cadangan.
+	var multiplier := BodyProfileApplier.knockback_multiplier(self, config.knockback_resistance)
+	var scaled := distance * maxf(multiplier, 0.0)
+	if scaled <= 0.0:
+		return
 	_knockback_remaining = duration
-	_knockback_velocity = direction.normalized() * (distance / duration)
+	_knockback_velocity = direction.normalized() * (scaled / duration)
 
 
 ## Hook subclass: dash/telegraph kebal knockback.
@@ -244,6 +296,11 @@ func is_knockback_ignored() -> bool:
 
 func is_knocked_back() -> bool:
 	return _knockback_remaining > 0.0
+
+
+## Radius badan dari CollisionShape2D pertama (CircleShape2D); default 12 px.
+func get_body_radius() -> float:
+	return _radius_of(self)
 
 
 func is_dying() -> bool:
@@ -351,11 +408,20 @@ func _ensure_visual() -> void:
 			Vector2(-12, -8), Vector2(12, -8), Vector2(14, 6), Vector2(-14, 6)
 		])
 		add_child(_visual)
+	var key := visual_key()
+	if not String(key).is_empty():
+		VisualSlot.attach(self, key, [_visual], null, FaunaVisual.new())
+
+
+## Kunci slot aset fauna; diisi subclass (wild_boar / island_deer).
+func visual_key() -> StringName:
+	return &""
 
 
 func _on_health_damaged(_amount: float, source: Node) -> void:
 	provoke(source)
 	flash_hit()
+	_hp_bar_timeout = maxf(config.hp_bar_hide_seconds, 0.0) if config != null else 0.0
 	_refresh_hp_bar()
 
 
@@ -383,7 +449,10 @@ func _spawn_corpse() -> void:
 		return
 	var corpse := Node2D.new()
 	corpse.name = "FaunaCorpse"
-	if _visual != null:
+	var death_art := _death_art()
+	if death_art != null:
+		corpse.add_child(death_art)
+	elif _visual != null:
 		var copy := _visual.duplicate()
 		if copy is Node2D:
 			(copy as Node2D).position = Vector2.ZERO
@@ -397,6 +466,21 @@ func _spawn_corpse() -> void:
 	tween.tween_property(corpse, "rotation", rotation + TAU * 0.5, death_sequence_time)
 	tween.tween_property(corpse, "modulate:a", 0.0, death_sequence_time)
 	tween.chain().tween_callback(corpse.queue_free)
+
+
+## Art jasad: salinan node art dalam state death bila slot punya art.
+func _death_art() -> Node2D:
+	var slot := get_node_or_null("VisualSlot") as VisualSlot
+	if slot == null or not slot.is_showing_art() or not slot.has_state(&"death"):
+		return null
+	slot.set_state(&"death", slot.get_direction())
+	var art := slot.duplicate_art()
+	if art == null:
+		return null
+	art.position = Vector2.ZERO
+	art.rotation = 0.0
+	art.scale = Vector2.ONE
+	return art
 
 
 func _update_behavior(delta: float) -> void:
@@ -425,7 +509,18 @@ func _refresh_hp_bar() -> void:
 		return
 	_hp_bar.max_value = maxf(health.get_max_hp(), 1.0)
 	_hp_bar.value = health.get_current_hp()
-	_hp_bar.visible = health.get_current_hp() < health.get_max_hp()
+	var damaged := health.get_current_hp() < health.get_max_hp()
+	_hp_bar.visible = damaged and _hp_bar_timeout > 0.0
+
+
+## Fase 2C: setelah `hp_bar_hide_seconds` tanpa damage, bar disembunyikan
+## walau HP masih di bawah maksimum.
+func _tick_hp_bar(delta: float) -> void:
+	if _hp_bar_timeout <= 0.0:
+		return
+	_hp_bar_timeout = maxf(_hp_bar_timeout - delta, 0.0)
+	if _hp_bar_timeout <= 0.0:
+		_refresh_hp_bar()
 
 
 func _tick_flash(delta: float) -> void:
@@ -486,7 +581,24 @@ func face(direction: Vector2) -> void:
 	scale.x = absf(scale.x) * (1.0 if direction.x >= 0.0 else -1.0)
 
 
+## Mission 11: badan fauna ini sudah menempel badan pemain (<= jarak kontak).
+## Dipakai state non-chasing supaya AI tidak terus menggerakkan badan saat
+## pemain menempel; tanpa itu pemain tidak pernah benar-benar terhalang.
+func is_touching_player() -> bool:
+	var target := _find_player()
+	if not (target is Node2D):
+		return false
+	return global_position.distance_to((target as Node2D).global_position) <= get_contact_distance_to_player()
+
+
 func _wander(delta: float) -> void:
+	# Mission 11 (Block A): WANDER/NEUTRAL tidak boleh menggerakkan badan saat
+	# menempel pemain. Dulu babi tetap berjalan, jadi pemain mengikuti babi yang
+	# bergerak (terasa seperti terseret tanpa massa). Contact-stop dan chase
+	# hanya milik CHASE/BITE/DASH_TELEGRAPH/DASH.
+	if is_touching_player():
+		move_in_direction(Vector2.ZERO, 0.0, delta)
+		return
 	if _wander_pause > 0.0:
 		_wander_pause = maxf(_wander_pause - delta, 0.0)
 		move_in_direction(Vector2.ZERO, 0.0, delta)
@@ -516,12 +628,27 @@ func _random_pause() -> float:
 
 
 func _find_player() -> Node:
-	if player != null and is_instance_valid(player):
-		return player
-	var tree := get_tree()
-	if tree == null:
+	var target := player
+	if target == null or not is_instance_valid(target):
+		var tree := get_tree()
+		if tree == null:
+			return null
+		target = tree.get_first_node_in_group(PLAYER_GROUP)
+	if target == null:
 		return null
-	return tree.get_first_node_in_group(PLAYER_GROUP)
+	# Mission 9: selama perlindungan respawn fauna tidak memilih pemain.
+	if _player_is_protected(target):
+		return null
+	return target
+
+
+func _player_is_protected(target: Node) -> bool:
+	var receiver := target.get_node_or_null(DAMAGE_RECEIVER_NAME) as PlayerDamageReceiver
+	if receiver == null:
+		return false
+	if receiver.run_config != null and not receiver.run_config.protection_ignored_by_enemies:
+		return false
+	return receiver.is_protected()
 
 
 func get_player_receiver() -> PlayerDamageReceiver:
@@ -529,6 +656,31 @@ func get_player_receiver() -> PlayerDamageReceiver:
 	if target == null:
 		return null
 	return target.get_node_or_null(DAMAGE_RECEIVER_NAME) as PlayerDamageReceiver
+
+
+## Jarak menempel ke pemain (radius badan fauna + radius pemain + extra).
+func get_contact_distance_to_player() -> float:
+	ensure_ready()
+	var extra := config.contact_stop_extra
+	var profile := BodyProfileApplier.profile_of(self)
+	if profile != null:
+		extra = profile.contact_stop_extra
+	return _radius_of(_find_player()) + get_body_radius() + maxf(extra, 0.0)
+
+
+## Satu jalur radius untuk fauna ini maupun target lain (pemain).
+func _radius_of(node: Node) -> float:
+	var body := node as Node2D
+	if body == null:
+		return 12.0
+	for child in body.get_children():
+		var shape_node := child as CollisionShape2D
+		if shape_node == null:
+			continue
+		var circle := shape_node.shape as CircleShape2D
+		if circle != null:
+			return circle.radius
+	return 12.0
 
 
 func _is_night() -> bool:

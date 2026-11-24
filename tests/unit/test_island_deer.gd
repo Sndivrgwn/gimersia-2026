@@ -32,6 +32,10 @@ func test_deer_flees_when_player_is_close() -> void:
 	var setup := _setup()
 	var deer := setup[0] as IslandDeer
 	deer.tick(0.1)
+	# Mission 10: rusa waspada/terpaku dulu (jaminan first hit), lalu kabur.
+	assert_true(deer.is_alerted())
+	for _i in 20:
+		deer.tick(0.1)
 	assert_true(deer.is_fleeing())
 	assert_eq(deer.get_state(), IslandDeer.State.FLEE)
 	var before := deer.global_position.x

@@ -62,11 +62,11 @@ func test_interval_spawns_until_cap() -> void:
 	_clock.night_started.emit(1)
 	_spawner.tick(45.0)
 	assert_eq(_boars(), 2)
+	# Mission 9 (R4): batas hostile malam 1 turun dari 3 (tabel spec) ke 2
+	# (RaidConfig night_active_hostile_cap).
 	_spawner.tick(45.0)
-	assert_eq(_boars(), 3)
-	_spawner.tick(45.0)
-	assert_eq(_boars(), 3, "batas malam 1 = 3")
-	assert_eq(_spawner.get_hostile_count(), 3)
+	assert_eq(_boars(), 2, "batas malam 1 = 2")
+	assert_eq(_spawner.get_hostile_count(), 2)
 
 
 func test_time_scale_is_applied() -> void:
@@ -97,3 +97,16 @@ func test_day_start_stops_spawning() -> void:
 	_spawner.tick(300.0)
 	assert_eq(_boars(), 1)
 	assert_false(_spawner.is_active())
+
+func test_spawn_position_keeps_60px_clear_of_player_and_boars() -> void:
+	_clock.night_started.emit(1)
+	for offset in [2000.0, 2100.0]:
+		var marker := Marker2D.new()
+		marker.add_to_group(&"night_spawn_point")
+		add_child_autofree(marker)
+		marker.global_position = Vector2(offset, 300.0)
+	var point: Vector2 = _spawner._spawn_position()
+	assert_gte(point.distance_to(Vector2.ZERO), 60.0, "jauh dari pemain")
+	for child in _parent.get_children():
+		if child is FaunaBase:
+			assert_gte(point.distance_to((child as Node2D).global_position), 60.0, "jauh dari babi lain")

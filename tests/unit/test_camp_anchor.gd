@@ -129,6 +129,8 @@ func test_wild_boar_raid_uses_anchor_center() -> void:
 	add_child_autofree(boar)
 	boar.global_position = Vector2(1000.0, 500.0)
 	boar.ensure_ready()
+	# Mission 9 (R4): raid struktur hanya untuk raider (mode EVENT_ONLY).
+	boar.set_raider(true)
 	boar.tick(0.1)
 	boar.tick(0.1)
 	assert_true(boar.raid_camp, "raid memakai pusat base, bukan origin")

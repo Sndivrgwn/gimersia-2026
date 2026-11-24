@@ -23,6 +23,8 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 30
 	_build()
+	UiSkin.apply_all(self)
+	UiSkin.add_canvas_background(self, &"ui_bg_death")
 	hide_screen()
 
 
@@ -30,16 +32,34 @@ func _ready() -> void:
 
 func show_death(respawns_remaining: int) -> void:
 	_title.text = TITLE_DEATH
-	_detail.text = HINT_DEATH % maxi(respawns_remaining, 0)
+	_detail.text = HINT_DEATH % maxi(respawns_remaining, 0) + _death_time_line() + _summary_block()
 	_respawn_button.visible = true
 	_panel.visible = true
 
 
 func show_game_over() -> void:
 	_title.text = TITLE_GAME_OVER
-	_detail.text = HINT_GAME_OVER
+	_detail.text = HINT_GAME_OVER + _summary_block()
 	_respawn_button.visible = false
 	_panel.visible = true
+
+
+## Teks detail lengkap (dipakai tes).
+func get_detail_text() -> String:
+	return "" if _detail == null else _detail.text
+
+
+## Fase 5: ringkasan run dari DailyRunStats (kosong bila statistik tidak ada).
+func _summary_block() -> String:
+	return RunSummary.block_for(self)
+
+
+## Mission 12: "Tewas pada Hari 3 pukul 22:14" bila jam tersedia.
+func _death_time_line() -> String:
+	var clock := get_node_or_null("/root/DayNightManager")
+	if clock == null or not clock.has_method(&"get_clock_text"):
+		return ""
+	return "\nTewas pada Hari %d pukul %s" % [int(clock.get_current_day()), clock.get_clock_text()]
 
 
 func hide_screen() -> void:
@@ -57,8 +77,8 @@ func _build() -> void:
 	_panel = PanelContainer.new()
 	_panel.name = "Panel"
 	_panel.set_anchors_preset(Control.PRESET_CENTER)
-	_panel.position = Vector2(-170, -110)
-	_panel.custom_minimum_size = Vector2(340, 220)
+	_panel.position = Vector2(-230, -150)
+	_panel.custom_minimum_size = Vector2(460, 300)
 	add_child(_panel)
 
 	var column := VBoxContainer.new()

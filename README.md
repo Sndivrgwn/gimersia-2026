@@ -40,6 +40,24 @@ gimersia-2026/
 
 - [Architecture & conventions](docs/editable/architecture.md)
 - [Module usage guide](docs/editable/PANDUAN_MODUL.md)
+- [AI context (status terverifikasi)](docs/editable/AI_CONTEXT.md)
 - [MVP checklist](docs/editable/MVP_CHECKLIST.md)
 - [Gameplay specification](docs/noneditable/spesifikasi_teknis_mekanisme_gameplay_V8.md)
 - [MVP scope & division work list](docs/noneditable/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md)
+
+## Panduan
+
+- [Asset & SpriteFrames guide](docs/editable/ASSET_GUIDE.md) — cara menaruh art (slot, nama file, fallback, `.tres`).
+- [Config guide](docs/editable/CONFIG_GUIDE.md) — semua Resource `.tres` dan efek tuning-nya.
+- [Audio guide](docs/editable/AUDIO_GUIDE.md) — daftar cue audio, spesifikasi file, bus, dan hook (belum ada playback).
+- `docs/editable/PANDUAN_MODUL.md` — wiring modul, Input Map, sistem aset.
+- `docs/editable/PANDUAN_INPUT.md` — arti setiap tombol (Tab, I, P, F1-F12, J, Esc, ...), dibuat dari Input Map yang hidup.
+
+## Status
+
+Mission 10 selesai sampai batas yang diminta: matriks fisika + profil massa
+(player/babi/rusa), pemisah badan dan aturan spawn 60 px, state rusa
+ALERT/STARTLE/FLEE dengan ramp kecepatan, serta registri audio + `AUDIO_GUIDE.md`
+(data dan dokumentasi saja, tanpa playback). Build headless bersih di
+`island.tscn`, `practice1.tscn`, dan `main_menu.tscn`. Rincian terverifikasi di
+`docs/editable/AI_CONTEXT.md` §3, §4, dan §8.

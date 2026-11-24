@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=3]
+[gd_scene load_steps=67 format=3]
 
 [ext_resource type="Script" path="res://src/levels/island/island.gd" id="1_island"]
 [ext_resource type="PackedScene" path="res://src/entities/player/player.tscn" id="2_player"]
@@ -53,6 +53,37 @@
 [ext_resource type="Script" path="res://src/ui/hud/night/night_survival_hud.gd" id="51_survivalhud"]
 [ext_resource type="Script" path="res://src/ui/hud/respawn_recap/respawn_recap_hud.gd" id="52_recap"]
 [ext_resource type="Script" path="res://src/ui/hud/proficiency/proficiency_hud.gd" id="53_proficiencyhud"]
+[ext_resource type="Script" path="res://src/components/status/status_effects_component.gd" id="54_statuseffects"]
+[ext_resource type="Script" path="res://src/ui/hud/status/status_effect_hud.gd" id="55_statuseffecthud"]
+[ext_resource type="Script" path="res://src/core/assets/asset_debug.gd" id="56_assetdebug"]
+[ext_resource type="Script" path="res://src/components/interaction/river_drink_zone.gd" id="57_riverdrink"]
+[ext_resource type="Script" path="res://src/levels/components/environment/ambient_life.gd" id="60_ambient"]
+[ext_resource type="Script" path="res://src/components/camera/camera_feel.gd" id="61_camerafeel"]
+[ext_resource type="Script" path="res://src/ui/fx/low_hp_vignette.gd" id="62_lowhp"]
+[ext_resource type="Script" path="res://src/ui/hud/hints/opening_sequence.gd" id="63_opening"]
+[ext_resource type="Script" path="res://src/core/debug/physics_trace_recorder.gd" id="64_physicstrace"]
+[ext_resource type="Script" path="res://src/ui/hud/compass/camp_arrow.gd" id="64_camparrow"]
+[ext_resource type="Script" path="res://src/ui/fx/death_fx.gd" id="65_deathfx"]
+[ext_resource type="Script" path="res://src/ui/fx/victory_fx.gd" id="66_victoryfx"]
+[ext_resource type="Script" path="res://src/ui/hud/toast/toast_hud.gd" id="67_toast"]
+[ext_resource type="Script" path="res://src/ui/hud/fx/damage_numbers.gd" id="68_damage"]
+[ext_resource type="Script" path="res://src/ui/hud/fx/hit_direction.gd" id="69_hitdir"]
+[ext_resource type="Script" path="res://src/core/managers/raid_director.gd" id="70_raid"]
+[ext_resource type="Script" path="res://src/ui/hud/night/raid_warning_hud.gd" id="71_raidhud"]
+[ext_resource type="Resource" path="res://src/data/configs/fauna/raid_config.tres" id="72_raidconfig"]
+[ext_resource type="Script" path="res://src/core/managers/freeze_controller.gd" id="73_freeze"]
+[ext_resource type="Script" path="res://src/ui/hud/protection/protection_hud.gd" id="74_protection"]
+[ext_resource type="Script" path="res://src/ui/hud/placeholder/placeholder_labels.gd" id="75_placeholder"]
+[ext_resource type="Script" path="res://src/components/needs/health_regen_component.gd" id="75_regen"]
+[ext_resource type="PackedScene" path="res://src/ui/panels/station/station_panel.tscn" id="76_station"]
+[ext_resource type="Script" path="res://src/components/inventory/hotbar_selection_component.gd" id="77_hotbar_sel"]
+[ext_resource type="Script" path="res://src/components/visual/held_item_visual.gd" id="78_held_visual"]
+[ext_resource type="Script" path="res://src/core/managers/daily_run_stats.gd" id="79_daily_stats"]
+[ext_resource type="Script" path="res://src/ui/hud/goals/daily_goal_hud.gd" id="80_goalhud"]
+[ext_resource type="Script" path="res://src/ui/hud/recap/dawn_recap_hud.gd" id="81_recaphud"]
+[ext_resource type="Script" path="res://src/components/visual/player_light.gd" id="82_playerlight"]
+[ext_resource type="Script" path="res://src/ui/hud/compass/loot_arrow.gd" id="83_lootarrow"]
+[ext_resource type="Script" path="res://src/components/combat/target_indicator.gd" id="84_target"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
 size = Vector2(5000, 100)
@@ -187,6 +218,9 @@ script = ExtResource("4_interactor")
 [node name="CraftingComponent" type="Node" parent="Player"]
 script = ExtResource("20_crafting")
 
+[node name="RiverDrinkZone" type="Node2D" parent="Player"]
+script = ExtResource("57_riverdrink")
+
 [node name="RepairComponent" type="Node" parent="Player"]
 script = ExtResource("21_repair")
 
@@ -204,6 +238,9 @@ script = ExtResource("36_baseplace")
 
 [node name="FireStarterController" type="Node" parent="Player"]
 script = ExtResource("41_firestarter")
+
+[node name="HealthRegenComponent" type="Node" parent="Player"]
+script = ExtResource("75_regen")
 
 [node name="CombatFeedback" type="Node" parent="Player"]
 script = ExtResource("43_feedback")
@@ -247,6 +284,9 @@ config = ExtResource("40_fenceconf")
 [node name="SettingsService" type="Node" parent="."]
 script = ExtResource("44_settings")
 
+[node name="FreezeController" type="Node" parent="."]
+script = ExtResource("73_freeze")
+
 [node name="PauseMenu" type="CanvasLayer" parent="."]
 script = ExtResource("45_pause")
 
@@ -263,10 +303,21 @@ script = ExtResource("48_hints")
 script = ExtResource("25_quota")
 fauna_parent = NodePath("../Fauna")
 guarantee_deer_at_rescue = true
+raid_config = ExtResource("72_raidconfig")
 
 [node name="NightSpawner" type="Node" parent="." node_paths=PackedStringArray("fauna_parent")]
 script = ExtResource("26_spawner")
 fauna_parent = NodePath("../Fauna")
+raid_config = ExtResource("72_raidconfig")
+
+[node name="RaidDirector" type="Node" parent="." node_paths=PackedStringArray("spawner", "fauna_parent")]
+script = ExtResource("70_raid")
+spawner = NodePath("../NightSpawner")
+fauna_parent = NodePath("../Fauna")
+config = ExtResource("72_raidconfig")
+
+[node name="DailyRunStats" type="Node" parent="."]
+script = ExtResource("79_daily_stats")
 
 [node name="DayNightVisual" parent="." instance=ExtResource("9_daynight")]
 
@@ -287,6 +338,9 @@ script = ExtResource("49_chestpanel")
 [node name="NightBanner" type="Control" parent="."]
 script = ExtResource("50_nightbanner")
 
+[node name="RaidWarningHUD" type="Control" parent="."]
+script = ExtResource("71_raidhud")
+
 [node name="NightSurvivalHUD" type="Control" parent="."]
 script = ExtResource("51_survivalhud")
 
@@ -295,6 +349,19 @@ script = ExtResource("52_recap")
 
 [node name="ProficiencyHUD" type="Control" parent="."]
 script = ExtResource("53_proficiencyhud")
+
+[node name="ProtectionHUD" type="Control" parent="."]
+script = ExtResource("74_protection")
+
+[node name="DailyGoalHUD" type="CanvasLayer" parent="."]
+script = ExtResource("80_goalhud")
+
+[node name="DawnRecapHUD" type="CanvasLayer" parent="." node_paths=PackedStringArray("stats")]
+script = ExtResource("81_recaphud")
+stats = NodePath("../DailyRunStats")
+
+[node name="PlaceholderLabels" type="Control" parent="."]
+script = ExtResource("75_placeholder")
 
 [node name="BagPanel" parent="." instance=ExtResource("14_bagpanel")]
 
@@ -319,3 +386,54 @@ script = ExtResource("29_endgame")
 
 [node name="GatherDebug" type="Node" parent="."]
 script = ExtResource("16_gatherdebug")
+
+[node name="StatusEffects" type="Node" parent="Player"]
+script = ExtResource("54_statuseffects")
+
+[node name="StatusEffectHUD" type="CanvasLayer" parent="."]
+script = ExtResource("55_statuseffecthud")
+
+[node name="AssetDebug" type="Node" parent="."]
+script = ExtResource("56_assetdebug")
+
+[node name="PhysicsTraceRecorder" type="Node" parent="."]
+script = ExtResource("64_physicstrace")
+
+[node name="AmbientLife" type="Node2D" parent="."]
+script = ExtResource("60_ambient")
+[node name="CameraFeel" type="Node" parent="."]
+script = ExtResource("61_camerafeel")
+[node name="LowHpVignette" type="CanvasLayer" parent="."]
+script = ExtResource("62_lowhp")
+[node name="OpeningSequence" type="Node" parent="."]
+script = ExtResource("63_opening")
+[node name="CampArrow" type="CanvasLayer" parent="."]
+script = ExtResource("64_camparrow")
+
+[node name="LootBagArrow" type="CanvasLayer" parent="."]
+script = ExtResource("83_lootarrow")
+[node name="DeathFX" type="Node" parent="."]
+script = ExtResource("65_deathfx")
+[node name="VictoryFX" type="Node" parent="."]
+script = ExtResource("66_victoryfx")
+
+[node name="ToastHUD" type="CanvasLayer" parent="."]
+script = ExtResource("67_toast")
+[node name="DamageNumbers" type="CanvasLayer" parent="."]
+script = ExtResource("68_damage")
+[node name="HitDirection" type="CanvasLayer" parent="."]
+script = ExtResource("69_hitdir")
+
+[node name="StationPanel" parent="." instance=ExtResource("76_station")]
+
+[node name="HotbarSelectionComponent" type="Node" parent="Player"]
+script = ExtResource("77_hotbar_sel")
+
+[node name="HeldItemVisual" type="Node2D" parent="Player"]
+script = ExtResource("78_held_visual")
+
+[node name="PlayerLight" type="Node2D" parent="Player"]
+script = ExtResource("82_playerlight")
+
+[node name="TargetIndicator" type="Node2D" parent="Player"]
+script = ExtResource("84_target")

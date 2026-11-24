@@ -9,10 +9,11 @@ const HINTS := {
 	&"dusk": "Malam hampir tiba. Nyalakan api unggun dan siapkan pertahanan.",
 	&"need_low": "Makan atau minum sebelum terlalu lemah.",
 	&"repair": "Tahan R untuk memperbaiki struktur.",
-	&"campfire_cold": "Api padam. Tahan E lalu tekan E tepat waktu untuk menggesek batu.",
+	&"campfire_cold": "Api unggun belum menyala. Tahan E, lalu tekan E tepat di zona hijau untuk menggesek batu.",
 	&"crafting": "Buka Tab atau I, lalu tab Crafting untuk membuat item.",
 	&"fence": "Bangun pagar di sekitar base.",
 	&"neutral_hit": "Menyerang hewan netral membuatnya menyerang balik.",
+	&"hunger_sprint_lock": "Lapar: kamu tidak bisa sprint dan HP pulih lebih lambat.",
 }
 
 

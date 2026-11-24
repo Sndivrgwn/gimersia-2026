@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AssetConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/data/resources/assets/asset_config.gd" id="1_cfg"]
+
+[resource]
+script = ExtResource("1_cfg")
+pixel_art = true
+mirror_fallback = true
+default_fps = {
+"attack": 14.0,
+"death": 10.0,
+"default": 6.0,
+"hurt": 10.0,
+"idle": 6.0,
+"run": 12.0,
+"sprint": 12.0,
+"walk": 10.0
+}

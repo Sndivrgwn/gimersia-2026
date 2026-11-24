@@ -4,18 +4,22 @@ extends Node2D
 ## Visual half of the day/night cycle.
 ##
 ## Gameplay phases stay DAY/NIGHT. This component adds four visual conditions:
-##   - MORNING: night -> morning -> day blend when a game day starts
-##   - DAY: steady daylight after the dawn blend
-##   - EVENING: day -> evening -> night blend when night starts
-##   - NIGHT: steady night after the dusk blend
+##   - MORNING: night -> morning -> day blend over the last minute of night
+##   - DAY: steady daylight
+##   - EVENING: day -> evening -> night blend over the last minute of day
+##   - NIGHT: steady night
 ##
-## The CanvasModulate tint is the single authority for world lighting. Light
-## intensity from DayNightVisualConfig is folded into that tint, so no other
-## node competes for the same property.
+## Timing comes from DayNightManager: the blend starts when the current phase
+## has `transition_duration` seconds left, so dusk finishes exactly when night
+## starts (and dawn exactly when day starts). Loading a scene mid-transition
+## computes progress from the remaining time instead of restarting a tween.
+##
+## The CanvasModulate tint is the single authority for world lighting. The
+## SunOverlay derives the sun's direction from the same clock (pure functions
+## live in DayLightCurve).
 ##
 ## Audio/other systems may listen to `atmosphere_changed` (MORNING/DAY/EVENING/
-## NIGHT) in addition to DayNightManager's gameplay signals. The component owns
-## no clock: all timing comes from the manager's phase changes plus one tween.
+## NIGHT) in addition to DayNightManager's gameplay signals.
 
 signal atmosphere_changed(atmosphere: int)
 
@@ -23,23 +27,26 @@ const MANAGER_PATH := "/root/DayNightManager"
 
 @export var visual_config: DayNightVisualConfig
 
+## Mission 13: arah/durasi sapuan fajar-senja + arc HUD.
+@export var sun_config: SunConfig
+
 ## Keeps the particle emitter centered on the active Camera2D.
 @export var effects_follow_camera: bool = true
 
 @onready var _canvas_modulate: CanvasModulate = get_node_or_null("CanvasModulate") as CanvasModulate
+@onready var _sweep_overlay: CanvasLayer = get_node_or_null("SunSweepOverlay") as CanvasLayer
 @onready var _effects: Node2D = get_node_or_null("Effects") as Node2D
 @onready var _fireflies: CPUParticles2D = get_node_or_null("Effects/Fireflies") as CPUParticles2D
 @onready var _day_motes: CPUParticles2D = get_node_or_null("Effects/DayMotes") as CPUParticles2D
+@onready var _sun_overlay: CanvasLayer = get_node_or_null("SunOverlay") as CanvasLayer
 
 # Untyped on purpose: the autoload has no class_name (it would clash with the
 # singleton name), and string-based access keeps this scene usable on its own.
 var _manager
-var _tween: Tween
 var _atmosphere: int = DayNightVisualConfig.Atmosphere.DAY
 var _has_atmosphere: bool = false
-var _from_color: Color = Color.WHITE
-var _mid_color: Color = Color.WHITE
-var _to_color: Color = Color.WHITE
+## Warna blend seragam (bukan tint sapuan) untuk perhitungan kegelapan api.
+var _world_target_color: Color = Color.WHITE
 
 
 func _ready() -> void:
@@ -61,22 +68,22 @@ func _ready() -> void:
 		push_warning("DayNightVisual: DayNightManager autoload not found; showing the steady day tint.")
 		_set_atmosphere(DayNightVisualConfig.Atmosphere.DAY)
 		_apply_atmosphere_color()
+		_hide_sun()
 		return
 
-	# Apply the current phase immediately so a scene never starts mid-fade.
+	# Apply the current visual immediately so a scene never starts mid-fade.
 	var start_atmosphere := DayNightVisualConfig.Atmosphere.NIGHT if _manager.is_night() else DayNightVisualConfig.Atmosphere.DAY
 	_set_atmosphere(start_atmosphere)
-	_apply_atmosphere_color()
-
 	_manager.connect("phase_changed", _on_phase_changed)
+	_update_visuals()
 
 
 func _process(_delta: float) -> void:
-	if not effects_follow_camera or _effects == null:
-		return
-	var camera := get_viewport().get_camera_2d()
-	if camera != null:
-		_effects.global_position = camera.get_screen_center_position()
+	if effects_follow_camera and _effects != null:
+		var camera := get_viewport().get_camera_2d()
+		if camera != null:
+			_effects.global_position = camera.get_screen_center_position()
+	_update_visuals()
 
 
 ## Current visual condition (DayNightVisualConfig.Atmosphere).
@@ -96,59 +103,103 @@ func get_atmosphere_name() -> String:
 			return "DAY"
 
 
+## Jendela transisi (detik game). Dipakai juga oleh api unggun untuk tahu
+## kapan cahayanya harus meredup/menyala.
+func get_transition_duration() -> float:
+	return 0.0 if visual_config == null else visual_config.get_transition_duration()
+
+
+## 0.0 = tint siang, 1.0 = tint malam. Dipakai PointLight2D api unggun supaya
+## cahayanya tidak terlihat sekuat malam saat siang.
+func get_world_darkness() -> float:
+	if visual_config == null:
+		return 0.0
+	var day_luminance := DayLightCurve.luminance(visual_config.get_effective_color(DayNightVisualConfig.Atmosphere.DAY))
+	var night_luminance := DayLightCurve.luminance(visual_config.get_effective_color(DayNightVisualConfig.Atmosphere.NIGHT))
+	return DayLightCurve.darkness_from_luminance(
+		DayLightCurve.luminance(_world_target_color),
+		day_luminance,
+		night_luminance
+	)
+
+
 func _on_phase_changed(_phase: int) -> void:
-	_start_transition()
+	_update_visuals()
 
 
-func _start_transition() -> void:
-	if visual_config == null or _canvas_modulate == null:
+func _update_visuals() -> void:
+	if _manager == null or visual_config == null or _canvas_modulate == null:
 		return
 
-	var is_night: bool = _manager.is_night()
-	var start_atmosphere := DayNightVisualConfig.Atmosphere.EVENING if is_night else DayNightVisualConfig.Atmosphere.MORNING
-	var end_atmosphere := DayNightVisualConfig.Atmosphere.NIGHT if is_night else DayNightVisualConfig.Atmosphere.DAY
+	var is_night := bool(_manager.is_night())
+	var remaining := float(_manager.get_remaining_seconds())
+	var duration := get_transition_duration()
+	var progress := DayLightCurve.transition_progress(remaining, duration)
 
-	# Blend from wherever the tint currently is, so an interrupted transition
-	# never snaps or restarts from a stale color.
-	_from_color = _canvas_modulate.color
-	_mid_color = visual_config.get_effective_color(start_atmosphere)
-	_to_color = visual_config.get_effective_color(end_atmosphere)
-
-	# Atmosphere switches immediately (for audio/AI); the color catches up.
-	_set_atmosphere(start_atmosphere)
-
-	if _tween != null and _tween.is_valid():
-		_tween.kill()
-
-	var duration: float = visual_config.get_transition_duration()
-	if duration <= 0.0:
-		_set_world_color(_to_color)
-		_set_atmosphere(end_atmosphere)
-		return
-
-	# Bound to this node, so TWEEN_PAUSE_BOUND freezes it while the tree is
-	# paused and resumes from the same point.
-	_tween = create_tween()
-	_tween.set_trans(Tween.TRANS_LINEAR)
-	_tween.tween_method(_apply_transition, 0.0, 1.0, duration)
-	_tween.finished.connect(_on_transition_finished.bind(end_atmosphere))
-
-
-func _apply_transition(t: float) -> void:
-	# smoothstep eases both ends while the two color segments pass through the
-	# morning/evening waypoint at the midpoint.
-	var eased := smoothstep(0.0, 1.0, t)
-	var color: Color
-	if eased < 0.5:
-		color = _from_color.lerp(_mid_color, eased * 2.0)
+	if progress <= 0.0:
+		var steady := DayNightVisualConfig.Atmosphere.NIGHT if is_night else DayNightVisualConfig.Atmosphere.DAY
+		_set_atmosphere(steady)
+		var steady_color := visual_config.get_effective_color(steady)
+		_set_world_color(steady_color)
+		_world_target_color = steady_color
+		_clear_sweep()
 	else:
-		color = _mid_color.lerp(_to_color, (eased - 0.5) * 2.0)
-	_set_world_color(color)
+		var start_atmosphere := DayNightVisualConfig.Atmosphere.NIGHT if is_night else DayNightVisualConfig.Atmosphere.DAY
+		var mid_atmosphere := DayNightVisualConfig.Atmosphere.MORNING if is_night else DayNightVisualConfig.Atmosphere.EVENING
+		var end_atmosphere := DayNightVisualConfig.Atmosphere.DAY if is_night else DayNightVisualConfig.Atmosphere.NIGHT
+		_set_atmosphere(mid_atmosphere)
+		# Mission 13 approximation: CanvasModulate memakai endpoint yang lebih
+		# terang, SunSweepOverlay mengalikan bagian yang belum dilewati front ke
+		# warna blend seragam lama. Titik awal/akhir tetap sama dengan fade lama;
+		# sweep nonaktif jatuh ke blend_through yang lama persis.
+		var plan := SunSweep.plan(
+			sun_config,
+			is_night,
+			remaining,
+			duration,
+			visual_config.get_effective_color(start_atmosphere),
+			visual_config.get_effective_color(mid_atmosphere),
+			visual_config.get_effective_color(end_atmosphere)
+		)
+		_set_world_color(plan["color"])
+		_world_target_color = plan["target"]
+		if bool(plan["sweep"]):
+			_apply_sweep(plan)
+		else:
+			_clear_sweep()
+
+	_update_sun(is_night, remaining, duration)
 
 
-func _on_transition_finished(end_atmosphere: int) -> void:
-	_set_world_color(_to_color)
-	_set_atmosphere(end_atmosphere)
+func _apply_sweep(plan: Dictionary) -> void:
+	if _sweep_overlay == null or sun_config == null:
+		return
+	_sweep_overlay.call(
+		&"apply",
+		float(plan["progress"]),
+		int(plan["side"]),
+		sun_config.softness,
+		sun_config.warm_rim_strength,
+		plan["ratio"]
+	)
+
+
+func _clear_sweep() -> void:
+	if _sweep_overlay != null and _sweep_overlay.has_method(&"clear"):
+		_sweep_overlay.call(&"clear")
+
+
+func _update_sun(is_night: bool, remaining: float, duration: float) -> void:
+	if _sun_overlay == null or not _sun_overlay.has_method(&"apply"):
+		return
+	# Fajar terjadi di akhir fase malam: arah matahari masih terbit (progress 0).
+	var day_progress := 0.0 if is_night else clampf(float(_manager.get_phase_progress()), 0.0, 1.0)
+	_sun_overlay.call(&"apply", day_progress, DayLightCurve.darkness(is_night, remaining, duration))
+
+
+func _hide_sun() -> void:
+	if _sun_overlay != null and _sun_overlay.has_method(&"hide_sun"):
+		_sun_overlay.call(&"hide_sun")
 
 
 func _apply_atmosphere_color() -> void:
@@ -187,12 +238,13 @@ func _configure_effects() -> void:
 
 func _update_effects(atmosphere: int) -> void:
 	var effects_enabled := visual_config.enable_environment_effects
-	var is_dark := atmosphere == DayNightVisualConfig.Atmosphere.EVENING or atmosphere == DayNightVisualConfig.Atmosphere.NIGHT
+	# Kunang-kunang hanya malam: senja/fajar masih terang.
+	var is_night := atmosphere == DayNightVisualConfig.Atmosphere.NIGHT
 
 	if _fireflies != null:
-		_fireflies.emitting = effects_enabled and visual_config.enable_fireflies and is_dark
+		_fireflies.emitting = effects_enabled and visual_config.enable_fireflies and is_night
 	if _day_motes != null:
-		_day_motes.emitting = effects_enabled and visual_config.enable_day_motes and not is_dark
+		_day_motes.emitting = effects_enabled and visual_config.enable_day_motes and not is_night
 
 
 func _stop_effects() -> void:

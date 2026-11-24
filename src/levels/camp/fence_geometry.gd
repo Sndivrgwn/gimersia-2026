@@ -29,7 +29,7 @@ static func segments_cross(a1: Vector2, a2: Vector2, b1: Vector2, b2: Vector2) -
 ## Segmen pagar pertama (masih hidup) yang memotong garis from -> to.
 ## Sengaja tanpa tipe FenceSegment: memutus dependensi siklik
 ## FenceSegment -> FenceGeometry -> FenceSegment.
-static func first_blocking_segment(from: Vector2, to: Vector2, segments: Array):
+static func first_blocking_segment(from: Vector2, to: Vector2, segments: Array) -> Node2D:
 	for entry in segments:
 		var segment = entry
 		if segment == null or not is_instance_valid(segment):

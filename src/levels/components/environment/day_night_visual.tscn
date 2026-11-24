@@ -1,7 +1,14 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3 uid="uid://dlotstni4ab6i"]
 
-[ext_resource type="Script" path="res://src/levels/components/environment/day_night_visual.gd" id="1_visual"]
-[ext_resource type="Resource" path="res://src/data/configs/environment/day_night_visual_default.tres" id="2_visual_config"]
+[ext_resource type="Script" uid="uid://4sp1wmk1bf24" path="res://src/levels/components/environment/day_night_visual.gd" id="1_visual"]
+[ext_resource type="Resource" uid="uid://30tpkfqrabo3" path="res://src/data/configs/environment/day_night_visual_default.tres" id="2_visual_config"]
+[ext_resource type="Script" uid="uid://cb3uqucomoeo1" path="res://src/levels/components/environment/sun_overlay.gd" id="3_sun"]
+[ext_resource type="Resource" path="res://src/data/configs/environment/sun_config.tres" id="4_sun_config"]
+[ext_resource type="Script" path="res://src/levels/components/environment/sun_sweep_overlay.gd" id="5_sweep"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_firefly"]
+blend_mode = 1
+light_mode = 1
 
 [sub_resource type="Gradient" id="Gradient_glow"]
 offsets = PackedFloat32Array(0, 0.4, 1)
@@ -19,28 +26,29 @@ fill_to = Vector2(1, 0.5)
 offsets = PackedFloat32Array(0, 0.15, 0.8, 1)
 colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
 
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_firefly"]
-blend_mode = 1
-light_mode = 1
-
-[node name="DayNightVisual" type="Node2D" groups=["day_night_visual"]]
+[node name="DayNightVisual" type="Node2D" unique_id=1596531702 groups=["day_night_visual"]]
 process_mode = 1
 script = ExtResource("1_visual")
 visual_config = ExtResource("2_visual_config")
+sun_config = ExtResource("4_sun_config")
 
-[node name="CanvasModulate" type="CanvasModulate" parent="."]
-color = Color(1, 1, 1, 1)
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=740272269]
 
-[node name="Effects" type="Node2D" parent="."]
+[node name="SunSweepOverlay" type="CanvasLayer" parent="."]
+script = ExtResource("5_sweep")
 
-[node name="Fireflies" type="CPUParticles2D" parent="Effects"]
-emitting = false
+[node name="SunOverlay" type="CanvasLayer" parent="." unique_id=854190042]
+script = ExtResource("3_sun")
+
+[node name="Effects" type="Node2D" parent="." unique_id=637202054]
+
+[node name="Fireflies" type="CPUParticles2D" parent="Effects" unique_id=453324244]
 material = SubResource("CanvasItemMaterial_firefly")
+emitting = false
 amount = 24
+texture = SubResource("GradientTexture2D_glow")
 lifetime = 4.0
 preprocess = 2.0
-local_coords = false
-texture = SubResource("GradientTexture2D_glow")
 emission_shape = 3
 emission_rect_extents = Vector2(320, 200)
 direction = Vector2(0, -1)
@@ -53,13 +61,12 @@ scale_amount_max = 0.16
 color = Color(0.85, 1, 0.6, 1)
 color_ramp = SubResource("Gradient_fade")
 
-[node name="DayMotes" type="CPUParticles2D" parent="Effects"]
+[node name="DayMotes" type="CPUParticles2D" parent="Effects" unique_id=970103297]
 emitting = false
 amount = 12
+texture = SubResource("GradientTexture2D_glow")
 lifetime = 6.0
 preprocess = 2.0
-local_coords = false
-texture = SubResource("GradientTexture2D_glow")
 emission_shape = 3
 emission_rect_extents = Vector2(320, 200)
 direction = Vector2(1, -0.3)

@@ -11,10 +11,12 @@ extends Node
 signal hit_dealt(target: Node, damage: float)
 signal swing(aim_direction: Vector2, hit_count: int)
 signal enemy_killed(target: Node)
+## Fase 2C: target yang akan dipukul auto-attack (null saat tidak ada).
+signal auto_target_changed(target: Node)
 
 const DEFAULT_CONFIG: CombatConfig = preload("res://src/data/configs/combat_config.tres")
 const DAMAGEABLE_GROUP := &"damageable"
-const SLASH_VISIBLE_TIME := 0.1
+const SLASH_VISIBLE_TIME := 0.18
 const BAG_PANEL_NAME := "BagPanel"
 
 @export var combat_config: CombatConfig = DEFAULT_CONFIG
@@ -36,6 +38,8 @@ var _last_hit_heavy: bool = false
 var bag_panel_override: Node
 
 var _cooldown: float = 0.0
+## Fase 2C: target auto-attack tick terakhir; dibaca TargetIndicator.
+var _auto_target: Node
 ## Modifier damage per sumber, dipanggil berurutan saat satu ayunan mengenai.
 var _hit_modifiers: Array[Dictionary] = []
 var _slash: Polygon2D
@@ -62,6 +66,14 @@ func setup(p_player: Node) -> void:
 
 func get_cooldown_remaining() -> float:
 	return _cooldown
+
+
+## Target yang akan dipukul auto-attack saat ini (null bila tidak ada).
+## Dihitung ulang setiap tick, jadi indikator tidak perlu memindai sendiri.
+func get_auto_target() -> Node:
+	if _auto_target == null or not is_instance_valid(_auto_target):
+		return null
+	return _auto_target
 
 
 func get_attack_range() -> float:
@@ -105,6 +117,7 @@ func get_hit_modifier_count() -> int:
 
 func tick(delta: float) -> void:
 	_bind()
+	_update_auto_target()
 	_cooldown = maxf(_cooldown - delta, 0.0)
 	_buffer_time_left = maxf(_buffer_time_left - delta, 0.0)
 	if _buffer_time_left <= 0.0:
@@ -265,11 +278,27 @@ func swing_manual(aim: Vector2) -> void:
 
 
 func _auto_attack() -> void:
-	var target := _nearest(true)
+	var target := get_auto_target()
 	if target == null:
 		return
 	_cooldown = _attack_cooldown()
 	_hit(target)
+
+
+## Fase 2C: satu pemindaian per tick; hasilnya dipakai auto-attack dan
+## TargetIndicator. Pemain mati tidak punya target.
+func _update_auto_target() -> void:
+	if stats != null and stats.current_hp <= 0.0:
+		_set_auto_target(null)
+		return
+	_set_auto_target(_nearest(true))
+
+
+func _set_auto_target(target: Node) -> void:
+	if target == _auto_target:
+		return
+	_auto_target = target
+	auto_target_changed.emit(target)
 
 
 func _attack_cooldown() -> float:
@@ -421,24 +450,33 @@ func _show_slash(aim: Vector2) -> void:
 	if _slash == null:
 		_slash = Polygon2D.new()
 		_slash.name = "SlashArc"
-		_slash.color = Color(1.0, 0.95, 0.7, 0.45)
+		_slash.color = Color(1.0, 0.95, 0.7, 0.55)
 		_slash.z_index = 5
-		var range_px := get_attack_range()
-		var points := PackedVector2Array([Vector2.ZERO])
-		var steps := 8
-		for index in steps + 1:
-			var angle := deg_to_rad(-get_cone_angle() * 0.5 + get_cone_angle() * float(index) / float(steps))
-			points.append(Vector2(cos(angle), sin(angle)) * range_px)
-		_slash.polygon = points
 		add_child(_slash)
+	# Poligon dihitung ulang supaya senjata dengan jangkauan lebih panjang
+	# (tombak) mendapat busur yang sesuai.
+	var range_px := get_attack_range()
+	var points := PackedVector2Array([Vector2.ZERO])
+	var steps := 10
+	for index in steps + 1:
+		var angle := deg_to_rad(-get_cone_angle() * 0.5 + get_cone_angle() * float(index) / float(steps))
+		points.append(Vector2(cos(angle), sin(angle)) * range_px)
+	_slash.polygon = points
 	_slash.rotation = aim.angle()
+	_slash.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	_slash.scale = Vector2(0.82, 0.82)
 	_slash.visible = true
 	_slash_timer = SLASH_VISIBLE_TIME
 
 
+## Busur memudar + melebar singkat supaya ayunan terbaca tanpa art pemain.
 func _tick_slash(delta: float) -> void:
 	if _slash == null or not _slash.visible:
 		return
 	_slash_timer -= delta
+	var ratio := clampf(_slash_timer / SLASH_VISIBLE_TIME, 0.0, 1.0)
+	_slash.modulate.a = ratio
+	_slash.scale = Vector2.ONE * lerpf(0.95, 1.15, 1.0 - ratio)
 	if _slash_timer <= 0.0:
 		_slash.visible = false
+		_slash.modulate.a = 0.0
