@@ -11,6 +11,8 @@ config_version=5
 [application]
 
 config/name="gimersia-2026"
+run/main_scene="res://src/ui/menus/main_menu.tscn"
+config/version="v1.0.0"
 run/main_scene="res://src/levels/island/island.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
