@@ -7,8 +7,8 @@ extends CanvasLayer
 signal respawn_requested
 signal main_menu_requested
 
-const TITLE_DEATH := "Kamu Tewas"
-const TITLE_GAME_OVER := "Game Over"
+const TITLE_DEATH := "TEWAS"
+const TITLE_GAME_OVER := "KALAH"
 const HINT_DEATH := "Sisa Kesempatan Respawn: %d / 3"
 const HINT_GAME_OVER := "Tidak ada kesempatan respawn tersisa."
 

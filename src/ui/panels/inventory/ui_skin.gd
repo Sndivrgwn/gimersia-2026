@@ -1,4 +1,4 @@
-class_name UiSkin
+class_name InventoryUiSkin
 extends RefCounted
 
 ## Pembuat StyleBox dari aset UI di res://assets/textures/ui/.

@@ -20,9 +20,12 @@ const VBOX_PATH := "Root/Frame/Margin/VBox"
 ## Kolom Peralatan sudah 210 px; alat tas ditaruh di sana supaya grid 6 kolom
 ## tidak melebar keluar frame.
 const BAG_TOOLS_PATH := "Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"
-const BAG_HINT := "Klik kanan: pakai\nShift+klik: pecah"
+const BAG_HINT := "Klik kanan: pakai\nShift+klik: bagi"
 ## Petunjuk singkat tab panel di bawah judul.
-const TABS_HINT := "Tab / I: buka-tutup · tab panel: Tas · Crafting · Esc: tutup"
+const TABS_HINT := "Tab / I: buka-tutup · Tas · Rakit · Stat · Esc: tutup"
+const STAT_NORMAL_COLOR := Color(0.88, 0.93, 0.88, 1.0)
+const STAT_WARNING_COLOR := Color(1.0, 0.66, 0.52, 1.0)
+const NEED_LABELS: Array[String] = ["LAPAR", "HAUS", "LELAH"]
 const TOGGLE_ACTION := &"inventory_toggle"
 ## Esc hanya menutup panel; tidak membukanya.
 const CLOSE_ACTION := &"ui_cancel"
@@ -60,12 +63,39 @@ var _crafting_status: Label
 var _crafting_cancel: Button
 var _crafting_rows: Array[CraftingRow] = []
 var _tabs_hint: Label
+var _hp_value: Label
+var _stamina_value: Label
+var _move_value: Label
+var _sprint_value: Label
+var _atk_value: Label
+var _atk_speed_value: Label
+var _gather_value: Label
+var _drain_value: Label
+var _hunger_value: Label
+var _thirst_value: Label
+var _fatigue_value: Label
+var _player_stats: StatsComponent
+var _player_needs: NeedsComponent
 
 
 func _ready() -> void:
 	InputSetup.ensure_actions()
 	# Tab harus dipakai untuk toggle, bukan navigasi fokus UI.
 	_tabs.get_tab_bar().focus_mode = Control.FOCUS_NONE
+	if _tabs.get_tab_count() >= 2:
+		_tabs.set_tab_title(1, "Rakit")
+	_hp_value = get_node_or_null("%HpValue") as Label
+	_stamina_value = get_node_or_null("%StaminaValue") as Label
+	_move_value = get_node_or_null("%MoveValue") as Label
+	_sprint_value = get_node_or_null("%SprintValue") as Label
+	_atk_value = get_node_or_null("%AtkValue") as Label
+	_atk_speed_value = get_node_or_null("%AtkSpeedValue") as Label
+	_gather_value = get_node_or_null("%GatherValue") as Label
+	_drain_value = get_node_or_null("%DrainValue") as Label
+	_hunger_value = get_node_or_null("%HungerValue") as Label
+	_thirst_value = get_node_or_null("%ThirstValue") as Label
+	_fatigue_value = get_node_or_null("%FatigueValue") as Label
+	_connect_player_stats()
 
 	if inventory == null:
 		inventory = _find_inventory()
@@ -255,6 +285,94 @@ func refresh() -> void:
 	for slot in _slots:
 		slot.refresh()
 	_refresh_equipment()
+	_refresh_stats()
+
+
+func _connect_player_stats() -> void:
+	var tree := get_tree()
+	if tree == null:
+		return
+	var player := tree.get_first_node_in_group(PLAYER_GROUP) as Node
+	if player == null:
+		return
+	_player_stats = player.get("stats") as StatsComponent
+	_player_needs = player.get_node_or_null("NeedsComponent") as NeedsComponent
+	if _player_stats != null:
+		if not _player_stats.stats_changed.is_connected(_refresh_stats):
+			_player_stats.stats_changed.connect(_refresh_stats)
+		if not _player_stats.hp_changed.is_connected(_on_hp_changed):
+			_player_stats.hp_changed.connect(_on_hp_changed)
+	if _player_needs != null:
+		if not _player_needs.tier_changed.is_connected(_on_need_changed):
+			_player_needs.tier_changed.connect(_on_need_changed)
+		if not _player_needs.value_changed.is_connected(_on_need_changed):
+			_player_needs.value_changed.connect(_on_need_changed)
+		if not _player_needs.fatigue_cap_changed.is_connected(_on_fatigue_cap_changed):
+			_player_needs.fatigue_cap_changed.connect(_on_fatigue_cap_changed)
+
+
+func _on_hp_changed(_current: float, _max_hp: float) -> void:
+	_refresh_stats()
+
+
+func _on_need_changed(_need: int, _value: Variant) -> void:
+	_refresh_stats()
+
+
+func _on_fatigue_cap_changed(_cap: float) -> void:
+	_refresh_stats()
+
+
+func _refresh_stats() -> void:
+	if _hp_value == null:
+		return
+	if _player_stats == null:
+		_connect_player_stats()
+	if _player_stats == null:
+		return
+	var stamina_text := EMPTY_TEXT
+	if _player_needs != null:
+		stamina_text = "%.0f / %.0f" % [
+			_player_needs.get_value(NeedsComponent.Need.FATIGUE),
+			_player_needs.get_fatigue_cap(),
+		]
+	_hp_value.text = "%.0f / %.0f" % [_player_stats.current_hp, _player_stats.get_max_hp()]
+	if _stamina_value != null:
+		_stamina_value.text = stamina_text
+	if _move_value != null:
+		_move_value.text = "%.0f" % _player_stats.get_move_speed()
+	if _sprint_value != null:
+		_sprint_value.text = "%.0f" % _player_stats.get_sprint_speed()
+	if _atk_value != null:
+		_atk_value.text = "%.1f" % _player_stats.get_attack_damage()
+	if _atk_speed_value != null:
+		_atk_speed_value.text = "%.2f/s" % _player_stats.get_attack_speed()
+	if _gather_value != null:
+		_gather_value.text = "x%.2f" % _player_stats.get_gather_time_factor()
+	if _drain_value != null:
+		_drain_value.text = "x%.2f" % _player_stats.get_sprint_fatigue_drain_factor()
+
+	var need_labels: Array[Label] = [_hunger_value, _thirst_value, _fatigue_value]
+	for index in need_labels.size():
+		var lbl := need_labels[index]
+		if lbl == null:
+			continue
+		var tier := _player_needs.get_tier(index) if _player_needs != null else NeedsComponent.Tier.NORMAL
+		lbl.text = _need_tier_text(tier)
+		lbl.add_theme_color_override(
+			"font_color",
+			STAT_WARNING_COLOR if tier != NeedsComponent.Tier.NORMAL else STAT_NORMAL_COLOR
+		)
+
+
+func _need_tier_text(tier: int) -> String:
+	match tier:
+		NeedsComponent.Tier.LOW:
+			return "RENDAH"
+		NeedsComponent.Tier.ZERO:
+			return "HABIS"
+		_:
+			return "NORMAL"
 
 
 func _refresh_equipment() -> void:

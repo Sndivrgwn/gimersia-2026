@@ -7,7 +7,7 @@ extends CanvasLayer
 signal restart_requested
 signal main_menu_requested
 
-const TITLE := "Game Over"
+const TITLE := "KALAH"
 const DETAIL := "Tidak ada kesempatan respawn tersisa."
 
 var _panel: Control
