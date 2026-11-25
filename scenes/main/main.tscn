@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://hi5wrvpqshhk" path="res://assets/tileset/Tilesets/Grass.png" id="1_iuonh"]
 [ext_resource type="Texture2D" uid="uid://vf036d0d3wq6" path="res://assets/tileset/Tilesets/Tilled Dirt.png" id="2_k2fmo"]
+[ext_resource type="PackedScene" uid="uid://futkrmwrnw7j" path="res://src/entities/player/player.tscn" id="3_k2fmo"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_l3cfh"]
 texture = ExtResource("1_iuonh")
@@ -157,3 +158,6 @@ tile_set = SubResource("TileSet_ode1e")
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1317002449]
 tile_map_data = PackedByteArray("AAADAAIAAAABAAAAAAADAAMAAAABAAAAAAAEAAIAAAABAAAAAAAEAAMAAAABAAAAAAADAAQAAAACAAUAAAAEAAQAAAACAAUAAAAFAAIAAAABAAAAAAAFAAMAAAABAAAAAAAFAAQAAAACAAUAAAADAAEAAAABAAAAAAAEAAEAAAABAAAAAAAFAAEAAAABAAAAAAADAAAAAAACAAMAAAAEAAAAAAACAAMAAAAFAAAAAAACAAMAAAAGAAAAAAADAAMAAAAGAAEAAAADAAQAAAAGAAIAAAADAAQAAAAGAAMAAAADAAQAAAAGAAQAAAADAAUAAAACAAQAAAABAAUAAAACAAMAAAABAAQAAAACAAIAAAABAAQAAAACAAEAAAABAAQAAAACAAAAAAABAAMAAAA=")
 tile_set = SubResource("TileSet_1jmif")
+
+[node name="Player" parent="." unique_id=1453120801 instance=ExtResource("3_k2fmo")]
+position = Vector2(78, 44)
