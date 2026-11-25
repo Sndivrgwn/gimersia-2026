@@ -12,7 +12,7 @@ const TITLE_GAME_OVER := "Game Over"
 const HINT_DEATH := "Sisa Kesempatan Respawn: %d / 3"
 const HINT_GAME_OVER := "Tidak ada kesempatan respawn tersisa."
 
-var _panel: PanelContainer
+var _panel: Control
 var _title: Label
 var _detail: Label
 var _respawn_button: Button
@@ -22,7 +22,10 @@ var _menu_button: Button
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 30
-	_build()
+	if has_node("Panel"):
+		_bind_scene_ui()
+	else:
+		_build()
 	UiSkin.apply_all(self)
 	UiSkin.add_canvas_background(self, &"ui_bg_death")
 	hide_screen()
@@ -35,6 +38,7 @@ func show_death(respawns_remaining: int) -> void:
 	_detail.text = HINT_DEATH % maxi(respawns_remaining, 0) + _death_time_line() + _summary_block()
 	_respawn_button.visible = true
 	_panel.visible = true
+	visible = true
 
 
 func show_game_over() -> void:
@@ -42,6 +46,7 @@ func show_game_over() -> void:
 	_detail.text = HINT_GAME_OVER + _summary_block()
 	_respawn_button.visible = false
 	_panel.visible = true
+	visible = true
 
 
 ## Teks detail lengkap (dipakai tes).
@@ -63,15 +68,27 @@ func _death_time_line() -> String:
 
 
 func hide_screen() -> void:
+	visible = false
 	if _panel != null:
 		_panel.visible = false
 
 
 func is_showing() -> bool:
-	return _panel != null and _panel.visible
+	return visible and _panel != null and _panel.visible
 
 
 # --- Internal ---------------------------------------------------------------
+
+func _bind_scene_ui() -> void:
+	_panel = get_node("Panel") as Control
+	_title = get_node("%Title") as Label
+	_detail = get_node("%Detail") as Label
+	_respawn_button = get_node("%RespawnButton") as Button
+	_menu_button = get_node("%MenuButton") as Button
+	if _respawn_button != null and not _respawn_button.pressed.is_connected(_on_respawn_pressed):
+		_respawn_button.pressed.connect(_on_respawn_pressed)
+	if _menu_button != null and not _menu_button.pressed.is_connected(_on_menu_pressed):
+		_menu_button.pressed.connect(_on_menu_pressed)
 
 func _build() -> void:
 	_panel = PanelContainer.new()
@@ -96,6 +113,7 @@ func _build() -> void:
 	_detail = Label.new()
 	_detail.name = "Detail"
 	_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_detail.add_theme_font_size_override("font_size", 14)
 	column.add_child(_detail)
 

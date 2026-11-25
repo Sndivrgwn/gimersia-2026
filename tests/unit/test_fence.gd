@@ -60,7 +60,7 @@ func test_geometry_point_distance() -> void:
 func test_first_blocking_segment() -> void:
 	var blocker := _make_segment(Vector2(50, 0), PI * 0.5)
 	var behind := _make_segment(Vector2(120, 0), PI * 0.5)
-	var found := FenceGeometry.first_blocking_segment(Vector2(0, 0), Vector2(100, 0), get_tree().get_nodes_in_group(&"fence_segment"))
+	var found: Node = FenceGeometry.first_blocking_segment(Vector2(0, 0), Vector2(100, 0), get_tree().get_nodes_in_group(&"fence_segment"))
 	assert_eq(found, blocker, "segmen pertama yang memotong garis harus dipilih")
 	assert_ne(found, behind)
 
@@ -68,7 +68,7 @@ func test_first_blocking_segment() -> void:
 func test_destroyed_segment_does_not_block() -> void:
 	var blocker := _make_segment(Vector2(50, 0), PI * 0.5)
 	blocker.take_damage(999.0, null)
-	var found := FenceGeometry.first_blocking_segment(Vector2(0, 0), Vector2(100, 0), get_tree().get_nodes_in_group(&"fence_segment"))
+	var found: Node = FenceGeometry.first_blocking_segment(Vector2(0, 0), Vector2(100, 0), get_tree().get_nodes_in_group(&"fence_segment"))
 	assert_null(found)
 
 

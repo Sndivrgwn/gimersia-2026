@@ -21,6 +21,7 @@ const DIM_COLOR := Color(0.0, 0.0, 0.0, 0.55)
 
 var _previous_scale: float = 1.0
 var _paused_by_menu: bool = false
+var _dim: Control
 var _panel: Control
 var _settings_panel: Node
 var _help_panel: Node
@@ -35,8 +36,11 @@ func _ready() -> void:
 	InputSetup.ensure_actions()
 	if clock == null:
 		clock = get_node_or_null("/root/DayNightManager")
-	if _panel == null:
+	if has_node("Ui"):
+		_bind_scene_ui()
+	elif _panel == null:
 		_build_ui()
+	_wire_sub_panels()
 	_refresh_discoverability()
 
 
@@ -45,9 +49,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		toggle()
 		get_viewport().set_input_as_handled()
 		return
-	# Mission 10 Phase 5: Esc menutup UI paling atas; bila tidak ada, buka Jeda.
+	# Mission 10 Phase 5: Esc menutup sub-panel / UI paling atas; bila tidak ada, buka Jeda.
 	if event.is_action_pressed(&"ui_cancel"):
 		if is_open():
+			if _close_open_sub_panel():
+				get_viewport().set_input_as_handled()
+				return
 			close()
 			get_viewport().set_input_as_handled()
 			return
@@ -60,8 +67,29 @@ func _unhandled_input(event: InputEvent) -> void:
 
 # --- UI (Mission 9: menu jeda yang benar-benar terlihat) --------------------
 
-## Dibangun runtime supaya PauseMenu tetap boleh dipasang sebagai CanvasLayer
-## kosong di scene (island.tscn) dan tidak butuh aset biner.
+func _bind_scene_ui() -> void:
+	var ui := get_node("Ui")
+	_dim = ui.get_node_or_null("Dim") as Control
+	_panel = ui.get_node_or_null("Center/Card") as Control
+	_esc_hint = ui.get_node_or_null("%EscHint") as Label
+	_esc_button = ui.get_node_or_null("%PauseButton") as Button
+	var resume_btn := ui.get_node_or_null("%ResumeButton") as Button
+	var settings_btn := ui.get_node_or_null("%SettingsButton") as Button
+	var help_btn := ui.get_node_or_null("%HelpButton") as Button
+	var menu_btn := ui.get_node_or_null("%MenuButton") as Button
+	if resume_btn != null:
+		resume_btn.pressed.connect(close)
+	if settings_btn != null:
+		settings_btn.pressed.connect(_open_settings)
+	if help_btn != null:
+		help_btn.pressed.connect(_open_help)
+	if menu_btn != null:
+		menu_btn.pressed.connect(request_main_menu)
+	if _esc_button != null:
+		_esc_button.pressed.connect(toggle)
+
+
+## Dibangun runtime sebagai fallback bila PauseMenu di-instantiate lewat kode (.new()).
 func _build_ui() -> void:
 	var dim := ColorRect.new()
 	dim.name = "Dim"
@@ -69,6 +97,7 @@ func _build_ui() -> void:
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(dim)
+	_dim = dim
 
 	var panel := PanelContainer.new()
 	panel.name = "Panel"
@@ -145,12 +174,12 @@ func _process(_delta: float) -> void:
 	_refresh_discoverability()
 
 
-## Label "Esc: Jeda" + tombol II: tersembunyi saat Jeda/layar mati tampil.
+## Label "Esc: Jeda" + tombol II: tersembunyi saat Jeda/layar mati/panel modal tampil.
 func _refresh_discoverability() -> void:
 	var show_hint := not is_open()
 	if show_hint:
 		for node in blockers:
-			if node != null and is_instance_valid(node) and node.has_method(&"is_showing") and node.is_showing():
+			if _is_blocking(node):
 				show_hint = false
 				break
 	if _esc_hint != null:
@@ -185,26 +214,72 @@ func get_panel() -> Control:
 	return _panel
 
 
-func _open_settings() -> void:
-	settings_requested.emit()
+func _wire_sub_panels() -> void:
 	if _settings_panel == null or not is_instance_valid(_settings_panel):
 		_settings_panel = get_node_or_null("SettingsPanel")
+	if _settings_panel != null and _settings_panel.has_signal(&"closed"):
+		var on_closed := Callable(self, &"_on_sub_panel_closed")
+		if not _settings_panel.is_connected(&"closed", on_closed):
+			_settings_panel.connect(&"closed", on_closed)
+	if _help_panel == null or not is_instance_valid(_help_panel):
+		_help_panel = get_node_or_null("HelpPanel")
+	if _help_panel != null and _help_panel.has_signal(&"toggled_open"):
+		var on_help := Callable(self, &"_on_help_toggled")
+		if not _help_panel.is_connected(&"toggled_open", on_help):
+			_help_panel.connect(&"toggled_open", on_help)
+
+
+func _set_main_card_visible(show: bool) -> void:
+	if _panel != null:
+		_panel.visible = show
+	if _dim != null:
+		_dim.visible = show
+
+
+func _on_sub_panel_closed() -> void:
+	if is_open():
+		_set_main_card_visible(true)
+
+
+func _on_help_toggled(help_open: bool) -> void:
+	if help_open:
+		_set_main_card_visible(false)
+	elif is_open():
+		_set_main_card_visible(true)
+
+
+func _open_settings() -> void:
+	_wire_sub_panels()
+	settings_requested.emit()
 	if _settings_panel != null and _settings_panel.has_method(&"open"):
+		_set_main_card_visible(false)
 		_settings_panel.open()
 
 
 func _open_help() -> void:
+	_wire_sub_panels()
 	help_requested.emit()
-	if _help_panel == null or not is_instance_valid(_help_panel):
-		_help_panel = get_node_or_null("HelpPanel")
 	if _help_panel != null and _help_panel.has_method(&"open"):
+		_set_main_card_visible(false)
 		_help_panel.open()
+
+
+func _close_open_sub_panel() -> bool:
+	for node in [_settings_panel, _help_panel]:
+		if node != null and is_instance_valid(node) and node.has_method(&"is_open") and bool(node.call(&"is_open")):
+			if node.has_method(&"close"):
+				node.call(&"close")
+			if is_open():
+				_set_main_card_visible(true)
+			return true
+	return false
 
 
 func _close_sub_panels() -> void:
 	for node in [_settings_panel, _help_panel]:
 		if node != null and is_instance_valid(node) and node.has_method(&"close"):
 			node.close()
+	_set_main_card_visible(true)
 
 
 func can_open() -> bool:

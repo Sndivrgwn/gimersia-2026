@@ -1,6 +1,84 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3]
 
-[ext_resource type="Script" path="res://src/ui/menus/game_over_screen.gd" id="1_gameover"]
+[ext_resource type="Script" path="res://src/ui/menus/game_over_screen.gd" id="1_script"]
+[ext_resource type="Theme" path="res://src/ui/theme/ui_theme_tex.tres" id="2_theme"]
 
 [node name="GameOverScreen" type="CanvasLayer"]
-script = ExtResource("1_gameover")
+script = ExtResource("1_script")
+
+[node name="Panel" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("2_theme")
+texture_filter = 2
+
+[node name="Dim" type="ColorRect" parent="Panel"]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.122, 0.078, 0.055, 1)
+
+[node name="Center" type="CenterContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="Panel/Center"]
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+theme_type_variation = &"PanelWalnut"
+
+[node name="Column" type="VBoxContainer" parent="Panel/Center/Card"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Title" type="Label" parent="Panel/Center/Card/Column"]
+layout_mode = 2
+unique_name_in_owner = true
+theme_type_variation = &"DangerTitleLabel"
+text = "Game Over"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Detail" type="Label" parent="Panel/Center/Card/Column"]
+layout_mode = 2
+unique_name_in_owner = true
+theme_type_variation = &"BodyLabel"
+text = "Respawn habis."
+horizontal_alignment = 1
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
+
+[node name="RestartButton" type="Button" parent="Panel/Center/Card/Column"]
+layout_mode = 2
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+size_flags_horizontal = 3
+theme_type_variation = &"PrimaryButton"
+text = "MULAI BARU"
+
+[node name="MenuButton" type="Button" parent="Panel/Center/Card/Column"]
+layout_mode = 2
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+size_flags_horizontal = 3
+theme_type_variation = &"BackButton"
+text = "MENU"
+

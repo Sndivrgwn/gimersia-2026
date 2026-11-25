@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/ui/panels/inventory/ingredient_chip.gd" id="1_chip"]
+
+[node name="IngredientChip" type="VBoxContainer"]
+mouse_filter = 2
+theme_override_constants/separation = 2
+alignment = 2
+script = ExtResource("1_chip")
+
+[node name="Icon" type="TextureRect" parent="."]
+visible = false
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Chip" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"ChipGood"
+
+[node name="Label" type="Label" parent="Chip"]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"ChipLabel"
+horizontal_alignment = 1

@@ -1,0 +1,125 @@
+[gd_scene format=3]
+
+[ext_resource type="Theme" path="res://src/ui/theme/ui_theme_tex.tres" id="2_theme"]
+
+[node name="PauseUi" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("2_theme")
+texture_filter = 2
+
+[node name="Dim" type="ColorRect" parent="."]
+modulate = Color(1, 1, 1, 0.55)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.122, 0.078, 0.055, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+theme_type_variation = &"PanelCard"
+
+[node name="Column" type="VBoxContainer" parent="Center/Card"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Title" type="Label" parent="Center/Card/Column"]
+layout_mode = 2
+unique_name_in_owner = true
+theme_type_variation = &"CardTitleLabel"
+text = "Jeda"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ResumeButton" type="Button" parent="Center/Card/Column"]
+layout_mode = 2
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+size_flags_horizontal = 3
+theme_type_variation = &"PrimaryButton"
+text = "LANJUT"
+
+[node name="SettingsButton" type="Button" parent="Center/Card/Column"]
+layout_mode = 2
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+size_flags_horizontal = 3
+theme_type_variation = &"SecondaryButton"
+text = "PENGATURAN"
+
+[node name="HelpButton" type="Button" parent="Center/Card/Column"]
+layout_mode = 2
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+size_flags_horizontal = 3
+theme_type_variation = &"SecondaryButton"
+text = "BANTUAN"
+
+[node name="MenuButton" type="Button" parent="Center/Card/Column"]
+layout_mode = 2
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+size_flags_horizontal = 3
+theme_type_variation = &"BackButton"
+text = "MENU"
+
+[node name="HintLabel" type="Label" parent="Center/Card/Column"]
+layout_mode = 2
+unique_name_in_owner = true
+theme_type_variation = &"MutedLabel"
+text = "Esc atau P untuk lanjut"
+horizontal_alignment = 1
+
+[node name="EscHint" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = -28.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+theme_type_variation = &"MutedLabel"
+text = "Esc: Jeda"
+horizontal_alignment = 2
+
+[node name="PauseButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -48.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 40.0
+grow_horizontal = 0
+focus_mode = 0
+text = "II"
+
