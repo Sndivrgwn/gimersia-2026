@@ -5,6 +5,8 @@
 [ext_resource type="Texture2D" path="res://assets/textures/ui/inventory/inventory_panel_inner.png" id="3_inner_tex"]
 [ext_resource type="Texture2D" path="res://assets/textures/ui/inventory/inventory_tab_selected.png" id="4_tab_selected_tex"]
 [ext_resource type="Texture2D" path="res://assets/textures/ui/inventory/inventory_tab_normal.png" id="5_tab_normal_tex"]
+[ext_resource type="FontFile" path="res://assets/fonts/nunito/nunito_variable.ttf" id="6_nunito"]
+[ext_resource type="FontFile" path="res://assets/fonts/fredoka/fredoka_variable.ttf" id="7_fredoka"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_panel"]
 content_margin_left = 0.0
@@ -52,6 +54,22 @@ texture_margin_bottom = 38.0
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tabbar"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stat_card"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.16, 0.11, 0.08, 0.78)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.788, 0.722, 0.612, 0.35)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
 [node name="BagPanel" type="CanvasLayer"]
 layer = 20
 script = ExtResource("1_panel")
@@ -97,15 +115,15 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_panel")
 [node name="Margin" type="MarginContainer" parent="Root/Frame"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 35
-theme_override_constants/margin_top = 37
-theme_override_constants/margin_right = 52
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 20
 
 [node name="VBox" type="VBoxContainer" parent="Root/Frame/Margin"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 28
+theme_override_constants/separation = 12
 
 [node name="Tabs" type="TabContainer" parent="Root/Frame/Margin/VBox"]
 custom_minimum_size = Vector2(800, 531)
@@ -157,7 +175,7 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.968627, 0.945098, 0.898039, 1)
 theme_override_font_sizes/font_size = 13
-text = "PERALATAN"
+text = "ALAT"
 
 [node name="Weapon" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"]
 layout_mode = 2
@@ -207,7 +225,7 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.788235, 0.721569, 0.611765, 1)
 theme_override_font_sizes/font_size = 11
-text = "Armor"
+text = "Zirah"
 
 [node name="Value" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Armor"]
 layout_mode = 2
@@ -223,3 +241,323 @@ theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
+
+[node name="Stat" type="MarginContainer" parent="Root/Frame/Margin/VBox/Tabs"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="VBox" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="StatusTitle" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.922, 0.761, 0.451, 1)
+theme_override_fonts/font = ExtResource("7_fredoka")
+theme_override_font_sizes/font_size = 16
+text = "KONDISI"
+
+[node name="NeedsRow" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="HungerCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+
+[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/HungerCard"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/HungerCard/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 13
+text = "Lapar"
+
+[node name="HungerValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/HungerCard/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.93, 0.88, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 13
+text = "NORMAL"
+
+[node name="ThirstCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+
+[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/ThirstCard"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/ThirstCard/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 13
+text = "Haus"
+
+[node name="ThirstValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/ThirstCard/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.93, 0.88, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 13
+text = "NORMAL"
+
+[node name="FatigueCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+
+[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/FatigueCard"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/FatigueCard/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 13
+text = "Lelah"
+
+[node name="FatigueValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/FatigueCard/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.93, 0.88, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 13
+text = "NORMAL"
+
+[node name="Title" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.922, 0.761, 0.451, 1)
+theme_override_fonts/font = ExtResource("7_fredoka")
+theme_override_font_sizes/font_size = 16
+text = "ATRIBUT"
+
+[node name="StatGrid" type="GridContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 8
+columns = 2
+
+[node name="HpCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+
+[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/HpCard"]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/HpCard/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "HP"
+
+[node name="HpValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/HpCard/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "100 / 100"
+
+[node name="StaminaCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+
+[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/StaminaCard"]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/StaminaCard/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "Stamina"
+
+[node name="StaminaValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/StaminaCard/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "100 / 100"
+
+[node name="MoveCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+
+[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/MoveCard"]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/MoveCard/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "Gerak"
+
+[node name="MoveValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/MoveCard/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "160"
+
+[node name="SprintCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+
+[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/SprintCard"]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/SprintCard/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "Lari"
+
+[node name="SprintValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/SprintCard/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "240"
+
+[node name="AtkCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+
+[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/AtkCard"]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/AtkCard/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "Serang"
+
+[node name="AtkValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/AtkCard/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "8.0"
+
+[node name="AtkSpeedCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+
+[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/AtkSpeedCard"]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/AtkSpeedCard/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "Cepat"
+
+[node name="AtkSpeedValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/AtkSpeedCard/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "1.20/s"
+
+[node name="GatherCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+
+[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/GatherCard"]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/GatherCard/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "Kumpul"
+
+[node name="GatherValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/GatherCard/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "x1.00"
+
+[node name="DrainCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+
+[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/DrainCard"]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/DrainCard/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "Lelah lari"
+
+[node name="DrainValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/DrainCard/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_font_sizes/font_size = 14
+text = "x1.00"

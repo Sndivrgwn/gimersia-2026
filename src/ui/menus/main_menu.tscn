@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://b26lsj3ioonvi"]
 
-[ext_resource type="Script" uid="uid://3rl15fjol8em" path="res://src/ui/menus/main_menu.gd" id="1_menu"]
-[ext_resource type="Texture2D" uid="uid://baynnutctl3vh" path="res://assets/textures/ui/08_background/background_main_menu.png" id="2_bg"]
-[ext_resource type="Theme" path="res://src/ui/theme/ui_theme_tex.tres" id="3_theme"]
+[ext_resource type="Script" uid="uid://cwlncuu6bxuxj" path="res://src/ui/menus/main_menu.gd" id="1_menu"]
+[ext_resource type="Theme" uid="uid://yeud614vxjso" path="res://src/ui/theme/ui_theme_tex.tres" id="3_theme"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_wuc7m"]
+load_path = "res://.godot/imported/background_main_menu.png-0551d86a040557a117d688704b53fa5b.ctex"
 
 [node name="MainMenu" type="Control" unique_id=2144366014]
 texture_filter = 2
@@ -23,7 +25,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("2_bg")
+texture = SubResource("CompressedTexture2D_wuc7m")
 expand_mode = 1
 stretch_mode = 6
 
@@ -57,7 +59,7 @@ text = "PULAU"
 [node name="Title" type="Label" parent="TitleBlock" unique_id=260677553]
 layout_mode = 2
 theme_type_variation = &"HeroTitle"
-text = "Aurora"
+text = "THE 7th"
 
 [node name="MenuButtons" type="VBoxContainer" parent="." unique_id=566998798]
 layout_mode = 1
@@ -145,7 +147,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 color = Color(0.122, 0.078, 0.055, 1)
 
 [node name="Center" type="CenterContainer" parent="InfoOverlay" unique_id=1013301726]
@@ -180,9 +181,9 @@ layout_mode = 2
 theme_type_variation = &"CardTitleLabel"
 text = "Kontrol"
 
-[node name="InfoScroll" type="ScrollContainer" parent="InfoOverlay/Center/Card/Padding/Content"]
-layout_mode = 2
+[node name="InfoScroll" type="ScrollContainer" parent="InfoOverlay/Center/Card/Padding/Content" unique_id=1551691219]
 custom_minimum_size = Vector2(0, 320)
+layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 

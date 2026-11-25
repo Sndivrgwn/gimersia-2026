@@ -100,7 +100,8 @@ func test_header_hint_names_the_two_tabs() -> void:
 	var hint: String = panel.get_tabs_hint_text()
 	assert_string_contains(hint, "Tab / I")
 	assert_string_contains(hint, "Tas")
-	assert_string_contains(hint, "Crafting")
+	assert_string_contains(hint, "Rakit")
+	assert_string_contains(hint, "Stat")
 	assert_string_contains(hint, "Esc")
 	assert_false(hint.contains("Profisiensi"), "tab Profisiensi sudah dihapus")
 
@@ -275,10 +276,11 @@ func test_equipment_drops_are_not_accepted() -> void:
 
 func test_crafting_tab_hosts_code_built_ui_instead_of_placeholder() -> void:
 	var tabs := panel.get_node(TABS_PATH) as TabContainer
-	# Tab Profisiensi dihapus; panel tas hanya Tas + Crafting.
-	assert_eq(tabs.get_tab_count(), 2)
+	# Panel tas memiliki 3 tab: Tas, Rakit, Stat.
+	assert_eq(tabs.get_tab_count(), 3)
 	assert_eq(tabs.get_tab_title(0), "Tas")
-	assert_eq(tabs.get_tab_title(1), "Crafting")
+	assert_eq(tabs.get_tab_title(1), "Rakit")
+	assert_eq(tabs.get_tab_title(2), "Stat")
 
 	var tab := panel.get_node(CRAFTING_TAB_PATH) as Control
 	assert_not_null(tab.find_child("CraftingBox", true, false), "isi tab dibuat saat runtime")

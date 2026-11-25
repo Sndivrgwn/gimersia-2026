@@ -13,7 +13,7 @@ signal main_menu_requested
 var blockers: Array[Node] = []
 
 const TITLE_TEXT := "JEDA"
-const HINT_TEXT := "Esc atau P untuk lanjut"
+const HINT_TEXT := "Esc / P: lanjut"
 const ESC_HINT_TEXT := "Esc: Jeda"
 const PANEL_SIZE := Vector2(320.0, 260.0)
 const PANEL_COLOR := Color(0.10, 0.12, 0.10, 0.96)

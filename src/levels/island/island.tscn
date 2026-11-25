@@ -331,8 +331,6 @@ show_survival_label = false
 
 [node name="NeedsHUD" parent="." instance=ExtResource("11_needshud")]
 
-[node name="StatsHUD" parent="." instance=ExtResource("12_statshud")]
-
 [node name="HotbarHUD" parent="." instance=ExtResource("13_hotbarhud")]
 
 [node name="InteractionHUD" parent="." instance=ExtResource("15_interactionhud")]
