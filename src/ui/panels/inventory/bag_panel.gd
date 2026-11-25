@@ -476,5 +476,3 @@ func _on_craft_cancelled(recipe: RecipeDefinition, reason: String) -> void:
 func _on_stations_changed() -> void:
 	if is_open():
 		refresh_crafting()
-
-

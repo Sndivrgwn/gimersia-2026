@@ -10,7 +10,7 @@ signal main_menu_requested
 const TITLE := "Game Over"
 const DETAIL := "Tidak ada kesempatan respawn tersisa."
 
-var _panel: PanelContainer
+var _panel: Control
 var _title: Label
 var _detail: Label
 var _restart_button: Button
@@ -20,15 +20,19 @@ var _menu_button: Button
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 30
-	_build()
-	hide_screen()
+	if has_node("Panel"):
+		_bind_scene_ui()
+	else:
+		_build()
 	UiSkin.apply_all(self)
 	UiSkin.add_canvas_background(self, &"ui_bg_game_over")
+	hide_screen()
 
 
 # --- API --------------------------------------------------------------------
 
 func show_screen() -> void:
+	visible = true
 	if _panel != null:
 		_panel.visible = true
 	_refresh_detail()
@@ -50,15 +54,27 @@ func _refresh_detail() -> void:
 
 
 func hide_screen() -> void:
+	visible = false
 	if _panel != null:
 		_panel.visible = false
 
 
 func is_showing() -> bool:
-	return _panel != null and _panel.visible
+	return visible and _panel != null and _panel.visible
 
 
 # --- Internal ---------------------------------------------------------------
+
+func _bind_scene_ui() -> void:
+	_panel = get_node("Panel") as Control
+	_title = get_node("%Title") as Label
+	_detail = get_node("%Detail") as Label
+	_restart_button = get_node("%RestartButton") as Button
+	_menu_button = get_node("%MenuButton") as Button
+	if _restart_button != null and not _restart_button.pressed.is_connected(_on_restart_pressed):
+		_restart_button.pressed.connect(_on_restart_pressed)
+	if _menu_button != null and not _menu_button.pressed.is_connected(_on_menu_pressed):
+		_menu_button.pressed.connect(_on_menu_pressed)
 
 func _build() -> void:
 	_panel = PanelContainer.new()
@@ -84,6 +100,7 @@ func _build() -> void:
 	_detail.name = "Detail"
 	_detail.text = DETAIL
 	_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_detail.add_theme_font_size_override("font_size", 14)
 	column.add_child(_detail)
 

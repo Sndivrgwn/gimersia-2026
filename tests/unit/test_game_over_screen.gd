@@ -24,12 +24,12 @@ func test_buttons_emit_signals() -> void:
 	var screen := GAME_OVER_SCENE.instantiate() as GameOverScreen
 	add_child_autofree(screen)
 
-	var restart_button := screen.get_node("Panel/Column/RestartButton") as Button
-	var menu_button := screen.get_node("Panel/Column/MenuButton") as Button
+	var restart_button := screen.get_node("%RestartButton") as Button
+	var menu_button := screen.get_node("%MenuButton") as Button
 	assert_not_null(restart_button, "Tombol Mulai Baru harus ada")
 	assert_not_null(menu_button, "Tombol Menu Utama harus ada")
-	assert_eq(restart_button.text, "Mulai Baru")
-	assert_eq(menu_button.text, "Menu Utama")
+	assert_eq(restart_button.text, "MULAI BARU")
+	assert_eq(menu_button.text, "MENU")
 
 	watch_signals(screen)
 	restart_button.pressed.emit()

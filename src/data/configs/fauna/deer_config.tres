@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="DeerConfig" format=3]
+[gd_resource type="Resource" script_class="DeerConfig" format=3 uid="uid://c0jgcdbc5sv5e"]
 
-[ext_resource type="Script" path="res://src/data/resources/fauna/deer_config.gd" id="1_w5heo"]
+[ext_resource type="Script" uid="uid://b31j3xunbw3cr" path="res://src/data/resources/fauna/deer_config.gd" id="1_w5heo"]
 
 [resource]
 script = ExtResource("1_w5heo")

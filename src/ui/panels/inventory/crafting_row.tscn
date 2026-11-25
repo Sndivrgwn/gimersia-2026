@@ -1,0 +1,94 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/ui/panels/inventory/crafting_row.gd" id="1_row"]
+[ext_resource type="StyleBox" path="res://src/ui/panels/inventory/styles/recipe_card.tres" id="2_card"]
+[ext_resource type="StyleBox" path="res://src/ui/panels/inventory/styles/button_normal.tres" id="3_bn"]
+[ext_resource type="StyleBox" path="res://src/ui/panels/inventory/styles/button_hover.tres" id="4_bh"]
+[ext_resource type="StyleBox" path="res://src/ui/panels/inventory/styles/button_pressed.tres" id="5_bp"]
+[ext_resource type="StyleBox" path="res://src/ui/panels/inventory/styles/button_disabled.tres" id="6_bd"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
+
+[node name="CraftingRow" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 112)
+size_flags_horizontal = 3
+theme_override_styles/panel = ExtResource("2_card")
+script = ExtResource("1_row")
+
+[node name="Row" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Icon" type="TextureRect" parent="Row"]
+visible = false
+custom_minimum_size = Vector2(52, 52)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Row"]
+clip_contents = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 2
+
+[node name="Name" type="Label" parent="Row/Info"]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"RecipeNameLabel"
+text_overrun_behavior = 3
+
+[node name="Desc" type="Label" parent="Row/Info"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.2431, 0.1529, 0.102, 0.8)
+theme_override_font_sizes/font_size = 15
+autowrap_mode = 3
+
+[node name="Meta" type="Label" parent="Row/Info"]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"RecipeMetaLabel"
+text_overrun_behavior = 3
+
+[node name="Ingredients" type="HBoxContainer" parent="Row"]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="Action" type="VBoxContainer" parent="Row"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 6
+
+[node name="CraftButton" type="Button" parent="Row/Action"]
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+theme_type_variation = &"CraftPill"
+theme_override_colors/font_color = Color(0.9686, 0.9451, 0.898, 1)
+theme_override_colors/font_disabled_color = Color(0.9686, 0.9451, 0.898, 1)
+theme_override_colors/font_hover_color = Color(0.9686, 0.9451, 0.898, 1)
+theme_override_colors/font_pressed_color = Color(0.9686, 0.9451, 0.898, 1)
+theme_override_styles/focus = SubResource("StyleBoxEmpty_focus")
+theme_override_styles/disabled = ExtResource("6_bd")
+theme_override_styles/hover = ExtResource("4_bh")
+theme_override_styles/pressed = ExtResource("5_bp")
+theme_override_styles/normal = ExtResource("3_bn")
+text = "Buat"
+
+[node name="Hint" type="Label" parent="Row/Action"]
+visible = false
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"CraftHintLabel"
+horizontal_alignment = 0
+autowrap_mode = 3

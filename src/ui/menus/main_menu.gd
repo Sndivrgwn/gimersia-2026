@@ -3,6 +3,7 @@ extends Control
 ## Menu utama memakai latar dan tombol dari assets/textures/ui lewat
 ## src/ui/theme/ui_theme.tres (StyleBoxTexture 9-slice + font Nunito).
 const ScreenFade := preload("res://src/ui/fx/screen_fade.gd")
+const SETTINGS_SCENE := preload("res://src/ui/menus/settings_panel.tscn")
 
 ## Menu Utama placeholder. Scene ini BUKAN main scene (project tetap memakai
 ## practice1.tscn); dibuka dari DeathScreen / RunController.
@@ -46,6 +47,9 @@ var _starting := false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	var clock := get_node_or_null("/root/DayNightManager")
+	if clock != null and clock.has_method(&"set_time_scale"):
+		clock.set_time_scale(0.0)
 	_info_overlay.visible = false
 	_recenter_pivot()
 	_info_card.resized.connect(_recenter_pivot)
@@ -109,19 +113,13 @@ func _ensure_settings_ui() -> void:
 		add_child(service)
 	var panel := get_node_or_null("SettingsPanel") as SettingsPanel
 	if panel == null:
-		panel = SettingsPanel.new()
+		panel = SETTINGS_SCENE.instantiate() as SettingsPanel
 		panel.name = "SettingsPanel"
 		add_child(panel)
 	panel.setup(service)
-	if find_child("SettingsButton", true, false) != null:
-		return
-	_kill(_overlay_tween)
-	_overlay_tween = create_tween().set_parallel(true)
-	_overlay_tween.tween_property(_info_dim, "color:a", 0.0, OVERLAY_TIME * 0.8)
-	_overlay_tween.tween_property(_info_card, "modulate:a", 0.0, OVERLAY_TIME * 0.8)
-	_overlay_tween.tween_property(_info_card, "scale", Vector2(0.97, 0.97), OVERLAY_TIME * 0.8)
-	_overlay_tween.chain().tween_callback(_hide_info)
-	_start_button.grab_focus()
+	var settings_btn := find_child("SettingsButton", true, false) as Button
+	if settings_btn != null and not settings_btn.pressed.is_connected(panel.open):
+		settings_btn.pressed.connect(panel.open)
 
 
 # --- Internal ---------------------------------------------------------------

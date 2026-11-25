@@ -1,0 +1,15 @@
+[gd_resource type="StyleBoxTexture" format=3 uid="uid://46gkn2muwods"]
+
+[ext_resource type="Texture2D" uid="uid://cqm2wjxw7mns" path="res://assets/textures/ui/02_panel/panel_walnut_stitched.png" id="1_tex"]
+
+[resource]
+content_margin_left = 28.0
+content_margin_top = 22.0
+content_margin_right = 28.0
+content_margin_bottom = 22.0
+texture = ExtResource("1_tex")
+texture_margin_left = 34.0
+texture_margin_top = 34.0
+texture_margin_right = 34.0
+texture_margin_bottom = 34.0
+modulate_color = Color(0.3953, 0.3736, 0.3571, 1)

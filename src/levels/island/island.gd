@@ -117,10 +117,6 @@ func _wire_pause_menu() -> void:
 			settings_panel.setup(settings)
 		if hint_manager != null:
 			hint_manager.settings = settings
-	if settings_panel != null:
-		menu.settings_requested.connect(settings_panel.open)
-	if help_panel != null:
-		menu.help_requested.connect(help_panel.toggle)
 
 
 func _ready() -> void:

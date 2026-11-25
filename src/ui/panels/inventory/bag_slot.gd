@@ -9,14 +9,20 @@ extends PanelContainer
 ## Weapon/Tool/Armor tidak bisa di-drag dan tidak menerima drop.
 
 const DRAG_TYPE := &"bag_slot"
+const TOOLTIP_SCENE: PackedScene = preload("res://src/ui/panels/inventory/item_tooltip.tscn")
 
 ## Indeks slot tas (0..bag_size-1).
 @export var slot_index: int = 0
 ## Nomor tombol hotbar (1-5); 0 berarti bukan slot hotbar.
 @export var hotbar_number: int = 0
 
+## Gaya panel saat kursor di atas slot (diatur di bag_slot.tscn).
+@export var hover_style: StyleBox
+
 ## Diisi BagPanel saat build; null berarti slot belum terikat.
 var inventory: InventoryComponent
+
+var _normal_style: StyleBox
 
 @onready var _key: Label = $VBox/Top/Key
 @onready var _count: Label = $VBox/Top/Count
@@ -25,8 +31,18 @@ var inventory: InventoryComponent
 
 
 func _ready() -> void:
+	# Gaya slot (9-slice normal/hover) diatur di bag_slot.tscn.
+	_normal_style = get_theme_stylebox(&"panel")
+	mouse_entered.connect(_set_hover.bind(true))
+	mouse_exited.connect(_set_hover.bind(false))
 	_key.text = str(hotbar_number) if hotbar_number > 0 else ""
 	refresh()
+
+
+func _set_hover(hovered: bool) -> void:
+	if hover_style == null or _normal_style == null:
+		return
+	add_theme_stylebox_override(&"panel", hover_style if hovered else _normal_style)
 
 
 ## Tampilkan isi slot sesuai state InventoryComponent saat ini.
@@ -45,14 +61,19 @@ func refresh() -> void:
 	tooltip_text = "" if empty else describe_item(item)
 
 
+## Slot di luar kapasitas inventory tidak punya isi.
+func is_available() -> bool:
+	return inventory != null and slot_index < inventory.get_capacity()
+
+
 func get_item() -> ItemDefinition:
-	if inventory == null:
+	if not is_available():
 		return null
 	return inventory.get_slot_item(slot_index)
 
 
 func get_count() -> int:
-	if inventory == null:
+	if not is_available():
 		return 0
 	return inventory.get_slot_count(slot_index)
 
@@ -74,6 +95,17 @@ func get_count_text() -> String:
 
 # --- Tooltip ----------------------------------------------------------------
 
+## Tooltip kustom: Godot hanya menampilkannya bila `tooltip_text` tidak kosong
+## (diatur di refresh()). Isinya dibangun dari item di slot ini.
+func _make_custom_tooltip(_for_text: String) -> Object:
+	var item := get_item()
+	if item == null:
+		return null
+	var tip := TOOLTIP_SCENE.instantiate() as ItemTooltip
+	tip.show_item(item, get_count())
+	return tip
+
+
 ## Nama, deskripsi, lalu satu baris ringkasan efek dari ItemDefinition.
 static func describe_item(item: ItemDefinition) -> String:
 	if item == null:
@@ -92,10 +124,14 @@ static func describe_item(item: ItemDefinition) -> String:
 
 ## Ringkasan efek satu baris: konsumsi, senjata, atau armor.
 static func describe_effect(item: ItemDefinition) -> String:
-	if item == null:
-		return ""
+	return ", ".join(effect_parts(item))
 
+
+## Potongan efek terpisah (dipakai tooltip, satu potongan per baris).
+static func effect_parts(item: ItemDefinition) -> PackedStringArray:
 	var parts := PackedStringArray()
+	if item == null:
+		return parts
 	var effect := item.consume_effect
 	if effect != null:
 		_add_amount(parts, "Hunger", effect.hunger)
@@ -115,7 +151,7 @@ static func describe_effect(item: ItemDefinition) -> String:
 	if item.armor_max_hp_bonus > 0.0:
 		parts.append("+%.0f max HP" % item.armor_max_hp_bonus)
 
-	return ", ".join(parts)
+	return parts
 
 
 static func _add_amount(parts: PackedStringArray, label: String, amount: float) -> void:
@@ -130,7 +166,7 @@ static func _add_amount(parts: PackedStringArray, label: String, amount: float) 
 func _get_drag_data(_at_position: Vector2) -> Variant:
 	var item := get_item()
 	var count := get_count()
-	if inventory == null or item == null or count <= 0:
+	if not is_available() or item == null or count <= 0:
 		return null
 
 	_show_drag_preview(item, count)
@@ -141,7 +177,7 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
-	if inventory == null or typeof(data) != TYPE_DICTIONARY:
+	if not is_available() or typeof(data) != TYPE_DICTIONARY:
 		return false
 	if data.get("type") != DRAG_TYPE:
 		return false
@@ -165,18 +201,20 @@ func _show_drag_preview(item: ItemDefinition, count: int) -> void:
 
 	var preview := PanelContainer.new()
 	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	preview.custom_minimum_size = Vector2(120.0, 28.0)
+	preview.custom_minimum_size = Vector2(120.0, 30.0)
 
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.05, 0.07, 0.1, 0.9)
-	style.border_color = Color(0.85, 0.78, 0.55, 0.6)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(4)
+	style.bg_color = Color(0.968627, 0.945098, 0.898039, 1.0)
+	style.border_color = Color(0.243137, 0.152941, 0.101961, 0.85)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(8)
+	style.set_content_margin_all(8.0)
 	preview.add_theme_stylebox_override(&"panel", style)
 
 	var label := Label.new()
 	label.text = "%s x%d" % [item.display_name, count]
 	label.add_theme_font_size_override(&"font_size", 12)
+	label.add_theme_color_override(&"font_color", Color(0.243137, 0.152941, 0.101961, 1.0))
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	preview.add_child(label)
 
@@ -200,5 +238,5 @@ func _gui_input(event: InputEvent) -> void:
 
 	# Klik kanan = pakai item. Telan event supaya tidak sampai ke gameplay.
 	accept_event()
-	if inventory != null:
+	if is_available():
 		inventory.use_slot(slot_index)

@@ -1,0 +1,14 @@
+[gd_resource type="StyleBoxTexture" format=3 uid="uid://ondvbml7t2u4"]
+
+[ext_resource type="Texture2D" uid="uid://befmue52bxg42" path="res://assets/textures/ui/04_tab/tab_active.png" id="1_tex"]
+
+[resource]
+content_margin_left = 34.0
+content_margin_top = 14.0
+content_margin_right = 34.0
+content_margin_bottom = 14.0
+texture = ExtResource("1_tex")
+texture_margin_left = 20.0
+texture_margin_top = 20.0
+texture_margin_right = 20.0
+texture_margin_bottom = 20.0

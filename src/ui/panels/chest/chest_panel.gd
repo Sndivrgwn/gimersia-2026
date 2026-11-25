@@ -64,6 +64,7 @@ func open_for(p_chest: Node, p_inventory: InventoryComponent, p_player: Node2D) 
 	setup(p_chest, p_inventory, p_player, bag_panel)
 	_open = true
 	visible = true
+	UiBackStack.register(self)
 	if bag_panel != null and bag_panel.has_method(&"set_locked"):
 		bag_panel.set_locked(true)
 	refresh()
@@ -76,6 +77,7 @@ func close() -> void:
 		return
 	_open = false
 	visible = false
+	UiBackStack.unregister(self)
 	if bag_panel != null and bag_panel.has_method(&"set_locked"):
 		bag_panel.set_locked(false)
 	closed.emit()
