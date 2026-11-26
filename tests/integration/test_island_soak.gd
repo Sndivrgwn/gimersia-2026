@@ -6,6 +6,8 @@ var _harness: IslandHarness
 
 
 func before_each() -> void:
+	if OS.get_environment("GIMERSIA_SLOW") != "1":
+		return
 	_harness = IslandHarness.new()
 	_harness.setup(self)
 	# Mission 9 (R4): soak adalah simulasi invariant 7 hari, bukan tes kematian.
@@ -22,6 +24,8 @@ func after_each() -> void:
 
 
 func test_7_day_soak() -> void:
+	if SlowGuard.skip_unless_slow(self):
+		return
 	var player := _harness.player
 	var stats := _harness.stats
 	var needs := _harness.needs

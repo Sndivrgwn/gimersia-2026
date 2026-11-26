@@ -52,6 +52,8 @@ var _fade_done := false
 var _loading_box: VBoxContainer
 var _loading_bar: ProgressBar
 var _loading_label: Label
+var _continue_button: Button
+var _continuing_save := false
 
 
 func _ready() -> void:
@@ -70,13 +72,15 @@ func _ready() -> void:
 	_quit_button.pressed.connect(_quit)
 	_version_label.text = _version_text()
 	_ensure_settings_ui()
-	_start_game_preload()
+	_ensure_continue_button()
 	_build_loading_ui()
 
 	# Layar sempat gelap lalu memudar masuk saat menu dibuka.
+	# Preload pulau dimulai setelah fade masuk selesai agar quit cepat atau
+	# smoke test tidak memotong worker thread ResourceLoader di tengah jalan.
 	_screen_fade.visible = true
 	_screen_fade.modulate.a = 1.0
-	_fade_screen_to(0.0, FADE_TIME, _hide_screen_fade)
+	_fade_screen_to(0.0, FADE_TIME, _on_intro_fade_done)
 	_start_button.grab_focus()
 
 
@@ -190,9 +194,40 @@ func _show_credits() -> void:
 	open_info("Kredit", CREDIT_LINES)
 
 
+func _ensure_continue_button() -> void:
+	if not SaveService.has_save():
+		return
+	var parent := _start_button.get_parent()
+	if parent == null:
+		return
+	var summary := SaveService.read_summary()
+	var day := int(summary.get("day", 1))
+	_continue_button = Button.new()
+	_continue_button.name = "ContinueButton"
+	_continue_button.text = "LANJUTKAN (Hari %d)" % day
+	_continue_button.custom_minimum_size = _start_button.custom_minimum_size
+	_continue_button.pressed.connect(_continue_game)
+	parent.add_child(_continue_button)
+	parent.move_child(_continue_button, _start_button.get_index())
+
+
+func _continue_game() -> void:
+	if _starting:
+		return
+	_continuing_save = true
+	SaveService.request_load_on_next_island()
+	_begin_enter_game()
+
+
 func _start_game() -> void:
 	if _starting:
 		return
+	_continuing_save = false
+	SaveService.cancel_pending_load()
+	_begin_enter_game()
+
+
+func _begin_enter_game() -> void:
 	_starting = true
 	_fade_done = false
 	_loading_scene = true
@@ -205,7 +240,7 @@ func _start_game() -> void:
 
 func _finish_enter_game(scene: PackedScene) -> void:
 	var clock := get_node_or_null("/root/DayNightManager")
-	if clock != null and clock.has_method(&"restart"):
+	if not _continuing_save and clock != null and clock.has_method(&"restart"):
 		clock.restart()
 	var tree := get_tree()
 	if tree == null:
@@ -305,8 +340,29 @@ func _fade_screen_to(alpha: float, time: float, on_done: Callable = Callable()) 
 		_screen_tween.tween_callback(on_done)
 
 
+func _on_intro_fade_done() -> void:
+	_hide_screen_fade()
+	_start_game_preload()
+
+
 func _hide_screen_fade() -> void:
 	_screen_fade.visible = false
+
+
+func _exit_tree() -> void:
+	_kill(_overlay_tween)
+	_kill(_screen_tween)
+	_drain_game_preload()
+
+
+func _drain_game_preload() -> void:
+	if not _game_preloading:
+		return
+	_game_preloading = false
+	# Hanya ambil bila sudah selesai dimuat (non-blocking); jangan panggil
+	# load_threaded_get saat IN_PROGRESS di _exit_tree karena bisa deadlock.
+	if ResourceLoader.load_threaded_get_status(GAME_SCENE) == ResourceLoader.THREAD_LOAD_LOADED:
+		var _discarded := ResourceLoader.load_threaded_get(GAME_SCENE)
 
 
 func _kill(tween: Tween) -> void:

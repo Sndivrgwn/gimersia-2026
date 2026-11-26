@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="SplashConfig" format=3]
+[gd_resource type="Resource" script_class="SplashConfig" format=3 uid="uid://b6ivd2fh7321e"]
 
-[ext_resource type="Script" path="res://src/data/resources/ui/splash_entry.gd" id="1_17itk"]
-[ext_resource type="Script" path="res://src/data/resources/ui/splash_config.gd" id="2_g5qf7"]
+[ext_resource type="Script" uid="uid://dg3l1f284gfhc" path="res://src/data/resources/ui/splash_entry.gd" id="1_17itk"]
+[ext_resource type="Script" uid="uid://cbrmgxd20qejc" path="res://src/data/resources/ui/splash_config.gd" id="2_g5qf7"]
 
 [sub_resource type="Resource" id="Resource_7avp8"]
 script = ExtResource("1_17itk")
@@ -18,4 +18,5 @@ hold_seconds = 1.8
 [resource]
 script = ExtResource("2_g5qf7")
 entries = Array[ExtResource("1_17itk")]([SubResource("Resource_7avp8"), SubResource("Resource_avl5o")])
+next_scene_path = "res://src/ui/menus/main_menu_animated.tscn"
 preload_paths = PackedStringArray("res://src/levels/island/island.tscn")

@@ -122,6 +122,28 @@ func restart() -> void:
 	start()
 
 
+## Pulihkan state siklus dari SaveService tanpa memicu lompatan hari perantara.
+func restore_state(day: int, phase: int, elapsed: float, rescue: bool = false) -> void:
+	_resolve_config()
+	_time_scale_override = -1.0
+	_deactivate_night_watch()
+	current_day = clampi(day, 1, get_max_days())
+	current_phase = Phase.NIGHT if phase == Phase.NIGHT else Phase.DAY
+	phase_duration = maxf(
+		_active_config.get_night_duration(current_day) if current_phase == Phase.NIGHT else _active_config.get_day_duration(current_day),
+		MIN_PHASE_DURATION
+	)
+	phase_elapsed = clampf(elapsed, 0.0, phase_duration)
+	rescue_triggered = rescue
+	is_running = not rescue
+	_dusk_announced_day = current_day if current_phase == Phase.NIGHT else 0
+	_last_reported_second = -1
+	_last_clock_hour = -1
+	day_changed.emit(current_day)
+	phase_changed.emit(current_phase)
+	_report_time(true)
+
+
 ## Tick manual yang memakai pengali waktu; berguna untuk tes dan modul lain.
 func advance(delta: float) -> void:
 	if delta <= 0.0 or not is_running or rescue_triggered:

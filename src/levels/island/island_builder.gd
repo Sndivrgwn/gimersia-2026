@@ -51,6 +51,11 @@ const KEEP_OUT_POIS: Array[StringName] = [
 
 var _rng := RandomNumberGenerator.new()
 var _placed: Array[Vector2] = []
+var _keep_out_cache: Array[Vector2] = []
+var _beacon_cache: Vector2 = Vector2.INF
+var _keep_out_sq: float = 0.0
+var _beacon_keep_out_sq: float = 0.0
+var _min_spacing_sq: float = 0.0
 
 
 func _ready() -> void:
@@ -106,6 +111,7 @@ func plan() -> Array[Dictionary]:
 
 	var entries: Array[Dictionary] = []
 	var starters := layout.camp_starters_last_respawn_day
+	_refresh_clear_cache()
 
 	_plan_zone(entries, IslandZones.Zone.CAMP, DEF_TWIG, layout.camp_twig, starters, true)
 	_plan_zone(entries, IslandZones.Zone.CAMP, DEF_SMALL_ROCK, layout.camp_small_rock, starters, true)
@@ -206,17 +212,25 @@ func _find_point(zone: int, camp_ring: bool) -> Vector2:
 	return Vector2.INF
 
 
-func _is_clear(point: Vector2) -> bool:
+func _refresh_clear_cache() -> void:
+	_keep_out_cache.clear()
 	for poi_name in KEEP_OUT_POIS:
 		var keep_out := WorldRules.poi(poi_name)
-		if keep_out == Vector2.INF:
-			continue
-		if point.distance_to(keep_out) < layout.keep_out_radius:
+		if keep_out != Vector2.INF:
+			_keep_out_cache.append(keep_out)
+	_beacon_cache = WorldRules.poi(WorldSource.POI_SIGNAL_BEACON)
+	_keep_out_sq = layout.keep_out_radius * layout.keep_out_radius
+	_beacon_keep_out_sq = layout.beacon_keep_out * layout.beacon_keep_out
+	_min_spacing_sq = layout.min_spacing * layout.min_spacing
+
+
+func _is_clear(point: Vector2) -> bool:
+	for keep_out in _keep_out_cache:
+		if point.distance_squared_to(keep_out) < _keep_out_sq:
 			return false
-	var beacon := WorldRules.poi(WorldSource.POI_SIGNAL_BEACON)
-	if beacon != Vector2.INF and point.distance_to(beacon) < layout.beacon_keep_out:
+	if _beacon_cache != Vector2.INF and point.distance_squared_to(_beacon_cache) < _beacon_keep_out_sq:
 		return false
 	for other in _placed:
-		if point.distance_to(other) < layout.min_spacing:
+		if point.distance_squared_to(other) < _min_spacing_sq:
 			return false
 	return true

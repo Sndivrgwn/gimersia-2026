@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://bvalthe07rs4a"]
 
-[ext_resource type="Script" path="res://src/ui/menus/splash_screen.gd" id="1_splash"]
+[ext_resource type="Script" uid="uid://wucnmg2lanrh" path="res://src/ui/menus/splash_screen.gd" id="1_splash"]
 
-[node name="SplashScreen" type="Control"]
+[node name="SplashScreen" type="Control" unique_id=1094614872]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,7 +11,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_splash")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=2113069967]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -20,7 +20,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="BackgroundTexture" type="TextureRect" parent="."]
+[node name="BackgroundTexture" type="TextureRect" parent="." unique_id=676987417]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -31,7 +31,7 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Center" type="CenterContainer" parent="." unique_id=367427965]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -39,19 +39,19 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="LogoTexture" type="TextureRect" parent="Center"]
+[node name="LogoTexture" type="TextureRect" parent="Center" unique_id=479507928]
 visible = false
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="FallbackLabel" type="Label" parent="Center"]
+[node name="FallbackLabel" type="Label" parent="Center" unique_id=106713124]
 visible = false
 layout_mode = 2
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="LoadingBar" type="ProgressBar" parent="."]
+[node name="LoadingBar" type="ProgressBar" parent="." unique_id=1513550201]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -66,7 +66,7 @@ grow_vertical = 0
 max_value = 1.0
 show_percentage = false
 
-[node name="LoadingLabel" type="Label" parent="."]
+[node name="LoadingLabel" type="Label" parent="." unique_id=1096331320]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0

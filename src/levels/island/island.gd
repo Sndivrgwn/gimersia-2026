@@ -133,8 +133,35 @@ func _ready() -> void:
 	_wire_chest_panel(player)
 	_wire_hud()
 	_wire_feedback_hud(player)
+	_wire_save_hooks()
+	if SaveService.consume_pending_load():
+		SaveService.load_island(self)
 	UiSkin.apply_all(self)
 	ScreenFade.fade_in(self, Color.BLACK, INTRO_FADE_TIME)
+
+
+func _wire_save_hooks() -> void:
+	var clock := get_node_or_null("/root/DayNightManager")
+	if clock != null and clock.has_signal(&"day_started") and not clock.day_started.is_connected(_on_save_day_started):
+		clock.day_started.connect(_on_save_day_started)
+	var pause_menu := get_node_or_null("PauseMenu") as PauseMenu
+	if pause_menu != null and not pause_menu.main_menu_requested.is_connected(_on_pause_main_menu):
+		pause_menu.main_menu_requested.connect(_on_pause_main_menu)
+	if _endgame != null and _endgame.has_signal(&"victory") and not _endgame.victory.is_connected(_on_run_victory):
+		_endgame.victory.connect(_on_run_victory)
+
+
+func _on_save_day_started(day: int) -> void:
+	if day >= 2:
+		SaveService.save_island(self)
+
+
+func _on_pause_main_menu() -> void:
+	SaveService.save_island(self)
+
+
+func _on_run_victory() -> void:
+	SaveService.clear_save()
 
 
 ## Satu baris attach per slot world; tanpa art tidak ada yang berubah.
@@ -190,6 +217,7 @@ func _on_player_died(respawns_remaining: int) -> void:
 
 
 func _on_game_over() -> void:
+	SaveService.clear_save()
 	if _death_screen != null:
 		_death_screen.hide_screen()
 	if _game_over_screen != null:

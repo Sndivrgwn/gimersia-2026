@@ -35,6 +35,10 @@ const REASON_UNKNOWN := "Resep tidak dikenal"
 const REASON_BETTER_WEAPON := "Sudah punya senjata yang lebih baik"
 const REASON_TOOL_OWNED := "Alat sudah dimiliki"
 const REASON_ARMOR_EQUIPPED := "Zirah sudah terpasang"
+## Anti soft-lock Hari 7: jika Workbench hancur di fase penyelamatan, resep
+## krusial tetap bisa dirakit tangan agar pemain tidak buntu.
+const RESCUE_FALLBACK_DAY := 7
+const RESCUE_FALLBACK_RECIPES: Array[StringName] = [&"signal_flare", &"stone_axe"]
 
 const RECIPE_FILES: Array[String] = [
 	"res://src/data/recipes/wooden_spear.tres",
@@ -62,6 +66,8 @@ const RECIPE_FILES: Array[String] = [
 @export var inventory: InventoryComponent
 @export var stats: StatsComponent
 @export var player: Node
+## Opsional; default autoload DayNightManager (dipakai anti soft-lock Hari 7).
+@export var clock: Node
 ## Matikan di scene tes bila input tidak ingin ikut aktif.
 @export var input_enabled: bool = true
 
@@ -123,7 +129,7 @@ func get_stations_in_range() -> Array:
 func get_available_recipes() -> Array[RecipeDefinition]:
 	var result: Array[RecipeDefinition] = []
 	for recipe in get_all_recipes():
-		if _station_available(recipe.station):
+		if _recipe_station_available(recipe):
 			result.append(recipe)
 	return result
 
@@ -132,9 +138,14 @@ func get_available_recipes() -> Array[RecipeDefinition]:
 func get_locked_recipes() -> Array[RecipeDefinition]:
 	var result: Array[RecipeDefinition] = []
 	for recipe in get_all_recipes():
-		if not _station_available(recipe.station):
+		if not _recipe_station_available(recipe):
 			result.append(recipe)
 	return result
+
+
+## True saat Hari >= 7 dan tidak ada Workbench aktif di pulau (anti soft-lock).
+func is_rescue_fallback_active() -> bool:
+	return _current_day() >= RESCUE_FALLBACK_DAY and not _has_any_station(RecipeDefinition.Station.WORKBENCH)
 
 
 func get_all_recipes() -> Array[RecipeDefinition]:
@@ -163,7 +174,7 @@ func get_progress_ratio() -> float:
 func get_block_reason(recipe: RecipeDefinition) -> String:
 	if recipe == null:
 		return REASON_UNKNOWN
-	if not _station_available(recipe.station):
+	if not _recipe_station_available(recipe):
 		return recipe.get_station_block_reason()
 	var equipment_reason := _equipment_block_reason(recipe)
 	if not equipment_reason.is_empty():
@@ -251,7 +262,7 @@ func tick(delta: float) -> void:
 		if not _station_valid(_active_station, _recipe):
 			cancel_craft(REASON_STATION_LOST)
 			return
-	elif not _station_available(_recipe.station):
+	elif not _recipe_station_available(_recipe):
 		cancel_craft(REASON_STATION_LOST)
 		return
 
@@ -363,6 +374,35 @@ func _is_station_usable(node: Node) -> bool:
 	if not node.has_method("is_station_active"):
 		return false
 	return node.is_station_active()
+
+
+func _recipe_station_available(recipe: RecipeDefinition) -> bool:
+	if recipe == null:
+		return false
+	if _station_available(recipe.station):
+		return true
+	if recipe.station == RecipeDefinition.Station.WORKBENCH and RESCUE_FALLBACK_RECIPES.has(recipe.id):
+		return is_rescue_fallback_active()
+	return false
+
+
+func _has_any_station(station: int) -> bool:
+	var tree := get_tree()
+	if tree == null:
+		return false
+	for node in tree.get_nodes_in_group(STATION_GROUP):
+		if _is_station_usable(node) and int(node.station_type) == station:
+			return true
+	return false
+
+
+func _current_day() -> int:
+	var target: Node = clock
+	if target == null:
+		target = get_node_or_null("/root/DayNightManager")
+	if target != null and target.has_method(&"get_current_day"):
+		return int(target.call(&"get_current_day"))
+	return 1
 
 
 func _station_available(station: int) -> bool:

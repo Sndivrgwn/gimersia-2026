@@ -138,6 +138,16 @@ func is_built() -> bool:
 	return _structure != null
 
 
+## Bangun struktur dari SaveService tanpa mengonsumsi bahan tas.
+func build_from_save() -> CampStructure:
+	if _structure != null:
+		return _structure
+	if definition == null or not _has_usable_scene():
+		return null
+	_spawn_structure()
+	return _structure
+
+
 func get_placeholder() -> Node2D:
 	return _placeholder
 
