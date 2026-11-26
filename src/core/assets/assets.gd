@@ -17,6 +17,7 @@ const EXTENSIONS: Array[String] = ["png", "webp"]
 ## Mission 12: satu file SpriteFrames per slot, diutamakan di atas PNG.
 const SPRITEFRAMES_EXTENSION := "tres"
 const ITEM_ICON_FOLDER := "icons/items"
+const ITEM_ICON_FALLBACK_FOLDER := "textures/ui/07_icon"
 const DEFAULT_STATE := &"default"
 
 static var _roots_override: PackedStringArray = PackedStringArray()
@@ -184,12 +185,15 @@ static func item_icon(item_id: StringName) -> Texture2D:
 		return _icon_cache[item_id] as Texture2D
 	var found: Texture2D = null
 	for root in roots():
-		var dir_path := _join(root, ITEM_ICON_FOLDER)
-		for extension in EXTENSIONS:
-			var path := dir_path + "/" + String(item_id) + "." + extension
-			var texture := _texture_at(path)
-			if texture != null:
-				found = texture
+		for folder in [ITEM_ICON_FOLDER, ITEM_ICON_FALLBACK_FOLDER]:
+			var dir_path := _join(root, folder)
+			for extension in EXTENSIONS:
+				var path := dir_path + "/" + String(item_id) + "." + extension
+				var texture := _texture_at(path)
+				if texture != null:
+					found = texture
+					break
+			if found != null:
 				break
 		if found != null:
 			break

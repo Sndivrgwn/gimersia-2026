@@ -354,10 +354,12 @@ func _refresh_campfire_ui() -> void:
 	_fuel_label.visible = is_fire
 	if not is_fire:
 		return
-	_refuel.disabled = not _refuel_reason().is_empty()
-	_refuel.tooltip_text = _refuel_reason()
-	_flint.disabled = not _flint_reason().is_empty()
-	_flint.tooltip_text = _flint_reason()
+	var refuel_reason := _refuel_reason()
+	_refuel.disabled = not refuel_reason.is_empty()
+	_refuel.tooltip_text = refuel_reason
+	var flint_reason := _flint_reason()
+	_flint.disabled = not flint_reason.is_empty()
+	_flint.tooltip_text = flint_reason
 
 
 func _refresh_runtime() -> void:

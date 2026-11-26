@@ -36,7 +36,7 @@ func _apply() -> void:
 	_count.text = "x%d" % _amount if _amount > 0 else ""
 	_count.visible = _amount > 0
 
-	_icon.texture = _item.icon
+	_icon.texture = _item.get_icon()
 	_icon.visible = _icon.texture != null
 
 	_desc.text = _item.description
@@ -46,7 +46,7 @@ func _apply() -> void:
 		_effects.remove_child(child)
 		child.free()
 
-	for part in BagSlot.effect_parts(_item):
+	for part in effect_parts(_item):
 		var line := Label.new()
 		line.text = part
 		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -65,3 +65,37 @@ func _effect_color(part: String) -> Color:
 	if part.contains(" +") or part.begins_with("+") or part.begins_with("-"):
 		return Color(0.60, 0.85, 0.50)
 	return Color(0.9686, 0.9451, 0.898)
+
+
+## Potongan efek terpisah (dipakai tooltip dan BagSlot, satu potongan per baris).
+static func effect_parts(item: ItemDefinition) -> PackedStringArray:
+	var parts := PackedStringArray()
+	if item == null:
+		return parts
+	var effect := item.consume_effect
+	if effect != null:
+		_add_amount(parts, "Hunger", effect.hunger)
+		_add_amount(parts, "Thirst", effect.thirst)
+		_add_amount(parts, "Fatigue", effect.fatigue)
+		_add_amount(parts, "HP", effect.hp)
+		if effect.regen_hp_per_second > 0.0:
+			parts.append(
+				"Regen +%.1f HP/dtk selama %d dtk"
+				% [effect.regen_hp_per_second, int(roundf(effect.regen_duration))]
+			)
+
+	if item.weapon_damage > 0.0:
+		parts.append("Damage %.0f, jangkauan %.0f px" % [item.weapon_damage, item.weapon_range])
+	if item.armor_damage_reduction > 0.0:
+		parts.append("-%.0f%% damage diterima" % (item.armor_damage_reduction * 100.0))
+	if item.armor_max_hp_bonus > 0.0:
+		parts.append("+%.0f max HP" % item.armor_max_hp_bonus)
+
+	return parts
+
+
+static func _add_amount(parts: PackedStringArray, label: String, amount: float) -> void:
+	if is_zero_approx(amount):
+		return
+	var sign_text := "+" if amount > 0.0 else ""
+	parts.append("%s %s%.0f" % [label, sign_text, amount])

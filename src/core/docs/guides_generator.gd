@@ -52,7 +52,7 @@ func _asset_intro() -> String:
 
 Dokumen ini untuk tim kreatif: cara mengganti tampilan game tanpa menyentuh kode.
 
-## Cara kerja (5 baris)
+## Cara kerja (5 langkah)
 
 1. Semua visual punya "slot" bernama, mis. `player`, `campfire`, `ground_camp`.
 2. Slot mencari file di `res://assets/` sesuai namanya; tidak ada art = placeholder lama.
@@ -242,11 +242,12 @@ func _asset_tables() -> String:
 
 
 func _asset_row(slot: AssetSlotDefinition) -> String:
-	var pattern := "`res://assets/%s/%s[_dir][_Nf].png`" % [
+	var is_font := String(slot.key).begins_with("ui_font_")
+	var pattern := "`res://assets/%s/%s.ttf` (atau `.otf`)" % [slot.folder, _stem_example(slot)] if is_font else "`res://assets/%s/%s[_dir][_Nf].png`" % [
 		slot.folder, _stem_example(slot)
 	]
 	var example_state := String(slot.default_state())
-	var example := slot.pattern_text(example_state, _example_dir(slot), _example_frames(slot))
+	var example := ("res://assets/%s/%s.ttf" % [slot.folder, _stem_example(slot)]) if is_font else slot.pattern_text(example_state, _example_dir(slot), _example_frames(slot))
 	var optional := "Opsional" if slot.optional or slot.priority == 3 else ("Wajib" if slot.priority == 1 else "Penting")
 	var pivot := "BOTTOM_CENTER" if slot.pivot == AssetSlotDefinition.Pivot.BOTTOM_CENTER else "CENTER"
 	var dirs := "4 arah" if slot.directions == AssetSlotDefinition.Direction.FOUR else "satu arah"

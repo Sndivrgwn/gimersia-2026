@@ -88,6 +88,10 @@ func get_hotbar_size() -> int:
 	return mini(maxi(_config().hotbar_size, 0), get_capacity())
 
 
+func get_slots() -> Array[ItemStack]:
+	return _slots
+
+
 ## ItemStack pada slot, atau null bila kosong / index tidak valid.
 func get_slot(index: int) -> ItemStack:
 	if not _is_valid_slot(index):

@@ -24,7 +24,7 @@ const CREDIT_LINES: Array[String] = [
 const DIM_ALPHA := 0.55
 const OVERLAY_TIME := 0.18
 const OVERLAY_SCALE := 0.94
-const FADE_TIME := 0.45
+const FADE_TIME := 0.22
 ## Mulai game: cukup gelap sesaat. Transisinya dilanjutkan zoom kamera di pulau,
 ## jadi layar tidak perlu menahan hitam lama.
 const START_FADE_TIME := 0.16
@@ -47,6 +47,11 @@ var _screen_tween: Tween
 var _starting := false
 ## True selama permintaan muat-pulau di latar belakang masih hidup.
 var _game_preloading := false
+var _loading_scene := false
+var _fade_done := false
+var _loading_box: VBoxContainer
+var _loading_bar: ProgressBar
+var _loading_label: Label
 
 
 func _ready() -> void:
@@ -66,11 +71,36 @@ func _ready() -> void:
 	_version_label.text = _version_text()
 	_ensure_settings_ui()
 	_start_game_preload()
+	_build_loading_ui()
 
 	# Layar sempat gelap lalu memudar masuk saat menu dibuka.
 	_screen_fade.visible = true
 	_screen_fade.modulate.a = 1.0
 	_fade_screen_to(0.0, FADE_TIME, _hide_screen_fade)
+
+
+func _process(delta: float) -> void:
+	if not _loading_scene:
+		return
+	var progress: Array = []
+	var status := ResourceLoader.load_threaded_get_status(GAME_SCENE, progress)
+	var target := 100.0
+	if status == ResourceLoader.THREAD_LOAD_IN_PROGRESS and not progress.is_empty():
+		target = clampf(float(progress[0]) * 100.0, 5.0, 95.0)
+	elif status == ResourceLoader.THREAD_LOAD_LOADED:
+		target = 100.0
+	elif status == ResourceLoader.THREAD_LOAD_FAILED or status == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+		_loading_scene = false
+		_finish_enter_game(null)
+		return
+
+	if _loading_bar != null:
+		_loading_bar.value = move_toward(_loading_bar.value, target, delta * 260.0)
+
+	if status == ResourceLoader.THREAD_LOAD_LOADED and _fade_done and (_loading_bar == null or _loading_bar.value >= 99.5):
+		_loading_scene = false
+		var scene := ResourceLoader.load_threaded_get(GAME_SCENE) as PackedScene
+		_finish_enter_game(scene)
 
 
 # --- API --------------------------------------------------------------------
@@ -156,17 +186,27 @@ func _start_game() -> void:
 	if _starting:
 		return
 	_starting = true
-	_fade_screen_to(1.0, START_FADE_TIME, _enter_game)
+	_fade_done = false
+	_loading_scene = true
+	_start_game_preload()
+	if _loading_box != null:
+		_loading_box.visible = not is_game_preloaded()
+		_loading_bar.value = 100.0 if is_game_preloaded() else 5.0
+	_fade_screen_to(1.0, START_FADE_TIME, func() -> void: _fade_done = true)
 
 
-func _enter_game() -> void:
+func _finish_enter_game(scene: PackedScene) -> void:
 	var clock := get_node_or_null("/root/DayNightManager")
 	if clock != null and clock.has_method(&"restart"):
 		clock.restart()
-	# Layar sudah hitam penuh dari `_start_game`. Menunggu sisa preload di sini
-	# (bukan memulai muat baru) supaya klik MULAI tidak mengulang 20 detik
-	# kompilasi skrip pulau.
-	await _swap_to_game()
+	var tree := get_tree()
+	if tree == null:
+		return
+	if scene != null:
+		_game_preloading = false
+		tree.change_scene_to_packed(scene)
+	else:
+		tree.change_scene_to_file(GAME_SCENE)
 
 
 # --- Preload pulau ----------------------------------------------------------
@@ -184,23 +224,48 @@ func is_game_preloaded() -> bool:
 	return _game_preloading and ResourceLoader.load_threaded_get_status(GAME_SCENE) == ResourceLoader.THREAD_LOAD_LOADED
 
 
-func _swap_to_game() -> void:
-	if _game_preloading:
-		while ResourceLoader.load_threaded_get_status(GAME_SCENE) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
-			await get_tree().process_frame
-	var packed := _take_preloaded_game()
-	if packed != null:
-		get_tree().change_scene_to_packed(packed)
-		return
-	# Preload gagal/tidak diminta: jalur lama tetap dipakai sebagai cadangan.
-	get_tree().change_scene_to_file(GAME_SCENE)
+func _build_loading_ui() -> void:
+	_loading_box = VBoxContainer.new()
+	_loading_box.name = "LoadingBox"
+	_loading_box.visible = false
+	_loading_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_loading_box.add_theme_constant_override("separation", 6)
+	_loading_box.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	_loading_box.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_loading_box.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_loading_box.offset_left = -280.0
+	_loading_box.offset_top = -68.0
+	_loading_box.offset_right = -32.0
+	_loading_box.offset_bottom = -28.0
+	add_child(_loading_box)
 
+	_loading_label = Label.new()
+	_loading_label.name = "LoadingLabel"
+	_loading_label.text = "Memuat pulau..."
+	_loading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_loading_label.add_theme_font_size_override("font_size", 12)
+	_loading_label.add_theme_color_override("font_color", Color(0.968627, 0.945098, 0.898039, 0.9))
+	_loading_box.add_child(_loading_label)
 
-func _take_preloaded_game() -> PackedScene:
-	if not is_game_preloaded():
-		return null
-	_game_preloading = false
-	return ResourceLoader.load_threaded_get(GAME_SCENE) as PackedScene
+	_loading_bar = ProgressBar.new()
+	_loading_bar.name = "LoadingBar"
+	_loading_bar.min_value = 0.0
+	_loading_bar.max_value = 100.0
+	_loading_bar.value = 0.0
+	_loading_bar.show_percentage = false
+	_loading_bar.custom_minimum_size = Vector2(248.0, 8.0)
+	_loading_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.14, 0.1, 0.08, 0.85)
+	bg.set_corner_radius_all(4)
+	_loading_bar.add_theme_stylebox_override("background", bg)
+
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = Color(0.922, 0.761, 0.451, 1.0)
+	fill.set_corner_radius_all(4)
+	_loading_bar.add_theme_stylebox_override("fill", fill)
+	_loading_box.add_child(_loading_bar)
 
 
 func _quit() -> void:

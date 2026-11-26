@@ -20,6 +20,7 @@ const IDLE_BG := Color(0.1, 0.12, 0.14, 0.55)
 const IDLE_BORDER := Color(0.35, 0.4, 0.35, 0.25)
 const DEFAULT_BATCH_MAX := 5
 const CARD_TEXTURE := "res://assets/textures/ui/inventory/inventory_slot.png"
+const TOOLTIP_SCENE: PackedScene = preload("res://src/ui/panels/inventory/item_tooltip.tscn")
 
 const TITLE_COLOR := Color(0.22, 0.14, 0.09, 1.0)
 const DESC_COLOR := Color(0.43, 0.34, 0.25, 1.0)
@@ -53,7 +54,6 @@ var locked_reason: String = ""
 var station: Node
 
 var _name_label: Label
-var _desc_label: Label
 var _time_label: Label
 var _reason_label: Label
 var _craft_button: Button
@@ -158,7 +158,7 @@ func refresh() -> void:
 		return
 
 	_name_label.text = recipe.display_name
-	_desc_label.text = "" if recipe.result == null else recipe.result.description
+	tooltip_text = "" if recipe.result == null else BagSlot.describe_item(recipe.result)
 	_time_label.text = "%s / %d DETIK" % [
 		recipe.get_station_name().to_upper(), int(round(recipe.craft_time)),
 	]
@@ -254,6 +254,8 @@ func _build() -> void:
 
 	var result_icon := _make_letter_icon(recipe.result, 48, 20, RESULT_ICON_BG)
 	result_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	result_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	result_icon.tooltip_text = ""
 	row.add_child(result_icon)
 
 	var info := VBoxContainer.new()
@@ -270,12 +272,6 @@ func _build() -> void:
 	_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_name_label.clip_text = true
 	info.add_child(_name_label)
-
-	_desc_label = _make_label("", 10, DESC_COLOR)
-	_desc_label.name = "Description"
-	_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_desc_label.max_lines_visible = 2
-	info.add_child(_desc_label)
 
 	_time_label = _make_label("", 9, META_COLOR)
 	_time_label.name = "Meta"
@@ -333,7 +329,7 @@ func _build() -> void:
 	_count_input.custom_minimum_size = Vector2(62.0, 26.0)
 	if crafting != null:
 		_count_input.max_value = maxi(crafting.get_station_config().craft_batch_max, 1)
-	row.add_child(_count_input)
+	action.add_child(_count_input)
 
 	_craft_button = Button.new()
 	_craft_button.text = "Buat"
@@ -381,18 +377,36 @@ func _make_letter_icon(item: ItemDefinition, icon_size: int, font_size: int, bg:
 	style.set_corner_radius_all(int(icon_size / 2.0))
 	panel.add_theme_stylebox_override("panel", style)
 
-	var label := Label.new()
-	label.text = "?" if item == null else item.display_name.left(1).to_upper()
-	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_color", ICON_TEXT)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(label)
+	var icon_tex: Texture2D = null if item == null else item.get_icon()
+	if icon_tex != null:
+		var tex_rect := TextureRect.new()
+		tex_rect.texture = icon_tex
+		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.custom_minimum_size = Vector2(icon_size - 8, icon_size - 8)
+		tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		panel.add_child(tex_rect)
+	else:
+		var label := Label.new()
+		label.text = "?" if item == null else item.display_name.left(1).to_upper()
+		label.add_theme_font_size_override("font_size", font_size)
+		label.add_theme_color_override("font_color", ICON_TEXT)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		panel.add_child(label)
 
 	if item != null:
 		panel.tooltip_text = item.display_name
 	return panel
+
+
+func _make_custom_tooltip(_for_text: String) -> Object:
+	if recipe == null or recipe.result == null:
+		return null
+	var tip := TOOLTIP_SCENE.instantiate() as ItemTooltip
+	tip.show_item(recipe.result, maxi(recipe.result_count, 1))
+	return tip
 
 
 func _badge_style(bg: Color) -> StyleBoxFlat:

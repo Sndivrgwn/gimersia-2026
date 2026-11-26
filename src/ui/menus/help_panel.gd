@@ -19,7 +19,6 @@ const HELP_LINES: Array[String] = [
 	"PANEL & MENU",
 	"Tab / I - panel tas: Tas | Crafting",
 	"P - pause (Lanjutkan, Pengaturan, Bantuan, Menu Utama)",
-	"H - bantuan ini",
 	"Esc - tutup panel yang terbuka",
 	"",
 	"DEBUG PULAU (island)",
@@ -47,13 +46,6 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if is_open() and event.is_action_pressed(&"ui_cancel"):
 		close()
-		get_viewport().set_input_as_handled()
-		return
-	if event.is_action_pressed(InputSetup.HELP_TOGGLE):
-		if not is_open():
-			if (get_tree() != null and get_tree().paused) or UiBackStack.has_open(self):
-				return
-		toggle()
 		get_viewport().set_input_as_handled()
 
 

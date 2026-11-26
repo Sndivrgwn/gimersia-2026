@@ -163,15 +163,4 @@ func _tick_arrow() -> void:
 		return
 	_arrow.visible = true
 	var direction := _controller.get_beacon_direction()
-	var glyph := "↑"
-	if direction != Vector2.ZERO:
-		var angle := direction.angle()
-		if angle >= -PI / 4.0 and angle < PI / 4.0:
-			glyph = "→"
-		elif angle >= PI / 4.0 and angle < 3.0 * PI / 4.0:
-			glyph = "↓"
-		elif angle >= -3.0 * PI / 4.0 and angle < -PI / 4.0:
-			glyph = "↑"
-		else:
-			glyph = "←"
-	_arrow.text = ARROW_FORMAT % [glyph, int(round(_controller.get_beacon_distance()))]
+	_arrow.text = ARROW_FORMAT % [Dir4.glyph(direction), int(round(_controller.get_beacon_distance()))]

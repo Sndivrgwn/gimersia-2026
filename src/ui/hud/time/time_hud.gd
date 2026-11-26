@@ -182,4 +182,5 @@ func _animate_day_label() -> void:
 
 func _format_seconds(seconds: float) -> String:
 	var total := int(ceilf(maxf(seconds, 0.0)))
-	return "%02d:%02d" % [int(total / 60.0), total % 60]
+	@warning_ignore("integer_division")
+	return "%02d:%02d" % [total / 60, total % 60]

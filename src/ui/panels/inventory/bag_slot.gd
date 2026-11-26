@@ -129,36 +129,7 @@ static func describe_effect(item: ItemDefinition) -> String:
 
 ## Potongan efek terpisah (dipakai tooltip, satu potongan per baris).
 static func effect_parts(item: ItemDefinition) -> PackedStringArray:
-	var parts := PackedStringArray()
-	if item == null:
-		return parts
-	var effect := item.consume_effect
-	if effect != null:
-		_add_amount(parts, "Hunger", effect.hunger)
-		_add_amount(parts, "Thirst", effect.thirst)
-		_add_amount(parts, "Fatigue", effect.fatigue)
-		_add_amount(parts, "HP", effect.hp)
-		if effect.regen_hp_per_second > 0.0:
-			parts.append(
-				"Regen +%.1f HP/dtk selama %d dtk"
-				% [effect.regen_hp_per_second, int(roundf(effect.regen_duration))]
-			)
-
-	if item.weapon_damage > 0.0:
-		parts.append("Damage %.0f, jangkauan %.0f px" % [item.weapon_damage, item.weapon_range])
-	if item.armor_damage_reduction > 0.0:
-		parts.append("-%.0f%% damage diterima" % (item.armor_damage_reduction * 100.0))
-	if item.armor_max_hp_bonus > 0.0:
-		parts.append("+%.0f max HP" % item.armor_max_hp_bonus)
-
-	return parts
-
-
-static func _add_amount(parts: PackedStringArray, label: String, amount: float) -> void:
-	if is_zero_approx(amount):
-		return
-	var sign_text := "+" if amount > 0.0 else ""
-	parts.append("%s %s%.0f" % [label, sign_text, amount])
+	return ItemTooltip.effect_parts(item)
 
 
 # --- Drag & drop ------------------------------------------------------------
@@ -185,7 +156,7 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	var source := int(data.get("index", -1))
 	if source < 0 or source == slot_index:
 		return false
-	return source < inventory.get_capacity() and slot_index < inventory.get_capacity()
+	return source < inventory.get_capacity()
 
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:

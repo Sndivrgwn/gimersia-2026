@@ -279,7 +279,6 @@ func _close_sub_panels() -> void:
 	for node in [_settings_panel, _help_panel]:
 		if node != null and is_instance_valid(node) and node.has_method(&"close"):
 			node.close()
-	_set_main_card_visible(true)
 
 
 func can_open() -> bool:

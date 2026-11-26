@@ -5,7 +5,8 @@ yang diganti; tidak perlu menyentuh `.tscn` atau `.tres`.
 
 Aturan singkat: simpan file `.png`/`.webp` dengan nama lowercase + underscore
 sesuai struktur folder di panduan, jalankan `--headless --import` sekali, lalu
-tekan **F1** di island untuk memuat ulang tanpa restart.
+tekan **Backtick (`)** di island untuk memuat ulang tanpa restart (atau **Home**
+untuk melihat kotak slot aset).
 
 Panduan lengkap (daftar slot, ukuran, arah, state, fallback):
 **`docs/editable/ASSET_GUIDE.md`**. Panduan itu juga mendata semua ikon item

@@ -2,7 +2,7 @@
 
 Dokumen ini untuk tim kreatif: cara mengganti tampilan game tanpa menyentuh kode.
 
-## Cara kerja (5 baris)
+## Cara kerja (5 langkah)
 
 1. Semua visual punya "slot" bernama, mis. `player`, `campfire`, `ground_camp`.
 2. Slot mencari file di `res://assets/` sesuai namanya; tidak ada art = placeholder lama.
@@ -234,8 +234,8 @@ Slot prioritas 1 di luar showcase.
 | `ui_button_pressed` | `res://assets/ui/button_pressed[_dir][_Nf].png`<br>contoh: `res://assets/ui/button_pressed.png` | Penting | 160 × 40 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_clock_moon` | `res://assets/ui/icons/clock_moon[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/clock_moon.png` | Opsional | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_clock_sun` | `res://assets/ui/icons/clock_sun[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/clock_sun.png` | Opsional | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
-| `ui_font_bold` | `res://assets/ui/fonts/bold[_dir][_Nf].png`<br>contoh: `res://assets/ui/fonts/bold.png` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
-| `ui_font_main` | `res://assets/ui/fonts/main[_dir][_Nf].png`<br>contoh: `res://assets/ui/fonts/main.png` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
+| `ui_font_bold` | `res://assets/ui/fonts/bold.ttf` (atau `.otf`)<br>contoh: `res://assets/ui/fonts/bold.ttf` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
+| `ui_font_main` | `res://assets/ui/fonts/main.ttf` (atau `.otf`)<br>contoh: `res://assets/ui/fonts/main.ttf` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_icon_fatigue` | `res://assets/ui/icons/fatigue[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/fatigue.png` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_icon_hp` | `res://assets/ui/icons/hp[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/hp.png` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_icon_hunger` | `res://assets/ui/icons/hunger[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/hunger.png` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |

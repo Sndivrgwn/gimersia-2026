@@ -51,7 +51,7 @@ func refresh() -> void:
 	_label.visible = distance > get_show_distance()
 	if not _label.visible:
 		return
-	_label.text = FORMAT % [_glyph(to_anchor), int(round(distance))]
+	_label.text = FORMAT % [Dir4.glyph(to_anchor), int(round(distance))]
 
 
 ## Dipakai tes: teks penunjuk saat ini (kosong bila disembunyikan).
@@ -122,13 +122,4 @@ func _build() -> void:
 
 
 func _glyph(direction: Vector2) -> String:
-	if direction == Vector2.ZERO:
-		return "↑"
-	var angle := direction.angle()
-	if angle >= -PI / 4.0 and angle < PI / 4.0:
-		return "→"
-	if angle >= PI / 4.0 and angle < 3.0 * PI / 4.0:
-		return "↓"
-	if angle >= -3.0 * PI / 4.0 and angle < -PI / 4.0:
-		return "↑"
-	return "←"
+	return Dir4.glyph(direction)

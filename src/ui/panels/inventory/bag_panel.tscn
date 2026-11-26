@@ -154,9 +154,10 @@ theme_override_constants/margin_bottom = 15
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 18
+alignment = 1
 
 [node name="Grid" type="GridContainer" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox"]
-columns = 5
+columns = 4
 layout_mode = 2
 size_flags_vertical = 4
 mouse_filter = 2
@@ -164,6 +165,7 @@ theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
 
 [node name="Equipment" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox"]
+visible = false
 custom_minimum_size = Vector2(190, 0)
 layout_mode = 2
 size_flags_vertical = 4
@@ -171,6 +173,7 @@ mouse_filter = 2
 theme_override_constants/separation = 12
 
 [node name="EquipmentTitle" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"]
+visible = false
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.968627, 0.945098, 0.898039, 1)
@@ -178,6 +181,7 @@ theme_override_font_sizes/font_size = 13
 text = "ALAT"
 
 [node name="Weapon" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"]
+visible = false
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 2
@@ -197,6 +201,7 @@ theme_override_font_sizes/font_size = 13
 text = "-"
 
 [node name="Tool" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"]
+visible = false
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 2
@@ -216,6 +221,7 @@ theme_override_font_sizes/font_size = 13
 text = "-"
 
 [node name="Armor" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"]
+visible = false
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 2

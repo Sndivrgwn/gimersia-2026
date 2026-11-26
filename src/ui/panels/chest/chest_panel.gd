@@ -93,7 +93,7 @@ func get_chest_slots() -> Array[ItemStack]:
 
 
 func get_bag_slots() -> Array[ItemStack]:
-	return inventory._slots if inventory != null else []
+	return inventory.get_slots() if inventory != null else []
 
 
 func take_all() -> void:
@@ -147,10 +147,11 @@ func refresh() -> void:
 		button.icon = _slot_icon(chest_slots, index)
 	if inventory == null:
 		return
+	var bag_slots := inventory.get_slots()
 	for index in _bag_grid.get_child_count():
 		var button := _bag_grid.get_child(index) as Button
-		button.text = _slot_text(inventory._slots, index)
-		button.icon = _slot_icon(inventory._slots, index)
+		button.text = _slot_text(bag_slots, index)
+		button.icon = _slot_icon(bag_slots, index)
 
 
 # --- Internal ---------------------------------------------------------------

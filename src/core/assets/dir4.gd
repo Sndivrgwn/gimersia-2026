@@ -63,3 +63,17 @@ static func _component(vector: Vector2, dir: StringName) -> float:
 ## True bila nama adalah arah yang dikenal.
 static func is_direction(name: String) -> bool:
 	return NAMES.has(name)
+
+
+## Panah Unicode 4 arah untuk HUD kompas / penunjuk arah.
+static func glyph(direction: Vector2) -> String:
+	if direction == Vector2.ZERO:
+		return "↑"
+	var angle := direction.angle()
+	if angle >= -PI / 4.0 and angle < PI / 4.0:
+		return "→"
+	if angle >= PI / 4.0 and angle < 3.0 * PI / 4.0:
+		return "↓"
+	if angle >= -3.0 * PI / 4.0 and angle < -PI / 4.0:
+		return "↑"
+	return "←"

@@ -1,18 +1,18 @@
-[gd_resource type="Resource" script_class="DailyGoalConfig" format=3]
+[gd_resource type="Resource" script_class="DailyGoalConfig" format=3 uid="uid://d5pcbgi7jds1"]
 
-[ext_resource type="Script" path="res://src/data/resources/goals/daily_goal.gd" id="1_2nip6"]
+[ext_resource type="Script" uid="uid://cnrngaafqbh1j" path="res://src/data/resources/goals/daily_goal.gd" id="1_2nip6"]
 [ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_at6b1"]
 [ext_resource type="Resource" path="res://src/data/items/stone_axe.tres" id="3_bpdny"]
 [ext_resource type="Resource" path="res://src/data/items/hide.tres" id="4_mrawl"]
-[ext_resource type="Resource" path="res://src/data/items/cooked_meat.tres" id="5_ktbe2"]
+[ext_resource type="Resource" uid="uid://bbo7sgr60uvx4" path="res://src/data/items/cooked_meat.tres" id="5_ktbe2"]
 [ext_resource type="Resource" path="res://src/data/items/stone.tres" id="6_kitcs"]
 [ext_resource type="Resource" path="res://src/data/items/stone_spear.tres" id="7_sb65w"]
 [ext_resource type="Resource" path="res://src/data/items/bone.tres" id="8_ivo53"]
-[ext_resource type="Resource" path="res://src/data/items/torch.tres" id="9_wcu00"]
+[ext_resource type="Resource" uid="uid://jcgej185fn2p" path="res://src/data/items/torch.tres" id="9_wcu00"]
 [ext_resource type="Resource" path="res://src/data/items/leather_vest.tres" id="10_kcuc8"]
 [ext_resource type="Resource" path="res://src/data/items/signal_flare.tres" id="11_e8wvv"]
 [ext_resource type="Resource" path="res://src/data/items/bone_spear.tres" id="12_txbx0"]
-[ext_resource type="Script" path="res://src/data/resources/goals/daily_goal_config.gd" id="13_fsdge"]
+[ext_resource type="Script" uid="uid://7v0i7gc8qsg1" path="res://src/data/resources/goals/daily_goal_config.gd" id="13_fsdge"]
 
 [sub_resource type="Resource" id="Resource_eu3ul"]
 script = ExtResource("1_2nip6")
