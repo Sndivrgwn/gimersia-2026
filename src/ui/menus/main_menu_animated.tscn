@@ -1,0 +1,400 @@
+[gd_scene format=3 uid="uid://w6muubs61jjw"]
+
+[ext_resource type="Script" uid="uid://cwlncuu6bxuxj" path="res://src/ui/menus/main_menu.gd" id="1_menu"]
+[ext_resource type="Script" uid="uid://xjjv5elqgm5c" path="res://src/ui/menus/main_menu_animator.gd" id="2_anim"]
+[ext_resource type="Theme" uid="uid://yeud614vxjso" path="res://src/ui/theme/ui_theme_tex.tres" id="3_theme"]
+[ext_resource type="Texture2D" uid="uid://dqfoi5rrxfkmn" path="res://assets/textures/ui/main_menu_animated/background_main_menu_clean.png" id="4_bg"]
+[ext_resource type="Texture2D" uid="uid://belur6pwsc44r" path="res://assets/textures/ui/main_menu_animated/aurora_grass.png" id="5_aurora"]
+[ext_resource type="Texture2D" uid="uid://nryyu40cd78h" path="res://assets/textures/ui/main_menu_animated/smoke_sheet.png" id="6_smoke"]
+[ext_resource type="Texture2D" uid="uid://bvip8dp1a6xlx" path="res://assets/textures/ui/main_menu_animated/crab_sheet_centered.png" id="7_crab"]
+[ext_resource type="Texture2D" uid="uid://dvm3sspufkk3u" path="res://assets/textures/ui/main_menu_animated/water_wave.png" id="8_wave"]
+[ext_resource type="Shader" uid="uid://1a2x7gipjsoa" path="res://src/ui/menus/aurora_flow.gdshader" id="9_aurora_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aurora_back"]
+shader = ExtResource("9_aurora_shader")
+shader_parameter/wave_speed = 0.35
+shader_parameter/wave_freq = 3.8
+shader_parameter/wave_amp_x = 0.022
+shader_parameter/wave_amp_y = 0.024
+shader_parameter/shimmer_speed = 0.55
+shader_parameter/shimmer_strength = 0.3
+shader_parameter/phase_offset = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aurora_front"]
+shader = ExtResource("9_aurora_shader")
+shader_parameter/wave_speed = 0.55
+shader_parameter/wave_freq = 4.8
+shader_parameter/wave_amp_x = 0.016
+shader_parameter/wave_amp_y = 0.018
+shader_parameter/shimmer_speed = 0.8
+shader_parameter/shimmer_strength = 0.25
+shader_parameter/phase_offset = 2.1
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_smoke_puff"]
+atlas = ExtResource("6_smoke")
+region = Rect2(568.88, 0, 113.77, 126)
+
+[sub_resource type="Curve" id="Curve_smoke_scale"]
+_data = [Vector2(0, 0.22), 0.0, 1.4, 0, 0, Vector2(0.45, 0.72), 0.9, 0.9, 0, 0, Vector2(1, 1.3), 0.6, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_smoke_color"]
+offsets = PackedFloat32Array(0, 0.14, 0.55, 1)
+colors = PackedColorArray(0.95, 0.95, 0.93, 0, 0.94, 0.94, 0.92, 0.68, 0.88, 0.9, 0.92, 0.36, 0.85, 0.88, 0.92, 0)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_crab_0"]
+atlas = ExtResource("7_crab")
+region = Rect2(0, 0, 100, 79)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_crab_1"]
+atlas = ExtResource("7_crab")
+region = Rect2(100, 0, 100, 79)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_crab_2"]
+atlas = ExtResource("7_crab")
+region = Rect2(200, 0, 100, 79)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_crab_3"]
+atlas = ExtResource("7_crab")
+region = Rect2(300, 0, 100, 79)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_crab_4"]
+atlas = ExtResource("7_crab")
+region = Rect2(400, 0, 100, 79)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_crab"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_crab_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_crab_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_crab_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_crab_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_crab_4")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 8.0
+}]
+
+[node name="MainMenuAnimated" type="Control" unique_id=1690188038]
+texture_filter = 2
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+script = ExtResource("1_menu")
+
+[node name="Background" type="TextureRect" parent="." unique_id=71874648]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="AnimatedVisuals" type="Control" parent="." unique_id=716742088]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="AuroraBack" type="TextureRect" parent="AnimatedVisuals" unique_id=683488597]
+modulate = Color(1, 1, 1, 0.32)
+material = SubResource("ShaderMaterial_aurora_back")
+layout_mode = 0
+offset_left = -172.0
+offset_top = -183.0
+offset_right = 1048.0
+offset_bottom = 255.0
+mouse_filter = 2
+texture = ExtResource("5_aurora")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="AuroraFront" type="TextureRect" parent="AnimatedVisuals" unique_id=1391244742]
+modulate = Color(1, 1, 1, 0.68)
+material = SubResource("ShaderMaterial_aurora_front")
+layout_mode = 0
+offset_left = -229.0
+offset_top = -169.0
+offset_right = 951.0
+offset_bottom = 271.0
+mouse_filter = 2
+texture = ExtResource("5_aurora")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WaterWaves" type="Control" parent="AnimatedVisuals" unique_id=1060502845]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Wave1" type="TextureRect" parent="AnimatedVisuals/WaterWaves" unique_id=1532308125]
+modulate = Color(1, 1, 1, 0.45)
+layout_mode = 0
+offset_left = 40.0
+offset_top = 345.0
+offset_right = 640.0
+offset_bottom = 385.0
+mouse_filter = 2
+texture = ExtResource("8_wave")
+expand_mode = 1
+
+[node name="Wave2" type="TextureRect" parent="AnimatedVisuals/WaterWaves" unique_id=1274050430]
+modulate = Color(1, 1, 1, 0.5)
+layout_mode = 0
+offset_left = 360.0
+offset_top = 385.0
+offset_right = 980.0
+offset_bottom = 425.0
+mouse_filter = 2
+texture = ExtResource("8_wave")
+expand_mode = 1
+
+[node name="Wave3" type="TextureRect" parent="AnimatedVisuals/WaterWaves" unique_id=912400893]
+modulate = Color(1, 1, 1, 0.55)
+layout_mode = 0
+offset_left = 120.0
+offset_top = 425.0
+offset_right = 760.0
+offset_bottom = 465.0
+mouse_filter = 2
+texture = ExtResource("8_wave")
+expand_mode = 1
+
+[node name="PlaneSmoke" type="CPUParticles2D" parent="AnimatedVisuals" unique_id=1694170283]
+position = Vector2(894, 380)
+amount = 18
+texture = SubResource("AtlasTexture_smoke_puff")
+lifetime = 3.2
+preprocess = 3.2
+randomness = 0.25
+emission_shape = 1
+emission_sphere_radius = 6.0
+direction = Vector2(0.25, -1)
+spread = 18.0
+gravity = Vector2(8, -6)
+initial_velocity_min = 24.0
+initial_velocity_max = 38.0
+angular_velocity_min = -20.0
+angular_velocity_max = 20.0
+scale_amount_curve = SubResource("Curve_smoke_scale")
+color_ramp = SubResource("Gradient_smoke_color")
+
+[node name="BeachCrab" type="AnimatedSprite2D" parent="AnimatedVisuals" unique_id=215289734]
+position = Vector2(920, 595)
+scale = Vector2(0.85, 0.85)
+sprite_frames = SubResource("SpriteFrames_crab")
+animation = &"walk"
+autoplay = "walk"
+
+[node name="TitleBlock" type="VBoxContainer" parent="." unique_id=741666721]
+layout_mode = 1
+offset_left = 84.0
+offset_top = 60.0
+offset_right = 540.0
+offset_bottom = 236.0
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="EyebrowRow" type="HBoxContainer" parent="TitleBlock" unique_id=1275531509]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="AccentLine" type="ColorRect" parent="TitleBlock/EyebrowRow" unique_id=1928269931]
+custom_minimum_size = Vector2(38, 4)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+color = Color(0.922, 0.761, 0.451, 1)
+
+[node name="Eyebrow" type="Label" parent="TitleBlock/EyebrowRow" unique_id=797369721]
+layout_mode = 2
+theme_type_variation = &"EyebrowLabel"
+text = "PULAU"
+
+[node name="Title" type="Label" parent="TitleBlock" unique_id=367963847]
+layout_mode = 2
+theme_type_variation = &"HeroTitle"
+text = "THE 7th"
+
+[node name="MenuButtons" type="VBoxContainer" parent="." unique_id=1449945449]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 84.0
+offset_top = 44.0
+offset_right = 324.0
+offset_bottom = 44.0
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="StartButton" type="Button" parent="MenuButtons" unique_id=1392507033]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PrimaryButton"
+text = "MULAI"
+
+[node name="ControlsButton" type="Button" parent="MenuButtons" unique_id=1801925531]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"SecondaryButton"
+text = "KONTROL"
+
+[node name="CreditsButton" type="Button" parent="MenuButtons" unique_id=1286374583]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"SecondaryButton"
+text = "KREDIT"
+
+[node name="QuitButton" type="Button" parent="." unique_id=1067595566]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 56.0
+offset_top = -112.0
+offset_right = 264.0
+offset_bottom = -48.0
+grow_vertical = 0
+theme_type_variation = &"BackButton"
+text = "KELUAR"
+
+[node name="VersionLabel" type="Label" parent="." unique_id=1973337113]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -50.0
+offset_right = -32.0
+offset_bottom = -26.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_type_variation = &"VersionLabel"
+text = "v1.0.0"
+horizontal_alignment = 2
+
+[node name="InfoOverlay" type="Control" parent="." unique_id=409181512]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="InfoOverlay" unique_id=2037521324]
+modulate = Color(1, 1, 1, 0.55)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.122, 0.078, 0.055, 1)
+
+[node name="Center" type="CenterContainer" parent="InfoOverlay" unique_id=1058087161]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="InfoOverlay/Center" unique_id=882639065]
+custom_minimum_size = Vector2(520, 300)
+layout_mode = 2
+theme_type_variation = &"PanelCard"
+
+[node name="Padding" type="MarginContainer" parent="InfoOverlay/Center/Card" unique_id=873726713]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 14
+
+[node name="Content" type="VBoxContainer" parent="InfoOverlay/Center/Card/Padding" unique_id=1639751251]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="InfoTitleLabel" type="Label" parent="InfoOverlay/Center/Card/Padding/Content" unique_id=16748860]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CardTitleLabel"
+text = "Kontrol"
+
+[node name="InfoScroll" type="ScrollContainer" parent="InfoOverlay/Center/Card/Padding/Content" unique_id=905366183]
+custom_minimum_size = Vector2(0, 320)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="InfoTextLabel" type="Label" parent="InfoOverlay/Center/Card/Padding/Content/InfoScroll" unique_id=2075391556]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"BodyLabel"
+autowrap_mode = 3
+
+[node name="InfoBackButton" type="Button" parent="InfoOverlay/Center/Card/Padding/Content" unique_id=519813490]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 72)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"SecondaryButton"
+text = "KEMBALI"
+
+[node name="ScreenFade" type="ColorRect" parent="." unique_id=251509215]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.122, 0.078, 0.055, 1)
+
+[node name="MenuAnimator" type="Node" parent="." unique_id=843489840]
+script = ExtResource("2_anim")
