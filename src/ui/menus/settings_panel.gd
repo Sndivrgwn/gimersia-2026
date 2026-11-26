@@ -42,6 +42,8 @@ func setup(p_service: SettingsService) -> void:
 func open() -> void:
 	visible = true
 	refresh()
+	if _slider != null:
+		_slider.grab_focus()
 
 
 func close() -> void:

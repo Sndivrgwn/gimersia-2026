@@ -36,6 +36,8 @@ func show_screen() -> void:
 	if _panel != null:
 		_panel.visible = true
 	_refresh_detail()
+	if _restart_button != null:
+		_restart_button.grab_focus()
 
 
 func show_game_over() -> void:

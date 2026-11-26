@@ -39,6 +39,7 @@ func show_death(respawns_remaining: int) -> void:
 	_respawn_button.visible = true
 	_panel.visible = true
 	visible = true
+	_respawn_button.grab_focus()
 
 
 func show_game_over() -> void:
@@ -47,6 +48,7 @@ func show_game_over() -> void:
 	_respawn_button.visible = false
 	_panel.visible = true
 	visible = true
+	_menu_button.grab_focus()
 
 
 ## Teks detail lengkap (dipakai tes).

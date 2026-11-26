@@ -15,7 +15,7 @@ const INTERACTOR_NAME := "InteractorComponent"
 @export var repair_component: RepairComponent
 
 @onready var _panel: Control = $Root/Panel
-@onready var _prompt: Label = $Root/Panel/Margin/VBox/Prompt
+@onready var _prompt: Label = $Root/Panel/Margin/VBox/PromptRow/Prompt
 @onready var _bar: ProgressBar = $Root/Panel/Margin/VBox/Bar
 @onready var _blocked: Label = $Root/Panel/Margin/VBox/Blocked
 var _repair_panel: Control
@@ -50,7 +50,15 @@ func _on_target_changed(target: Interactable) -> void:
 	_panel.visible = target != null
 	_blocked.text = ""
 	_blocked.visible = false
-	_prompt.text = "" if target == null else target.get_prompt(interactor)
+	_prompt.text = "" if target == null else _format_prompt(target.get_prompt(interactor))
+
+
+func _format_prompt(raw: String) -> String:
+	var text := raw.strip_edges()
+	for prefix in ["Tahan E: ", "Tekan E: ", "Tahan E - ", "Tekan E - ", "E: ", "E - "]:
+		if text.begins_with(prefix):
+			return text.substr(prefix.length()).strip_edges()
+	return text
 
 
 func _on_progress_changed(ratio: float) -> void:
@@ -95,7 +103,7 @@ func _build_repair_ui() -> void:
 
 	_repair_panel = Control.new()
 	_repair_panel.name = "RepairPanel"
-	_repair_panel.position = Vector2(16.0, 132.0)
+	_repair_panel.position = Vector2(20.0, 218.0)
 	_repair_panel.size = Vector2(320.0, 56.0)
 	_repair_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_repair_panel.visible = false

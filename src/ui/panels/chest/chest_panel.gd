@@ -68,6 +68,8 @@ func open_for(p_chest: Node, p_inventory: InventoryComponent, p_player: Node2D) 
 	if bag_panel != null and bag_panel.has_method(&"set_locked"):
 		bag_panel.set_locked(true)
 	refresh()
+	if _chest_grid != null and _chest_grid.get_child_count() > 0:
+		(_chest_grid.get_child(0) as Control).grab_focus()
 	return true
 
 
@@ -258,59 +260,141 @@ func _on_bag_slot(index: int) -> void:
 
 
 func _build_ui() -> void:
+	var dim := ColorRect.new()
+	dim.name = "Dim"
+	dim.color = Color(0.0, 0.0, 0.0, 0.45)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(dim)
+
+	var frame := Panel.new()
+	frame.name = "Frame"
+	frame.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_theme_stylebox_override("panel", _tex_box("res://assets/textures/ui/02_panel/panel_walnut_stitched.png", 24.0, Vector2(24.0, 20.0)))
+	add_child(frame)
+
 	var root := VBoxContainer.new()
 	root.name = "Root"
+	root.set_anchors_preset(Control.PRESET_CENTER)
+	root.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	root.grow_vertical = Control.GROW_DIRECTION_BOTH
+	root.add_theme_constant_override("separation", 10)
 	root.mouse_filter = Control.MOUSE_FILTER_STOP
+	root.resized.connect(func() -> void:
+		frame.position = root.position - Vector2(24.0, 20.0)
+		frame.size = root.size + Vector2(48.0, 40.0)
+	)
 	add_child(root)
 	_title = Label.new()
 	_title.text = "Peti"
+	_title.add_theme_font_size_override("font_size", 18)
+	_title.add_theme_color_override("font_color", Color(0.922, 0.761, 0.451, 1.0))
 	root.add_child(_title)
+	var slot_normal := _tex_box("res://assets/textures/ui/05_slot/slot_item.png", 12.0, Vector2(8.0, 6.0))
+	var slot_focus := _tex_box("res://assets/textures/ui/05_slot/slot_item_selected.png", 12.0, Vector2(8.0, 6.0))
 	_chest_grid = GridContainer.new()
 	_chest_grid.name = "ChestGrid"
 	_chest_grid.columns = 6
+	_chest_grid.add_theme_constant_override("h_separation", 6)
+	_chest_grid.add_theme_constant_override("v_separation", 6)
 	root.add_child(_chest_grid)
 	for index in 24:
-		var button := Button.new()
-		button.focus_mode = Control.FOCUS_NONE
-		button.custom_minimum_size = Vector2(96.0, 28.0)
-		button.gui_input.connect(_on_slot_input.bind(button, index, true))
+		var button := _make_slot_button(index, true, slot_normal, slot_focus)
 		_chest_grid.add_child(button)
 	_bag_grid = GridContainer.new()
 	_bag_grid.name = "BagGrid"
 	_bag_grid.columns = 6
+	_bag_grid.add_theme_constant_override("h_separation", 6)
+	_bag_grid.add_theme_constant_override("v_separation", 6)
 	root.add_child(_bag_grid)
 	for index in 12:
-		var button := Button.new()
-		button.focus_mode = Control.FOCUS_NONE
-		button.custom_minimum_size = Vector2(96.0, 28.0)
-		button.gui_input.connect(_on_slot_input.bind(button, index, false))
+		var button := _make_slot_button(index, false, slot_normal, slot_focus)
 		_bag_grid.add_child(button)
 	_hint = Label.new()
 	_hint.name = "Hint"
-	_hint.add_theme_font_size_override("font_size", 10)
+	_hint.add_theme_font_size_override("font_size", 11)
+	_hint.add_theme_color_override("font_color", Color(0.88, 0.84, 0.76, 1.0))
 	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	root.add_child(_hint)
 	var actions := HBoxContainer.new()
+	actions.add_theme_constant_override("separation", 10)
 	root.add_child(actions)
-	var take := Button.new()
-	take.name = "TakeAll"
-	take.text = "Ambil semua"
+	var take := _make_action_button("TakeAll", "Ambil semua", "primary")
 	take.pressed.connect(take_all)
 	actions.add_child(take)
-	var store := Button.new()
-	store.name = "StoreAll"
-	store.text = "Simpan semua"
+	var store := _make_action_button("StoreAll", "Simpan semua", "primary")
 	store.pressed.connect(store_all)
 	actions.add_child(store)
-	var close_button := Button.new()
-	close_button.name = "Close"
-	close_button.text = "Tutup"
+	var close_button := _make_action_button("Close", "Tutup", "back")
 	close_button.pressed.connect(close)
-	root.add_child(close_button)
+	actions.add_child(close_button)
 	_built = true
 
 
+func _make_slot_button(index: int, from_chest: bool, normal_box: StyleBox, focus_box: StyleBox) -> Button:
+	var button := Button.new()
+	button.focus_mode = Control.FOCUS_ALL
+	button.custom_minimum_size = Vector2(104.0, 34.0)
+	if normal_box != null:
+		button.add_theme_stylebox_override("normal", normal_box)
+	if focus_box != null:
+		button.add_theme_stylebox_override("hover", focus_box)
+		button.add_theme_stylebox_override("focus", focus_box)
+		button.add_theme_stylebox_override("pressed", focus_box)
+	button.add_theme_color_override("font_color", Color(0.22, 0.14, 0.09, 1.0))
+	button.add_theme_color_override("font_hover_color", Color(0.22, 0.14, 0.09, 1.0))
+	button.add_theme_color_override("font_focus_color", Color(0.22, 0.14, 0.09, 1.0))
+	button.add_theme_font_size_override("font_size", 11)
+	button.gui_input.connect(_on_slot_input.bind(button, index, from_chest))
+	return button
+
+
+func _make_action_button(btn_name: String, label_text: String, variant: String) -> Button:
+	var btn := Button.new()
+	btn.name = btn_name
+	btn.text = label_text
+	btn.custom_minimum_size = Vector2(120.0, 34.0)
+	var base := "res://assets/textures/ui/03_button/button_%s_" % variant
+	var n := _tex_box(base + "normal.png", 14.0, Vector2(12.0, 6.0))
+	var h := _tex_box(base + "hover.png", 14.0, Vector2(12.0, 6.0))
+	var p := _tex_box(base + "pressed.png", 14.0, Vector2(12.0, 6.0))
+	if n != null:
+		btn.add_theme_stylebox_override("normal", n)
+	if h != null:
+		btn.add_theme_stylebox_override("hover", h)
+	if p != null:
+		btn.add_theme_stylebox_override("pressed", p)
+	btn.add_theme_color_override("font_color", Color(0.968627, 0.945098, 0.898039, 1.0))
+	return btn
+
+
+func _tex_box(path: String, tex_margin: float, content: Vector2) -> StyleBox:
+	if ResourceLoader.exists(path):
+		var tex := load(path) as Texture2D
+		if tex != null:
+			var box := StyleBoxTexture.new()
+			box.texture = tex
+			box.texture_margin_left = tex_margin
+			box.texture_margin_top = tex_margin
+			box.texture_margin_right = tex_margin
+			box.texture_margin_bottom = tex_margin
+			box.content_margin_left = content.x
+			box.content_margin_top = content.y
+			box.content_margin_right = content.x
+			box.content_margin_bottom = content.y
+			return box
+	return null
+
+
 func _on_slot_input(event: InputEvent, _button: Button, index: int, from_chest: bool) -> void:
+	if event.is_action_pressed(&"ui_accept"):
+		get_viewport().set_input_as_handled()
+		if from_chest:
+			_on_chest_slot(index)
+		else:
+			_on_bag_slot(index)
+		return
 	var mouse := event as InputEventMouseButton
 	if mouse == null or not mouse.pressed:
 		return

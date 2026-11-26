@@ -53,15 +53,19 @@ func show_toast(text: String) -> void:
 	_since_last = 0.0
 	if _rows.size() >= MAX_VISIBLE:
 		_remove_row(0)
+	var card := PanelContainer.new()
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_theme_stylebox_override("panel", _toast_style())
+
 	var label := Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", 13)
-	label.add_theme_color_override("font_color", Color(1.0, 0.94, 0.85, 1.0))
-	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
-	label.add_theme_constant_override("shadow_offset_x", 1)
-	label.add_theme_constant_override("shadow_offset_y", 1)
-	_box.add_child(label)
-	_rows.append({"label": label, "timer": LIFETIME})
+	label.add_theme_font_size_override("font_size", 14)
+	label.add_theme_color_override("font_color", Color(1.0, 0.96, 0.88, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(0.14, 0.09, 0.05, 0.95))
+	label.add_theme_constant_override("outline_size", 3)
+	card.add_child(label)
+	_box.add_child(card)
+	_rows.append({"card": card, "label": label, "timer": LIFETIME})
 
 
 ## Dipakai tes: teks toast yang sedang tampil, dari yang paling lama.
@@ -87,7 +91,11 @@ func tick(delta: float) -> void:
 		if timer <= 0.0:
 			_remove_row(index)
 		elif timer < FADE_TIME:
-			label.modulate.a = clampf(timer / FADE_TIME, 0.0, 1.0)
+			var card := row.get("card") as Control
+			if card != null:
+				card.modulate.a = clampf(timer / FADE_TIME, 0.0, 1.0)
+			else:
+				label.modulate.a = clampf(timer / FADE_TIME, 0.0, 1.0)
 
 
 # --- Internal ---------------------------------------------------------------
@@ -110,10 +118,33 @@ func _build() -> void:
 func _remove_row(index: int) -> void:
 	if index < 0 or index >= _rows.size():
 		return
-	var label := _rows[index]["label"] as Label
-	if label != null:
-		label.queue_free()
+	var node := (_rows[index].get("card") as Node) if _rows[index].has("card") else (_rows[index]["label"] as Node)
+	if node != null:
+		node.queue_free()
 	_rows.remove_at(index)
+
+
+func _toast_style() -> StyleBox:
+	var tex_path := "res://assets/textures/ui/02_panel/panel_walnut_stitched.png"
+	if ResourceLoader.exists(tex_path):
+		var tex := load(tex_path) as Texture2D
+		if tex != null:
+			var box := StyleBoxTexture.new()
+			box.texture = tex
+			box.texture_margin_left = 20.0
+			box.texture_margin_top = 20.0
+			box.texture_margin_right = 20.0
+			box.texture_margin_bottom = 20.0
+			box.content_margin_left = 16.0
+			box.content_margin_top = 10.0
+			box.content_margin_right = 16.0
+			box.content_margin_bottom = 10.0
+			return box
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.16, 0.11, 0.08, 0.9)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(10.0)
+	return style
 
 
 func _on_add_blocked(item: ItemDefinition, remaining: int) -> void:

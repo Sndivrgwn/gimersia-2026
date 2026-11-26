@@ -155,18 +155,39 @@ func _on_progress_changed(ratio: float) -> void:
 		refresh()
 
 
+## Ikon item dari UI (fallback) memakai kotak tangan apa adanya (hand_size),
+## jadi ukurannya kecil, sebesar tangan.
+const ICON_HAND_SCALE := 1.0
+
+
 func _apply_art(item: ItemDefinition) -> void:
 	var texture := _load_held_texture(item.id)
+	var from_icon := false
+	if texture == null:
+		# Tidak ada art khusus di assets/held/: pakai ikon item dari UI.
+		texture = item.get_icon()
+		from_icon = texture != null
 	_sprite.visible = texture != null
 	if texture != null:
 		_sprite.texture = texture
 		var size := texture.get_size()
 		if size.x > 0.0 and size.y > 0.0:
-			_sprite.scale = Vector2(
-				config.hand_size.x / size.x, config.hand_size.y / size.y
-			)
-		_shape.polygon = PackedVector2Array()
+			var target := config.hand_size * (ICON_HAND_SCALE if from_icon else 1.0)
+			# Ikon dijaga proporsional; art held khusus mengikuti kotak tangan.
+			if from_icon:
+				var uniform := minf(target.x / size.x, target.y / size.y)
+				_sprite.scale = Vector2(uniform, uniform)
+			else:
+				_sprite.scale = Vector2(target.x / size.x, target.y / size.y)
+		if from_icon:
+			# Polygon tetap disiapkan (fallback/tes), tapi disembunyikan di balik ikon.
+			_shape.polygon = _placeholder_polygon(item.category)
+			_shape.visible = false
+		else:
+			_shape.polygon = PackedVector2Array()
+			_shape.visible = true
 		return
+	_shape.visible = true
 	_shape.polygon = _placeholder_polygon(item.category)
 
 

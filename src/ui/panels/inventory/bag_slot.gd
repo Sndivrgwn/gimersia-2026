@@ -32,9 +32,12 @@ var _normal_style: StyleBox
 
 func _ready() -> void:
 	# Gaya slot (9-slice normal/hover) diatur di bag_slot.tscn.
+	focus_mode = Control.FOCUS_ALL
 	_normal_style = get_theme_stylebox(&"panel")
 	mouse_entered.connect(_set_hover.bind(true))
 	mouse_exited.connect(_set_hover.bind(false))
+	focus_entered.connect(_set_hover.bind(true))
+	focus_exited.connect(_set_hover.bind(false))
 	_key.text = str(hotbar_number) if hotbar_number > 0 else ""
 	refresh()
 
@@ -195,6 +198,10 @@ func _show_drag_preview(item: ItemDefinition, count: int) -> void:
 # --- Mouse ------------------------------------------------------------------
 
 func _gui_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"ui_accept"):
+		accept_event()
+		_activate_slot()
+		return
 	var mouse := event as InputEventMouseButton
 	if mouse == null or not mouse.pressed:
 		return
@@ -207,7 +214,16 @@ func _gui_input(event: InputEvent) -> void:
 	if mouse.button_index != MOUSE_BUTTON_RIGHT:
 		return
 
-	# Klik kanan = pakai item. Telan event supaya tidak sampai ke gameplay.
+	# Klik kanan = pakai item atau pasang senjata/armor. Telan event supaya tidak sampai ke gameplay.
 	accept_event()
-	if is_available():
-		inventory.use_slot(slot_index)
+	_activate_slot()
+
+
+func _activate_slot() -> void:
+	if not is_available():
+		return
+	var item := get_item()
+	if item != null and not item.is_consumable() and item.equipment_slot != ItemDefinition.EquipmentSlot.NONE:
+		inventory.equip(item)
+		return
+	inventory.use_slot(slot_index)

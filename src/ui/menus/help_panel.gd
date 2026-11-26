@@ -30,6 +30,7 @@ const HELP_LINES: Array[String] = [
 ]
 
 var _label: Label
+var _back_button: Button
 
 
 func _ready() -> void:
@@ -62,6 +63,8 @@ func open() -> void:
 	visible = true
 	UiBackStack.register(self)
 	toggled_open.emit(true)
+	if _back_button != null:
+		_back_button.grab_focus()
 
 
 func close() -> void:
@@ -86,6 +89,7 @@ func _bind_scene_ui() -> void:
 	if _label != null:
 		_label.text = "\n".join(HELP_LINES)
 	var back := ui.get_node_or_null("%BackButton") as Button
+	_back_button = back
 	if back != null:
 		back.pressed.connect(close)
 
@@ -127,3 +131,4 @@ func _build_ui() -> void:
 	back.text = "Kembali"
 	back.pressed.connect(close)
 	box.add_child(back)
+	_back_button = back

@@ -84,6 +84,7 @@
 [ext_resource type="Script" uid="uid://df6xbvwi2p7qm" path="res://src/components/visual/player_light.gd" id="82_playerlight"]
 [ext_resource type="Script" uid="uid://dae3mq0eipayt" path="res://src/ui/hud/compass/loot_arrow.gd" id="83_lootarrow"]
 [ext_resource type="Script" uid="uid://c4j3qwgalha0b" path="res://src/components/combat/target_indicator.gd" id="84_target"]
+[ext_resource type="Script" path="res://src/ui/hud/inventory/weapon_hud.gd" id="85_weaponhud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
 size = Vector2(5000, 100)
@@ -341,6 +342,9 @@ show_survival_label = false
 [node name="NeedsHUD" parent="." unique_id=480358638 instance=ExtResource("11_needshud")]
 
 [node name="HotbarHUD" parent="." unique_id=2008170450 instance=ExtResource("13_hotbarhud")]
+
+[node name="WeaponHUD" type="CanvasLayer" parent="."]
+script = ExtResource("85_weaponhud")
 
 [node name="InteractionHUD" parent="." unique_id=2085878612 instance=ExtResource("15_interactionhud")]
 

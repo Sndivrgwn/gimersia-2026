@@ -29,10 +29,16 @@ var _name_labels: Array[Label] = []
 var _value_labels: Array[Label] = []
 var _bars: Array[ProgressBar] = []
 var _fills: Array[StyleBoxFlat] = []
+var _hp_bar: ProgressBar
+var _hp_value: Label
+var _stats_component: StatsComponent
 
 
 func _ready() -> void:
 	_collect_rows()
+	_hp_bar = get_node_or_null("Root/Panel/Margin/VBox/HP/Bar") as ProgressBar
+	_hp_value = get_node_or_null("Root/Panel/Margin/VBox/HP/Value") as Label
+	_bind_hp()
 
 	if needs_component == null:
 		needs_component = _find_component()
@@ -67,6 +73,8 @@ func _collect_rows() -> void:
 
 ## Ikon di kiri baris hanya dibuat bila art-nya ada (tanpa art: tidak ada node).
 func _add_icon(row: Control, index: int) -> void:
+	if row.has_node("Icon"):
+		return
 	var texture := Assets.ui_texture(StringName("ui_icon_%s" % NEED_SLUGS[index]))
 	if texture == null:
 		return
@@ -79,6 +87,41 @@ func _add_icon(row: Control, index: int) -> void:
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(icon)
 	row.move_child(icon, 0)
+
+
+func _bind_hp() -> void:
+	if _hp_bar == null:
+		return
+	var tree := get_tree()
+	if tree == null:
+		return
+	var player := tree.get_first_node_in_group(PLAYER_GROUP)
+	if player == null:
+		return
+	_stats_component = player.get("stats") as StatsComponent
+	if _stats_component == null:
+		return
+	if not _stats_component.hp_changed.is_connected(_on_hp_changed):
+		_stats_component.hp_changed.connect(_on_hp_changed)
+	if not _stats_component.stats_changed.is_connected(_on_stats_changed):
+		_stats_component.stats_changed.connect(_on_stats_changed)
+	_on_hp_changed(_stats_component.current_hp, _stats_component.get_max_hp())
+
+
+func _on_stats_changed() -> void:
+	if _stats_component != null:
+		_on_hp_changed(_stats_component.current_hp, _stats_component.get_max_hp())
+
+
+func _on_hp_changed(current: float, max_hp: float) -> void:
+	if _hp_bar == null:
+		return
+	_hp_bar.max_value = maxf(max_hp, 1.0)
+	UiMotion.tween_bar(_hp_bar, current)
+	if _hp_value != null:
+		_hp_value.text = "%d" % int(roundf(current))
+		var low := max_hp > 0.0 and (current / max_hp) <= 0.3
+		_hp_value.add_theme_color_override("font_color", WARNING_TEXT if low else NORMAL_TEXT)
 
 
 func _find_component() -> NeedsComponent:
@@ -107,9 +150,9 @@ func _refresh(need: int, value: float, tier: int) -> void:
 	var text_color := WARNING_TEXT if is_warning else NORMAL_TEXT
 
 	UiMotion.tween_bar(_bars[need], value)
-	var themed := _bars[need].get_theme_stylebox(StringName("fill_%s" % NEED_SLUGS[need]))
-	if themed != null:
-		_bars[need].add_theme_stylebox_override("fill", themed)
+	var fill_key := StringName("fill_%s" % NEED_SLUGS[need])
+	if _bars[need].has_theme_stylebox(fill_key):
+		_bars[need].add_theme_stylebox_override("fill", _bars[need].get_theme_stylebox(fill_key))
 	elif _fills[need] != null:
 		_fills[need].bg_color = WARNING_COLOR if is_warning else NORMAL_COLOR
 		_bars[need].add_theme_stylebox_override("fill", _fills[need])

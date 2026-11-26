@@ -164,8 +164,26 @@ func _ensure_label() -> void:
 	label.name = "HintLabel"
 	label.visible = false
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	label.offset_top = 24.0
+	label.add_theme_font_size_override("font_size", 14)
+	label.add_theme_color_override("font_color", Color(1.0, 0.96, 0.88, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(0.14, 0.09, 0.05, 0.95))
+	label.add_theme_constant_override("outline_size", 3)
+	var tex_path := "res://assets/textures/ui/02_panel/panel_walnut_stitched.png"
+	if ResourceLoader.exists(tex_path):
+		var box := StyleBoxTexture.new()
+		box.texture = load(tex_path) as Texture2D
+		box.texture_margin_left = 20.0
+		box.texture_margin_top = 20.0
+		box.texture_margin_right = 20.0
+		box.texture_margin_bottom = 20.0
+		box.content_margin_left = 20.0
+		box.content_margin_top = 12.0
+		box.content_margin_right = 20.0
+		box.content_margin_bottom = 12.0
+		label.add_theme_stylebox_override("normal", box)
+	label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	label.offset_top = 182.0
 	layer.add_child(label)
 
 

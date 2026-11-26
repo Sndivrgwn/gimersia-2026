@@ -335,7 +335,7 @@ func _build() -> void:
 	_craft_button.text = "Buat"
 	_craft_button.custom_minimum_size = Vector2(130.0, 30.0)
 	_craft_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	_craft_button.focus_mode = Control.FOCUS_NONE
+	_craft_button.focus_mode = Control.FOCUS_ALL
 	_craft_button.mouse_filter = Control.MOUSE_FILTER_STOP
 	_craft_button.add_theme_font_size_override("font_size", 10)
 	_craft_button.add_theme_stylebox_override("normal", _button_style(BUTTON_BG, BUTTON_BORDER))

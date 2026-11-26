@@ -76,6 +76,11 @@ var _thirst_value: Label
 var _fatigue_value: Label
 var _player_stats: StatsComponent
 var _player_needs: NeedsComponent
+var _player_prof: ProficiencyComponent
+var _weapon_icon: TextureRect
+var _weapon_cycle_btn: Button
+var _prof_levels: Array[Label] = []
+var _prof_bars: Array[ProgressBar] = []
 
 
 func _ready() -> void:
@@ -101,6 +106,7 @@ func _ready() -> void:
 		inventory = _find_inventory()
 	_build_tabs_hint()
 	_build_bag_tools()
+	_build_weapon_and_proficiency()
 	_build_slots()
 
 	if inventory == null:
@@ -135,6 +141,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		_apply_visible(false)
 		get_viewport().set_input_as_handled()
 		return
+	if is_open() and event is InputEventKey and event.pressed and not event.echo:
+		var key := (event as InputEventKey).keycode
+		if key == KEY_Q or key == KEY_E:
+			var delta := -1 if key == KEY_Q else 1
+			var count := _tabs.get_tab_count()
+			if count > 0:
+				_tabs.current_tab = posmod(_tabs.current_tab + delta, count)
+				_focus_current_tab()
+				get_viewport().set_input_as_handled()
+			return
 
 	if not event.is_action_pressed(TOGGLE_ACTION):
 		return
@@ -190,8 +206,23 @@ func _apply_visible(value: bool) -> void:
 		# Mission 10: daftar resep dihitung ulang saat dibuka supaya stasiun
 		# yang baru dibangun tidak tetap tampil "Butuh Meja Kerja".
 		refresh_crafting()
+		_focus_current_tab()
 	else:
 		UiBackStack.unregister(self)
+
+
+func _focus_current_tab() -> void:
+	if _tabs == null:
+		return
+	if _tabs.current_tab == 0 and not _slots.is_empty():
+		_slots[0].grab_focus()
+	elif _tabs.current_tab == 1:
+		for row in _crafting_rows:
+			if row != null and not row.is_craft_disabled():
+				var btn := row.get_node_or_null("Row/Action/Button") as Button
+				if btn != null:
+					btn.grab_focus()
+				break
 
 
 ## Satu baris petunjuk tab di bawah panel.
@@ -209,7 +240,7 @@ func _build_tabs_hint() -> void:
 	vbox.move_child(_tabs_hint, 1)
 
 
-## Fase 4A: tombol urutkan + petunjuk pecah tumpukan di tab Tas.
+## Fase 4A: tombol urutkan + petunjuk pecah tumpukan di tab Tas (disembunyikan agar bersih).
 func _build_bag_tools() -> void:
 	var column := get_node_or_null(BAG_TOOLS_PATH) as VBoxContainer
 	if column == null:
@@ -217,6 +248,7 @@ func _build_bag_tools() -> void:
 
 	var tools := VBoxContainer.new()
 	tools.name = "BagTools"
+	tools.visible = false
 	tools.add_theme_constant_override("separation", 6)
 	column.add_child(tools)
 
@@ -246,6 +278,126 @@ func get_sort_button() -> Button:
 func _on_sort_pressed() -> void:
 	if inventory != null:
 		inventory.sort()
+
+
+func _build_weapon_and_proficiency() -> void:
+	var weapon_box := get_node_or_null("Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Weapon") as VBoxContainer
+	var column := get_node_or_null(BAG_TOOLS_PATH) as VBoxContainer
+	if weapon_box != null:
+		var row := HBoxContainer.new()
+		row.name = "WeaponCard"
+		row.add_theme_constant_override("separation", 10)
+		weapon_box.add_child(row)
+
+		var icon_frame := PanelContainer.new()
+		icon_frame.custom_minimum_size = Vector2(44.0, 44.0)
+		var slot_tex_path := "res://assets/textures/ui/05_slot/slot_item_selected.png"
+		if ResourceLoader.exists(slot_tex_path):
+			var box := StyleBoxTexture.new()
+			box.texture = load(slot_tex_path) as Texture2D
+			box.texture_margin_left = 12.0
+			box.texture_margin_top = 12.0
+			box.texture_margin_right = 12.0
+			box.texture_margin_bottom = 12.0
+			box.content_margin_left = 6.0
+			box.content_margin_top = 6.0
+			box.content_margin_right = 6.0
+			box.content_margin_bottom = 6.0
+			icon_frame.add_theme_stylebox_override("panel", box)
+		row.add_child(icon_frame)
+
+		_weapon_icon = TextureRect.new()
+		_weapon_icon.custom_minimum_size = Vector2(28.0, 28.0)
+		_weapon_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_weapon_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		_weapon_icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		_weapon_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		icon_frame.add_child(_weapon_icon)
+
+		_weapon_cycle_btn = Button.new()
+		_weapon_cycle_btn.name = "WeaponCycleButton"
+		_weapon_cycle_btn.text = "Ganti"
+		_weapon_cycle_btn.custom_minimum_size = Vector2(72.0, 32.0)
+		_weapon_cycle_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		_weapon_cycle_btn.pressed.connect(_on_weapon_cycle_pressed)
+		row.add_child(_weapon_cycle_btn)
+
+	if column == null:
+		return
+
+	var prof_box := VBoxContainer.new()
+	prof_box.name = "ProficiencyBox"
+	prof_box.add_theme_constant_override("separation", 6)
+	column.add_child(prof_box)
+
+	var prof_title := Label.new()
+	prof_title.text = "PROFESIENSI"
+	prof_title.add_theme_font_size_override("font_size", 14)
+	prof_title.add_theme_color_override("font_color", Color(0.922, 0.761, 0.451, 1.0))
+	prof_box.add_child(prof_title)
+
+	var prof_names := ["Kekuatan", "Kecepatan", "Penguasaan", "Kelincahan"]
+	for idx in prof_names.size():
+		var item_box := VBoxContainer.new()
+		item_box.add_theme_constant_override("separation", 2)
+		prof_box.add_child(item_box)
+
+		var top_row := HBoxContainer.new()
+		item_box.add_child(top_row)
+
+		var name_lbl := Label.new()
+		name_lbl.text = prof_names[idx]
+		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_lbl.add_theme_font_size_override("font_size", 12)
+		name_lbl.add_theme_color_override("font_color", Color(0.88, 0.84, 0.76, 1.0))
+		top_row.add_child(name_lbl)
+
+		var lv_lbl := Label.new()
+		lv_lbl.text = "Lv. 1"
+		lv_lbl.add_theme_font_size_override("font_size", 12)
+		lv_lbl.add_theme_color_override("font_color", Color(0.968627, 0.945098, 0.898039, 1.0))
+		top_row.add_child(lv_lbl)
+		_prof_levels.append(lv_lbl)
+
+		var bar := ProgressBar.new()
+		bar.custom_minimum_size = Vector2(0.0, 8.0)
+		bar.max_value = 100.0
+		bar.value = 0.0
+		bar.show_percentage = false
+		var bg := StyleBoxFlat.new()
+		bg.bg_color = Color(0.14, 0.1, 0.08, 0.85)
+		bg.set_corner_radius_all(3)
+		bar.add_theme_stylebox_override("background", bg)
+		var fill := StyleBoxFlat.new()
+		fill.bg_color = Color(0.922, 0.761, 0.451, 0.95)
+		fill.set_corner_radius_all(3)
+		bar.add_theme_stylebox_override("fill", fill)
+		item_box.add_child(bar)
+		_prof_bars.append(bar)
+
+
+func _on_weapon_cycle_pressed() -> void:
+	if inventory == null:
+		return
+	var weapons: Array[ItemDefinition] = []
+	for stack in inventory.get_slots():
+		if stack != null and not stack.is_empty() and stack.item != null:
+			if stack.item.equipment_slot == ItemDefinition.EquipmentSlot.WEAPON and not weapons.has(stack.item):
+				weapons.append(stack.item)
+	if weapons.is_empty():
+		return
+	var current := inventory.get_equipped(ItemDefinition.EquipmentSlot.WEAPON)
+	if current == null:
+		inventory.equip(weapons[0])
+		return
+	var idx := weapons.find(current)
+	if idx == -1 or idx + 1 >= weapons.size():
+		if weapons.size() == 1:
+			inventory.unequip(ItemDefinition.EquipmentSlot.WEAPON)
+		else:
+			inventory.equip(weapons[0])
+	else:
+		inventory.equip(weapons[idx + 1])
 
 
 func _build_slots() -> void:
@@ -297,6 +449,12 @@ func _connect_player_stats() -> void:
 		return
 	_player_stats = player.get("stats") as StatsComponent
 	_player_needs = player.get_node_or_null("NeedsComponent") as NeedsComponent
+	_player_prof = player.get_node_or_null("ProficiencyComponent") as ProficiencyComponent
+	if _player_prof != null:
+		if not _player_prof.xp_gained.is_connected(_on_proficiency_changed):
+			_player_prof.xp_gained.connect(_on_proficiency_changed)
+		if not _player_prof.level_changed.is_connected(_on_proficiency_level_changed):
+			_player_prof.level_changed.connect(_on_proficiency_level_changed)
 	if _player_stats != null:
 		if not _player_stats.stats_changed.is_connected(_refresh_stats):
 			_player_stats.stats_changed.connect(_refresh_stats)
@@ -321,6 +479,38 @@ func _on_need_changed(_need: int, _value: Variant) -> void:
 
 func _on_fatigue_cap_changed(_cap: float) -> void:
 	_refresh_stats()
+
+
+func _on_proficiency_changed(_prof: int, _amount: float) -> void:
+	_refresh_proficiency()
+
+
+func _on_proficiency_level_changed(_prof: int, _level: int) -> void:
+	_refresh_proficiency()
+
+
+func _refresh_proficiency() -> void:
+	if _prof_levels.is_empty():
+		return
+	if _player_prof == null:
+		_connect_player_stats()
+	for idx in _prof_levels.size():
+		var lv_lbl := _prof_levels[idx]
+		var bar := _prof_bars[idx]
+		if _player_prof == null:
+			lv_lbl.text = "Lv. 1"
+			bar.value = 0.0
+			continue
+		var lv := _player_prof.get_level(idx)
+		lv_lbl.text = "Lv. %d" % lv
+		if _player_prof.is_max_level(idx):
+			lv_lbl.text = "Lv. %d (MAX)" % lv
+			bar.max_value = 1.0
+			bar.value = 1.0
+		else:
+			var need := maxf(_player_prof.get_xp_to_next_level(idx), 1.0)
+			bar.max_value = need
+			bar.value = clampf(_player_prof.get_xp(idx), 0.0, need)
 
 
 func _refresh_stats() -> void:
@@ -381,6 +571,19 @@ func _refresh_equipment() -> void:
 	_weapon_value.text = _equipped_text(ItemDefinition.EquipmentSlot.WEAPON)
 	_armor_value.text = _equipped_text(ItemDefinition.EquipmentSlot.ARMOR)
 	_tool_value.text = _owned_tools_text()
+	if _weapon_icon != null:
+		var equipped := inventory.get_equipped(ItemDefinition.EquipmentSlot.WEAPON) if inventory != null else null
+		var tex := equipped.get_icon() if equipped != null else null
+		_weapon_icon.texture = tex
+		_weapon_icon.visible = tex != null
+	if _weapon_cycle_btn != null and inventory != null:
+		var has_weapon := false
+		for stack in inventory.get_slots():
+			if stack != null and not stack.is_empty() and stack.item != null and stack.item.equipment_slot == ItemDefinition.EquipmentSlot.WEAPON:
+				has_weapon = true
+				break
+		_weapon_cycle_btn.disabled = not has_weapon
+	_refresh_proficiency()
 
 
 func _equipped_text(slot: int) -> String:
