@@ -23,8 +23,10 @@ const SIDE_LEFT := SunConfig.Side.LEFT
 ## `side` = sisi asal front; `softness` = lebar tepi lembut (pecahan layar).
 static func mask(progress: float, side: int, softness: float, x_norm: float) -> float:
 	var t := clampf(progress, 0.0, 1.0)
+	if t <= 0.0:
+		return 0.0
 	var x := clampf(x_norm, 0.0, 1.0)
-	var edge := clampf(softness, 0.0, 1.0)
+	var edge := minf(clampf(softness, 0.0, 1.0), t)
 	if side == SIDE_LEFT:
 		# Cahaya masuk dari kiri: front bergerak ke kanan.
 		if edge <= 0.0:
@@ -36,13 +38,16 @@ static func mask(progress: float, side: int, softness: float, x_norm: float) -> 
 	return smoothstep(1.0 - t - edge, 1.0 - t, x)
 
 
-## Intensitas pita hangat: 1 tepat di front, 0 jauh dari front.
+## Intensitas pita hangat: 1 tepat di front (di tengah transisi), 0 jauh dari front
+## dan meredup halus ke 0 di ujung progress 0.0 / 1.0 agar tidak loncat saat fase berganti.
 static func rim(progress: float, side: int, softness: float, x_norm: float) -> float:
 	var t := clampf(progress, 0.0, 1.0)
 	var x := clampf(x_norm, 0.0, 1.0)
 	var front := t if side == SIDE_LEFT else 1.0 - t
 	var width := maxf(clampf(softness, 0.0, 1.0), 0.02)
-	return clampf(1.0 - absf(x - front) / width, 0.0, 1.0)
+	var band := clampf(1.0 - absf(x - front) / width, 0.0, 1.0)
+	var envelope := 4.0 * t * (1.0 - t)
+	return band * envelope
 
 
 ## Faktor multiply (<= 1 per kanal) supaya `from_color` menjadi `to_color`.
@@ -70,6 +75,7 @@ static func plan(config: SunConfig, is_night: bool, remaining: float, duration: 
 		"progress": progress,
 		"side": SIDE_RIGHT,
 		"seconds": 0.0,
+		"darken_swept": false,
 	}
 	if config == null or not config.sweep_enabled:
 		return result
@@ -78,15 +84,36 @@ static func plan(config: SunConfig, is_night: bool, remaining: float, duration: 
 		return result
 
 	var bright := from_color
+	var darken_swept := true
 	if DayLightCurve.luminance(to_color) > DayLightCurve.luminance(from_color):
 		bright = to_color
+		darken_swept = false
 	result["sweep"] = true
 	result["color"] = bright
 	result["ratio"] = ratio(bright, target)
 	result["progress"] = clampf(1.0 - remaining / seconds, 0.0, 1.0)
 	result["side"] = config.side_for(is_night)
 	result["seconds"] = seconds
+	result["darken_swept"] = darken_swept
 	return result
+
+
+## Warna akhir layar pada posisi horizontal `x_norm` (CanvasModulate x SunSweepOverlay).
+static func screen_color(plan_data: Dictionary, softness: float, warm_rim_strength: float, x_norm: float) -> Color:
+	var base: Color = plan_data["color"]
+	if not bool(plan_data.get("sweep", false)):
+		return Color(base.r, base.g, base.b, 1.0)
+	var t := float(plan_data["progress"])
+	var side := int(plan_data["side"])
+	var swept := mask(t, side, softness, x_norm)
+	var lit := (1.0 - swept) if bool(plan_data.get("darken_swept", false)) else swept
+	var rim_val := rim(t, side, softness, x_norm) * clampf(warm_rim_strength, 0.0, 1.0)
+	var rim_tint := Color(1.0, 0.9, 0.78, 1.0)
+	var tint := rim_tint.lerp(Color.WHITE, 1.0 - rim_val)
+	var ratio_color: Color = plan_data["ratio"]
+	var darkened := Color(ratio_color.r * tint.r, ratio_color.g * tint.g, ratio_color.b * tint.b, 1.0)
+	var overlay := darkened.lerp(Color.WHITE, lit)
+	return Color(base.r * overlay.r, base.g * overlay.g, base.b * overlay.b, 1.0)
 
 
 static func _ratio_channel(from_value: float, to_value: float) -> float:

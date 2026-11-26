@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="PlayerLightConfig" format=3 uid="uid://b0fcbx5dekiwk"]
+[gd_resource type="Resource" script_class="PlayerLightConfig" format=3]
 
-[ext_resource type="Script" uid="uid://cc4cudkoe2asn" path="res://src/data/resources/environment/player_light_config.gd" id="1_budde"]
-[ext_resource type="Resource" uid="uid://jcgej185fn2p" path="res://src/data/items/torch.tres" id="2_egcrn"]
+[ext_resource type="Script" path="res://src/data/resources/environment/player_light_config.gd" id="1_budde"]
+[ext_resource type="Resource" path="res://src/data/items/torch.tres" id="2_egcrn"]
 
 [resource]
 script = ExtResource("1_budde")

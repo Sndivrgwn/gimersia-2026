@@ -211,7 +211,7 @@ func test_player_light_radius_follows_torch() -> void:
 	assert_true(light.is_torch_active())
 
 	hotbar.item = ItemCatalog.WOOD
-	assert_almost_eq(light.get_radius(), 110.0, 0.01, "tanpa obor = 110 px")
+	assert_almost_eq(light.get_radius(), 26.0, 0.01, "tanpa obor = 26 px (seukuran karakter)")
 	assert_false(light.is_torch_active())
 
 

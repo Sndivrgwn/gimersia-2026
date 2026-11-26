@@ -718,7 +718,7 @@ func _tres_meta() -> Dictionary:
 			"tests": "test_fase2_navigation.gd",
 		},
 		"res://src/data/configs/player_light_config.tres": {
-			"purpose": "Radius dan energi cahaya pemain malam (110 px, obor 190 px).",
+			"purpose": "Radius dan energi cahaya pemain malam (tanpa obor 26 px seukuran karakter, obor 190 px).",
 			"used_by": "PlayerLight, PlayerLightConfig",
 			"effect": "Mengubah terang/radius cahaya pemain; tidak mengubah tint dunia.",
 			"tests": "test_daily_goals_and_light.gd",

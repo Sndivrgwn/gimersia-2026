@@ -180,7 +180,8 @@ func _apply_sweep(plan: Dictionary) -> void:
 		int(plan["side"]),
 		sun_config.softness,
 		sun_config.warm_rim_strength,
-		plan["ratio"]
+		plan["ratio"],
+		bool(plan.get("darken_swept", false))
 	)
 
 

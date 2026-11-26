@@ -13,7 +13,7 @@ const ITEM_CATALOG := preload("res://src/data/resources/items/item_catalog.gd")
 
 func _init() -> void:
 	var config := PlayerLightConfig.new()
-	config.player_radius = 110.0
+	config.player_radius = 26.0
 	config.torch_radius = 190.0
 	config.day_energy = 0.0
 	config.night_energy = 1.0

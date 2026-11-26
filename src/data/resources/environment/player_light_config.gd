@@ -4,13 +4,13 @@ extends Resource
 
 ## Fase 1C: cahaya pemain saat malam.
 ##
-## Angka radius dari spesifikasi: pemain 110 px, dengan Obor di slot terpilih
-## 190 px. Energi mengikuti `DayNightVisual.get_world_darkness()` supaya
-## transisi senja/fajar halus dan siang hari tidak menambah cahaya.
+## Angka radius: pemain tanpa obor 26 px (seukuran karakter), dengan Obor di
+## slot terpilih 190 px. Energi mengikuti `DayNightVisual.get_world_darkness()`
+## supaya transisi senja/fajar halus dan siang hari tidak menambah cahaya.
 
 @export_group("Radius")
-## Radius cahaya pemain tanpa obor (px).
-@export_range(0.0, 400.0, 1.0) var player_radius: float = 110.0
+## Radius cahaya pemain tanpa obor (px, seukuran karakter).
+@export_range(0.0, 400.0, 1.0) var player_radius: float = 26.0
 ## Radius cahaya pemain saat Obor ada di slot hotbar terpilih (px).
 @export_range(0.0, 600.0, 1.0) var torch_radius: float = 190.0
 

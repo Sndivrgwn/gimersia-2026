@@ -28,8 +28,10 @@ func _ready() -> void:
 	clear()
 
 
-## Tampilkan sapuan: `ratio_color` digelapkan pada bagian yang belum dilewati.
-func apply(progress: float, side: int, softness: float, warm_strength: float, ratio_color: Color) -> void:
+## Tampilkan sapuan: `darken_swept = false` (fajar) membuat bagian yang dilewati
+## front menjadi terang; `darken_swept = true` (senja) membuat bagian yang
+## dilewati front menjadi gelap menuju warna malam.
+func apply(progress: float, side: int, softness: float, warm_strength: float, ratio_color: Color, darken_swept: bool = false) -> void:
 	if _rect == null or _image == null:
 		return
 	var clamped := clampf(progress, 0.0, 1.0)
@@ -44,6 +46,7 @@ func apply(progress: float, side: int, softness: float, warm_strength: float, ra
 	_texture.update(_image)
 	_material.set_shader_parameter("ratio", ratio_color)
 	_material.set_shader_parameter("rim_strength", clampf(warm_strength, 0.0, 1.0))
+	_material.set_shader_parameter("darken_swept", 1.0 if darken_swept else 0.0)
 	visible = true
 
 
@@ -77,10 +80,12 @@ uniform sampler2D sweep_mask : filter_linear, repeat_disable;
 uniform vec4 ratio : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform vec4 rim_tint : source_color = vec4(1.0, 0.9, 0.78, 1.0);
 uniform float rim_strength : hint_range(0.0, 1.0) = 0.0;
+uniform float darken_swept : hint_range(0.0, 1.0) = 0.0;
 
 void fragment() {
 	vec2 sample_mask = texture(sweep_mask, vec2(UV.x, 0.5)).rg;
-	float lit = sample_mask.r;
+	float swept = sample_mask.r;
+	float lit = mix(swept, 1.0 - swept, darken_swept);
 	float rim = sample_mask.g * rim_strength;
 	// blend_mul hanya menggelapkan: pita hangat = tint hangat (kanal <= 1).
 	vec3 tint = mix(rim_tint.rgb, vec3(1.0), 1.0 - rim);

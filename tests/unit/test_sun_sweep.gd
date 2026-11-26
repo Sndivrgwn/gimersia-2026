@@ -204,3 +204,44 @@ func test_sun_config_values() -> void:
 	assert_almost_eq(SUN_CONFIG.softness, 0.35, 0.001)
 	assert_almost_eq(SUN_CONFIG.warm_rim_strength, 0.25, 0.001)
 	assert_true(SUN_CONFIG.sun_arc_enabled)
+
+
+func test_dusk_and_dawn_have_no_color_jump_at_phase_boundaries() -> void:
+	var visual_cfg := DayNightVisualConfig.new()
+	var day := visual_cfg.get_effective_color(DayNightVisualConfig.Atmosphere.DAY)
+	var evening := visual_cfg.get_effective_color(DayNightVisualConfig.Atmosphere.EVENING)
+	var morning := visual_cfg.get_effective_color(DayNightVisualConfig.Atmosphere.MORNING)
+	var night := visual_cfg.get_effective_color(DayNightVisualConfig.Atmosphere.NIGHT)
+
+	# Senja (DAY -> NIGHT): darken_swept = true, tidak loncat di awal maupun akhir.
+	var dusk_start := SunSweep.plan(SUN_CONFIG, false, 60.0, 60.0, day, evening, night)
+	var dusk_mid := SunSweep.plan(SUN_CONFIG, false, 30.0, 60.0, day, evening, night)
+	var dusk_end := SunSweep.plan(SUN_CONFIG, false, 0.05, 60.0, day, evening, night)
+	assert_true(bool(dusk_start["darken_swept"]))
+	assert_true(bool(dusk_end["darken_swept"]))
+
+	# Tengah senja: sisi kiri (sudah dilewati front) lebih gelap daripada sisi kanan.
+	var mid_left := SunSweep.screen_color(dusk_mid, SUN_CONFIG.softness, SUN_CONFIG.warm_rim_strength, 0.0)
+	var mid_right := SunSweep.screen_color(dusk_mid, SUN_CONFIG.softness, SUN_CONFIG.warm_rim_strength, 1.0)
+	assert_lt(DayLightCurve.luminance(mid_left), DayLightCurve.luminance(mid_right), "senja menggelapkan sisi yang dilewati front")
+
+	# Awal senja = DAY, 0.05s sebelum malam = NIGHT di seluruh lebar layar (tanpa loncat).
+	for x in [0.0, 0.25, 0.5, 0.75, 1.0]:
+		var c_start := SunSweep.screen_color(dusk_start, SUN_CONFIG.softness, SUN_CONFIG.warm_rim_strength, x)
+		var c_end := SunSweep.screen_color(dusk_end, SUN_CONFIG.softness, SUN_CONFIG.warm_rim_strength, x)
+		assert_almost_eq(c_start.r, day.r, 0.02, "awal senja mulus dari DAY (x=%.2f)" % x)
+		assert_almost_eq(c_start.g, day.g, 0.02)
+		assert_almost_eq(c_start.b, day.b, 0.02)
+		assert_almost_eq(c_end.r, night.r, 0.02, "akhir senja mulus ke NIGHT (x=%.2f)" % x)
+		assert_almost_eq(c_end.g, night.g, 0.02)
+		assert_almost_eq(c_end.b, night.b, 0.02)
+
+	# Fajar (NIGHT -> DAY): darken_swept = false, mulus dari NIGHT ke DAY.
+	var dawn_start := SunSweep.plan(SUN_CONFIG, true, 60.0, 60.0, night, morning, day)
+	var dawn_end := SunSweep.plan(SUN_CONFIG, true, 0.05, 60.0, night, morning, day)
+	assert_false(bool(dawn_start["darken_swept"]))
+	for x in [0.0, 0.25, 0.5, 0.75, 1.0]:
+		var d_start := SunSweep.screen_color(dawn_start, SUN_CONFIG.softness, SUN_CONFIG.warm_rim_strength, x)
+		var d_end := SunSweep.screen_color(dawn_end, SUN_CONFIG.softness, SUN_CONFIG.warm_rim_strength, x)
+		assert_almost_eq(d_start.r, night.r, 0.02, "awal fajar mulus dari NIGHT (x=%.2f)" % x)
+		assert_almost_eq(d_end.r, day.r, 0.02, "akhir fajar mulus ke DAY (x=%.2f)" % x)

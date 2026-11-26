@@ -854,7 +854,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 ### `res://src/data/configs/player_light_config.tres`
 
 - Kelas: `player_light_config.gd` (`res://src/data/resources/environment/player_light_config.gd`)
-- Tujuan: Radius dan energi cahaya pemain malam (110 px, obor 190 px).
+- Tujuan: Radius dan energi cahaya pemain malam (tanpa obor 26 px seukuran karakter, obor 190 px).
 - Dipakai oleh: PlayerLight, PlayerLightConfig
 - Pemilik: generator
 - Efek tuning: Mengubah terang/radius cahaya pemain; tidak mengubah tint dunia.
@@ -863,7 +863,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | Field | Tipe | Nilai |
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
-| `player_radius` | float | 110.00 |
+| `player_radius` | float | 26.00 |
 | `torch_radius` | float | 190.00 |
 | `day_energy` | float | 0.00 |
 | `night_energy` | float | 1.00 |
