@@ -41,6 +41,22 @@ func _init() -> void:
 		"blocks_player": "true",
 		"knockback_resistance": "0.35",
 		"contact_stop_extra": "2.0",
+		"smart_chase_enabled": "true",
+		"separation_radius_px": "48.0",
+		"separation_weight": "1.2",
+		"max_simultaneous_attackers": "2",
+		"circle_radius_px": "140.0",
+		"circle_speed_factor": "0.7",
+		"approach_slot_count": "5",
+		"windup_seconds": "0.45",
+		"recovery_seconds": "0.6",
+		"attack_cooldown_min": "1.2",
+		"attack_cooldown_max": "2.2",
+		"reaction_delay_max": "0.35",
+		"boar_charge_speed_multiplier": "2.6",
+		"boar_charge_distance_px": "220.0",
+		"boar_overshoot_px": "40.0",
+		"lose_aggro_distance_px": "600.0",
 	})
 
 	var deer := DeerScript.new()

@@ -219,6 +219,12 @@ func test_dusk_and_dawn_have_no_color_jump_at_phase_boundaries() -> void:
 	var dusk_end := SunSweep.plan(SUN_CONFIG, false, 0.05, 60.0, day, evening, night)
 	assert_true(bool(dusk_start["darken_swept"]))
 	assert_true(bool(dusk_end["darken_swept"]))
+	# Di kedua ujung transisi, ratio kembali mendekati putih (1.0) agar overlay
+	# blend_mul tidak meredupkan PointLight2D lalu meloncat saat fase berganti.
+	var dusk_end_ratio: Color = dusk_end["ratio"]
+	assert_almost_eq(dusk_end_ratio.r, 1.0, 0.02, "akhir senja ratio R = 1 (tanpa pop lampu)")
+	assert_almost_eq(dusk_end_ratio.g, 1.0, 0.02, "akhir senja ratio G = 1 (tanpa pop lampu)")
+	assert_almost_eq(dusk_end_ratio.b, 1.0, 0.02, "akhir senja ratio B = 1 (tanpa pop lampu)")
 
 	# Tengah senja: sisi kiri (sudah dilewati front) lebih gelap daripada sisi kanan.
 	var mid_left := SunSweep.screen_color(dusk_mid, SUN_CONFIG.softness, SUN_CONFIG.warm_rim_strength, 0.0)
@@ -236,12 +242,15 @@ func test_dusk_and_dawn_have_no_color_jump_at_phase_boundaries() -> void:
 		assert_almost_eq(c_end.g, night.g, 0.02)
 		assert_almost_eq(c_end.b, night.b, 0.02)
 
-	# Fajar (NIGHT -> DAY): darken_swept = false, mulus dari NIGHT ke DAY.
+	# Fajar (NIGHT -> DAY): darken_swept = false, mulus dari NIGHT ke DAY termasuk frame awal.
 	var dawn_start := SunSweep.plan(SUN_CONFIG, true, 60.0, 60.0, night, morning, day)
+	var dawn_just_started := SunSweep.plan(SUN_CONFIG, true, 59.5, 60.0, night, morning, day)
 	var dawn_end := SunSweep.plan(SUN_CONFIG, true, 0.05, 60.0, night, morning, day)
 	assert_false(bool(dawn_start["darken_swept"]))
 	for x in [0.0, 0.25, 0.5, 0.75, 1.0]:
 		var d_start := SunSweep.screen_color(dawn_start, SUN_CONFIG.softness, SUN_CONFIG.warm_rim_strength, x)
+		var d_next := SunSweep.screen_color(dawn_just_started, SUN_CONFIG.softness, SUN_CONFIG.warm_rim_strength, x)
 		var d_end := SunSweep.screen_color(dawn_end, SUN_CONFIG.softness, SUN_CONFIG.warm_rim_strength, x)
 		assert_almost_eq(d_start.r, night.r, 0.02, "awal fajar mulus dari NIGHT (x=%.2f)" % x)
+		assert_almost_eq(d_next.r, night.r, 0.03, "0.5s setelah fajar mulai tidak loncat ke DAY (x=%.2f)" % x)
 		assert_almost_eq(d_end.r, day.r, 0.02, "akhir fajar mulus ke DAY (x=%.2f)" % x)

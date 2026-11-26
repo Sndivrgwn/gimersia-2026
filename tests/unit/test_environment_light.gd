@@ -44,6 +44,7 @@ func test_campfire_light_dims_during_day() -> void:
 	add_child_autofree(fire)
 	fire.set_fuel(120.0)
 	assert_true(fire.ignite(), "api menyala untuk tes")
+	fire.tick(1.0)
 
 	stub.darkness = 0.0
 	fire.call(&"_refresh_light")
@@ -53,6 +54,6 @@ func test_campfire_light_dims_during_day() -> void:
 	fire.call(&"_refresh_light")
 	var night_energy := fire.get_light().energy
 
-	assert_almost_eq(day_energy, Campfire.DAY_LIGHT_ENERGY, 0.001, "siang: cahaya redup")
-	assert_almost_eq(night_energy, Campfire.NIGHT_LIGHT_ENERGY, 0.001, "malam: cahaya penuh")
+	assert_almost_eq(day_energy, fire.config.light_energy_day, 0.001, "siang: cahaya redup")
+	assert_almost_eq(night_energy, fire.config.light_energy_night, 0.001, "malam: cahaya penuh")
 	assert_lt(day_energy, night_energy * 0.5, "cahaya siang jauh lebih lemah")

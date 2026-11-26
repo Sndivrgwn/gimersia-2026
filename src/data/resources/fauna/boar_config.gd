@@ -41,3 +41,22 @@ func _init() -> void:
 @export var camp_player_radius: float = 140.0
 @export var raid_camp_radius: float = 500.0
 @export var raid_clear_radius: float = 650.0
+
+@export_group("Smart Chase")
+## Mission 16 (L3): false mengembalikan perilaku kejar lurus lama persis.
+@export var smart_chase_enabled: bool = true
+@export_range(0.0, 200.0, 1.0) var separation_radius_px: float = 48.0
+@export_range(0.0, 5.0, 0.05) var separation_weight: float = 1.2
+@export_range(1, 8, 1) var max_simultaneous_attackers: int = 2
+@export_range(40.0, 300.0, 1.0) var circle_radius_px: float = 140.0
+@export_range(0.1, 1.5, 0.05) var circle_speed_factor: float = 0.7
+@export_range(2, 12, 1) var approach_slot_count: int = 5
+@export_range(0.0, 2.0, 0.05) var windup_seconds: float = 0.45
+@export_range(0.0, 2.0, 0.05) var recovery_seconds: float = 0.6
+@export_range(0.2, 5.0, 0.05) var attack_cooldown_min: float = 1.2
+@export_range(0.2, 6.0, 0.05) var attack_cooldown_max: float = 2.2
+@export_range(0.0, 2.0, 0.05) var reaction_delay_max: float = 0.35
+@export_range(1.0, 5.0, 0.1) var boar_charge_speed_multiplier: float = 2.6
+@export_range(60.0, 500.0, 5.0) var boar_charge_distance_px: float = 220.0
+@export_range(0.0, 150.0, 5.0) var boar_overshoot_px: float = 40.0
+@export_range(100.0, 1200.0, 10.0) var lose_aggro_distance_px: float = 600.0

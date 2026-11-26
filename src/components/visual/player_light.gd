@@ -127,4 +127,6 @@ func _build() -> void:
 	_light.color = config.color if config != null else Color(1.0, 0.86, 0.62, 1.0)
 	_light.energy = 0.0
 	_light.shadow_enabled = false
+	# Jangkau SunSweepOverlay (layer 2) agar cahaya pemain/obor tidak tertutup gelap senja.
+	_light.range_layer_max = SunSweepOverlay.LAYER
 	add_child(_light)
