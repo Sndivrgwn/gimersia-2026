@@ -45,6 +45,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `res://tools/generate_proficiency_data.gd` | `GODOT --headless --path . -s tools/generate_proficiency_data.gd` | res://src/data/configs/proficiency_config.tres |
 | `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` | res://src/data/recipes/boiled_water.tres, res://src/data/recipes/bone_broth.tres, res://src/data/recipes/bone_spear.tres, res://src/data/recipes/cooked_meat.tres, res://src/data/recipes/herbal_bandage.tres, res://src/data/recipes/leather_vest.tres, res://src/data/recipes/signal_flare.tres, res://src/data/recipes/stone_axe.tres, res://src/data/recipes/stone_pickaxe.tres, res://src/data/recipes/stone_spear.tres, res://src/data/recipes/torch.tres, res://src/data/recipes/waterskin.tres, res://src/data/recipes/wooden_spear.tres |
 | `res://tools/generate_sample_world.gd` | `GODOT --headless --path . -s tools/generate_sample_world.gd` | res://src/data/gathering/bamboo_clump.tres, res://src/data/gathering/berry_bush.tres, res://src/data/gathering/big_rock.tres, res://src/data/gathering/coconut_palm.tres, res://src/data/gathering/fiber_bush.tres, res://src/data/gathering/small_rock.tres, res://src/data/gathering/small_tree.tres, res://src/data/gathering/tree.tres, res://src/data/gathering/twig.tres |
+| `res://tools/generate_splash_config.gd` | `GODOT --headless --path . -s tools/generate_splash_config.gd` | res://src/data/configs/ui/splash_config.tres |
 | `res://tools/generate_station_data.gd` | `GODOT --headless --path . -s tools/generate_station_data.gd` | res://src/data/configs/station_config.tres |
 | `res://tools/generate_structures.gd` | `GODOT --headless --path . -s tools/generate_structures.gd` | res://src/data/camp/campfire.tres, res://src/data/camp/chest.tres, res://src/data/camp/fence_segment.tres, res://src/data/camp/tent.tres, res://src/data/camp/workbench.tres, res://src/data/configs/campfire_config.tres, res://src/data/configs/fence_config.tres |
 | `res://tools/generate_sun_config.gd` | `GODOT --headless --path . -s tools/generate_sun_config.gd` | res://src/data/configs/environment/day_night_visual_default.tres, res://src/data/configs/environment/sun_config.tres |
@@ -336,7 +337,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | Field | Tipe | Nilai |
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
-| `slots` | Array | [67 item] |
+| `slots` | Array | [69 item] |
 
 
 ## src/data/audio
@@ -353,7 +354,7 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | Field | Tipe | Nilai |
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
-| `cues` | Array | [103 item] |
+| `cues` | Array | [104 item] |
 
 
 ## src/data/camp
@@ -1323,6 +1324,37 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `contact_stop_extra` | float | 2.00 |
 | `separation_speed` | float | 60.00 |
 | `max_overlap_px` | float | 2.00 |
+
+
+## src/data/configs/ui
+
+### `res://src/data/configs/ui/splash_config.tres`
+
+- Kelas: `splash_config.gd` (`res://src/data/resources/ui/splash_config.gd`)
+- Tujuan: Konfigurasi layar pembuka: urutan logo, teks fallback, durasi/fade, skip, progress bar, scene tujuan, dan preload.
+- Dipakai oleh: SplashScreen, SplashSequencer
+- Pemilik: generator
+- Efek tuning: Mengubah logo/teks pembuka, lama tampil, perilaku skip, dan preload pulau; tidak mengubah gameplay maupun DayNightManager.
+- Tes terkait: test_splash_sequencer.gd, test_splash_screen.gd
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `enabled` | bool | true |
+| `entries` | Array | [2 item] |
+| `background_color` | lain | (0.0, 0.0, 0.0, 1.0) |
+| `logo_max_size_ratio` | float | 0.50 |
+| `skip_enabled` | bool | true |
+| `skip_min_seconds` | float | 0.40 |
+| `show_loading_bar` | bool | true |
+| `loading_label` | String | Memuat... |
+| `bar_smooth_speed` | float | 1.50 |
+| `min_total_seconds` | float | 2.00 |
+| `max_wait_seconds` | float | 15.00 |
+| `next_scene_path` | String | res://src/ui/menus/main_menu.tscn |
+| `preload_paths` | lain | [res://src/levels/island/island.tscn] |
+| `skip_if_already_shown` | bool | true |
+| `dev_skip` | bool | false |
 
 
 ## src/data/configs/world
@@ -3339,6 +3371,7 @@ Kelas berikut hanya punya default di kode; ubah lewat kode atau dengan membuat `
 | `res://tools/generate_proficiency_data.gd` | `GODOT --headless --path . -s tools/generate_proficiency_data.gd` |
 | `res://tools/generate_recipes.gd` | `GODOT --headless --path . -s tools/generate_recipes.gd` |
 | `res://tools/generate_sample_world.gd` | `GODOT --headless --path . -s tools/generate_sample_world.gd` |
+| `res://tools/generate_splash_config.gd` | `GODOT --headless --path . -s tools/generate_splash_config.gd` |
 | `res://tools/generate_station_data.gd` | `GODOT --headless --path . -s tools/generate_station_data.gd` |
 | `res://tools/generate_structures.gd` | `GODOT --headless --path . -s tools/generate_structures.gd` |
 | `res://tools/generate_sun_config.gd` | `GODOT --headless --path . -s tools/generate_sun_config.gd` |

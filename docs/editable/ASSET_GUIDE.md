@@ -137,6 +137,53 @@ Di dalam SpriteFrames, animasi dicari berurutan: `<state>_<dir>` → `<state>` �
 | `ground_camp` | `res://assets/world/ground/ground_camp.tres` | default |
 | `ground_forest` | `res://assets/world/ground/ground_forest.tres` | default |
 
+## Layar pembuka (logo)
+
+Layar pembuka (`res://src/ui/menus/splash_screen.tscn`) menampilkan urutan logo studio dan logo game sebelum menu utama sambil memuat `res://src/ui/menus/main_menu.tscn` (dan opsional memanaskan `res://src/levels/island/island.tscn`) di latar belakang dengan progress bar nyata. Layar ini tidak mengubah `DayNightManager` maupun gameplay.
+
+### Menjadikannya layar pertama (manual oleh owner)
+
+Agen tidak mengubah `project.godot`. Untuk menjadikan layar pembuka sebagai scene pertama saat game dijalankan:
+
+1. Buka Godot Editor.
+2. Pilih **Project > Project Settings > Application > Run > Main Scene**.
+3. Pilih `res://src/ui/menus/splash_screen.tscn`, lalu simpan.
+
+> **Catatan Boot Splash Godot:** Layar logo bawaan engine Godot yang tampil sesaat sebelum scene pertama dimuat adalah pengaturan terpisah di **Project > Project Settings > Application > Boot Splash** dan diubah manual oleh owner (mis. warna latar hitam agar transisi ke splash mulus).
+
+### Lokasi file logo dan langkah import
+
+| Slot | Path file | Ukuran sumber disarankan | Keterangan |
+| --- | --- | --- | --- |
+| `ui_splash_studio` | `res://assets/ui/splash/studio.png` | `1280 × 720` | Logo studio/tim, PNG latar transparan, opsional (tanpa file tampil teks `fallback_text`). |
+| `ui_logo` | `res://assets/ui/logo.png` | `1280 × 720` | Logo game (dipakai juga di menu utama), PNG latar transparan, opsional. |
+| `ui_splash_bg` | `res://assets/ui/splash/background.png` | `1920 × 1080` | Latar gambar di belakang logo (stretch cover), opsional. |
+
+Setelah menaruh file PNG, jalankan import sekali (`GODOT --headless --import --path .` atau buka editor Godot sekali) agar file ter-import sebelum dijalankan/diekspor.
+
+### Mengubah teks, durasi, fade, skip, dan preload
+
+Buka `res://src/data/configs/ui/splash_config.tres` di Inspector Godot (lihat juga `docs/editable/CONFIG_GUIDE.md` untuk daftar lengkap field):
+
+- **Nama studio & nama game (fallback):** buka `entries[0]` (`ui_splash_studio`) dan `entries[1]` (`ui_logo`), ubah `fallback_text` serta `fallback_font_size`.
+- **Durasi & fade:** ubah `hold_seconds`, `fade_in`, dan `fade_out` pada tiap entri, serta `min_total_seconds` dan `max_wait_seconds`.
+- **Skip pemain:** atur `skip_enabled` dan `skip_min_seconds` (tombol keyboard, klik mouse, tombol gamepad, atau `ui_cancel`).
+- **Preload pulau:** isi atau kosongkan `preload_paths` (`["res://src/levels/island/island.tscn"]` secara default untuk mempercepat masuk ke pulau dari menu utama).
+
+### Melewati splash saat development
+
+- Set environment variable `GIMERSIA_SKIP_SPLASH=1` sebelum menjalankan Godot, **atau**
+- Centang `dev_skip = true` di `res://src/data/configs/ui/splash_config.tres` (jangan lupa kembalikan ke `false` sebelum rilis).
+
+### Troubleshooting layar pembuka
+
+| Gejala | Penyebab umum | Solusi |
+| --- | --- | --- |
+| Logo tidak tampil (malah teks fallback) | File PNG belum di-import, salah folder/nama, atau format rusak. | Pastikan path tepat (`assets/ui/splash/studio.png` / `assets/ui/logo.png`), jalankan `--headless --import` atau buka editor sekali, cek dengan `tools/check_assets.gd`. |
+| Kilatan putih / abu-abu di awal | Warna **Application > Boot Splash > BG Color** di Project Settings belum sama dengan `background_color` (`Color.BLACK`). | Samakan warna Boot Splash di Project Settings ke hitam (`#000000`). |
+| Macet di loading | `next_scene_path` salah atau gagal dimuat; setelah `max_wait_seconds` (15 s) splash otomatis mencoba pindah langsung. | Periksa `next_scene_path` di `splash_config.tres` (`res://src/ui/menus/main_menu.tscn`) dan cek konsol Godot untuk pesan `SplashScreen: ...`. |
+| Langsung lompat ke menu utama | `enabled = false`, `entries` kosong, `dev_skip = true`, env `GIMERSIA_SKIP_SPLASH=1`, atau `skip_if_already_shown = true` saat splash dibuka ulang di sesi yang sama. | Cek field `enabled`, `dev_skip`, `entries` di `splash_config.tres` dan pastikan `GIMERSIA_SKIP_SPLASH` tidak bernilai `1`. |
+
 ## Minimum untuk build pertama — tier Showcase (12 slot)
 
 Slot yang paling menentukan kesan pertama. Karakter sebaiknya SpriteFrames; sisanya PNG sudah cukup. Bila kosong, game tetap jalan dengan placeholder.
@@ -240,10 +287,12 @@ Slot prioritas 1 di luar showcase.
 | `ui_icon_hp` | `res://assets/ui/icons/hp[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/hp.png` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_icon_hunger` | `res://assets/ui/icons/hunger[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/hunger.png` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_icon_thirst` | `res://assets/ui/icons/thirst[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/thirst.png` | Penting | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
-| `ui_logo` | `res://assets/ui/logo[_dir][_Nf].png`<br>contoh: `res://assets/ui/logo.png` | Penting | 480 × 160 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
+| `ui_logo` | `res://assets/ui/logo[_dir][_Nf].png`<br>contoh: `res://assets/ui/logo.png` | Penting | 480 × 160 | 1280 × 720 | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin), src/ui/menus/splash_screen.tscn (SplashScreen) | state → arah → mirror → idle → default → placeholder |
 | `ui_moon` | `res://assets/ui/icons/moon[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/moon.png` | Opsional | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_panel` | `res://assets/ui/panel[_dir][_Nf].png`<br>contoh: `res://assets/ui/panel.png` | Wajib | 256 × 128 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_slot_frame` | `res://assets/ui/slot_frame[_dir][_Nf].png`<br>contoh: `res://assets/ui/slot_frame.png` | Penting | 48 × 48 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
+| `ui_splash_bg` | `res://assets/ui/splash/background[_dir][_Nf].png`<br>contoh: `res://assets/ui/splash/background.png` | Opsional | 1280 × 720 | 1920 × 1080 | CENTER | satu arah | default | src/ui/menus/splash_screen.tscn (SplashScreen) | state → arah → mirror → idle → default → placeholder |
+| `ui_splash_studio` | `res://assets/ui/splash/studio[_dir][_Nf].png`<br>contoh: `res://assets/ui/splash/studio.png` | Opsional | 640 × 360 | 1280 × 720 | CENTER | satu arah | default | src/ui/menus/splash_screen.tscn (SplashScreen) | state → arah → mirror → idle → default → placeholder |
 | `ui_sun` | `res://assets/ui/icons/sun[_dir][_Nf].png`<br>contoh: `res://assets/ui/icons/sun.png` | Opsional | 16 × 16 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 | `ui_vignette_low_hp` | `res://assets/ui/vignette_low_hp[_dir][_Nf].png`<br>contoh: `res://assets/ui/vignette_low_hp.png` | Opsional | 1280 × 720 | — | CENTER | satu arah | default | src/ui/ui_skin.gd (UiSkin) | state → arah → mirror → idle → default → placeholder |
 
@@ -335,13 +384,13 @@ Dihitung dari file `.png`/`.webp` yang ada di folder tiap slot. Jalankan ulang g
 
 | Kategori | Slot | Sudah ada file | Belum ada |
 | --- | --- | --- | --- |
-| Karakter | 3 | 1 | 2 |
+| Karakter | 3 | 2 | 1 |
 | Node resource | 9 | 0 | 9 |
 | Camp & struktur | 11 | 0 | 11 |
 | Dunia | 13 | 0 | 13 |
 | Efek | 4 | 0 | 4 |
-| UI & ikon | 27 | 0 | 27 |
-| **Total** | 67 | 1 | 66 |
+| UI & ikon | 29 | 0 | 29 |
+| **Total** | 69 | 2 | 67 |
 
 - Ikon item: **0/24** ada di `res://assets/icons/items/`.
 - Item di tangan: **0/24** ada di `res://assets/held/`.

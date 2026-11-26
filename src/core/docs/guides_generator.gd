@@ -40,6 +40,7 @@ func _lf(text: String) -> String:
 func build_asset_guide() -> String:
 	var text := _asset_intro()
 	text += _spriteframes_section()
+	text += _splash_section()
 	text += _minimum_tiers()
 	text += BEGIN + "\n"
 	text += _asset_tables()
@@ -153,6 +154,57 @@ diletakkan tapi belum di-import akan hilang di build ekspor. Jalankan
 
 
 ## Mission 12: bagian puncak alur SpriteFrames + tabel nama animasi showcase.
+func _splash_section() -> String:
+	return """## Layar pembuka (logo)
+
+Layar pembuka (`res://src/ui/menus/splash_screen.tscn`) menampilkan urutan logo studio dan logo game sebelum menu utama sambil memuat `res://src/ui/menus/main_menu.tscn` (dan opsional memanaskan `res://src/levels/island/island.tscn`) di latar belakang dengan progress bar nyata. Layar ini tidak mengubah `DayNightManager` maupun gameplay.
+
+### Menjadikannya layar pertama (manual oleh owner)
+
+Agen tidak mengubah `project.godot`. Untuk menjadikan layar pembuka sebagai scene pertama saat game dijalankan:
+
+1. Buka Godot Editor.
+2. Pilih **Project > Project Settings > Application > Run > Main Scene**.
+3. Pilih `res://src/ui/menus/splash_screen.tscn`, lalu simpan.
+
+> **Catatan Boot Splash Godot:** Layar logo bawaan engine Godot yang tampil sesaat sebelum scene pertama dimuat adalah pengaturan terpisah di **Project > Project Settings > Application > Boot Splash** dan diubah manual oleh owner (mis. warna latar hitam agar transisi ke splash mulus).
+
+### Lokasi file logo dan langkah import
+
+| Slot | Path file | Ukuran sumber disarankan | Keterangan |
+| --- | --- | --- | --- |
+| `ui_splash_studio` | `res://assets/ui/splash/studio.png` | `1280 × 720` | Logo studio/tim, PNG latar transparan, opsional (tanpa file tampil teks `fallback_text`). |
+| `ui_logo` | `res://assets/ui/logo.png` | `1280 × 720` | Logo game (dipakai juga di menu utama), PNG latar transparan, opsional. |
+| `ui_splash_bg` | `res://assets/ui/splash/background.png` | `1920 × 1080` | Latar gambar di belakang logo (stretch cover), opsional. |
+
+Setelah menaruh file PNG, jalankan import sekali (`GODOT --headless --import --path .` atau buka editor Godot sekali) agar file ter-import sebelum dijalankan/diekspor.
+
+### Mengubah teks, durasi, fade, skip, dan preload
+
+Buka `res://src/data/configs/ui/splash_config.tres` di Inspector Godot (lihat juga `docs/editable/CONFIG_GUIDE.md` untuk daftar lengkap field):
+
+- **Nama studio & nama game (fallback):** buka `entries[0]` (`ui_splash_studio`) dan `entries[1]` (`ui_logo`), ubah `fallback_text` serta `fallback_font_size`.
+- **Durasi & fade:** ubah `hold_seconds`, `fade_in`, dan `fade_out` pada tiap entri, serta `min_total_seconds` dan `max_wait_seconds`.
+- **Skip pemain:** atur `skip_enabled` dan `skip_min_seconds` (tombol keyboard, klik mouse, tombol gamepad, atau `ui_cancel`).
+- **Preload pulau:** isi atau kosongkan `preload_paths` (`["res://src/levels/island/island.tscn"]` secara default untuk mempercepat masuk ke pulau dari menu utama).
+
+### Melewati splash saat development
+
+- Set environment variable `GIMERSIA_SKIP_SPLASH=1` sebelum menjalankan Godot, **atau**
+- Centang `dev_skip = true` di `res://src/data/configs/ui/splash_config.tres` (jangan lupa kembalikan ke `false` sebelum rilis).
+
+### Troubleshooting layar pembuka
+
+| Gejala | Penyebab umum | Solusi |
+| --- | --- | --- |
+| Logo tidak tampil (malah teks fallback) | File PNG belum di-import, salah folder/nama, atau format rusak. | Pastikan path tepat (`assets/ui/splash/studio.png` / `assets/ui/logo.png`), jalankan `--headless --import` atau buka editor sekali, cek dengan `tools/check_assets.gd`. |
+| Kilatan putih / abu-abu di awal | Warna **Application > Boot Splash > BG Color** di Project Settings belum sama dengan `background_color` (`Color.BLACK`). | Samakan warna Boot Splash di Project Settings ke hitam (`#000000`). |
+| Macet di loading | `next_scene_path` salah atau gagal dimuat; setelah `max_wait_seconds` (15 s) splash otomatis mencoba pindah langsung. | Periksa `next_scene_path` di `splash_config.tres` (`res://src/ui/menus/main_menu.tscn`) dan cek konsol Godot untuk pesan `SplashScreen: ...`. |
+| Langsung lompat ke menu utama | `enabled = false`, `entries` kosong, `dev_skip = true`, env `GIMERSIA_SKIP_SPLASH=1`, atau `skip_if_already_shown = true` saat splash dibuka ulang di sesi yang sama. | Cek field `enabled`, `dev_skip`, `entries` di `splash_config.tres` dan pastikan `GIMERSIA_SKIP_SPLASH` tidak bernilai `1`. |
+
+"""
+
+
 func _spriteframes_section() -> String:
 	var registry := Assets.registry()
 	var text := "## Pakai SpriteFrames (disarankan untuk karakter)\n\n"
@@ -796,6 +848,12 @@ func _tres_meta() -> Dictionary:
 			"used_by": "AUDIO_GUIDE (generator), test_audio_guide_sync; belum ada playback",
 			"effect": "Menambah cue berarti satu key baru di panduan audio; tidak mengubah gameplay.",
 			"tests": "test_audio_guide_sync.gd, test_docs_in_sync.gd",
+		},
+		"res://src/data/configs/ui/splash_config.tres": {
+			"purpose": "Konfigurasi layar pembuka: urutan logo, teks fallback, durasi/fade, skip, progress bar, scene tujuan, dan preload.",
+			"used_by": "SplashScreen, SplashSequencer",
+			"effect": "Mengubah logo/teks pembuka, lama tampil, perilaku skip, dan preload pulau; tidak mengubah gameplay maupun DayNightManager.",
+			"tests": "test_splash_sequencer.gd, test_splash_screen.gd",
 		},
 	}
 

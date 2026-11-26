@@ -1041,15 +1041,50 @@ key = &"ui_logo"
 category = &"ui"
 folder = "ui"
 file_stem = "logo"
-description_id = "Logo di menu utama."
-used_by = "src/ui/ui_skin.gd (UiSkin)"
+description_id = "Logo game di menu utama dan layar pembuka."
+used_by = "src/ui/ui_skin.gd (UiSkin), src/ui/menus/splash_screen.tscn (SplashScreen)"
 states = PackedStringArray("default")
 display_size = Vector2(480, 160)
 loop_states = PackedStringArray()
 priority = 2
+recommended_px = Vector2i(1280, 720)
+notes = "PNG latar transparan disarankan (1280x720)."
 recommended_animations = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_6e64t"]
+script = ExtResource("2_4ma4l")
+key = &"ui_splash_studio"
+category = &"ui"
+folder = "ui/splash"
+file_stem = "studio"
+description_id = "Logo studio/tim di layar pembuka."
+used_by = "src/ui/menus/splash_screen.tscn (SplashScreen)"
+states = PackedStringArray("default")
+display_size = Vector2(640, 360)
+loop_states = PackedStringArray()
+priority = 2
+recommended_px = Vector2i(1280, 720)
+optional = true
+notes = "Opsional; PNG latar transparan disarankan (1280x720). Tanpa art tampil teks fallback."
+recommended_animations = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_jnnlq"]
+script = ExtResource("2_4ma4l")
+key = &"ui_splash_bg"
+category = &"ui"
+folder = "ui/splash"
+file_stem = "background"
+description_id = "Latar layar pembuka di belakang logo."
+used_by = "src/ui/menus/splash_screen.tscn (SplashScreen)"
+states = PackedStringArray("default")
+display_size = Vector2(1280, 720)
+loop_states = PackedStringArray()
+recommended_px = Vector2i(1920, 1080)
+optional = true
+notes = "Opsional; bila ada ditampilkan di belakang logo (stretch cover)."
+recommended_animations = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_tu08a"]
 script = ExtResource("2_4ma4l")
 key = &"ui_bg_main_menu"
 category = &"ui"
@@ -1064,7 +1099,7 @@ priority = 2
 notes = "Ditampilkan hanya bila ada."
 recommended_animations = PackedStringArray()
 
-[sub_resource type="Resource" id="Resource_jnnlq"]
+[sub_resource type="Resource" id="Resource_ug45r"]
 script = ExtResource("2_4ma4l")
 key = &"ui_bg_death"
 category = &"ui"
@@ -1077,7 +1112,7 @@ display_size = Vector2(1280, 720)
 loop_states = PackedStringArray()
 recommended_animations = PackedStringArray()
 
-[sub_resource type="Resource" id="Resource_tu08a"]
+[sub_resource type="Resource" id="Resource_4s63d"]
 script = ExtResource("2_4ma4l")
 key = &"ui_bg_game_over"
 category = &"ui"
@@ -1090,7 +1125,7 @@ display_size = Vector2(1280, 720)
 loop_states = PackedStringArray()
 recommended_animations = PackedStringArray()
 
-[sub_resource type="Resource" id="Resource_ug45r"]
+[sub_resource type="Resource" id="Resource_8uilo"]
 script = ExtResource("2_4ma4l")
 key = &"ui_bg_victory"
 category = &"ui"
@@ -1103,7 +1138,7 @@ display_size = Vector2(1280, 720)
 loop_states = PackedStringArray()
 recommended_animations = PackedStringArray()
 
-[sub_resource type="Resource" id="Resource_4s63d"]
+[sub_resource type="Resource" id="Resource_ak8xn"]
 script = ExtResource("2_4ma4l")
 key = &"ui_vignette_low_hp"
 category = &"ui"
@@ -1119,4 +1154,4 @@ recommended_animations = PackedStringArray()
 
 [resource]
 script = ExtResource("1_5iyxd")
-slots = Array[ExtResource("2_4ma4l")]([SubResource("Resource_mydko"), SubResource("Resource_cmmpw"), SubResource("Resource_rlobg"), SubResource("Resource_rdpli"), SubResource("Resource_62bso"), SubResource("Resource_qp6px"), SubResource("Resource_d8pge"), SubResource("Resource_58v06"), SubResource("Resource_35vb4"), SubResource("Resource_aklxx"), SubResource("Resource_l55ag"), SubResource("Resource_40fbp"), SubResource("Resource_5ndwp"), SubResource("Resource_c0r3d"), SubResource("Resource_nywrt"), SubResource("Resource_4jwsi"), SubResource("Resource_javlu"), SubResource("Resource_gld8t"), SubResource("Resource_05us6"), SubResource("Resource_btrgj"), SubResource("Resource_glx4n"), SubResource("Resource_hokpn"), SubResource("Resource_3oluu"), SubResource("Resource_fmtt5"), SubResource("Resource_eauu1"), SubResource("Resource_cropr"), SubResource("Resource_ag3nb"), SubResource("Resource_4uoxt"), SubResource("Resource_hjh4f"), SubResource("Resource_di20l"), SubResource("Resource_688xh"), SubResource("Resource_kxunx"), SubResource("Resource_6ck2d"), SubResource("Resource_xetga"), SubResource("Resource_sqi0e"), SubResource("Resource_cm01d"), SubResource("Resource_ompxn"), SubResource("Resource_26ewd"), SubResource("Resource_71y0v"), SubResource("Resource_n7hxw"), SubResource("Resource_dj7h6"), SubResource("Resource_601hj"), SubResource("Resource_y8ogb"), SubResource("Resource_1lkrp"), SubResource("Resource_stung"), SubResource("Resource_nfn3t"), SubResource("Resource_0jwik"), SubResource("Resource_2gsqc"), SubResource("Resource_xxybk"), SubResource("Resource_c2exp"), SubResource("Resource_hijbe"), SubResource("Resource_c261i"), SubResource("Resource_xj6g7"), SubResource("Resource_dwywb"), SubResource("Resource_hgtwp"), SubResource("Resource_r7pnl"), SubResource("Resource_0217j"), SubResource("Resource_tpwhp"), SubResource("Resource_20v4d"), SubResource("Resource_stugf"), SubResource("Resource_eb2gt"), SubResource("Resource_4cw4l"), SubResource("Resource_6e64t"), SubResource("Resource_jnnlq"), SubResource("Resource_tu08a"), SubResource("Resource_ug45r"), SubResource("Resource_4s63d")])
+slots = Array[ExtResource("2_4ma4l")]([SubResource("Resource_mydko"), SubResource("Resource_cmmpw"), SubResource("Resource_rlobg"), SubResource("Resource_rdpli"), SubResource("Resource_62bso"), SubResource("Resource_qp6px"), SubResource("Resource_d8pge"), SubResource("Resource_58v06"), SubResource("Resource_35vb4"), SubResource("Resource_aklxx"), SubResource("Resource_l55ag"), SubResource("Resource_40fbp"), SubResource("Resource_5ndwp"), SubResource("Resource_c0r3d"), SubResource("Resource_nywrt"), SubResource("Resource_4jwsi"), SubResource("Resource_javlu"), SubResource("Resource_gld8t"), SubResource("Resource_05us6"), SubResource("Resource_btrgj"), SubResource("Resource_glx4n"), SubResource("Resource_hokpn"), SubResource("Resource_3oluu"), SubResource("Resource_fmtt5"), SubResource("Resource_eauu1"), SubResource("Resource_cropr"), SubResource("Resource_ag3nb"), SubResource("Resource_4uoxt"), SubResource("Resource_hjh4f"), SubResource("Resource_di20l"), SubResource("Resource_688xh"), SubResource("Resource_kxunx"), SubResource("Resource_6ck2d"), SubResource("Resource_xetga"), SubResource("Resource_sqi0e"), SubResource("Resource_cm01d"), SubResource("Resource_ompxn"), SubResource("Resource_26ewd"), SubResource("Resource_71y0v"), SubResource("Resource_n7hxw"), SubResource("Resource_dj7h6"), SubResource("Resource_601hj"), SubResource("Resource_y8ogb"), SubResource("Resource_1lkrp"), SubResource("Resource_stung"), SubResource("Resource_nfn3t"), SubResource("Resource_0jwik"), SubResource("Resource_2gsqc"), SubResource("Resource_xxybk"), SubResource("Resource_c2exp"), SubResource("Resource_hijbe"), SubResource("Resource_c261i"), SubResource("Resource_xj6g7"), SubResource("Resource_dwywb"), SubResource("Resource_hgtwp"), SubResource("Resource_r7pnl"), SubResource("Resource_0217j"), SubResource("Resource_tpwhp"), SubResource("Resource_20v4d"), SubResource("Resource_stugf"), SubResource("Resource_eb2gt"), SubResource("Resource_4cw4l"), SubResource("Resource_6e64t"), SubResource("Resource_jnnlq"), SubResource("Resource_tu08a"), SubResource("Resource_ug45r"), SubResource("Resource_4s63d"), SubResource("Resource_8uilo"), SubResource("Resource_ak8xn")])

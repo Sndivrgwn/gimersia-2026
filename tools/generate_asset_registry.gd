@@ -387,7 +387,35 @@ func _ui_slots() -> Array[AssetSlotDefinition]:
 	slots.append(_ui_slot(&"ui_clock_moon", "ui/icons", "clock_moon", Vector2(16.0, 16.0), 3, "Glyph bulan jam TimeHUD.", "Opsional; fallback ke ui_moon lalu bulan sabit placeholder.", "clock_moon"))
 	slots.append(_ui_slot(&"ui_sun", "ui/icons", "sun", Vector2(16.0, 16.0), 3, "Glyph matahari di arc TimeHUD.", "Opsional; tanpa art digambar lingkaran placeholder.", "sun"))
 	slots.append(_ui_slot(&"ui_moon", "ui/icons", "moon", Vector2(16.0, 16.0), 3, "Glyph bulan di arc TimeHUD.", "Opsional; tanpa art digambar bulan sabit placeholder.", "moon"))
-	slots.append(_ui_slot(&"ui_logo", "ui", "logo", Vector2(480.0, 160.0), 2, "Logo di menu utama.", "", "logo"))
+	slots.append(_slot(&"ui_logo", &"ui", "ui", ["default"], {
+		"size": Vector2(480.0, 160.0),
+		"priority": 2,
+		"recommended": Vector2i(1280, 720),
+		"stem": "logo",
+		"description": "Logo game di menu utama dan layar pembuka.",
+		"notes": "PNG latar transparan disarankan (1280x720).",
+		"used_by": "src/ui/ui_skin.gd (UiSkin), src/ui/menus/splash_screen.tscn (SplashScreen)",
+	}))
+	slots.append(_slot(&"ui_splash_studio", &"ui", "ui/splash", ["default"], {
+		"size": Vector2(640.0, 360.0),
+		"priority": 2,
+		"recommended": Vector2i(1280, 720),
+		"optional": true,
+		"stem": "studio",
+		"description": "Logo studio/tim di layar pembuka.",
+		"notes": "Opsional; PNG latar transparan disarankan (1280x720). Tanpa art tampil teks fallback.",
+		"used_by": "src/ui/menus/splash_screen.tscn (SplashScreen)",
+	}))
+	slots.append(_slot(&"ui_splash_bg", &"ui", "ui/splash", ["default"], {
+		"size": Vector2(1280.0, 720.0),
+		"priority": 3,
+		"recommended": Vector2i(1920, 1080),
+		"optional": true,
+		"stem": "background",
+		"description": "Latar layar pembuka di belakang logo.",
+		"notes": "Opsional; bila ada ditampilkan di belakang logo (stretch cover).",
+		"used_by": "src/ui/menus/splash_screen.tscn (SplashScreen)",
+	}))
 	slots.append(_ui_slot(&"ui_bg_main_menu", "ui", "bg_main_menu", Vector2(1280.0, 720.0), 2, "Latar menu utama.", "Ditampilkan hanya bila ada.", "bg_main_menu"))
 	slots.append(_ui_slot(&"ui_bg_death", "ui", "bg_death", Vector2(1280.0, 720.0), 3, "Latar layar mati.", "", "bg_death"))
 	slots.append(_ui_slot(&"ui_bg_game_over", "ui", "bg_game_over", Vector2(1280.0, 720.0), 3, "Latar game over.", "", "bg_game_over"))
