@@ -16,6 +16,11 @@ const BUILDER_NAME := "IslandBuilder"
 const CAMERA_NAME := "Camera2D"
 const DEFAULT_HALF_SIZE := 2400.0
 
+## Intro masuk pulau: kamera mulai dari pandangan lebar (zoom normal × skala
+## ini) lalu menyempit ke zoom main. 0.4 = tiga kali lebih lebar dari normal.
+const INTRO_ZOOM_SCALE := 0.4
+const INTRO_TIME := 0.9
+
 @export var config: CameraFeelConfig
 ## Opsional; default ditemukan lewat nama node (dipakai tes juga).
 @export var pcam: Node
@@ -39,7 +44,7 @@ func _ready() -> void:
 		if clock.has_method(&"is_night"):
 			is_night = bool(clock.call(&"is_night"))
 	apply_limits()
-	_apply_zoom(night_zoom() if is_night else day_zoom())
+	_play_intro(night_zoom() if is_night else day_zoom())
 
 
 func _process(delta: float) -> void:
@@ -138,7 +143,7 @@ func _resolve_nodes() -> void:
 
 
 func _find_pcam() -> Node:
-	var scene := get_tree().current_scene if get_tree() != null else null
+	var scene := _search_root()
 	if scene == null:
 		return null
 	var found := scene.find_child("PhantomCamera2D", true, false)
@@ -149,8 +154,19 @@ func _find_pcam() -> Node:
 	return null
 
 
+## Akar pencarian node kamera. `current_scene` belum tentu sudah diset saat
+## `_ready` (scene baru ditambahkan ke root), jadi mundur ke induk pemiliknya.
+func _search_root() -> Node:
+	var tree := get_tree()
+	if tree != null and tree.current_scene != null:
+		return tree.current_scene
+	if is_inside_tree() and get_parent() != null:
+		return get_parent()
+	return owner
+
+
 func _find_camera() -> Camera2D:
-	var scene := get_tree().current_scene if get_tree() != null else null
+	var scene := _search_root()
 	if scene != null:
 		var found := scene.find_child(CAMERA_NAME, true, false) as Camera2D
 		if found != null:
@@ -170,6 +186,21 @@ func _on_night_started(_day: int) -> void:
 
 func _on_day_started(_day: int) -> void:
 	_apply_zoom(day_zoom())
+
+
+## Zoom-out -> zoom-in saat scene pulau dimuat. Satu pemilik zoom (kelas ini),
+## jadi intro tidak bertabrakan dengan tween siang/malam.
+## `instant` dievaluasi saat dipanggil; tes bisa memaksa jalur tween.
+func _play_intro(target_zoom: float, instant: bool = DisplayServer.get_name() == "headless") -> void:
+	if pcam == null:
+		return
+	var target := Vector2(target_zoom, target_zoom)
+	if instant:
+		pcam.set(&"zoom", target)
+		return
+	pcam.set(&"zoom", target * INTRO_ZOOM_SCALE)
+	var tween := create_tween()
+	tween.tween_property(pcam, "zoom", target, INTRO_TIME).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 func _apply_zoom(value: float) -> void:

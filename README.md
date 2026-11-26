@@ -7,9 +7,13 @@ A Godot 4 game project configured with a modular, scalable architecture.
 ```text
 gimersia-2026/
 ├── assets/                       # Raw and processed external assets
-│   ├── audio/                    # Music tracks, sound effects, ambience
+│   ├── audio/                    # Music tracks, sound effects, ambience, UI
+│   │   ├── ambience/
 │   │   ├── music/
-│   │   └── sfx/
+│   │   ├── sfx/
+│   │   └── ui/
+│   ├── characters/               # SpriteFrames .tres per karakter
+│   ├── props/                    # SpriteFrames .tres per prop/dunia
 │   ├── fonts/                    # Font files (.ttf, .otf, .tres)
 │   ├── models/                   # 3D meshes, materials, and rigs (.blend, .gltf, .obj)
 │   ├── shaders/                  # Custom shader files (.gdshader)
@@ -44,6 +48,10 @@ gimersia-2026/
 - [MVP checklist](docs/editable/MVP_CHECKLIST.md)
 - [Gameplay specification](docs/noneditable/spesifikasi_teknis_mekanisme_gameplay_V8.md)
 - [MVP scope & division work list](docs/noneditable/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md)
+
+Main scene: `src/ui/menus/main_menu.tscn` — MULAI memuat
+`src/levels/island/island.tscn` (sudah dipreload di latar belakang selagi menu
+tampil).
 
 ## Panduan
 

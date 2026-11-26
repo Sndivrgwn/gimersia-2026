@@ -47,10 +47,10 @@ static func sun_direction(day_progress: float) -> Vector2:
 
 
 ## Kegelapan dari luminance tint dunia (dipakai api unggun).
-static func darkness_from_luminance(luminance: float, day_luminance: float, night_luminance: float) -> float:
+static func darkness_from_luminance(world_luminance: float, day_luminance: float, night_luminance: float) -> float:
 	if day_luminance <= night_luminance:
 		return 0.0
-	return clampf((day_luminance - luminance) / (day_luminance - night_luminance), 0.0, 1.0)
+	return clampf((day_luminance - world_luminance) / (day_luminance - night_luminance), 0.0, 1.0)
 
 
 static func luminance(color: Color) -> float:

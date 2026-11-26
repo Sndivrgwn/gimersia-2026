@@ -2,13 +2,12 @@ extends Control
 
 ## Menu utama memakai latar dan tombol dari assets/textures/ui lewat
 ## src/ui/theme/ui_theme.tres (StyleBoxTexture 9-slice + font Nunito).
-const ScreenFade := preload("res://src/ui/fx/screen_fade.gd")
 const SETTINGS_SCENE := preload("res://src/ui/menus/settings_panel.tscn")
 
-## Menu Utama placeholder. Scene ini BUKAN main scene (project tetap memakai
-## practice1.tscn); dibuka dari DeathScreen / RunController.
+## Menu utama: scene ini ADALAH `run/main_scene`; juga dibuka dari DeathScreen /
+## RunController. Pulau dipreload di latar belakang sejak `_ready`.
 ##
-## "MULAI"   : restart siklus hari lalu pindah ke island.tscn.
+## "MULAI"   : restart siklus hari lalu pindah ke island.tscn (preload digenapkan).
 ## "KONTROL" : overlay berisi daftar kontrol (HelpPanel.HELP_LINES).
 ## "KREDIT"  : overlay berisi kredit.
 ## "KELUAR"  : menutup aplikasi.
@@ -26,6 +25,9 @@ const DIM_ALPHA := 0.55
 const OVERLAY_TIME := 0.18
 const OVERLAY_SCALE := 0.94
 const FADE_TIME := 0.45
+## Mulai game: cukup gelap sesaat. Transisinya dilanjutkan zoom kamera di pulau,
+## jadi layar tidak perlu menahan hitam lama.
+const START_FADE_TIME := 0.16
 
 @onready var _start_button: Button = %StartButton
 @onready var _controls_button: Button = %ControlsButton
@@ -43,6 +45,8 @@ const FADE_TIME := 0.45
 var _overlay_tween: Tween
 var _screen_tween: Tween
 var _starting := false
+## True selama permintaan muat-pulau di latar belakang masih hidup.
+var _game_preloading := false
 
 
 func _ready() -> void:
@@ -61,6 +65,7 @@ func _ready() -> void:
 	_quit_button.pressed.connect(_quit)
 	_version_label.text = _version_text()
 	_ensure_settings_ui()
+	_start_game_preload()
 
 	# Layar sempat gelap lalu memudar masuk saat menu dibuka.
 	_screen_fade.visible = true
@@ -151,15 +156,51 @@ func _start_game() -> void:
 	if _starting:
 		return
 	_starting = true
-	_fade_screen_to(1.0, FADE_TIME, _enter_game)
+	_fade_screen_to(1.0, START_FADE_TIME, _enter_game)
 
 
 func _enter_game() -> void:
 	var clock := get_node_or_null("/root/DayNightManager")
 	if clock != null and clock.has_method(&"restart"):
 		clock.restart()
-	var tree := get_tree()
-	ScreenFade.fade_out_then(tree, func() -> void: tree.change_scene_to_file(GAME_SCENE))
+	# Layar sudah hitam penuh dari `_start_game`. Menunggu sisa preload di sini
+	# (bukan memulai muat baru) supaya klik MULAI tidak mengulang 20 detik
+	# kompilasi skrip pulau.
+	await _swap_to_game()
+
+
+# --- Preload pulau ----------------------------------------------------------
+
+## Pulau memuat ~200 skrip; kompilasinya puluhan detik di mesin lambat. Mulai
+## permintaan di latar belakang saat menu tampil, jadi sebagian besar biaya itu
+## habis selagi pemain masih di menu.
+func _start_game_preload() -> void:
+	if _game_preloading or ResourceLoader.load_threaded_request(GAME_SCENE) == OK:
+		_game_preloading = true
+
+
+## True bila pulau sudah siap dipasang tanpa menunggu sama sekali.
+func is_game_preloaded() -> bool:
+	return _game_preloading and ResourceLoader.load_threaded_get_status(GAME_SCENE) == ResourceLoader.THREAD_LOAD_LOADED
+
+
+func _swap_to_game() -> void:
+	if _game_preloading:
+		while ResourceLoader.load_threaded_get_status(GAME_SCENE) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+			await get_tree().process_frame
+	var packed := _take_preloaded_game()
+	if packed != null:
+		get_tree().change_scene_to_packed(packed)
+		return
+	# Preload gagal/tidak diminta: jalur lama tetap dipakai sebagai cadangan.
+	get_tree().change_scene_to_file(GAME_SCENE)
+
+
+func _take_preloaded_game() -> PackedScene:
+	if not is_game_preloaded():
+		return null
+	_game_preloading = false
+	return ResourceLoader.load_threaded_get(GAME_SCENE) as PackedScene
 
 
 func _quit() -> void:

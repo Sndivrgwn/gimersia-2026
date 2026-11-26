@@ -76,8 +76,8 @@ static func set_warning_sink(sink: Callable) -> void:
 
 
 ## Ganti daftar root (tes memakai user://). Harus diakhiri tanpa "/".
-static func set_roots(roots: PackedStringArray) -> void:
-	_roots_override = roots
+static func set_roots(p_roots: PackedStringArray) -> void:
+	_roots_override = p_roots
 	_texture_cache.clear()
 	_sprite_frames_cache.clear()
 	_icon_cache.clear()
@@ -396,7 +396,7 @@ static func frame_textures(texture: Texture2D, frames: int) -> Array[AtlasTextur
 	var result: Array[AtlasTexture] = []
 	if texture == null or frames <= 0:
 		return result
-	var frame_width := int(texture.get_width() / frames)
+	var frame_width := floori(float(texture.get_width()) / float(frames))
 	if frame_width <= 0:
 		return result
 	for index in frames:
@@ -422,7 +422,7 @@ static func build_sprite_frames(texture: Texture2D, frames: int, fps: float, loo
 
 # --- Internal ---------------------------------------------------------------
 
-static func _fallback_chain(slot: AssetSlotDefinition, state: String, dir: String) -> Array:
+static func _fallback_chain(_slot: AssetSlotDefinition, state: String, dir: String) -> Array:
 	var chain: Array = []
 	var has_dir := not dir.is_empty()
 	chain.append([state, dir, false])

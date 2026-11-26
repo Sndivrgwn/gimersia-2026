@@ -182,7 +182,7 @@ static func flood_fill(grid: Dictionary, start: Vector2) -> PackedByteArray:
 		var index := queue[head]
 		head += 1
 		var col := index % cols
-		var row := index / cols
+		var row := floori(float(index) / float(cols))
 		for step in [[1, 0], [-1, 0], [0, 1], [0, -1]]:
 			var next_col: int = col + int(step[0])
 			var next_row: int = row + int(step[1])
@@ -288,7 +288,7 @@ static func _add_spawn_count_checks(source: AuthoredWorldSource, cfg: WorldConfi
 			_add(results, "W006", "Night spawn di sel tidak walkable.", point)
 
 
-static func _add_overlap_check(source: AuthoredWorldSource, cfg: WorldConfig, results: Array) -> void:
+static func _add_overlap_check(source: AuthoredWorldSource, _cfg: WorldConfig, results: Array) -> void:
 	var areas: Array = source.zone_areas
 	for i in areas.size():
 		for j in range(i + 1, areas.size()):
@@ -301,9 +301,12 @@ static func _add_overlap_check(source: AuthoredWorldSource, cfg: WorldConfig, re
 			var polygon_a: PackedVector2Array = a.get("polygon", PackedVector2Array())
 			var polygon_b: PackedVector2Array = b.get("polygon", PackedVector2Array())
 			if _polygons_overlap(polygon_a, polygon_b):
+				var point: Variant = null
+				if polygon_a.size() > 0:
+					point = polygon_a[0]
 				_add(results, "W013", "Zona '%s' dan '%s' menimpa dengan prioritas sama (%d)." % [
 					String(a.get("name", "?")), String(b.get("name", "?")), int(a.get("priority", 0))
-				], polygon_a[0] if polygon_a.size() > 0 else null)
+				], point)
 
 
 static func _add_night_spawn_distance(source: AuthoredWorldSource, cfg: WorldConfig, start: Vector2, results: Array) -> void:
@@ -372,7 +375,7 @@ static func _add_corridor_check(
 
 
 static func _add_forest_check(
-	source: AuthoredWorldSource,
+	_source: AuthoredWorldSource,
 	grid: Dictionary,
 	cfg: WorldConfig,
 	reachable: PackedByteArray,

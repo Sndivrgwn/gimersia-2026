@@ -11,11 +11,11 @@ const TITLE := "Ringkasan Perjalanan"
 const STATS_NAME := "DailyRunStats"
 
 
-## Empat baris ringkasan. `current_day` (opsional) ikut dihitung supaya
+## Empat baris ringkasan. `min_days` (opsional) ikut dihitung supaya
 ## kematian di tengah hari tidak tampil lebih kecil dari hari yang sudah lewat.
-static func from_totals(totals: Dictionary, current_day: int = 0) -> String:
+static func from_totals(totals: Dictionary, min_days: int = 0) -> String:
 	var days := maxi(int(totals.get("days", 0)), 0)
-	days = maxi(days, current_day)
+	days = maxi(days, min_days)
 	var lines := PackedStringArray()
 	lines.append("Hari bertahan: %d" % days)
 	lines.append("Sumber daya: %d" % maxi(int(totals.get("resources", 0)), 0))

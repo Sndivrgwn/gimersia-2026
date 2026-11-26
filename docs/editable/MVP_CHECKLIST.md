@@ -46,7 +46,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 
 - [x] Project Godot 4.7.2 dengan `project.godot` dan renderer GL Compatibility.
 - [x] Struktur folder `src/core`, `src/components`, `src/data`, `src/entities`, `src/levels`, `src/ui`, `src/utils`, `tests`, `docs`.
-- [x] Scene utama sementara: `scenes/practice/practice1.tscn`.
+- [x] Scene utama: `src/ui/menus/main_menu.tscn` (menu) -> `src/levels/island/island.tscn` (dunia). `scenes/practice/practice1.tscn` tinggal sandbox lama.
 - [x] Autoload `DayNightManager` terdaftar di `project.godot`.
 - [x] Input Map di `project.godot` `[input]` untuk `move_up/down/left/right`, `sprint`, `hotbar_1..5`, dan action `debug_*`; semua kode membaca action, bukan `_unhandled_input`/keycode mentah.
 - [x] Player top-down dengan `CharacterBody2D`, collision, dan `move_and_slide()`.
@@ -280,7 +280,7 @@ Dokumen ini adalah checklist kerja yang bisa dicentang. Sumber scope:
 - [x] HUD inventory — `HotbarHUD` 5 slot + `BagPanel` 12 slot (Tab/I).
 - [x] HUD debuff setelah respawn — `RespawnRecapHUD` + baris `ProficiencyHUD` memerah.
 - [x] Indikator siang/malam — `TimeHUD` (fase + sisa waktu), `NightBanner`, `NightSurvivalHUD`.
-- [x] Menu utama dan navigasi (`main_menu.tscn`, bukan main scene; `RunController`).
+- [x] Menu utama dan navigasi (`main_menu.tscn` = main scene; `RunController`): MULAI memulai preload `island.tscn` di latar belakang saat menu tampil, fade 0.16 dtk, lalu `change_scene_to_packed()`; pulau fade masuk 0.28 dtk + zoom kamera 0.9 dtk.
 - [x] Pause menu — `PauseMenu` (P, guard, restore time scale) + settings/help.
 - [x] Layar kematian.
 - [x] Layar Victory (panel di `EndgameHUD`).
@@ -504,7 +504,7 @@ Rasa/feedback, bukan fitur baru. Semua butir terverifikasi lewat
 - [x] Vignette merah berdenyut saat HP < 25% (slot art `ui_vignette_low_hp` opsional).
 - [x] Bar Needs bergerak halus; panel tas/peti muncul dengan animasi; slot hotbar "pop".
 - [x] Debu siang + kunang-kunang malam mengikuti pemain.
-- [x] Kamera look-ahead + zoom siang/malam.
+- [x] Kamera look-ahead + zoom siang/malam + intro zoom-out -> zoom-in 0.9 dtk saat pulau dimuat.
 - [x] 3 prompt pembuka lewat saluran HintManager yang sama, berprioritas di atas hint gameplay (tidak bisa dipotong gather/low-need), sekali per sesi, bisa dilewati.
 - [x] Penunjuk arah camp saat jauh dari base (anchor viewport, bukan piksel tetap).
 - [x] Baris "Layar penuh" di Pengaturan (disimpan di `user://settings.cfg`).

@@ -50,6 +50,278 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `res://tools/generate_sun_config.gd` | `GODOT --headless --path . -s tools/generate_sun_config.gd` | res://src/data/configs/environment/day_night_visual_default.tres, res://src/data/configs/environment/sun_config.tres |
 | `res://tools/generate_world_config.gd` | `GODOT --headless --path . -s tools/generate_world_config.gd` | res://src/data/configs/world/world_config.tres |
 
+## assets/characters/island_deer
+
+### `res://assets/characters/island_deer/island_deer.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/characters/player
+
+### `res://assets/characters/player/player.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/characters/wild_boar
+
+### `res://assets/characters/wild_boar/wild_boar.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/bamboo_clump
+
+### `res://assets/props/bamboo_clump/bamboo_clump.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/berry_bush
+
+### `res://assets/props/berry_bush/berry_bush.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/big_rock
+
+### `res://assets/props/big_rock/big_rock.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/campfire
+
+### `res://assets/props/campfire/campfire.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/chest
+
+### `res://assets/props/chest/chest.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/coconut_palm
+
+### `res://assets/props/coconut_palm/coconut_palm.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/emergency_suitcase
+
+### `res://assets/props/emergency_suitcase/emergency_suitcase.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/fiber_bush
+
+### `res://assets/props/fiber_bush/fiber_bush.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/signal_beacon
+
+### `res://assets/props/signal_beacon/signal_beacon.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/small_rock
+
+### `res://assets/props/small_rock/small_rock.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/small_tree
+
+### `res://assets/props/small_tree/small_tree.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/tent
+
+### `res://assets/props/tent/tent.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/tree
+
+### `res://assets/props/tree/tree.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
+## assets/props/twig
+
+### `res://assets/props/twig/twig.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+
+
 ## src/data/assets
 
 ### `res://src/data/assets/asset_registry.tres`
@@ -2353,9 +2625,9 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `craft_time` | float | 2.00 |
 
 
-## src/ui/theme
+## src/ui/panels/inventory/styles
 
-### `res://src/ui/theme/stitch_frame_material.tres`
+### `res://src/ui/panels/inventory/styles/button_disabled.tres`
 
 - Kelas: `Resource`
 - Tujuan: belum didokumentasikan
@@ -2367,14 +2639,427 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | Field | Tipe | Nilai |
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
-| `shader` | Resource | (res://src/ui/theme/stitch_frame.gdshader):<S... |
-| `shader_parameter/frame_size` | Vector2 | 520.0 × 300.0 |
-| `shader_parameter/inset` | float | 2.00 |
-| `shader_parameter/corner_radius` | float | 24.00 |
-| `shader_parameter/thickness` | float | 1.60 |
-| `shader_parameter/dash_length` | float | 4.00 |
-| `shader_parameter/gap_length` | float | 3.00 |
-| `shader_parameter/stitch_color` | lain | (0.7412, 0.698, 0.6471, 1.0) |
+| `content_margin_left` | float | 12.00 |
+| `content_margin_top` | float | 6.00 |
+| `content_margin_right` | float | 12.00 |
+| `content_margin_bottom` | float | 6.00 |
+| `texture` | Resource | (res://assets/textures/ui/03_button/button_pr... |
+| `texture_margin_left` | float | 22.00 |
+| `texture_margin_top` | float | 22.00 |
+| `texture_margin_right` | float | 22.00 |
+| `texture_margin_bottom` | float | 22.00 |
+| `expand_margin_left` | float | 0.00 |
+| `expand_margin_top` | float | 0.00 |
+| `expand_margin_right` | float | 0.00 |
+| `expand_margin_bottom` | float | 0.00 |
+| `axis_stretch_horizontal` | int | 0 |
+| `axis_stretch_vertical` | int | 0 |
+| `region_rect` | lain | [P: (0.0, 0.0), S: (0.0, 0.0)] |
+| `modulate_color` | lain | (1.0, 1.0, 1.0, 1.0) |
+| `draw_center` | bool | true |
+
+### `res://src/ui/panels/inventory/styles/button_hover.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `content_margin_left` | float | 12.00 |
+| `content_margin_top` | float | 6.00 |
+| `content_margin_right` | float | 12.00 |
+| `content_margin_bottom` | float | 6.00 |
+| `texture` | Resource | (res://assets/textures/ui/03_button/button_pr... |
+| `texture_margin_left` | float | 22.00 |
+| `texture_margin_top` | float | 22.00 |
+| `texture_margin_right` | float | 22.00 |
+| `texture_margin_bottom` | float | 22.00 |
+| `expand_margin_left` | float | 0.00 |
+| `expand_margin_top` | float | 0.00 |
+| `expand_margin_right` | float | 0.00 |
+| `expand_margin_bottom` | float | 0.00 |
+| `axis_stretch_horizontal` | int | 0 |
+| `axis_stretch_vertical` | int | 0 |
+| `region_rect` | lain | [P: (0.0, 0.0), S: (0.0, 0.0)] |
+| `modulate_color` | lain | (1.0, 1.0, 1.0, 1.0) |
+| `draw_center` | bool | true |
+
+### `res://src/ui/panels/inventory/styles/button_normal.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `content_margin_left` | float | 12.00 |
+| `content_margin_top` | float | 6.00 |
+| `content_margin_right` | float | 12.00 |
+| `content_margin_bottom` | float | 6.00 |
+| `texture` | Resource | (res://assets/textures/ui/03_button/button_pr... |
+| `texture_margin_left` | float | 22.00 |
+| `texture_margin_top` | float | 22.00 |
+| `texture_margin_right` | float | 22.00 |
+| `texture_margin_bottom` | float | 22.00 |
+| `expand_margin_left` | float | 0.00 |
+| `expand_margin_top` | float | 0.00 |
+| `expand_margin_right` | float | 0.00 |
+| `expand_margin_bottom` | float | 0.00 |
+| `axis_stretch_horizontal` | int | 0 |
+| `axis_stretch_vertical` | int | 0 |
+| `region_rect` | lain | [P: (0.0, 0.0), S: (0.0, 0.0)] |
+| `modulate_color` | lain | (1.0, 1.0, 1.0, 1.0) |
+| `draw_center` | bool | true |
+
+### `res://src/ui/panels/inventory/styles/button_pressed.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `content_margin_left` | float | 12.00 |
+| `content_margin_top` | float | 6.00 |
+| `content_margin_right` | float | 12.00 |
+| `content_margin_bottom` | float | 6.00 |
+| `texture` | Resource | (res://assets/textures/ui/03_button/button_pr... |
+| `texture_margin_left` | float | 22.00 |
+| `texture_margin_top` | float | 22.00 |
+| `texture_margin_right` | float | 22.00 |
+| `texture_margin_bottom` | float | 22.00 |
+| `expand_margin_left` | float | 0.00 |
+| `expand_margin_top` | float | 0.00 |
+| `expand_margin_right` | float | 0.00 |
+| `expand_margin_bottom` | float | 0.00 |
+| `axis_stretch_horizontal` | int | 0 |
+| `axis_stretch_vertical` | int | 0 |
+| `region_rect` | lain | [P: (0.0, 0.0), S: (0.0, 0.0)] |
+| `modulate_color` | lain | (1.0, 1.0, 1.0, 1.0) |
+| `draw_center` | bool | true |
+
+### `res://src/ui/panels/inventory/styles/frame_cream.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `content_margin_left` | float | 0.00 |
+| `content_margin_top` | float | 0.00 |
+| `content_margin_right` | float | 0.00 |
+| `content_margin_bottom` | float | 0.00 |
+| `texture` | Resource | (res://assets/textures/ui/02_panel/panel_crea... |
+| `texture_margin_left` | float | 34.00 |
+| `texture_margin_top` | float | 34.00 |
+| `texture_margin_right` | float | 34.00 |
+| `texture_margin_bottom` | float | 34.00 |
+| `expand_margin_left` | float | 0.00 |
+| `expand_margin_top` | float | 0.00 |
+| `expand_margin_right` | float | 0.00 |
+| `expand_margin_bottom` | float | 0.00 |
+| `axis_stretch_horizontal` | int | 0 |
+| `axis_stretch_vertical` | int | 0 |
+| `region_rect` | lain | [P: (0.0, 0.0), S: (0.0, 0.0)] |
+| `modulate_color` | lain | (1.0, 1.0, 1.0, 1.0) |
+| `draw_center` | bool | true |
+
+### `res://src/ui/panels/inventory/styles/panel_dark.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `content_margin_left` | float | 28.00 |
+| `content_margin_top` | float | 22.00 |
+| `content_margin_right` | float | 28.00 |
+| `content_margin_bottom` | float | 22.00 |
+| `texture` | Resource | (res://assets/textures/ui/02_panel/panel_waln... |
+| `texture_margin_left` | float | 34.00 |
+| `texture_margin_top` | float | 34.00 |
+| `texture_margin_right` | float | 34.00 |
+| `texture_margin_bottom` | float | 34.00 |
+| `expand_margin_left` | float | 0.00 |
+| `expand_margin_top` | float | 0.00 |
+| `expand_margin_right` | float | 0.00 |
+| `expand_margin_bottom` | float | 0.00 |
+| `axis_stretch_horizontal` | int | 0 |
+| `axis_stretch_vertical` | int | 0 |
+| `region_rect` | lain | [P: (0.0, 0.0), S: (0.0, 0.0)] |
+| `modulate_color` | lain | (0.3953, 0.3736, 0.3571, 1.0) |
+| `draw_center` | bool | true |
+
+### `res://src/ui/panels/inventory/styles/recipe_card.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `content_margin_left` | float | 28.00 |
+| `content_margin_top` | float | 14.00 |
+| `content_margin_right` | float | 28.00 |
+| `content_margin_bottom` | float | 14.00 |
+| `texture` | Resource | (res://assets/textures/ui/02_panel/panel_crea... |
+| `texture_margin_left` | float | 34.00 |
+| `texture_margin_top` | float | 34.00 |
+| `texture_margin_right` | float | 34.00 |
+| `texture_margin_bottom` | float | 34.00 |
+| `expand_margin_left` | float | 0.00 |
+| `expand_margin_top` | float | 0.00 |
+| `expand_margin_right` | float | 0.00 |
+| `expand_margin_bottom` | float | 0.00 |
+| `axis_stretch_horizontal` | int | 0 |
+| `axis_stretch_vertical` | int | 0 |
+| `region_rect` | lain | [P: (0.0, 0.0), S: (0.0, 0.0)] |
+| `modulate_color` | lain | (1.0, 1.0, 1.0, 1.0) |
+| `draw_center` | bool | true |
+
+### `res://src/ui/panels/inventory/styles/slot_hover.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `content_margin_left` | float | 10.00 |
+| `content_margin_top` | float | 8.00 |
+| `content_margin_right` | float | 10.00 |
+| `content_margin_bottom` | float | 8.00 |
+| `texture` | Resource | (res://assets/textures/ui/05_slot/slot_item_s... |
+| `texture_margin_left` | float | 30.00 |
+| `texture_margin_top` | float | 30.00 |
+| `texture_margin_right` | float | 30.00 |
+| `texture_margin_bottom` | float | 30.00 |
+| `expand_margin_left` | float | 0.00 |
+| `expand_margin_top` | float | 0.00 |
+| `expand_margin_right` | float | 0.00 |
+| `expand_margin_bottom` | float | 0.00 |
+| `axis_stretch_horizontal` | int | 0 |
+| `axis_stretch_vertical` | int | 0 |
+| `region_rect` | lain | [P: (0.0, 0.0), S: (0.0, 0.0)] |
+| `modulate_color` | lain | (1.0, 1.0, 1.0, 1.0) |
+| `draw_center` | bool | true |
+
+### `res://src/ui/panels/inventory/styles/slot_normal.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `content_margin_left` | float | 10.00 |
+| `content_margin_top` | float | 8.00 |
+| `content_margin_right` | float | 10.00 |
+| `content_margin_bottom` | float | 8.00 |
+| `texture` | Resource | (res://assets/textures/ui/05_slot/slot_item.p... |
+| `texture_margin_left` | float | 30.00 |
+| `texture_margin_top` | float | 30.00 |
+| `texture_margin_right` | float | 30.00 |
+| `texture_margin_bottom` | float | 30.00 |
+| `expand_margin_left` | float | 0.00 |
+| `expand_margin_top` | float | 0.00 |
+| `expand_margin_right` | float | 0.00 |
+| `expand_margin_bottom` | float | 0.00 |
+| `axis_stretch_horizontal` | int | 0 |
+| `axis_stretch_vertical` | int | 0 |
+| `region_rect` | lain | [P: (0.0, 0.0), S: (0.0, 0.0)] |
+| `modulate_color` | lain | (1.0, 1.0, 1.0, 1.0) |
+| `draw_center` | bool | true |
+
+### `res://src/ui/panels/inventory/styles/tab_selected.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `content_margin_left` | float | 34.00 |
+| `content_margin_top` | float | 14.00 |
+| `content_margin_right` | float | 34.00 |
+| `content_margin_bottom` | float | 14.00 |
+| `texture` | Resource | (res://assets/textures/ui/04_tab/tab_normal.p... |
+| `texture_margin_left` | float | 20.00 |
+| `texture_margin_top` | float | 20.00 |
+| `texture_margin_right` | float | 20.00 |
+| `texture_margin_bottom` | float | 20.00 |
+| `expand_margin_left` | float | 0.00 |
+| `expand_margin_top` | float | 0.00 |
+| `expand_margin_right` | float | 0.00 |
+| `expand_margin_bottom` | float | 0.00 |
+| `axis_stretch_horizontal` | int | 0 |
+| `axis_stretch_vertical` | int | 0 |
+| `region_rect` | lain | [P: (0.0, 0.0), S: (0.0, 0.0)] |
+| `modulate_color` | lain | (1.0, 1.0, 1.0, 1.0) |
+| `draw_center` | bool | true |
+
+### `res://src/ui/panels/inventory/styles/tab_unselected.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `content_margin_left` | float | 34.00 |
+| `content_margin_top` | float | 14.00 |
+| `content_margin_right` | float | 34.00 |
+| `content_margin_bottom` | float | 14.00 |
+| `texture` | Resource | (res://assets/textures/ui/04_tab/tab_active.p... |
+| `texture_margin_left` | float | 20.00 |
+| `texture_margin_top` | float | 20.00 |
+| `texture_margin_right` | float | 20.00 |
+| `texture_margin_bottom` | float | 20.00 |
+| `expand_margin_left` | float | 0.00 |
+| `expand_margin_top` | float | 0.00 |
+| `expand_margin_right` | float | 0.00 |
+| `expand_margin_bottom` | float | 0.00 |
+| `axis_stretch_horizontal` | int | 0 |
+| `axis_stretch_vertical` | int | 0 |
+| `region_rect` | lain | [P: (0.0, 0.0), S: (0.0, 0.0)] |
+| `modulate_color` | lain | (1.0, 1.0, 1.0, 1.0) |
+| `draw_center` | bool | true |
+
+
+## src/ui/theme
+
+### `res://src/ui/theme/game_ui_theme.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `default_base_scale` | float | 0.00 |
+| `default_font` | Resource | — |
+| `default_font_size` | int | 24 |
+| `BackButton/base_type` | StringName | Button |
+| `BackButton/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `BackButton/colors/font_focus_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `BackButton/colors/font_hover_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `BackButton/colors/font_pressed_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `BackButton/styles/disabled` | Resource | (res://src/ui/theme/game_ui_theme.tres::back_... |
+| `BackButton/styles/focus` | Resource | (res://src/ui/theme/game_ui_theme.tres::back_... |
+| `BackButton/styles/hover` | Resource | (res://src/ui/theme/game_ui_theme.tres::back_... |
+| `BackButton/styles/normal` | Resource | (res://src/ui/theme/game_ui_theme.tres::back_... |
+| `BackButton/styles/pressed` | Resource | (res://src/ui/theme/game_ui_theme.tres::back_... |
+| `Button/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `Button/colors/font_disabled_color` | lain | (0.5, 0.43, 0.37, 1.0) |
+| `Button/colors/font_focus_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `Button/colors/font_hover_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `Button/colors/font_pressed_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `Button/font_sizes/font_size` | int | 26 |
+| `DangerButton/base_type` | StringName | Button |
+| `DangerButton/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `DangerButton/colors/font_focus_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `DangerButton/colors/font_hover_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `DangerButton/colors/font_pressed_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `DangerButton/styles/disabled` | Resource | (res://src/ui/theme/game_ui_theme.tres::dange... |
+| `DangerButton/styles/focus` | Resource | (res://src/ui/theme/game_ui_theme.tres::dange... |
+| `DangerButton/styles/hover` | Resource | (res://src/ui/theme/game_ui_theme.tres::dange... |
+| `DangerButton/styles/normal` | Resource | (res://src/ui/theme/game_ui_theme.tres::dange... |
+| `DangerButton/styles/pressed` | Resource | (res://src/ui/theme/game_ui_theme.tres::dange... |
+| `HSlider/constants/center_grabber` | int | 1 |
+| `HSlider/icons/grabber` | Resource | (res://assets/textures/ui/07_icon/icon_stamin... |
+| `HSlider/icons/grabber_highlight` | Resource | (res://assets/textures/ui/07_icon/icon_stamin... |
+| `HSlider/styles/grabber_area` | Resource | (res://src/ui/theme/game_ui_theme.tres::fill_... |
+| `HSlider/styles/grabber_area_highlight` | Resource | (res://src/ui/theme/game_ui_theme.tres::fill_... |
+| `HSlider/styles/slider` | Resource | (res://src/ui/theme/game_ui_theme.tres::track... |
+| `Label/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `PanelCard/base_type` | StringName | PanelContainer |
+| `PanelCard/styles/panel` | Resource | (res://src/ui/theme/game_ui_theme.tres::panel... |
+| `PanelDark/base_type` | StringName | PanelContainer |
+| `PanelDark/colors/font_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PanelDark/styles/panel` | Resource | (res://src/ui/theme/game_ui_theme.tres::panel... |
+| `PanelPlain/base_type` | StringName | PanelContainer |
+| `PanelPlain/styles/panel` | Resource | (res://src/ui/theme/game_ui_theme.tres::panel... |
+| `PrimaryButton/base_type` | StringName | Button |
+| `PrimaryButton/colors/font_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PrimaryButton/colors/font_focus_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PrimaryButton/colors/font_hover_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PrimaryButton/colors/font_pressed_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PrimaryButton/styles/disabled` | Resource | (res://src/ui/theme/game_ui_theme.tres::prima... |
+| `PrimaryButton/styles/focus` | Resource | (res://src/ui/theme/game_ui_theme.tres::prima... |
+| `PrimaryButton/styles/hover` | Resource | (res://src/ui/theme/game_ui_theme.tres::prima... |
+| `PrimaryButton/styles/normal` | Resource | (res://src/ui/theme/game_ui_theme.tres::prima... |
+| `PrimaryButton/styles/pressed` | Resource | (res://src/ui/theme/game_ui_theme.tres::prima... |
+| `SecondaryButton/base_type` | StringName | Button |
+| `SecondaryButton/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `SecondaryButton/colors/font_focus_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `SecondaryButton/colors/font_hover_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `SecondaryButton/colors/font_pressed_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `SecondaryButton/styles/disabled` | Resource | (res://src/ui/theme/game_ui_theme.tres::secon... |
+| `SecondaryButton/styles/focus` | Resource | (res://src/ui/theme/game_ui_theme.tres::secon... |
+| `SecondaryButton/styles/hover` | Resource | (res://src/ui/theme/game_ui_theme.tres::secon... |
+| `SecondaryButton/styles/normal` | Resource | (res://src/ui/theme/game_ui_theme.tres::secon... |
+| `SecondaryButton/styles/pressed` | Resource | (res://src/ui/theme/game_ui_theme.tres::secon... |
+| `SlotPanel/base_type` | StringName | PanelContainer |
+| `SlotPanel/styles/panel` | Resource | (res://src/ui/theme/game_ui_theme.tres::slot)... |
+| `TitleLabel/base_type` | StringName | Label |
+| `TitleLabel/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `TitleLabel/font_sizes/font_size` | int | 44 |
+| `ToggleButton/base_type` | StringName | Button |
+| `ToggleButton/colors/font_hover_pressed_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `ToggleButton/colors/font_pressed_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `ToggleButton/styles/disabled` | Resource | (res://src/ui/theme/game_ui_theme.tres::secon... |
+| `ToggleButton/styles/focus` | Resource | (res://src/ui/theme/game_ui_theme.tres::secon... |
+| `ToggleButton/styles/hover` | Resource | (res://src/ui/theme/game_ui_theme.tres::secon... |
+| `ToggleButton/styles/hover_pressed` | Resource | (res://src/ui/theme/game_ui_theme.tres::prima... |
+| `ToggleButton/styles/normal` | Resource | (res://src/ui/theme/game_ui_theme.tres::secon... |
+| `ToggleButton/styles/pressed` | Resource | (res://src/ui/theme/game_ui_theme.tres::prima... |
 
 ### `res://src/ui/theme/ui_theme.tres`
 
@@ -2389,95 +3074,238 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | --- | --- | --- |
 | `resource_local_to_scene` | bool | false |
 | `default_base_scale` | float | 0.00 |
-| `default_font` | Resource | (res://assets/fonts/nunito/nunito_variable.tt... |
-| `default_font_size` | int | 20 |
+| `default_font` | Resource | — |
+| `default_font_size` | int | 24 |
 | `BackButton/base_type` | StringName | Button |
-| `BackButton/colors/font_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `BackButton/colors/font_disabled_color` | lain | (0.2431, 0.1529, 0.102, 0.45) |
-| `BackButton/colors/font_focus_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `BackButton/colors/font_hover_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `BackButton/colors/font_hover_pressed_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `BackButton/colors/font_pressed_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `BackButton/font_sizes/font_size` | int | 20 |
-| `BackButton/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
-| `BackButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme.tres::sb_back_di... |
-| `BackButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme.tres::sb_back_ho... |
-| `BackButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme.tres::sb_back_ho... |
-| `BackButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme.tres::sb_back_no... |
-| `BackButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme.tres::sb_back_pr... |
+| `BackButton/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `BackButton/colors/font_focus_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `BackButton/colors/font_hover_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `BackButton/colors/font_pressed_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `BackButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme.tres::back_disab... |
+| `BackButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme.tres::back_hover... |
+| `BackButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme.tres::back_hover... |
+| `BackButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme.tres::back_norma... |
+| `BackButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme.tres::back_press... |
 | `BodyLabel/base_type` | StringName | Label |
-| `BodyLabel/colors/font_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `BodyLabel/constants/line_spacing` | int | 7 |
-| `BodyLabel/font_sizes/font_size` | int | 18 |
-| `BodyLabel/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
-| `Button/colors/font_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `Button/colors/font_disabled_color` | lain | (0.2431, 0.1529, 0.102, 0.45) |
-| `Button/colors/font_focus_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `Button/colors/font_hover_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `Button/colors/font_hover_pressed_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `Button/colors/font_pressed_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
+| `BodyLabel/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `BodyLabel/font_sizes/font_size` | int | 24 |
+| `Button/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `Button/colors/font_disabled_color` | lain | (0.5, 0.43, 0.37, 1.0) |
+| `Button/colors/font_focus_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `Button/colors/font_hover_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `Button/colors/font_pressed_color` | lain | (0.239, 0.157, 0.106, 1.0) |
 | `Button/font_sizes/font_size` | int | 26 |
-| `Button/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
-| `Button/styles/disabled` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
-| `Button/styles/focus` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
-| `Button/styles/hover` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
-| `Button/styles/normal` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
-| `Button/styles/pressed` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
 | `CardTitleLabel/base_type` | StringName | Label |
-| `CardTitleLabel/colors/font_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `CardTitleLabel/font_sizes/font_size` | int | 28 |
-| `CardTitleLabel/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+| `CardTitleLabel/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `CardTitleLabel/font_sizes/font_size` | int | 44 |
+| `DangerButton/base_type` | StringName | Button |
+| `DangerButton/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `DangerButton/colors/font_focus_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `DangerButton/colors/font_hover_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `DangerButton/colors/font_pressed_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `DangerButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme.tres::danger_dis... |
+| `DangerButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme.tres::danger_hov... |
+| `DangerButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme.tres::danger_hov... |
+| `DangerButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme.tres::danger_nor... |
+| `DangerButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme.tres::danger_pre... |
 | `EyebrowLabel/base_type` | StringName | Label |
-| `EyebrowLabel/colors/font_color` | lain | (0.9686, 0.9451, 0.898, 0.82) |
-| `EyebrowLabel/font_sizes/font_size` | int | 14 |
-| `EyebrowLabel/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+| `EyebrowLabel/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `EyebrowLabel/font_sizes/font_size` | int | 20 |
+| `HSlider/constants/center_grabber` | int | 1 |
+| `HSlider/icons/grabber` | Resource | (res://assets/textures/ui/07_icon/icon_stamin... |
+| `HSlider/icons/grabber_highlight` | Resource | (res://assets/textures/ui/07_icon/icon_stamin... |
+| `HSlider/styles/grabber_area` | Resource | (res://src/ui/theme/ui_theme.tres::fill_healt... |
+| `HSlider/styles/grabber_area_highlight` | Resource | (res://src/ui/theme/ui_theme.tres::fill_healt... |
+| `HSlider/styles/slider` | Resource | (res://src/ui/theme/ui_theme.tres::track):<St... |
 | `HeroTitle/base_type` | StringName | Label |
-| `HeroTitle/colors/font_color` | lain | (0.9765, 0.9569, 0.9137, 1.0) |
-| `HeroTitle/colors/font_outline_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `HeroTitle/colors/font_shadow_color` | lain | (0.1176, 0.0745, 0.0471, 0.35) |
-| `HeroTitle/constants/outline_size` | int | 9 |
-| `HeroTitle/constants/shadow_offset_x` | int | 0 |
-| `HeroTitle/constants/shadow_offset_y` | int | 7 |
-| `HeroTitle/constants/shadow_outline_size` | int | 9 |
-| `HeroTitle/font_sizes/font_size` | int | 88 |
-| `HeroTitle/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
-| `Label/colors/font_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `Label/font_sizes/font_size` | int | 20 |
-| `Label/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+| `HeroTitle/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `HeroTitle/font_sizes/font_size` | int | 72 |
+| `Label/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
 | `PanelCard/base_type` | StringName | PanelContainer |
-| `PanelCard/styles/panel` | Resource | (res://src/ui/theme/ui_theme.tres::sb_panel):... |
+| `PanelCard/styles/panel` | Resource | (res://src/ui/theme/ui_theme.tres::panel_crea... |
+| `PanelDark/base_type` | StringName | PanelContainer |
+| `PanelDark/colors/font_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PanelDark/styles/panel` | Resource | (res://src/ui/theme/ui_theme.tres::panel_waln... |
+| `PanelPlain/base_type` | StringName | PanelContainer |
+| `PanelPlain/styles/panel` | Resource | (res://src/ui/theme/ui_theme.tres::panel_plai... |
 | `PrimaryButton/base_type` | StringName | Button |
-| `PrimaryButton/colors/font_color` | lain | (0.9686, 0.9451, 0.898, 1.0) |
-| `PrimaryButton/colors/font_disabled_color` | lain | (0.9686, 0.9451, 0.898, 0.5) |
-| `PrimaryButton/colors/font_focus_color` | lain | (0.9686, 0.9451, 0.898, 1.0) |
-| `PrimaryButton/colors/font_hover_color` | lain | (0.9686, 0.9451, 0.898, 1.0) |
-| `PrimaryButton/colors/font_hover_pressed_color` | lain | (0.9686, 0.9451, 0.898, 1.0) |
-| `PrimaryButton/colors/font_pressed_color` | lain | (0.9686, 0.9451, 0.898, 1.0) |
-| `PrimaryButton/font_sizes/font_size` | int | 26 |
-| `PrimaryButton/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
-| `PrimaryButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme.tres::sb_primary... |
-| `PrimaryButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme.tres::sb_primary... |
-| `PrimaryButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme.tres::sb_primary... |
-| `PrimaryButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme.tres::sb_primary... |
-| `PrimaryButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme.tres::sb_primary... |
+| `PrimaryButton/colors/font_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PrimaryButton/colors/font_focus_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PrimaryButton/colors/font_hover_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PrimaryButton/colors/font_pressed_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PrimaryButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme.tres::primary_di... |
+| `PrimaryButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme.tres::primary_ho... |
+| `PrimaryButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme.tres::primary_ho... |
+| `PrimaryButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme.tres::primary_no... |
+| `PrimaryButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme.tres::primary_pr... |
 | `SecondaryButton/base_type` | StringName | Button |
-| `SecondaryButton/colors/font_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `SecondaryButton/colors/font_disabled_color` | lain | (0.2431, 0.1529, 0.102, 0.45) |
-| `SecondaryButton/colors/font_focus_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `SecondaryButton/colors/font_hover_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `SecondaryButton/colors/font_hover_pressed_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `SecondaryButton/colors/font_pressed_color` | lain | (0.2431, 0.1529, 0.102, 1.0) |
-| `SecondaryButton/font_sizes/font_size` | int | 26 |
-| `SecondaryButton/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
-| `SecondaryButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
-| `SecondaryButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
-| `SecondaryButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
-| `SecondaryButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
-| `SecondaryButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme.tres::sb_seconda... |
+| `SecondaryButton/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `SecondaryButton/colors/font_focus_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `SecondaryButton/colors/font_hover_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `SecondaryButton/colors/font_pressed_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `SecondaryButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme.tres::secondary_... |
+| `SecondaryButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme.tres::secondary_... |
+| `SecondaryButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme.tres::secondary_... |
+| `SecondaryButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme.tres::secondary_... |
+| `SecondaryButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme.tres::secondary_... |
+| `SlotPanel/base_type` | StringName | PanelContainer |
+| `SlotPanel/styles/panel` | Resource | (res://src/ui/theme/ui_theme.tres::slot):<Sty... |
+| `TitleLabel/base_type` | StringName | Label |
+| `TitleLabel/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `TitleLabel/font_sizes/font_size` | int | 44 |
+| `ToggleButton/base_type` | StringName | Button |
+| `ToggleButton/colors/font_hover_pressed_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `ToggleButton/colors/font_pressed_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `ToggleButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme.tres::secondary_... |
+| `ToggleButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme.tres::secondary_... |
+| `ToggleButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme.tres::secondary_... |
+| `ToggleButton/styles/hover_pressed` | Resource | (res://src/ui/theme/ui_theme.tres::primary_ho... |
+| `ToggleButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme.tres::secondary_... |
+| `ToggleButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme.tres::primary_pr... |
 | `VersionLabel/base_type` | StringName | Label |
-| `VersionLabel/colors/font_color` | lain | (0.9686, 0.9451, 0.898, 0.5) |
-| `VersionLabel/font_sizes/font_size` | int | 13 |
-| `VersionLabel/fonts/font` | Resource | (res://src/ui/theme/ui_theme.tres::FontVariat... |
+| `VersionLabel/colors/font_color` | lain | (0.239, 0.157, 0.106, 1.0) |
+| `VersionLabel/font_sizes/font_size` | int | 18 |
+
+### `res://src/ui/theme/ui_theme_tex.tres`
+
+- Kelas: `Resource`
+- Tujuan: belum didokumentasikan
+- Dipakai oleh: —
+- Pemilik: edit tangan
+- Efek tuning: —
+- Tes terkait: —
+
+| Field | Tipe | Nilai |
+| --- | --- | --- |
+| `resource_local_to_scene` | bool | false |
+| `default_base_scale` | float | 0.00 |
+| `default_font` | Resource | (res://assets/fonts/nunito/nunito_variable.tt... |
+| `default_font_size` | int | 22 |
+| `BackButton/base_type` | StringName | Button |
+| `BackButton/colors/font_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `BackButton/colors/font_disabled_color` | lain | (0.522, 0.427, 0.357, 1.0) |
+| `BackButton/colors/font_focus_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `BackButton/colors/font_hover_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `BackButton/colors/font_pressed_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `BackButton/font_sizes/font_size` | int | 24 |
+| `BackButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `BackButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `BackButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `BackButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `BackButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `BodyLabel/base_type` | StringName | Label |
+| `BodyLabel/colors/font_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `BodyLabel/font_sizes/font_size` | int | 22 |
+| `Button/colors/font_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `Button/colors/font_disabled_color` | lain | (0.522, 0.427, 0.357, 1.0) |
+| `Button/colors/font_focus_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `Button/colors/font_hover_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `Button/colors/font_pressed_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `Button/styles/disabled` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `Button/styles/focus` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `Button/styles/hover` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `Button/styles/normal` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `Button/styles/pressed` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `CardTitleLabel/base_type` | StringName | Label |
+| `CardTitleLabel/colors/font_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `CardTitleLabel/font_sizes/font_size` | int | 34 |
+| `CardTitleLabel/fonts/font` | Resource | (res://assets/fonts/fredoka/fredoka_variable.... |
+| `CheckBox/colors/font_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `CheckBox/colors/font_focus_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `CheckBox/colors/font_hover_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `CheckBox/colors/font_hover_pressed_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `CheckBox/colors/font_pressed_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `CheckBox/constants/h_separation` | int | 14 |
+| `CheckBox/font_sizes/font_size` | int | 22 |
+| `CheckBox/icons/checked` | Resource | (res://assets/textures/ui/09_extra/check_on.p... |
+| `CheckBox/icons/radio_checked` | Resource | (res://assets/textures/ui/09_extra/check_on.p... |
+| `CheckBox/icons/radio_unchecked` | Resource | (res://assets/textures/ui/09_extra/check_off.... |
+| `CheckBox/icons/unchecked` | Resource | (res://assets/textures/ui/09_extra/check_off.... |
+| `CheckBox/styles/focus` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_emp... |
+| `CheckBox/styles/hover` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_emp... |
+| `CheckBox/styles/hover_pressed` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_emp... |
+| `CheckBox/styles/normal` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_emp... |
+| `CheckBox/styles/pressed` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_emp... |
+| `DangerButton/base_type` | StringName | Button |
+| `DangerButton/colors/font_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `DangerButton/colors/font_disabled_color` | lain | (0.522, 0.427, 0.357, 1.0) |
+| `DangerButton/colors/font_focus_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `DangerButton/colors/font_hover_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `DangerButton/colors/font_pressed_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `DangerButton/font_sizes/font_size` | int | 24 |
+| `DangerButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `DangerButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `DangerButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `DangerButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `DangerButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `DangerTitleLabel/base_type` | StringName | Label |
+| `DangerTitleLabel/colors/font_color` | lain | (0.898, 0.541, 0.451, 1.0) |
+| `DangerTitleLabel/font_sizes/font_size` | int | 40 |
+| `DangerTitleLabel/fonts/font` | Resource | (res://assets/fonts/fredoka/fredoka_variable.... |
+| `EyebrowLabel/base_type` | StringName | Label |
+| `EyebrowLabel/colors/font_color` | lain | (0.922, 0.761, 0.451, 1.0) |
+| `EyebrowLabel/colors/font_outline_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `EyebrowLabel/constants/outline_size` | int | 6 |
+| `EyebrowLabel/font_sizes/font_size` | int | 22 |
+| `EyebrowLabel/fonts/font` | Resource | (res://assets/fonts/fredoka/fredoka_variable.... |
+| `HSlider/constants/center_grabber` | int | 1 |
+| `HSlider/icons/grabber` | Resource | (res://assets/textures/ui/09_extra/slider_gra... |
+| `HSlider/icons/grabber_disabled` | Resource | (res://assets/textures/ui/09_extra/slider_gra... |
+| `HSlider/icons/grabber_highlight` | Resource | (res://assets/textures/ui/09_extra/slider_gra... |
+| `HSlider/styles/grabber_area` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_fil... |
+| `HSlider/styles/grabber_area_highlight` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_fil... |
+| `HSlider/styles/slider` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_tra... |
+| `HeroTitle/base_type` | StringName | Label |
+| `HeroTitle/colors/font_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `HeroTitle/colors/font_outline_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `HeroTitle/constants/outline_size` | int | 12 |
+| `HeroTitle/font_sizes/font_size` | int | 88 |
+| `HeroTitle/fonts/font` | Resource | (res://assets/fonts/fredoka/fredoka_variable.... |
+| `Label/colors/font_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `MutedLabel/base_type` | StringName | Label |
+| `MutedLabel/colors/font_color` | lain | (0.522, 0.427, 0.357, 1.0) |
+| `MutedLabel/font_sizes/font_size` | int | 18 |
+| `Panel/styles/panel` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_pan... |
+| `PanelCard/base_type` | StringName | PanelContainer |
+| `PanelCard/styles/panel` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_pan... |
+| `PanelContainer/styles/panel` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_pan... |
+| `PanelPlain/base_type` | StringName | PanelContainer |
+| `PanelPlain/styles/panel` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_pan... |
+| `PanelWalnut/base_type` | StringName | PanelContainer |
+| `PanelWalnut/styles/panel` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_pan... |
+| `PrimaryButton/base_type` | StringName | Button |
+| `PrimaryButton/colors/font_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PrimaryButton/colors/font_disabled_color` | lain | (0.522, 0.427, 0.357, 1.0) |
+| `PrimaryButton/colors/font_focus_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PrimaryButton/colors/font_hover_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PrimaryButton/colors/font_pressed_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `PrimaryButton/font_sizes/font_size` | int | 24 |
+| `PrimaryButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `PrimaryButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `PrimaryButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `PrimaryButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `PrimaryButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `SecondaryButton/base_type` | StringName | Button |
+| `SecondaryButton/colors/font_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `SecondaryButton/colors/font_disabled_color` | lain | (0.522, 0.427, 0.357, 1.0) |
+| `SecondaryButton/colors/font_focus_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `SecondaryButton/colors/font_hover_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `SecondaryButton/colors/font_pressed_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `SecondaryButton/font_sizes/font_size` | int | 24 |
+| `SecondaryButton/styles/disabled` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `SecondaryButton/styles/focus` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `SecondaryButton/styles/hover` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `SecondaryButton/styles/normal` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `SecondaryButton/styles/pressed` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_btn... |
+| `SlotPanel/base_type` | StringName | PanelContainer |
+| `SlotPanel/styles/panel` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_slo... |
+| `SlotPanelSelected/base_type` | StringName | PanelContainer |
+| `SlotPanelSelected/styles/panel` | Resource | (res://src/ui/theme/ui_theme_tex.tres::sb_slo... |
+| `VersionLabel/base_type` | StringName | Label |
+| `VersionLabel/colors/font_color` | lain | (0.969, 0.945, 0.898, 1.0) |
+| `VersionLabel/colors/font_outline_color` | lain | (0.243, 0.153, 0.102, 1.0) |
+| `VersionLabel/constants/outline_size` | int | 5 |
+| `VersionLabel/font_sizes/font_size` | int | 16 |
 
 
 ## Resource tanpa `.tres` (nilai default di script)

@@ -43,7 +43,7 @@ static func text(hour: float, use_24h: bool, minute_step: int) -> String:
 	var step := maxi(minute_step, 1)
 	var minutes := int(floor(fposmod(hour, 24.0) * 60.0 + 0.0001))
 	minutes -= minutes % step
-	var hours := minutes / 60
+	var hours := floori(float(minutes) / 60.0)
 	var rest := minutes % 60
 	if use_24h:
 		return "%02d:%02d" % [hours, rest]

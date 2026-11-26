@@ -370,15 +370,15 @@ func _make_label(text: String, font_size: int, color: Color) -> Label:
 	return label
 
 
-func _make_letter_icon(item: ItemDefinition, size: int, font_size: int, bg: Color) -> Control:
+func _make_letter_icon(item: ItemDefinition, icon_size: int, font_size: int, bg: Color) -> Control:
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(size, size)
+	panel.custom_minimum_size = Vector2(icon_size, icon_size)
 	panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
 	style.border_color = ICON_BORDER
 	style.set_border_width_all(2)
-	style.set_corner_radius_all(int(size / 2.0))
+	style.set_corner_radius_all(int(icon_size / 2.0))
 	panel.add_theme_stylebox_override("panel", style)
 
 	var label := Label.new()
@@ -427,10 +427,10 @@ func _on_craft_pressed() -> void:
 	crafting.start_craft(recipe, station, get_batch_quantity())
 
 
-func _apply_highlight(ready: bool) -> void:
+func _apply_highlight(is_ready: bool) -> void:
 	var style := StyleBoxFlat.new()
-	style.bg_color = READY_BG if ready else IDLE_BG
-	style.border_color = READY_BORDER if ready else IDLE_BORDER
+	style.bg_color = READY_BG if is_ready else IDLE_BG
+	style.border_color = READY_BORDER if is_ready else IDLE_BORDER
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(4)
 	style.content_margin_left = 8.0

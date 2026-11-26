@@ -2,6 +2,10 @@ extends Node2D
 
 const ScreenFade := preload("res://src/ui/fx/screen_fade.gd")
 
+## Fade masuk singkat; sisa transisi dibawa zoom-out -> zoom-in kamera
+## (`CameraFeel`), jadi pemain bisa main lebih cepat.
+const INTRO_FADE_TIME := 0.28
+
 ## Root scene pulau minimum.
 ##
 ## Clock tidak diurus di sini: autoload DayNightManager sudah `auto_start`
@@ -110,7 +114,6 @@ func _wire_pause_menu() -> void:
 	menu.blockers = blockers
 	var settings := get_node_or_null("SettingsService") as SettingsService
 	var settings_panel := get_node_or_null("PauseMenu/SettingsPanel") as SettingsPanel
-	var help_panel := get_node_or_null("PauseMenu/HelpPanel") as HelpPanel
 	var hint_manager := get_node_or_null("HintManager") as HintManager
 	if settings != null:
 		if settings_panel != null:
@@ -131,7 +134,7 @@ func _ready() -> void:
 	_wire_hud()
 	_wire_feedback_hud(player)
 	UiSkin.apply_all(self)
-	ScreenFade.fade_in(self)
+	ScreenFade.fade_in(self, Color.BLACK, INTRO_FADE_TIME)
 
 
 ## Satu baris attach per slot world; tanpa art tidak ada yang berubah.

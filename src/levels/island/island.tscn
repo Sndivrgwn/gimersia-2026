@@ -1,91 +1,89 @@
-[gd_scene load_steps=69 format=3]
+[gd_scene format=3 uid="uid://cthoai06nc5a6"]
 
-[ext_resource type="Script" path="res://src/levels/island/island.gd" id="1_island"]
-[ext_resource type="PackedScene" path="res://src/entities/player/player.tscn" id="2_player"]
-[ext_resource type="Script" path="res://src/components/inventory/inventory_component.gd" id="3_inventory"]
-[ext_resource type="Script" path="res://src/components/interaction/interactor_component.gd" id="4_interactor"]
-[ext_resource type="Script" path="res://src/levels/island/island_builder.gd" id="5_builder"]
-[ext_resource type="Resource" path="res://src/data/configs/island_layout.tres" id="6_layout"]
+[ext_resource type="Script" uid="uid://dnsy4nnkh52ji" path="res://src/levels/island/island.gd" id="1_island"]
+[ext_resource type="PackedScene" uid="uid://futkrmwrnw7j" path="res://src/entities/player/player.tscn" id="2_player"]
+[ext_resource type="Script" uid="uid://blohqgmeds6xe" path="res://src/components/inventory/inventory_component.gd" id="3_inventory"]
+[ext_resource type="Script" uid="uid://r3ifbe0bkhxx" path="res://src/components/interaction/interactor_component.gd" id="4_interactor"]
+[ext_resource type="Script" uid="uid://1i3k4c7taqhq" path="res://src/levels/island/island_builder.gd" id="5_builder"]
 [ext_resource type="PackedScene" path="res://src/entities/props/suitcase/emergency_suitcase.tscn" id="7_suitcase"]
 [ext_resource type="PackedScene" path="res://src/entities/props/river_edge/river_edge.tscn" id="8_riveredge"]
-[ext_resource type="PackedScene" path="res://src/levels/components/environment/day_night_visual.tscn" id="9_daynight"]
+[ext_resource type="PackedScene" uid="uid://dlotstni4ab6i" path="res://src/levels/components/environment/day_night_visual.tscn" id="9_daynight"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/time/time_hud.tscn" id="10_timehud"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/needs/needs_hud.tscn" id="11_needshud"]
-[ext_resource type="PackedScene" path="res://src/ui/hud/stats/stats_hud.tscn" id="12_statshud"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/inventory/hotbar_hud.tscn" id="13_hotbarhud"]
 [ext_resource type="PackedScene" path="res://src/ui/panels/inventory/bag_panel.tscn" id="14_bagpanel"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/interaction/interaction_hud.tscn" id="15_interactionhud"]
-[ext_resource type="Script" path="res://src/levels/island/gather_debug.gd" id="16_gatherdebug"]
-[ext_resource type="Script" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="17_pchost"]
-[ext_resource type="Script" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_2d.gd" id="18_pc2d"]
-[ext_resource type="Script" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="19_tween"]
-[ext_resource type="Script" path="res://src/components/crafting/crafting_component.gd" id="20_crafting"]
-[ext_resource type="Script" path="res://src/components/camp/repair_component.gd" id="21_repair"]
+[ext_resource type="Script" uid="uid://dnvmsy5yko320" path="res://src/levels/island/gather_debug.gd" id="16_gatherdebug"]
+[ext_resource type="Script" uid="uid://bd046eokvcnu2" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="17_pchost"]
+[ext_resource type="Script" uid="uid://bhexx6mj1xv3q" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_2d.gd" id="18_pc2d"]
+[ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="19_tween"]
+[ext_resource type="Script" uid="uid://cju1xnri166b0" path="res://src/components/crafting/crafting_component.gd" id="20_crafting"]
+[ext_resource type="Script" uid="uid://dn72l0tonm7a7" path="res://src/components/camp/repair_component.gd" id="21_repair"]
 [ext_resource type="PackedScene" path="res://src/levels/camp/camp_controller.tscn" id="22_camp"]
-[ext_resource type="Script" path="res://src/components/combat/combat_component.gd" id="23_combat"]
-[ext_resource type="Script" path="res://src/components/combat/player_damage_receiver.gd" id="24_receiver"]
-[ext_resource type="Script" path="res://src/core/managers/fauna_quota.gd" id="25_quota"]
-[ext_resource type="Script" path="res://src/core/managers/night_spawner.gd" id="26_spawner"]
-[ext_resource type="Script" path="res://src/components/proficiency/proficiency_component.gd" id="27_prof"]
-[ext_resource type="Script" path="res://src/core/managers/death_controller.gd" id="28_death"]
-[ext_resource type="Script" path="res://src/core/managers/endgame_controller.gd" id="29_endgame"]
-[ext_resource type="Script" path="res://src/core/managers/run_controller.gd" id="30_run"]
+[ext_resource type="Script" uid="uid://da78ltwsyxku5" path="res://src/components/combat/combat_component.gd" id="23_combat"]
+[ext_resource type="Script" uid="uid://d3fgvwirg7mtq" path="res://src/components/combat/player_damage_receiver.gd" id="24_receiver"]
+[ext_resource type="Script" uid="uid://djdvs6vepmu68" path="res://src/core/managers/fauna_quota.gd" id="25_quota"]
+[ext_resource type="Script" uid="uid://cslqdled6ipc" path="res://src/core/managers/night_spawner.gd" id="26_spawner"]
+[ext_resource type="Script" uid="uid://cqipchtiiq7n8" path="res://src/components/proficiency/proficiency_component.gd" id="27_prof"]
+[ext_resource type="Script" uid="uid://jsgp7xxn7rq4" path="res://src/core/managers/death_controller.gd" id="28_death"]
+[ext_resource type="Script" uid="uid://cevmtgyn3cqsy" path="res://src/core/managers/endgame_controller.gd" id="29_endgame"]
+[ext_resource type="Script" uid="uid://7dq4j7ttx8lo" path="res://src/core/managers/run_controller.gd" id="30_run"]
 [ext_resource type="PackedScene" path="res://src/ui/menus/death_screen.tscn" id="31_deathscreen"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/endgame/endgame_hud.tscn" id="32_endgamehud"]
-[ext_resource type="Script" path="res://src/entities/props/beacon/signal_beacon.gd" id="33_beacon"]
+[ext_resource type="Script" uid="uid://dl3b1mddfo08q" path="res://src/entities/props/beacon/signal_beacon.gd" id="33_beacon"]
 [ext_resource type="PackedScene" path="res://src/ui/menus/game_over_screen.tscn" id="34_gameoverscreen"]
-[ext_resource type="Script" path="res://src/core/managers/camp_anchor.gd" id="35_anchor"]
-[ext_resource type="Script" path="res://src/components/base/base_placement_controller.gd" id="36_baseplace"]
+[ext_resource type="Script" uid="uid://skftdj5l0u7y" path="res://src/core/managers/camp_anchor.gd" id="35_anchor"]
+[ext_resource type="Script" uid="uid://bjpecx4dpwwgb" path="res://src/components/base/base_placement_controller.gd" id="36_baseplace"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/base/base_hud.tscn" id="37_basehud"]
-[ext_resource type="Script" path="res://src/levels/camp/fence_ring.gd" id="38_fencering"]
-[ext_resource type="Resource" path="res://src/data/camp/fence_segment.tres" id="39_fencedef"]
+[ext_resource type="Script" uid="uid://cucm5d22t0bdg" path="res://src/levels/camp/fence_ring.gd" id="38_fencering"]
+[ext_resource type="Resource" uid="uid://cvxr560vdox1p" path="res://src/data/camp/fence_segment.tres" id="39_fencedef"]
 [ext_resource type="Resource" path="res://src/data/configs/fence_config.tres" id="40_fenceconf"]
-[ext_resource type="Script" path="res://src/components/crafting/fire_starter_controller.gd" id="41_firestarter"]
+[ext_resource type="Script" uid="uid://hn1ioykw67qq" path="res://src/components/crafting/fire_starter_controller.gd" id="41_firestarter"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/crafting/fire_starter_hud.tscn" id="42_fshud"]
-[ext_resource type="Script" path="res://src/components/combat/combat_feedback.gd" id="43_feedback"]
-[ext_resource type="Script" path="res://src/core/managers/settings_service.gd" id="44_settings"]
+[ext_resource type="Script" uid="uid://busm46ftsj5ti" path="res://src/components/combat/combat_feedback.gd" id="43_feedback"]
+[ext_resource type="Script" uid="uid://bu7ji4xrb004a" path="res://src/core/managers/settings_service.gd" id="44_settings"]
 [ext_resource type="PackedScene" path="res://src/ui/menus/pause_menu.tscn" id="45_pause"]
 [ext_resource type="PackedScene" path="res://src/ui/menus/settings_panel.tscn" id="46_settings_panel"]
 [ext_resource type="PackedScene" path="res://src/ui/menus/help_panel.tscn" id="47_help"]
-[ext_resource type="Script" path="res://src/ui/hud/hints/hint_manager.gd" id="48_hints"]
-[ext_resource type="Script" path="res://src/ui/panels/chest/chest_panel.gd" id="49_chestpanel"]
-[ext_resource type="Script" path="res://src/ui/hud/night/night_banner.gd" id="50_nightbanner"]
-[ext_resource type="Script" path="res://src/ui/hud/night/night_survival_hud.gd" id="51_survivalhud"]
-[ext_resource type="Script" path="res://src/ui/hud/respawn_recap/respawn_recap_hud.gd" id="52_recap"]
-[ext_resource type="Script" path="res://src/ui/hud/proficiency/proficiency_hud.gd" id="53_proficiencyhud"]
-[ext_resource type="Script" path="res://src/components/status/status_effects_component.gd" id="54_statuseffects"]
-[ext_resource type="Script" path="res://src/ui/hud/status/status_effect_hud.gd" id="55_statuseffecthud"]
-[ext_resource type="Script" path="res://src/core/assets/asset_debug.gd" id="56_assetdebug"]
-[ext_resource type="Script" path="res://src/components/interaction/river_drink_zone.gd" id="57_riverdrink"]
-[ext_resource type="Script" path="res://src/levels/components/environment/ambient_life.gd" id="60_ambient"]
-[ext_resource type="Script" path="res://src/levels/world/world_controller.gd" id="61_world"]
-[ext_resource type="Script" path="res://src/levels/world/world_debug_overlay.gd" id="62_worlddebug"]
-[ext_resource type="Script" path="res://src/components/camera/camera_feel.gd" id="61_camerafeel"]
-[ext_resource type="Script" path="res://src/ui/fx/low_hp_vignette.gd" id="62_lowhp"]
-[ext_resource type="Script" path="res://src/ui/hud/hints/opening_sequence.gd" id="63_opening"]
-[ext_resource type="Script" path="res://src/core/debug/physics_trace_recorder.gd" id="64_physicstrace"]
-[ext_resource type="Script" path="res://src/ui/hud/compass/camp_arrow.gd" id="64_camparrow"]
-[ext_resource type="Script" path="res://src/ui/fx/death_fx.gd" id="65_deathfx"]
-[ext_resource type="Script" path="res://src/ui/fx/victory_fx.gd" id="66_victoryfx"]
-[ext_resource type="Script" path="res://src/ui/hud/toast/toast_hud.gd" id="67_toast"]
-[ext_resource type="Script" path="res://src/ui/hud/fx/damage_numbers.gd" id="68_damage"]
-[ext_resource type="Script" path="res://src/ui/hud/fx/hit_direction.gd" id="69_hitdir"]
-[ext_resource type="Script" path="res://src/core/managers/raid_director.gd" id="70_raid"]
-[ext_resource type="Script" path="res://src/ui/hud/night/raid_warning_hud.gd" id="71_raidhud"]
+[ext_resource type="Script" uid="uid://bmmjckuxn2yy5" path="res://src/ui/hud/hints/hint_manager.gd" id="48_hints"]
+[ext_resource type="Script" uid="uid://dbne1rnfm8yk7" path="res://src/ui/panels/chest/chest_panel.gd" id="49_chestpanel"]
+[ext_resource type="Script" uid="uid://00f14nunpcyl" path="res://src/ui/hud/night/night_banner.gd" id="50_nightbanner"]
+[ext_resource type="Script" uid="uid://1mgu4p6wc0gk" path="res://src/ui/hud/night/night_survival_hud.gd" id="51_survivalhud"]
+[ext_resource type="Script" uid="uid://bt842lnwkhwx1" path="res://src/ui/hud/respawn_recap/respawn_recap_hud.gd" id="52_recap"]
+[ext_resource type="Script" uid="uid://ft8qembq6kil" path="res://src/ui/hud/proficiency/proficiency_hud.gd" id="53_proficiencyhud"]
+[ext_resource type="Script" uid="uid://de2cjo0vj7qct" path="res://src/components/status/status_effects_component.gd" id="54_statuseffects"]
+[ext_resource type="Script" uid="uid://bf6fho0vx8jbq" path="res://src/ui/hud/status/status_effect_hud.gd" id="55_statuseffecthud"]
+[ext_resource type="Script" uid="uid://8xfeju0ba06s" path="res://src/core/assets/asset_debug.gd" id="56_assetdebug"]
+[ext_resource type="Script" uid="uid://b4eg1pxkmjnu4" path="res://src/components/interaction/river_drink_zone.gd" id="57_riverdrink"]
+[ext_resource type="Script" uid="uid://b7tekvtmq2qv5" path="res://src/levels/components/environment/ambient_life.gd" id="60_ambient"]
+[ext_resource type="Script" uid="uid://dy566ipr1hiju" path="res://src/components/camera/camera_feel.gd" id="61_camerafeel"]
+[ext_resource type="Script" uid="uid://cr2tp4yggd2rg" path="res://src/levels/world/world_controller.gd" id="61_world"]
+[ext_resource type="Script" uid="uid://bfm2vgxjn8ulo" path="res://src/ui/fx/low_hp_vignette.gd" id="62_lowhp"]
+[ext_resource type="Script" uid="uid://vegmnq3qgld0" path="res://src/levels/world/world_debug_overlay.gd" id="62_worlddebug"]
+[ext_resource type="Script" uid="uid://bmuj61xhbk1t4" path="res://src/ui/hud/hints/opening_sequence.gd" id="63_opening"]
+[ext_resource type="Script" uid="uid://tfivjpm5g7rt" path="res://src/ui/hud/compass/camp_arrow.gd" id="64_camparrow"]
+[ext_resource type="Script" uid="uid://dtrsgnm6cyxdb" path="res://src/core/debug/physics_trace_recorder.gd" id="64_physicstrace"]
+[ext_resource type="Script" uid="uid://1u7msjs1xd4p" path="res://src/ui/fx/death_fx.gd" id="65_deathfx"]
+[ext_resource type="Script" uid="uid://djy3seqsblkf4" path="res://src/ui/fx/victory_fx.gd" id="66_victoryfx"]
+[ext_resource type="Script" uid="uid://3r3eltrdfmvp" path="res://src/ui/hud/toast/toast_hud.gd" id="67_toast"]
+[ext_resource type="Script" uid="uid://3i1f6v1u33yu" path="res://src/ui/hud/fx/damage_numbers.gd" id="68_damage"]
+[ext_resource type="Script" uid="uid://o5rr60gk1hpc" path="res://src/ui/hud/fx/hit_direction.gd" id="69_hitdir"]
+[ext_resource type="Script" uid="uid://q3grep0os33m" path="res://src/core/managers/raid_director.gd" id="70_raid"]
+[ext_resource type="Script" uid="uid://d1o2x6whk8dqd" path="res://src/ui/hud/night/raid_warning_hud.gd" id="71_raidhud"]
 [ext_resource type="Resource" path="res://src/data/configs/fauna/raid_config.tres" id="72_raidconfig"]
-[ext_resource type="Script" path="res://src/core/managers/freeze_controller.gd" id="73_freeze"]
-[ext_resource type="Script" path="res://src/ui/hud/protection/protection_hud.gd" id="74_protection"]
-[ext_resource type="Script" path="res://src/ui/hud/placeholder/placeholder_labels.gd" id="75_placeholder"]
-[ext_resource type="Script" path="res://src/components/needs/health_regen_component.gd" id="75_regen"]
+[ext_resource type="Script" uid="uid://cbsy11r3ojgc4" path="res://src/core/managers/freeze_controller.gd" id="73_freeze"]
+[ext_resource type="Script" uid="uid://2sayqxlundl" path="res://src/ui/hud/protection/protection_hud.gd" id="74_protection"]
+[ext_resource type="Script" uid="uid://ct87yeue3a86x" path="res://src/ui/hud/placeholder/placeholder_labels.gd" id="75_placeholder"]
+[ext_resource type="Script" uid="uid://buiu83jfb5fjv" path="res://src/components/needs/health_regen_component.gd" id="75_regen"]
 [ext_resource type="PackedScene" path="res://src/ui/panels/station/station_panel.tscn" id="76_station"]
-[ext_resource type="Script" path="res://src/components/inventory/hotbar_selection_component.gd" id="77_hotbar_sel"]
-[ext_resource type="Script" path="res://src/components/visual/held_item_visual.gd" id="78_held_visual"]
-[ext_resource type="Script" path="res://src/core/managers/daily_run_stats.gd" id="79_daily_stats"]
-[ext_resource type="Script" path="res://src/ui/hud/goals/daily_goal_hud.gd" id="80_goalhud"]
-[ext_resource type="Script" path="res://src/ui/hud/recap/dawn_recap_hud.gd" id="81_recaphud"]
-[ext_resource type="Script" path="res://src/components/visual/player_light.gd" id="82_playerlight"]
-[ext_resource type="Script" path="res://src/ui/hud/compass/loot_arrow.gd" id="83_lootarrow"]
-[ext_resource type="Script" path="res://src/components/combat/target_indicator.gd" id="84_target"]
+[ext_resource type="Script" uid="uid://ca6bqo3c0h4kw" path="res://src/components/inventory/hotbar_selection_component.gd" id="77_hotbar_sel"]
+[ext_resource type="Script" uid="uid://d3ivfj1okkklg" path="res://src/components/visual/held_item_visual.gd" id="78_held_visual"]
+[ext_resource type="Script" uid="uid://cxugiifto8lww" path="res://src/core/managers/daily_run_stats.gd" id="79_daily_stats"]
+[ext_resource type="Script" uid="uid://bghw1u8netfjk" path="res://src/ui/hud/goals/daily_goal_hud.gd" id="80_goalhud"]
+[ext_resource type="Script" uid="uid://cqyfx1hlx7yo8" path="res://src/ui/hud/recap/dawn_recap_hud.gd" id="81_recaphud"]
+[ext_resource type="Script" uid="uid://df6xbvwi2p7qm" path="res://src/components/visual/player_light.gd" id="82_playerlight"]
+[ext_resource type="Script" uid="uid://dae3mq0eipayt" path="res://src/ui/hud/compass/loot_arrow.gd" id="83_lootarrow"]
+[ext_resource type="Script" uid="uid://c4j3qwgalha0b" path="res://src/components/combat/target_indicator.gd" id="84_target"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h"]
 size = Vector2(5000, 100)
@@ -100,165 +98,180 @@ size = Vector2(140, 70)
 script = ExtResource("19_tween")
 duration = 0.5
 
-[node name="Island" type="Node2D"]
+[node name="Island" type="Node2D" unique_id=572820378]
 script = ExtResource("1_island")
 
-[node name="Ground" type="Node2D" parent="." groups=["formula_world"]]
+[node name="Ground" type="Node2D" parent="." unique_id=410494616 groups=["formula_world"]]
 
-[node name="Forest" type="Polygon2D" parent="Ground"]
+[node name="Forest" type="Polygon2D" parent="Ground" unique_id=463433599]
 color = Color(0.22, 0.32, 0.2, 1)
 polygon = PackedVector2Array(-2400, -2400, 2400, -2400, 2400, 2400, -2400, 2400)
 
-[node name="SouthBeach" type="Polygon2D" parent="Ground"]
+[node name="SouthBeach" type="Polygon2D" parent="Ground" unique_id=613111418]
 color = Color(0.78, 0.72, 0.5, 1)
 polygon = PackedVector2Array(-2400, 1400, 2400, 1400, 2400, 2400, -2400, 2400)
 
-[node name="EastBeach" type="Polygon2D" parent="Ground"]
+[node name="EastBeach" type="Polygon2D" parent="Ground" unique_id=1824904769]
 color = Color(0.76, 0.7, 0.48, 1)
 polygon = PackedVector2Array(1400, -1400, 2400, -1400, 2400, 1400, 1400, 1400)
 
-[node name="WestCliffs" type="Polygon2D" parent="Ground"]
+[node name="WestCliffs" type="Polygon2D" parent="Ground" unique_id=1289627242]
 color = Color(0.4, 0.4, 0.45, 1)
 polygon = PackedVector2Array(-2400, -2400, -1400, -2400, -1400, 1400, -2400, 1400)
 
-[node name="River" type="Polygon2D" parent="Ground"]
+[node name="River" type="Polygon2D" parent="Ground" unique_id=1342665463]
 color = Color(0.25, 0.45, 0.6, 1)
 polygon = PackedVector2Array(-1050, -1400, -850, -1400, -850, 1400, -1050, 1400)
 
-[node name="Camp" type="Polygon2D" parent="Ground"]
+[node name="Camp" type="Polygon2D" parent="Ground" unique_id=112008202]
 color = Color(0.35, 0.4, 0.25, 1)
 polygon = PackedVector2Array(800, 0, 739, 306, 566, 566, 306, 739, 0, 800, -306, 739, -566, 566, -739, 306, -800, 0, -739, -306, -566, -566, -306, -739, 0, -800, 306, -739, 566, -566, 739, -306)
 
-[node name="Coastline" type="StaticBody2D" parent="." groups=["formula_world"]]
+[node name="Coastline" type="StaticBody2D" parent="." unique_id=67441062 groups=["formula_world"]]
 
-[node name="NorthWall" type="CollisionShape2D" parent="Coastline"]
+[node name="NorthWall" type="CollisionShape2D" parent="Coastline" unique_id=1129048039]
 position = Vector2(0, -2450)
 shape = SubResource("RectangleShape2D_h")
 
-[node name="SouthWall" type="CollisionShape2D" parent="Coastline"]
+[node name="SouthWall" type="CollisionShape2D" parent="Coastline" unique_id=1195214428]
 position = Vector2(0, 2450)
 shape = SubResource("RectangleShape2D_h")
 
-[node name="WestWall" type="CollisionShape2D" parent="Coastline"]
+[node name="WestWall" type="CollisionShape2D" parent="Coastline" unique_id=1901441456]
 position = Vector2(-2450, 0)
 shape = SubResource("RectangleShape2D_v")
 
-[node name="EastWall" type="CollisionShape2D" parent="Coastline"]
+[node name="EastWall" type="CollisionShape2D" parent="Coastline" unique_id=1742804307]
 position = Vector2(2450, 0)
 shape = SubResource("RectangleShape2D_v")
 
-[node name="Wreckage" type="StaticBody2D" parent="."]
+[node name="Wreckage" type="StaticBody2D" parent="." unique_id=1241854181]
 position = Vector2(0, -185)
 
-[node name="Visual" type="Polygon2D" parent="Wreckage"]
+[node name="Visual" type="Polygon2D" parent="Wreckage" unique_id=560978541]
 color = Color(0.35, 0.3, 0.28, 1)
 polygon = PackedVector2Array(-70, -35, 70, -35, 70, 35, -70, 35)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Wreckage"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wreckage" unique_id=1894971311]
 shape = SubResource("RectangleShape2D_wreck")
 
-[node name="Suitcase" parent="." instance=ExtResource("7_suitcase")]
+[node name="Suitcase" parent="." unique_id=1485784923 instance=ExtResource("7_suitcase")]
 position = Vector2(-48, 40)
 
-[node name="Beacon" type="Node2D" parent="."]
+[node name="Beacon" type="Node2D" parent="." unique_id=2050198792]
 position = Vector2(0, 2100)
 script = ExtResource("33_beacon")
 
-[node name="Visual" type="Polygon2D" parent="Beacon"]
+[node name="Visual" type="Polygon2D" parent="Beacon" unique_id=1314749244]
 color = Color(0.9, 0.75, 0.3, 1)
 polygon = PackedVector2Array(-18, 10, 18, 10, 0, -30)
 
-[node name="Label" type="Label" parent="Beacon"]
+[node name="Label" type="Label" parent="Beacon" unique_id=10122245]
 offset_left = -60.0
 offset_top = 12.0
 offset_right = 60.0
 offset_bottom = 32.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.95, 0.9, 0.7, 1)
 theme_override_font_sizes/font_size = 11
 text = "Signal Beacon"
 horizontal_alignment = 1
 
-[node name="RiverEdges" type="Node2D" parent="." groups=["formula_world"]]
+[node name="RiverEdges" type="Node2D" parent="." unique_id=563269072 groups=["formula_world"]]
 
-[node name="RiverEdge1" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+[node name="RiverEdge1" parent="RiverEdges" unique_id=1639632899 instance=ExtResource("8_riveredge")]
 position = Vector2(-950, -1400)
 
-[node name="RiverEdge2" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+[node name="RiverEdge2" parent="RiverEdges" unique_id=1296415909 instance=ExtResource("8_riveredge")]
 position = Vector2(-950, -1050)
 
-[node name="RiverEdge3" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+[node name="RiverEdge3" parent="RiverEdges" unique_id=213034911 instance=ExtResource("8_riveredge")]
 position = Vector2(-950, -700)
 
-[node name="RiverEdge4" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+[node name="RiverEdge4" parent="RiverEdges" unique_id=1740860901 instance=ExtResource("8_riveredge")]
 position = Vector2(-950, -350)
 
-[node name="RiverEdge5" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+[node name="RiverEdge5" parent="RiverEdges" unique_id=1437276114 instance=ExtResource("8_riveredge")]
 position = Vector2(-950, 0)
 
-[node name="RiverEdge6" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+[node name="RiverEdge6" parent="RiverEdges" unique_id=1801455477 instance=ExtResource("8_riveredge")]
 position = Vector2(-950, 350)
 
-[node name="RiverEdge7" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+[node name="RiverEdge7" parent="RiverEdges" unique_id=1330478735 instance=ExtResource("8_riveredge")]
 position = Vector2(-950, 700)
 
-[node name="RiverEdge8" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+[node name="RiverEdge8" parent="RiverEdges" unique_id=1845939252 instance=ExtResource("8_riveredge")]
 position = Vector2(-950, 1050)
 
-[node name="RiverEdge9" parent="RiverEdges" instance=ExtResource("8_riveredge")]
+[node name="RiverEdge9" parent="RiverEdges" unique_id=1843123552 instance=ExtResource("8_riveredge")]
 position = Vector2(-950, 1400)
 
-[node name="Player" parent="." groups=["player"] instance=ExtResource("2_player")]
+[node name="Player" parent="." unique_id=1532244133 groups=["player"] instance=ExtResource("2_player")]
 position = Vector2(0, 64)
+scale = Vector2(0.1, 0.1)
 
-[node name="InventoryComponent" type="Node" parent="Player"]
+[node name="InventoryComponent" type="Node" parent="Player" unique_id=902603045]
 script = ExtResource("3_inventory")
 
-[node name="InteractorComponent" type="Node" parent="Player"]
+[node name="InteractorComponent" type="Node" parent="Player" unique_id=969837412]
 script = ExtResource("4_interactor")
 
-[node name="CraftingComponent" type="Node" parent="Player"]
+[node name="CraftingComponent" type="Node" parent="Player" unique_id=129775406]
 script = ExtResource("20_crafting")
 
-[node name="RiverDrinkZone" type="Node2D" parent="Player"]
+[node name="RiverDrinkZone" type="Node2D" parent="Player" unique_id=153988204]
 script = ExtResource("57_riverdrink")
 
-[node name="RepairComponent" type="Node" parent="Player"]
+[node name="RepairComponent" type="Node" parent="Player" unique_id=2006713531]
 script = ExtResource("21_repair")
 
-[node name="PlayerDamageReceiver" type="Node" parent="Player"]
+[node name="PlayerDamageReceiver" type="Node" parent="Player" unique_id=807112402]
 script = ExtResource("24_receiver")
 
-[node name="CombatComponent" type="Node" parent="Player"]
+[node name="CombatComponent" type="Node" parent="Player" unique_id=1622193734]
 script = ExtResource("23_combat")
 
-[node name="ProficiencyComponent" type="Node" parent="Player"]
+[node name="ProficiencyComponent" type="Node" parent="Player" unique_id=165498400]
 script = ExtResource("27_prof")
 
-[node name="BasePlacementController" type="Node" parent="Player"]
+[node name="BasePlacementController" type="Node" parent="Player" unique_id=2110686961]
 script = ExtResource("36_baseplace")
 
-[node name="FireStarterController" type="Node" parent="Player"]
+[node name="FireStarterController" type="Node" parent="Player" unique_id=190183446]
 script = ExtResource("41_firestarter")
 
-[node name="HealthRegenComponent" type="Node" parent="Player"]
+[node name="HealthRegenComponent" type="Node" parent="Player" unique_id=1863732892]
 script = ExtResource("75_regen")
 
-[node name="CombatFeedback" type="Node" parent="Player"]
+[node name="CombatFeedback" type="Node" parent="Player" unique_id=693217885]
 script = ExtResource("43_feedback")
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="StatusEffects" type="Node" parent="Player" unique_id=2069898573]
+script = ExtResource("54_statuseffects")
+
+[node name="HotbarSelectionComponent" type="Node" parent="Player" unique_id=189605399]
+script = ExtResource("77_hotbar_sel")
+
+[node name="HeldItemVisual" type="Node2D" parent="Player" unique_id=1210485684]
+script = ExtResource("78_held_visual")
+
+[node name="PlayerLight" type="Node2D" parent="Player" unique_id=59105787]
+script = ExtResource("82_playerlight")
+
+[node name="TargetIndicator" type="Node2D" parent="Player" unique_id=358088500]
+script = ExtResource("84_target")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=2088381978]
 physics_interpolation_mode = 1
 top_level = true
 position = Vector2(0, 64)
 zoom = Vector2(3, 3)
 
-[node name="PhantomCameraHost" type="Node" parent="Camera2D"]
+[node name="PhantomCameraHost" type="Node" parent="Camera2D" unique_id=699867564]
 process_priority = 300
 process_physics_priority = 300
 script = ExtResource("17_pchost")
 
-[node name="PhantomCamera2D" type="Node2D" parent="Camera2D/PhantomCameraHost" node_paths=PackedStringArray("follow_target")]
+[node name="PhantomCamera2D" type="Node2D" parent="Camera2D/PhantomCameraHost" unique_id=1044255301 node_paths=PackedStringArray("follow_target")]
 top_level = true
 position = Vector2(0, 64)
 script = ExtResource("18_pc2d")
@@ -267,176 +280,180 @@ follow_target = NodePath("../../../Player")
 zoom = Vector2(3, 3)
 tween_resource = SubResource("Resource_tween")
 
-[node name="WorldController" type="Node" parent="."]
+[node name="WorldController" type="Node" parent="." unique_id=898967534]
 script = ExtResource("61_world")
 
-[node name="WorldDebugOverlay" type="Node2D" parent="."]
+[node name="WorldDebugOverlay" type="Node2D" parent="." unique_id=491187110]
 script = ExtResource("62_worlddebug")
 
-[node name="IslandBuilder" type="Node2D" parent="."]
+[node name="IslandBuilder" type="Node2D" parent="." unique_id=169131281]
 script = ExtResource("5_builder")
-layout = ExtResource("6_layout")
 
-[node name="CampAnchor" type="Node" parent="."]
+[node name="CampAnchor" type="Node" parent="." unique_id=2099372236]
 script = ExtResource("35_anchor")
 
-[node name="CampController" parent="." instance=ExtResource("22_camp")]
+[node name="CampController" parent="." unique_id=528927663 instance=ExtResource("22_camp")]
 
-[node name="FenceRing" type="Node2D" parent="CampController"]
+[node name="FenceRing" type="Node2D" parent="CampController" unique_id=108037402]
 script = ExtResource("38_fencering")
 definition = ExtResource("39_fencedef")
 config = ExtResource("40_fenceconf")
 
-[node name="Fauna" type="Node2D" parent="."]
+[node name="Fauna" type="Node2D" parent="." unique_id=776891957]
 
-[node name="SettingsService" type="Node" parent="."]
+[node name="SettingsService" type="Node" parent="." unique_id=1388197213]
 script = ExtResource("44_settings")
 
-[node name="FreezeController" type="Node" parent="."]
+[node name="FreezeController" type="Node" parent="." unique_id=1610584636]
 script = ExtResource("73_freeze")
 
-[node name="PauseMenu" parent="." instance=ExtResource("45_pause")]
+[node name="PauseMenu" parent="." unique_id=1136963438 instance=ExtResource("45_pause")]
 
-[node name="SettingsPanel" parent="PauseMenu" instance=ExtResource("46_settings_panel")]
+[node name="SettingsPanel" parent="PauseMenu" unique_id=234537576 instance=ExtResource("46_settings_panel")]
 
-[node name="HelpPanel" parent="PauseMenu" instance=ExtResource("47_help")]
+[node name="HelpPanel" parent="PauseMenu" unique_id=733909298 instance=ExtResource("47_help")]
 
-[node name="HintManager" type="Node" parent="."]
+[node name="HintManager" type="Node" parent="." unique_id=1395444545]
 script = ExtResource("48_hints")
 
-[node name="FaunaQuota" type="Node" parent="." node_paths=PackedStringArray("fauna_parent")]
+[node name="FaunaQuota" type="Node" parent="." unique_id=744994834 node_paths=PackedStringArray("fauna_parent")]
 script = ExtResource("25_quota")
 fauna_parent = NodePath("../Fauna")
 guarantee_deer_at_rescue = true
 raid_config = ExtResource("72_raidconfig")
 
-[node name="NightSpawner" type="Node" parent="." node_paths=PackedStringArray("fauna_parent")]
+[node name="NightSpawner" type="Node" parent="." unique_id=72775574 node_paths=PackedStringArray("fauna_parent")]
 script = ExtResource("26_spawner")
 fauna_parent = NodePath("../Fauna")
-raid_config = ExtResource("72_raidconfig")
 
-[node name="RaidDirector" type="Node" parent="." node_paths=PackedStringArray("spawner", "fauna_parent")]
+[node name="RaidDirector" type="Node" parent="." unique_id=899574983 node_paths=PackedStringArray("spawner", "fauna_parent")]
 script = ExtResource("70_raid")
 spawner = NodePath("../NightSpawner")
 fauna_parent = NodePath("../Fauna")
-config = ExtResource("72_raidconfig")
 
-[node name="DailyRunStats" type="Node" parent="."]
+[node name="DailyRunStats" type="Node" parent="." unique_id=2076594019]
 script = ExtResource("79_daily_stats")
 
-[node name="DayNightVisual" parent="." instance=ExtResource("9_daynight")]
+[node name="DayNightVisual" parent="." unique_id=397327995 instance=ExtResource("9_daynight")]
 
-[node name="TimeHUD" parent="." instance=ExtResource("10_timehud")]
+[node name="TimeHUD" parent="." unique_id=2143748166 instance=ExtResource("10_timehud")]
 show_survival_label = false
 
-[node name="NeedsHUD" parent="." instance=ExtResource("11_needshud")]
+[node name="NeedsHUD" parent="." unique_id=480358638 instance=ExtResource("11_needshud")]
 
-[node name="HotbarHUD" parent="." instance=ExtResource("13_hotbarhud")]
+[node name="HotbarHUD" parent="." unique_id=2008170450 instance=ExtResource("13_hotbarhud")]
 
-[node name="InteractionHUD" parent="." instance=ExtResource("15_interactionhud")]
+[node name="InteractionHUD" parent="." unique_id=2085878612 instance=ExtResource("15_interactionhud")]
 
-[node name="ChestPanel" type="CanvasLayer" parent="."]
+[node name="ChestPanel" type="CanvasLayer" parent="." unique_id=644270553]
 script = ExtResource("49_chestpanel")
 
-[node name="NightBanner" type="Control" parent="."]
+[node name="NightBanner" type="Control" parent="." unique_id=1067642424]
+layout_mode = 3
+anchors_preset = 0
 script = ExtResource("50_nightbanner")
 
-[node name="RaidWarningHUD" type="Control" parent="."]
+[node name="RaidWarningHUD" type="Control" parent="." unique_id=2038898981]
+layout_mode = 3
+anchors_preset = 0
 script = ExtResource("71_raidhud")
 
-[node name="NightSurvivalHUD" type="Control" parent="."]
+[node name="NightSurvivalHUD" type="Control" parent="." unique_id=1922141417]
+layout_mode = 3
+anchors_preset = 0
 script = ExtResource("51_survivalhud")
 
-[node name="RespawnRecapHUD" type="Control" parent="."]
+[node name="RespawnRecapHUD" type="Control" parent="." unique_id=1340576128]
+layout_mode = 3
+anchors_preset = 0
 script = ExtResource("52_recap")
 
-[node name="ProficiencyHUD" type="Control" parent="."]
+[node name="ProficiencyHUD" type="Control" parent="." unique_id=1435626193]
+layout_mode = 3
+anchors_preset = 0
 script = ExtResource("53_proficiencyhud")
 
-[node name="ProtectionHUD" type="Control" parent="."]
+[node name="ProtectionHUD" type="Control" parent="." unique_id=1040638048]
+layout_mode = 3
+anchors_preset = 0
 script = ExtResource("74_protection")
 
-[node name="DailyGoalHUD" type="CanvasLayer" parent="."]
+[node name="DailyGoalHUD" type="CanvasLayer" parent="." unique_id=1188667271]
 script = ExtResource("80_goalhud")
 
-[node name="DawnRecapHUD" type="CanvasLayer" parent="." node_paths=PackedStringArray("stats")]
+[node name="DawnRecapHUD" type="CanvasLayer" parent="." unique_id=278427627 node_paths=PackedStringArray("stats")]
 script = ExtResource("81_recaphud")
 stats = NodePath("../DailyRunStats")
 
-[node name="PlaceholderLabels" type="Control" parent="."]
+[node name="PlaceholderLabels" type="Control" parent="." unique_id=92868284]
+layout_mode = 3
+anchors_preset = 0
 script = ExtResource("75_placeholder")
 
-[node name="BagPanel" parent="." instance=ExtResource("14_bagpanel")]
+[node name="BagPanel" parent="." unique_id=929086503 instance=ExtResource("14_bagpanel")]
 
-[node name="DeathController" type="Node" parent="."]
+[node name="DeathController" type="Node" parent="." unique_id=308993953]
 script = ExtResource("28_death")
 
-[node name="RunController" type="Node" parent="."]
+[node name="RunController" type="Node" parent="." unique_id=2070316588]
 script = ExtResource("30_run")
 
-[node name="EndgameController" type="Node" parent="."]
+[node name="EndgameController" type="Node" parent="." unique_id=1041654084]
 script = ExtResource("29_endgame")
 
-[node name="DeathScreen" parent="." instance=ExtResource("31_deathscreen")]
+[node name="DeathScreen" parent="." unique_id=952387468 instance=ExtResource("31_deathscreen")]
 
-[node name="EndgameHUD" parent="." instance=ExtResource("32_endgamehud")]
+[node name="EndgameHUD" parent="." unique_id=515894102 instance=ExtResource("32_endgamehud")]
 
-[node name="GameOverScreen" parent="." instance=ExtResource("34_gameoverscreen")]
+[node name="GameOverScreen" parent="." unique_id=622973753 instance=ExtResource("34_gameoverscreen")]
 
-[node name="BaseHUD" parent="." instance=ExtResource("37_basehud")]
+[node name="BaseHUD" parent="." unique_id=1756543713 instance=ExtResource("37_basehud")]
 
-[node name="FireStarterHUD" parent="." instance=ExtResource("42_fshud")]
+[node name="FireStarterHUD" parent="." unique_id=1519816116 instance=ExtResource("42_fshud")]
 
-[node name="GatherDebug" type="Node" parent="."]
+[node name="GatherDebug" type="Node" parent="." unique_id=1868184971]
 script = ExtResource("16_gatherdebug")
 
-[node name="StatusEffects" type="Node" parent="Player"]
-script = ExtResource("54_statuseffects")
-
-[node name="StatusEffectHUD" type="CanvasLayer" parent="."]
+[node name="StatusEffectHUD" type="CanvasLayer" parent="." unique_id=1862976882]
 script = ExtResource("55_statuseffecthud")
 
-[node name="AssetDebug" type="Node" parent="."]
+[node name="AssetDebug" type="Node" parent="." unique_id=1964095156]
 script = ExtResource("56_assetdebug")
 
-[node name="PhysicsTraceRecorder" type="Node" parent="."]
+[node name="PhysicsTraceRecorder" type="Node" parent="." unique_id=911213681]
 script = ExtResource("64_physicstrace")
 
-[node name="AmbientLife" type="Node2D" parent="."]
+[node name="AmbientLife" type="Node2D" parent="." unique_id=564683371]
 script = ExtResource("60_ambient")
-[node name="CameraFeel" type="Node" parent="."]
+
+[node name="CameraFeel" type="Node" parent="." unique_id=592882492]
 script = ExtResource("61_camerafeel")
-[node name="LowHpVignette" type="CanvasLayer" parent="."]
+
+[node name="LowHpVignette" type="CanvasLayer" parent="." unique_id=1022506565]
 script = ExtResource("62_lowhp")
-[node name="OpeningSequence" type="Node" parent="."]
+
+[node name="OpeningSequence" type="Node" parent="." unique_id=1092263779]
 script = ExtResource("63_opening")
-[node name="CampArrow" type="CanvasLayer" parent="."]
+
+[node name="CampArrow" type="CanvasLayer" parent="." unique_id=773026546]
 script = ExtResource("64_camparrow")
 
-[node name="LootBagArrow" type="CanvasLayer" parent="."]
+[node name="LootBagArrow" type="CanvasLayer" parent="." unique_id=155336839]
 script = ExtResource("83_lootarrow")
-[node name="DeathFX" type="Node" parent="."]
+
+[node name="DeathFX" type="Node" parent="." unique_id=461619835]
 script = ExtResource("65_deathfx")
-[node name="VictoryFX" type="Node" parent="."]
+
+[node name="VictoryFX" type="Node" parent="." unique_id=645427015]
 script = ExtResource("66_victoryfx")
 
-[node name="ToastHUD" type="CanvasLayer" parent="."]
+[node name="ToastHUD" type="CanvasLayer" parent="." unique_id=88062878]
 script = ExtResource("67_toast")
-[node name="DamageNumbers" type="CanvasLayer" parent="."]
+
+[node name="DamageNumbers" type="CanvasLayer" parent="." unique_id=1858344413]
 script = ExtResource("68_damage")
-[node name="HitDirection" type="CanvasLayer" parent="."]
+
+[node name="HitDirection" type="CanvasLayer" parent="." unique_id=410204651]
 script = ExtResource("69_hitdir")
 
-[node name="StationPanel" parent="." instance=ExtResource("76_station")]
-
-[node name="HotbarSelectionComponent" type="Node" parent="Player"]
-script = ExtResource("77_hotbar_sel")
-
-[node name="HeldItemVisual" type="Node2D" parent="Player"]
-script = ExtResource("78_held_visual")
-
-[node name="PlayerLight" type="Node2D" parent="Player"]
-script = ExtResource("82_playerlight")
-
-[node name="TargetIndicator" type="Node2D" parent="Player"]
-script = ExtResource("84_target")
+[node name="StationPanel" parent="." unique_id=1784078853 instance=ExtResource("76_station")]

@@ -58,12 +58,12 @@ func set_dawn_side(side: int) -> void:
 	queue_redraw()
 
 
-func set_phase(day_progress: float, is_night: bool) -> void:
+func set_phase(day_progress: float, night: bool) -> void:
 	var clamped := clampf(day_progress, 0.0, 1.0)
-	if is_equal_approx(clamped, _progress) and is_night == _is_night:
+	if is_equal_approx(clamped, _progress) and night == _is_night:
 		return
 	_progress = clamped
-	_is_night = is_night
+	_is_night = night
 	queue_redraw()
 
 

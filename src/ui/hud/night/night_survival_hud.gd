@@ -97,7 +97,7 @@ func set_day(day: int) -> void:
 
 func format_seconds(seconds: float) -> String:
 	var total := int(maxf(seconds, 0.0))
-	return "%02d:%02d" % [total / 60, total % 60]
+	return "%02d:%02d" % [floori(float(total) / 60.0), total % 60]
 
 
 func _bind() -> void:

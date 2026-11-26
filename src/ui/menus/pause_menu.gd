@@ -229,11 +229,11 @@ func _wire_sub_panels() -> void:
 			_help_panel.connect(&"toggled_open", on_help)
 
 
-func _set_main_card_visible(show: bool) -> void:
+func _set_main_card_visible(is_shown: bool) -> void:
 	if _panel != null:
-		_panel.visible = show
+		_panel.visible = is_shown
 	if _dim != null:
-		_dim.visible = show
+		_dim.visible = is_shown
 
 
 func _on_sub_panel_closed() -> void:

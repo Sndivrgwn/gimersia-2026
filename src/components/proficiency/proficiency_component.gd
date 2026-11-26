@@ -169,8 +169,8 @@ func _on_item_used(item: ItemDefinition, _slot_index: int) -> void:
 
 # --- XP ---------------------------------------------------------------------
 
-## Tambah XP. `combat` = true berarti kena bonus malam 1.5x saat malam.
-func add_xp(prof: int, amount: float, combat: bool = false) -> void:
+## Tambah XP. `is_combat` = true berarti kena bonus malam 1.5x saat malam.
+func add_xp(prof: int, amount: float, is_combat: bool = false) -> void:
 	if not xp_enabled or amount <= 0.0 or config == null:
 		return
 	if prof < 0 or prof >= PROF_COUNT:
@@ -180,7 +180,7 @@ func add_xp(prof: int, amount: float, combat: bool = false) -> void:
 		return
 
 	var gained := amount
-	if combat and _is_night():
+	if is_combat and _is_night():
 		gained *= config.night_xp_multiplier
 	_xp[prof] += gained
 	xp_gained.emit(prof, gained)

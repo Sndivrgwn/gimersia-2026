@@ -1,6 +1,8 @@
 # Panduan Modul — Gimersia 2026
 
-> Semua modul di bawah ini **sudah jadi dan sudah jalan** di `practice1.tscn`.
+> Semua modul di bawah ini **sudah jadi dan sudah jalan** di `island.tscn` (dunia
+> bermain; `main_menu.tscn` adalah `run/main_scene`). `practice1.tscn` tinggal
+> sandbox lama.
 > Panduan ini bukan tutorial merancang sistem, tapi cara memasang dan memakainya.
 > Kalau dokumen ini berbeda dengan kode, **kode yang menang**.
 
@@ -616,7 +618,10 @@ berubah; nodenya `NeedsDebug` di `practice1.tscn` (practice-only).
 
 ---
 
-## 18. Wiring `practice1.tscn`
+## 18. Wiring `practice1.tscn` (sandbox lama)
+
+> Skema awal sebelum pulau ada. Wiring yang berlaku sekarang: §24
+> (`island.tscn`) dan §25c-§28 untuk komponen yang menyusul.
 
 ```text
 world (Node2D)
@@ -793,9 +798,9 @@ Island (Node2D, island.gd: pemain menghadap utara)
     F9 heal, F10 senjata)
 ```
 
-`island.tscn` **bukan** main scene; `run/main_scene` tetap `practice1.tscn`.
-Clock tidak diurus scene ini — `DayNightManager` autoload sudah `auto_start`,
-sama seperti `practice1.tscn`.
+`run/main_scene` adalah `main_menu.tscn`; `island.tscn` dimuat setelah MULAI
+(lihat §21 catatan RunController/MainMenu). Clock tidak diurus scene ini —
+`DayNightManager` autoload sudah `auto_start`.
 
 ---
 
@@ -1117,6 +1122,29 @@ ringkasan run yang sama (`EndgameHUD.get_victory_text()`).
 (`set_time_scale(0.0)`), `request_restart()` memanggil `DayNightManager.restart()`.
 Perubahan scene lewat `_change_scene()` yang bisa ditimpa tes.
 
+`main_menu.tscn` adalah `run/main_scene`. Saat menu `_ready`, `MainMenu`
+memanggil `_start_game_preload()` -> `ResourceLoader.load_threaded_request()`
+untuk `island.tscn` (kompilasi ~200 skrip pulau berjalan di latar belakang,
+~20-30 dtk di mesin lambat). MULAI:
+
+1. fade menu 0.16 dtk (`START_FADE_TIME`), bukan 0.45 dtk;
+2. `_enter_game()` me-restart clock lalu `await _swap_to_game()`: menunggu
+   status `THREAD_LOAD_IN_PROGRESS` selesai (biasanya sudah), mengambil
+   `load_threaded_get()` dan memakai `change_scene_to_packed()`; bila preload
+   gagal, jatuh ke `change_scene_to_file()`;
+3. `island.tscn` fade masuk 0.28 dtk (`INTRO_FADE_TIME`) lalu kamera
+   zoom-out -> zoom-in 0.9 dtk (`CameraFeel._play_intro`).
+
+Preload hanya menghilangkan biaya klik; sisa boot pulau (_ready_ dunia, ~3-8 dtk)
+tetap ada. Getter untuk tes: `is_game_preloaded()`. Menu tidak lagi memakai
+`ScreenFade` — overlay `%ScreenFade` milik scene menu sendiri.
+
+Catatan shutdown: keluar aplikasi saat preload masih berjalan tidak bisa
+membatalkan thread di Godot 4, jadi log bisa berisi parse error kosmetik
+(`Could not preload ...`, `Failed to compile depended scripts`). Ini artefak
+quit, bukan kegagalan aset; uji boot menu headless pakai `--quit-after 3000`
+agar preload selesai (dengan `--quit-after 120` error yang sama muncul).
+
 **Debug island:** F11 = HP 0 (uji death screen), F12 = lompat ke rescue Hari 7.
 
 **Jangan:** menghitung ulang efek per level di `ProficiencyComponent`, menulis
@@ -1330,11 +1358,11 @@ otomatis no-op supaya deterministik.
 
 | Komponen | File | Fungsi |
 | --- | --- | --- |
-| `ScreenFade` (const `preload`) | `src/ui/fx/screen_fade.gd` | Fade keluar sebelum ganti scene, fade masuk di `island`/`main_menu`, kilat putih saat Victory. Memakai callback (bukan `await`) agar `RunController._change_scene()` tetap sinkron dan bisa ditimpa tes. |
+| `ScreenFade` (const `preload`) | `src/ui/fx/screen_fade.gd` | Fade keluar sebelum ganti scene (`RunController`), fade masuk di `island` (`fade_in(root, color, duration)`, 0.28 dtk), kilat putih saat Victory. Menu utama tidak memakainya (overlay `%ScreenFade` milik scene menu). Memakai callback (bukan `await`) agar `RunController._change_scene()` tetap sinkron dan bisa ditimpa tes. |
 | `UiMotion` (const `preload`) | `src/ui/fx/ui_motion.gd` | `tween_bar()` untuk NeedsHUD, `pop_in()` untuk BagPanel/ChestPanel, `pop()` untuk slot hotbar. |
 | `LowHpVignette` | `src/ui/fx/low_hp_vignette.gd` | Vignette merah berdenyut bila HP < `threshold_percent` (25%). Shader dibuat runtime; art `ui_vignette_low_hp` opsional. |
 | `AmbientLife` | `src/levels/components/environment/ambient_life.gd` | Debu siang + kunang-kunang malam; mengikuti pemain, toggle lewat sinyal `day_started`/`night_started`. Tekstur titik dibuat runtime (tanpa biner). |
-| `CameraFeel` | `src/components/camera/camera_feel.gd` | Look-ahead 11 px ke arah gerak (`follow_offset`) + zoom 3.0 siang / 2.75 malam. |
+| `CameraFeel` | `src/components/camera/camera_feel.gd` | Look-ahead 11 px ke arah gerak (`follow_offset`) + zoom 3.0 siang / 2.75 malam + intro zoom-out -> zoom-in saat pulau dimuat (`INTRO_ZOOM_SCALE` 0.4, `INTRO_TIME` 0.9 dtk). |
 | `DeathFX` | `src/ui/fx/death_fx.gd` | Saat `DeathController.died`: slow-mo 0.25× selama 0.18 s + zoom 3.55, pulih otomatis saat HP > 0. **Dilewati bila setelan "Guncangan layar" dimatikan** (`is_slow_mo_enabled()`). |
 | `VictoryFX` | `src/ui/fx/victory_fx.gd` | Saat `EndgameController.victory`: kilat putih + zoom 2.6. |
 | `OpeningSequence` | `src/ui/hud/hints/opening_sequence.gd` | 3 prompt pembuka (gerak, gather, tas) yang **memakai saluran HintManager yang sama**; masuk **antrean prioritas** (`show_text(..., priority: true)`) sehingga hint gather/low-need tidak bisa memotong urutan intro; sekali per sesi. |
@@ -1798,6 +1826,13 @@ dan `tools\run_tests.ps1 -Test res://tests/integration/test_island_goals.gd`.
   keempat nilai.
 - `tick(delta)` publik; `_process` hanya meneruskan. Kamera tidak pernah menulis
   posisi pemain.
+- **Intro masuk pulau** (transisi dari menu): `_ready` memanggil
+  `_play_intro(day_zoom()/night_zoom())` — kamera mulai di
+  `zoom main x INTRO_ZOOM_SCALE` (0.4 = pandangan tiga kali lebih lebar) lalu
+  menyempit ke zoom main selama `INTRO_TIME` (0.9 dtk, `TRANS_CUBIC`/`EASE_OUT`).
+  Di headless intro langsung diterapkan tanpa tween. `_find_pcam()`/`_find_camera()`
+  mundur ke `get_parent()`/`owner` karena `current_scene` belum tentu terisi saat
+  `_ready`; tanpa itu intro bisa dilewati diam-diam.
 
 ### 39b. Telegraph serangan babi (`WildBoar`)
 

@@ -425,7 +425,7 @@ func _on_health_damaged(_amount: float, source: Node) -> void:
 	_refresh_hp_bar()
 
 
-func _on_health_died(source: Node) -> void:
+func _on_health_died(_source: Node) -> void:
 	drop_loot()
 	velocity = Vector2.ZERO
 	died.emit(self)

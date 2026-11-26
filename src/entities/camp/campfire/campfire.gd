@@ -232,10 +232,10 @@ func tick(delta: float) -> void:
 	if delta <= 0.0:
 		return
 	if is_lit():
-		var scale := _time_scale()
-		if scale > 0.0:
+		var time_scale := _time_scale()
+		if time_scale > 0.0:
 			var rate := config.night_drain if _is_night() else config.day_drain
-			_set_fuel(_fuel - rate * scale * delta)
+			_set_fuel(_fuel - rate * time_scale * delta)
 	_update_rest(delta)
 
 

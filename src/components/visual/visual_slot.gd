@@ -31,12 +31,12 @@ var _tiled_polygon: Polygon2D
 var _tiled_original_texture: Texture2D
 
 
-## Pasang slot pada `owner`. Parent default = parent placeholder pertama,
+## Pasang slot pada `host_owner`. Parent default = parent placeholder pertama,
 ## sehingga kode feedback yang menarget node visual lama tidak berubah.
-static func attach(owner: Node, key: StringName, placeholders: Array = [], parent: Node = null, driver: Node = null) -> VisualSlot:
+static func attach(host_owner: Node, slot_key: StringName, placeholders: Array = [], parent: Node = null, driver: Node = null) -> VisualSlot:
 	var slot := VisualSlot.new()
 	slot.name = SLOT_NAME
-	slot.key = key
+	slot.key = slot_key
 	for placeholder in placeholders:
 		if placeholder is CanvasItem:
 			slot._placeholders.append(placeholder)
@@ -48,7 +48,7 @@ static func attach(owner: Node, key: StringName, placeholders: Array = [], paren
 			if host != null:
 				break
 	if host == null:
-		host = owner
+		host = host_owner
 	host.add_child(slot)
 
 	if driver != null:
@@ -57,7 +57,7 @@ static func attach(owner: Node, key: StringName, placeholders: Array = [], paren
 			driver.name = "Driver"
 		slot.add_child(driver)
 		if driver.has_method(&"setup"):
-			driver.setup(owner, slot)
+			driver.setup(host_owner, slot)
 
 	slot.refresh()
 	return slot

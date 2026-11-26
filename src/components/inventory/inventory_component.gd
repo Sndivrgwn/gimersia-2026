@@ -227,7 +227,7 @@ func split_slot(index: int) -> bool:
 	if target < 0:
 		return false
 
-	var moved := stack.count / 2
+	var moved := floori(float(stack.count) / 2.0)
 	stack.count -= moved
 	_slots[target] = ItemStack.new(stack.item, moved)
 	slot_changed.emit(index)

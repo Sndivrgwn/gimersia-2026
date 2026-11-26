@@ -4,7 +4,7 @@
 > repository. Read this file first, then the linked docs. **Code is the source of
 > truth** when a doc disagrees with it.
 
-Last verified: 2026-11-24, Godot 4.7.2, GUT 9.7.1 — 836/836 tests (821 unit + 15 integration), 4432 asserts, 103 scripts; boots island + main_menu bersih (practice1 tidak dipakai lagi).
+Last verified: 2026-11-26, Godot 4.7.2, GUT 9.7.1 — boot `main_menu.tscn` (main scene) + `island.tscn` bersih, `test_docs_in_sync` 16/16 (21 assert), panduan digenerate ulang. Suite penuh **belum** dijalankan ulang: angka 836/836 (821 unit + 15 integration), 4432 asserts, 103 skrip berasal dari 24 Nov 2026, dan invokasi 26 Nov 2026 terpotong `TIMEOUT` 600 s di mesin ini.
 Spec cross-check: 2026-11-18 against spec V8. Gaps found are listed in §4
 (missing systems), §7.1-7.8 (spec details), §8 (revised build order) and §13
 (open design questions).
@@ -18,8 +18,9 @@ Spec cross-check: 2026-11-18 against spec V8. Gaps found are listed in §4
 - MVP target: playable loop **start → day → prepare → night → next day → day 7
   → rescue (flare + Victory)**.
 - Renderer: GL Compatibility. Input: WASD/arrows + Shift sprint.
-- Main scene: `res://scenes/practice/practice1.tscn` (a practice map used as the
-  current integration scene, not a production level).
+- Main scene: `res://src/ui/menus/main_menu.tscn` (menu utama; MULAI memuat
+  `res://src/levels/island/island.tscn`). `scenes/practice/practice1.tscn` is a
+  legacy sandbox and is no longer referenced by `project.godot`.
 - Team roles and full scope: `docs/noneditable/MVP_dan_Daftar_Pekerjaan_RTRw_Studio.docx.md`.
 - Final gameplay numbers: `docs/noneditable/spesifikasi_teknis_mekanisme_gameplay_V8.md`
   (referred to below as **the spec**).
@@ -50,15 +51,15 @@ in `docs/editable/` is maintained by the project.
 | Engine | — | `D:\Programming\Gamedev\Godot_v4.7.2-stable_win64.exe` (console variant exists) |
 | GUT | — | **9.7.1 installed** in `addons/gut` (docs saying otherwise are stale) |
 | Unit tests | `... -Dir res://tests/unit` | **799/799 passing** (93 file di `tests/unit`) |
-| Default suite | `powershell -ExecutionPolicy Bypass -File tools/run_tests.ps1` | **836/836 passing**, 4432 asserts, **103 skrip**. Waktu GUT **> 300 s**, jadi perintah runner 120 s **masih timeout** (exit 124); angka di atas dari invokasi GUT yang sama (`-gdir` unit + integration) tanpa kill runner |
+| Default suite | `powershell -ExecutionPolicy Bypass -File tools/run_tests.ps1` | **836/836 passing**, 4432 asserts, **103 skrip** (terakhir diukur 24 Nov 2026). Waktu GUT **> 300 s**: runner 120 s timeout (exit 124), dan pada 26 Nov 2026 bahkan `TIMEOUT=600 bash tools/run_tests.sh` terpotong. Untuk angka baru, jalankan GUT langsung tanpa kill runner |
 | One test file | `... -Test res://tests/unit/<file>.gd` | dipakai saat memperbaiki satu kegagalan |
 | Integration tests | `... -Dir res://tests/integration` | **15/15 passing** (10 file: S1-S5 + 7-day soak + perf) |
 | Slow-only tests | `... -Slow` (sets `GIMERSIA_SLOW=1`) | helper `tests/helpers/slow_guard.gd` tersedia; saat ini belum ada file tes yang memakainya |
 | Lapisan dunia (Mission 13) | `... -Test res://tests/unit/<file>.gd` per berkas | **132/132** di 12 berkas: `test_world_validator` 25, `test_world_guide_sync` 6, `test_docs_in_sync` 16, `test_authored_world` 12, `test_world_zone_grid` 8, `test_world_controller_authored` 8, `test_island_authored` 3, `test_world_golden` 5, `test_world_rules` 14, `test_island` 17, `test_camp_anchor` 13, `test_fase4_base_build` 5. Full suite tidak bisa dijalankan penuh (timeout 120 s per perintah) |
-| Verified on | — | 24 Nov 2026 (Mission 11-13) |
-| Main scene boot | `--quit-after 120 res://src/levels/island/island.tscn` | exit 0, **no ERROR/WARNING** (island = `run/main_scene`) |
+| Verified on | — | 26 Nov 2026 (boot menu/island, docs sync); angka suite dari 24 Nov 2026 |
+| Main scene boot | `--quit-after 3000 res://src/ui/menus/main_menu.tscn` | exit 0, tanpa ERROR; satu WARNING `ObjectDB instances were leaked at exit` (63) karena preload pulau masih memegang resource saat quit. `--quit-after 120` memotong preload di tengah dan memunculkan parse error kosmetik saat shutdown — pakai 3000 frame |
+| Island boot | `--quit-after 3000 res://src/levels/island/island.tscn` | exit 0, **no ERROR/WARNING** |
 | Legacy practice boot | — | `scenes/practice/practice1.tscn` tidak dipakai lagi sejak Mission 11 (tidak dijalankan) |
-| Main menu boot | `--quit-after 120 res://src/ui/menus/main_menu.tscn` | exit 0, **no ERROR/WARNING** |
 | Default clock config | — | `cycle_duration` **600 s** (script default; `.tres` no longer overrides it) |
 | Dusk warning | — | 15 s before night |
 
@@ -123,7 +124,7 @@ Known bugs still present:
 | `ProficiencyConfig` / `ProficiencyComponent` | `src/data/resources/proficiency/`, `src/data/configs/proficiency_config.tres`, `src/components/proficiency/` | XP, carry-over, `max_reached_level`, night combat bonus (1.5x), passives and the death debuff (§7.6). Levels are still written through `StatsComponent.strength_level` etc.; per-level stat effects stay in `StatsComponent`. XP sources are wired from existing signals (hit/kill/dodge/gather/craft/boar dash-miss) plus real player displacement for Speed; inside the 180 px camp radius Speed XP is 0. Passives: Heavy Strike (every 4th landed hit x1.3 via hit modifier), Sturdy (knockback x0.5), Second Wind (campfire idle-regen x1.25 via `set_idle_regen_multiplier`), Quick Reflex (+8% dodge below 40% HP), Swift Counter (next hit after a dodge x1.25). Light Footed stays in `StatsComponent` (not duplicated). Master Chef +10 restore diterapkan lewat bonus campfire (`get_campfire_restore_bonus()`); lihat §13 untuk status keputusan | Implemented; 11 tests |
 | `DeathController` / `LootBag` / `DeathScreen` | `src/core/managers/death_controller.gd`, `src/entities/props/loot_bag/`, `src/ui/menus/death_screen.gd/.tscn` | 3 respawn tokens dari `PlayerBaseStats.max_respawn_tokens` lewat `StatsComponent.get_base_stats()` (fallback konstanta `RESPAWN_TOKENS` = 3 bila stat tidak ada; kematian setelah token habis = game over permanen), loot bag from all 12 bag slots at the death position (equipment kept), respawn at (0,64) with 70% HP and 60/60/80 needs, proficiency death debuff, player hidden + `PROCESS_MODE_DISABLED` while dead. The clock keeps running. `died(respawns_remaining)`, `respawned`, `game_over`; `respawn()`, `can_respawn()`, `get_last_loot_bag()`. `DeathScreen` only emits `respawn_requested`/`main_menu_requested`; `GameOverScreen` (`src/ui/menus/game_over_screen.gd/.tscn`, CanvasLayer + `PROCESS_MODE_ALWAYS`, buttons Mulai Baru / Menu Utama) emits `restart_requested`/`main_menu_requested` and `island.gd` shows it on `game_over` | Implemented; 5 + 3 + 1 screen tests |
 | `EndgameController` / `SignalBeacon` / `EndgameHUD` | `src/core/managers/endgame_controller.gd`, `src/entities/props/beacon/signal_beacon.gd`, `src/ui/hud/endgame/` | Day-7 banner (only on `day_started == max_days`), rescue banner, beacon direction/distance arrow, Victory when the beacon is used during rescue while holding `signal_flare`. Beacon: `Interactable`, hold 1.5 s, blocks with `Belum waktunya` / `Butuh Suar Darurat`; flare is consumed on victory (keputusan Mission 7). Anti-softlock boars are handled by `FaunaQuota.rescue_started` | Implemented; 4 tests; 3 beacon tests |
-| `RunController` / `MainMenu` | `src/core/managers/run_controller.gd`, `src/ui/menus/main_menu.gd/.tscn` | `main_menu_requested` / `restart_requested`; freezes the clock with `set_time_scale(0.0)` before the menu and calls `DayNightManager.restart()` on a new run. Scene change goes through the overridable `_change_scene()`. `main_menu.tscn` is **not** the main scene | Implemented; boots headless
+| `RunController` / `MainMenu` | `src/core/managers/run_controller.gd`, `src/ui/menus/main_menu.gd/.tscn` | `main_menu_requested` / `restart_requested`; freezes the clock with `set_time_scale(0.0)` before the menu and calls `DayNightManager.restart()` on a new run. Scene change goes through the overridable `_change_scene()`. `main_menu.tscn` **is** the main scene; MainMenu preloads `island.tscn` with `ResourceLoader.load_threaded_request()` in `_ready`, MULAI fades 0.16 s, waits the threaded load (`is_game_preloaded()`), then `change_scene_to_packed()` (fallback `change_scene_to_file()`) | Implemented; boots headless
 | `FaunaBase` / `WildBoar` / `IslandDeer` | `src/entities/fauna/` | `FaunaBase` (CharacterBody2D, group `fauna`, layer 0/mask 1): HealthComponent child, temperament PASSIVE/NEUTRAL/HOSTILE, `provoke()`, `can_be_auto_targeted()`, speed/attack modifier dictionaries, `apply_night_scaling()` keeping HP ratio, `reset_night_scaling()`, Dazzled from lit Campfire (0.70 speed / 0.75 attack), wander, flee+despawn, `drop_loot()` via ItemPickup, `flash_hit()`. Boar: bite 12/50 px/1.2 s, dash 110–240 px with 0.8 s telegraph then 330 px/s (20 + 60 px knockback to player, 40 to structures), camp aggro (player <=140, raid_camp, priority structures), leash 380. Deer: 40 HP, always PASSIVE, flees 175 px/s for 5 s at 130 px or when hit. Configs `boar_config.tres` / `deer_config.tres` |
 | `FaunaQuota` / `NightSpawner` / `NightScalingConfig` | `src/core/managers/`, `src/data/resources/fauna/` | Quota: 2 Boar + 3 Deer at start, no mid-day respawn, dawn rule (extras flee, survivors NEUTRAL x1.0, top-up 2/3) for days 2-7, rescue rule (flee, >=2 boars, 45 s REAL respawn, max 4), spawn-point rule (>=600 px from player else farthest). Spawner: night start makes residents HOSTILE + scaled, one spawn immediately then per interval while hostile count < table max (timer x time_scale). Table 3/4/5/6/7/9/12, 45..15 s, x1.0..1.5 |
 | `CampAnchor` / `BaseSiteConfig` / `BaseSiteRules` | `src/core/managers/camp_anchor.gd`, `src/data/resources/camp/base_site_config.gd`, `src/utils/base_site_rules.gd` | Camp is dynamic: the anchor is founded once (island founds it at `Vector2.ZERO`), then every consumer reads its centre/radius. `CampAnchor`: `founded`, `get_center()`, `get_ring_radius()`, statics `find_anchor(node)`, `camp_center(node)`, `ring_radius(node)`. `BaseSiteRules` validates placement (water/river clearance, coast margin) | Implemented; 13 tests |
@@ -173,8 +174,9 @@ save system, `EventBus`, `GameManager`, production art and the level loader (`is
 working minimum map wired for death/endgame; only the art is missing) and
 post-MVP fauna (Wolf, Shadow Stalker, Snare Trap, NPCs). Proficiency XP/passives,
 death/respawn/loot bag/debuff, the Day-7 banner, beacon arrow, Signal Flare use
-and Victory now exist. `practice1.tscn` is still the main scene and is **not**
-wired for death/proficiency; `island.tscn` is. Do not assume the missing APIs exist.
+and Victory now exist. `main_menu.tscn` is the main scene and `island.tscn` (the
+only production map) is wired for death/proficiency. Do not assume the missing
+APIs exist.
 
 Physics since Mission 10: fauna bodies use `PhysicsLayers.FAUNA_BODY` and the
 player mask includes it, so the player **cannot** walk through deer or boar;
@@ -806,10 +808,10 @@ GODOT --headless --path . -s addons/gut/gut_cmdln.gd -gdir=res://tests/unit,res:
 # One test file
 GODOT --headless --path . -s addons/gut/gut_cmdln.gd -gtest=res://tests/unit/<file>.gd -gexit
 
-# Boot the main practice scene for 120 frames
-GODOT --headless --path . --quit-after 120 res://scenes/practice/practice1.tscn
+# Boot the main scene (menu; also starts the island preload) for 120 frames
+GODOT --headless --path . --quit-after 120 res://src/ui/menus/main_menu.tscn
 
-# Boot the island (second integration scene, not the main scene)
+# Boot the island directly for 120 frames
 GODOT --headless --path . --quit-after 120 res://src/levels/island/island.tscn
 ```
 
@@ -835,9 +837,8 @@ doc in the allowed-edit list. Only these files are editable by agents:
 - Do not put gameplay state in HUD; HUD is read-only.
 - Do not hardcode spec durations/ratios in scripts; use `.tres` resources.
 - Do not assume `EventBus`, `AudioManager`, or save/load exist.
-- Keep `practice1.tscn` working; it is the main scene and must keep booting.
-  `src/levels/island/island.tscn` is the second integration scene (not the
-  main scene), so both must stay green.
+- Keep `main_menu.tscn` (main scene) and `src/levels/island/island.tscn`
+  (game scene loaded by MULAI) booting clean; both must stay green.
 - Only add `class_name` when it does not clash with an autoload singleton name.
 - Post-MVP items (Island Wolf, Shadow Stalker, Snare Trap, Silk Bandage, NPCs
   Bima/Sari/Raka) stay out of scope until the MVP gate in §12 passes. Leave
@@ -1010,6 +1011,14 @@ Label misi dipakai bebas di dokumen lain; tabel ini peta label -> fitur.
   kematian dilewati (tes: `test_death_slow_mo_respects_screenshake_setting`).
 - `SettingsService` kunci baru `fullscreen` (DisplayServer runtime, bukan project.godot).
 - Gamepad terdaftar di `InputSetup.ensure_actions()`.
+- `CameraFeel` juga punya **intro zoom-out -> zoom-in** saat pulau dimuat
+  (`INTRO_ZOOM_SCALE` 0.4, `INTRO_TIME` 0.9 dtk, no-op tween di headless).
+- `MainMenu` mempreload `island.tscn` dengan `ResourceLoader.load_threaded_request()`
+  sejak `_ready`; MULAI fade 0.16 dtk, menunggu sisa preload lalu
+  `change_scene_to_packed()` (fallback `change_scene_to_file()`), dan pulau fade
+  masuk 0.28 dtk. Biaya klik turun dari ~20 dtk ke ~3 dtk di mesin lambat; sisa
+  boot `island.tscn` (~3-8 dtk) belum dioptimalkan dan rasanya belum dicek
+  secara visual.
 - `FenceGeometry.first_blocking_segment` kini bertipe `-> Node2D`; sebelumnya
   tanpa tipe sehingga `test_fence.gd` gagal parse dan 9 tesnya tidak pernah jalan.
 
