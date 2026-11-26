@@ -41,8 +41,11 @@ class TestSplashScreen extends SplashScreen:
 	var changed_direct: Array[String] = []
 	var direct_return_code: int = OK
 	var texture_stubs: Dictionary = {}
+	var overlay_present_at_change: bool = false
 
 	func _change_scene(packed: PackedScene) -> void:
+		var tree := get_tree()
+		overlay_present_at_change = tree != null and tree.root.get_node_or_null("IrisOverlay") != null
 		changed_packed.append(packed)
 
 	func _change_scene_direct(path: String) -> int:
@@ -67,6 +70,11 @@ func before_each() -> void:
 func after_each() -> void:
 	SplashScreen.shown_this_session = false
 	OS.set_environment(SplashScreen.ENV_SKIP, _saved_env_skip)
+	var tree := get_tree()
+	if tree != null and tree.root != null:
+		for child in tree.root.get_children():
+			if child is IrisOverlay and is_instance_valid(child):
+				child.free()
 
 
 func _make_texture(w: int, h: int) -> ImageTexture:
@@ -294,6 +302,13 @@ func test_generated_config_and_registries_match_spec() -> void:
 	assert_eq(cfg.preload_paths, PackedStringArray(["res://src/levels/island/island.tscn"]))
 	assert_true(cfg.skip_if_already_shown)
 	assert_false(cfg.dev_skip)
+	assert_true(cfg.transition_enabled)
+	assert_almost_eq(cfg.transition_duration, 0.8, 0.001)
+	assert_almost_eq(cfg.transition_softness, 0.03, 0.001)
+	assert_almost_eq(cfg.transition_hold_before, 0.15, 0.001)
+	assert_almost_eq(cfg.transition_start_radius, 0.0, 0.001)
+	assert_eq(cfg.transition_ease, SplashConfig.TransitionEase.EASE_OUT)
+	assert_true(cfg.transition_block_input)
 
 	var assets := load(ASSET_REGISTRY_PATH) as AssetRegistry
 	assert_not_null(assets)
@@ -311,3 +326,108 @@ func test_generated_config_and_registries_match_spec() -> void:
 			found_sting = true
 			break
 	assert_true(found_sting, "audio_registry memuat ui_splash_sting")
+
+
+func test_iris_overlay_mounts_before_change_blocks_input_and_frees_itself() -> void:
+	var clock := get_node_or_null("/root/DayNightManager")
+	var clock_scale_before := float(clock.get_time_scale()) if (clock != null and clock.has_method(&"get_time_scale")) else -1.0
+
+	var stub := StubLoader.new()
+	var dummy := PackedScene.new()
+	var cfg := _short_config()
+	cfg.transition_enabled = true
+	cfg.transition_hold_before = 0.05
+	cfg.transition_duration = 0.1
+	cfg.transition_block_input = true
+	stub.packed_by_path[cfg.next_scene_path] = dummy
+	stub.state_by_path[cfg.next_scene_path] = ResourceLoader.THREAD_LOAD_LOADED
+	stub.progress_by_path[cfg.next_scene_path] = 1.0
+
+	var splash := _spawn_splash(cfg, stub)
+	var counts := [0, 0]
+	splash.transition_started.connect(func() -> void: counts[0] += 1)
+	splash.transition_finished.connect(func() -> void: counts[1] += 1)
+
+	splash._process(0.5)
+	splash._process(0.5)
+
+	assert_eq(splash.changed_packed.size(), 1, "pindah scene tepat sekali")
+	assert_true(splash.overlay_present_at_change, "IrisOverlay terpasang di root sebelum _change_scene")
+	assert_eq(counts[0], 1)
+
+	var overlay := get_tree().root.get_node_or_null("IrisOverlay") as IrisOverlay
+	assert_not_null(overlay)
+	assert_eq(overlay.layer, IrisOverlay.OVERLAY_LAYER)
+	assert_eq(overlay.get_mask_rect().mouse_filter, Control.MOUSE_FILTER_STOP, "input dikunci selama transisi")
+
+	# Menekan tombol selama transisi tidak boleh memicu pindah scene kedua.
+	var key := InputEventKey.new()
+	key.pressed = true
+	key.keycode = KEY_SPACE
+	splash._input(key)
+	assert_eq(splash.changed_packed.size(), 1)
+
+	# Tunggu 1 frame supaya start_after_next_frame() memanggil start(), lalu jalankan sampai selesai.
+	await get_tree().process_frame
+	assert_true(overlay.is_started())
+	overlay._process(0.05)
+	overlay._process(0.15)
+
+	assert_eq(counts[1], 1)
+	assert_eq(overlay.get_mask_rect().mouse_filter, Control.MOUSE_FILTER_IGNORE, "input dilepas setelah selesai")
+	await get_tree().process_frame
+	assert_null(get_tree().root.get_node_or_null("IrisOverlay"), "overlay menghapus dirinya sendiri")
+
+	if clock != null and clock.has_method(&"get_time_scale"):
+		assert_almost_eq(float(clock.get_time_scale()), clock_scale_before, 0.001, "time_scale tidak berubah")
+
+
+func test_no_overlay_on_disabled_dev_skip_env_skip_or_load_failure() -> void:
+	var dummy := PackedScene.new()
+
+	# 1) transition_enabled = false
+	var stub1 := StubLoader.new()
+	var cfg1 := _short_config()
+	cfg1.transition_enabled = false
+	stub1.packed_by_path[cfg1.next_scene_path] = dummy
+	stub1.state_by_path[cfg1.next_scene_path] = ResourceLoader.THREAD_LOAD_LOADED
+	var s1 := _spawn_splash(cfg1, stub1)
+	s1._process(0.6)
+	s1._process(0.6)
+	assert_false(s1.overlay_present_at_change, "transition_enabled=false tanpa overlay")
+	assert_null(get_tree().root.get_node_or_null("IrisOverlay"))
+
+	# 2) dev_skip = true
+	SplashScreen.shown_this_session = false
+	var stub2 := StubLoader.new()
+	var cfg2 := _short_config()
+	cfg2.dev_skip = true
+	stub2.packed_by_path[cfg2.next_scene_path] = dummy
+	stub2.state_by_path[cfg2.next_scene_path] = ResourceLoader.THREAD_LOAD_LOADED
+	var s2 := _spawn_splash(cfg2, stub2)
+	s2._process(0.016)
+	assert_false(s2.overlay_present_at_change, "dev_skip tanpa overlay")
+	assert_null(get_tree().root.get_node_or_null("IrisOverlay"))
+
+	# 3) env GIMERSIA_SKIP_SPLASH=1
+	SplashScreen.shown_this_session = false
+	OS.set_environment(SplashScreen.ENV_SKIP, "1")
+	var stub3 := StubLoader.new()
+	var cfg3 := _short_config()
+	stub3.packed_by_path[cfg3.next_scene_path] = dummy
+	stub3.state_by_path[cfg3.next_scene_path] = ResourceLoader.THREAD_LOAD_LOADED
+	var s3 := _spawn_splash(cfg3, stub3)
+	s3._process(0.016)
+	assert_false(s3.overlay_present_at_change, "env skip tanpa overlay")
+	assert_null(get_tree().root.get_node_or_null("IrisOverlay"))
+	OS.set_environment(SplashScreen.ENV_SKIP, "")
+
+	# 4) gagal muat
+	SplashScreen.shown_this_session = false
+	var stub4 := StubLoader.new()
+	var cfg4 := _short_config()
+	stub4.state_by_path[cfg4.next_scene_path] = ResourceLoader.THREAD_LOAD_FAILED
+	var s4 := _spawn_splash(cfg4, stub4)
+	s4._process(0.016)
+	assert_false(s4.overlay_present_at_change, "gagal muat tanpa overlay")
+	assert_null(get_tree().root.get_node_or_null("IrisOverlay"))

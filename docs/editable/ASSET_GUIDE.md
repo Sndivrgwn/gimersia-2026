@@ -175,6 +175,22 @@ Buka `res://src/data/configs/ui/splash_config.tres` di Inspector Godot (lihat ju
 - Set environment variable `GIMERSIA_SKIP_SPLASH=1` sebelum menjalankan Godot, **atau**
 - Centang `dev_skip = true` di `res://src/data/configs/ui/splash_config.tres` (jangan lupa kembalikan ke `false` sebelum rilis).
 
+### Transisi lingkaran (iris wipe) ke menu utama
+
+Setelah logo terakhir selesai dan menu utama siap dimuat, splash memasang overlay sementara (`IrisOverlay`, layer `100`) di `get_tree().root` dalam keadaan tertutup penuh warna `background_color` sebelum berpindah scene, lalu membuka lingkaran dari tengah layar hingga menutupi sudut terjauh dan menghapus dirinya sendiri secara otomatis.
+
+Field transisi di `res://src/data/configs/ui/splash_config.tres` (bisa diubah langsung di Inspector):
+
+| Field | Default | Arti & efek |
+| --- | --- | --- |
+| `transition_enabled` | `true` | Aktifkan atau matikan transisi lingkaran (`false` = pindah langsung tanpa overlay). |
+| `transition_duration` | `0.8` | Lama lingkaran membesar (detik). Nilai lebih kecil = lebih cepat; lebih besar = lebih pelan. |
+| `transition_softness` | `0.03` | Lebar tepi lingkaran yang lembut (fraksi sisi terpendek layar). `0.0` = tepi tajam, `0.05`–`0.1` = tepi sangat lembut. |
+| `transition_hold_before` | `0.15` | Jeda singkat layar tertutup penuh (detik) sebelum lingkaran mulai membesar. |
+| `transition_start_radius` | `0.0` | Radius awal lingkaran (`0.0`..`1.0`) tepat saat jeda selesai. |
+| `transition_ease` | `EASE_OUT` | Kurva percepatan pembukaan: `LINEAR`, `EASE_OUT` (cepat di awal lalu melambat), atau `EASE_IN_OUT`. |
+| `transition_block_input` | `true` | Menahan klik mouse selama transisi berlangsung dan otomatis dilepas begitu selesai. |
+
 ### Troubleshooting layar pembuka
 
 | Gejala | Penyebab umum | Solusi |
@@ -183,6 +199,8 @@ Buka `res://src/data/configs/ui/splash_config.tres` di Inspector Godot (lihat ju
 | Kilatan putih / abu-abu di awal | Warna **Application > Boot Splash > BG Color** di Project Settings belum sama dengan `background_color` (`Color.BLACK`). | Samakan warna Boot Splash di Project Settings ke hitam (`#000000`). |
 | Macet di loading | `next_scene_path` salah atau gagal dimuat; setelah `max_wait_seconds` (15 s) splash otomatis mencoba pindah langsung. | Periksa `next_scene_path` di `splash_config.tres` (`res://src/ui/menus/main_menu.tscn`) dan cek konsol Godot untuk pesan `SplashScreen: ...`. |
 | Langsung lompat ke menu utama | `enabled = false`, `entries` kosong, `dev_skip = true`, env `GIMERSIA_SKIP_SPLASH=1`, atau `skip_if_already_shown = true` saat splash dibuka ulang di sesi yang sama. | Cek field `enabled`, `dev_skip`, `entries` di `splash_config.tres` dan pastikan `GIMERSIA_SKIP_SPLASH` tidak bernilai `1`. |
+| Layar hitam lama sebelum menu | `transition_hold_before` terlalu besar atau `min_total_seconds` menahan layar terlalu lama setelah skip. | Kecilkan `transition_hold_before` (mis. `0.05`–`0.15`) dan `min_total_seconds` di `splash_config.tres`. |
+| Lingkaran tidak kelihatan | `transition_enabled = false`, jalur `dev_skip` / `GIMERSIA_SKIP_SPLASH=1` aktif, `transition_duration` terlalu kecil, atau shader gagal dimuat. | Pastikan `transition_enabled = true`, `dev_skip = false`, `transition_duration >= 0.4`, dan cek konsol untuk peringatan `IrisOverlay: gagal memuat shader`. |
 
 ## Minimum untuk build pertama — tier Showcase (12 slot)
 
@@ -384,13 +402,13 @@ Dihitung dari file `.png`/`.webp` yang ada di folder tiap slot. Jalankan ulang g
 
 | Kategori | Slot | Sudah ada file | Belum ada |
 | --- | --- | --- | --- |
-| Karakter | 3 | 2 | 1 |
+| Karakter | 3 | 3 | 0 |
 | Node resource | 9 | 0 | 9 |
 | Camp & struktur | 11 | 0 | 11 |
 | Dunia | 13 | 0 | 13 |
 | Efek | 4 | 0 | 4 |
 | UI & ikon | 29 | 0 | 29 |
-| **Total** | 69 | 2 | 67 |
+| **Total** | 69 | 3 | 66 |
 
 - Ikon item: **0/24** ada di `res://assets/icons/items/`.
 - Item di tangan: **0/24** ada di `res://assets/held/`.

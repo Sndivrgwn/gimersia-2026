@@ -23,6 +23,13 @@ func _init() -> void:
 	config.preload_paths = PackedStringArray(["res://src/levels/island/island.tscn"])
 	config.skip_if_already_shown = true
 	config.dev_skip = false
+	config.transition_enabled = true
+	config.transition_duration = 0.8
+	config.transition_softness = 0.03
+	config.transition_hold_before = 0.15
+	config.transition_start_radius = 0.0
+	config.transition_ease = SplashConfig.TransitionEase.EASE_OUT
+	config.transition_block_input = true
 
 	var studio := SplashEntry.new()
 	studio.asset_key = &"ui_splash_studio"

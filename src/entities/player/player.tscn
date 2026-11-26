@@ -20,7 +20,7 @@ script = ExtResource("1_player")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1907487181]
 shape = SubResource("CircleShape2D_body")
 
-[node name="Visual" type="Polygon2D" parent="."]
+[node name="Visual" type="Polygon2D" parent="." unique_id=1694032734]
 color = Color(0.95, 0.78, 0.3, 1)
 polygon = PackedVector2Array(-9, -12, 9, -12, 12, 6, 0, 14, -12, 6)
 

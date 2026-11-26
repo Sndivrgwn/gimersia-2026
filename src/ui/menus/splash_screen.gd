@@ -8,6 +8,8 @@ extends Control
 
 signal entry_started(index: int)
 signal finished(failed: bool)
+signal transition_started
+signal transition_finished
 
 const DEFAULT_CONFIG_PATH := "res://src/data/configs/ui/splash_config.tres"
 const BG_SLOT_KEY := &"ui_splash_bg"
@@ -55,6 +57,8 @@ var _next_path: String = ""
 var _preload_paths: PackedStringArray = PackedStringArray()
 var _switched: bool = false
 var _error_shown: bool = false
+var _bypass_transition: bool = false
+var _active_overlay: IrisOverlay
 
 
 func _ready() -> void:
@@ -71,10 +75,10 @@ func _ready() -> void:
 	_sequencer.finished.connect(_on_sequencer_finished)
 	_sequencer.setup(_active_config)
 
-	var skip_now := _active_config.dev_skip \
-		or OS.get_environment(ENV_SKIP) == "1" \
-		or (_active_config.skip_if_already_shown and SplashScreen.shown_this_session)
-	if skip_now:
+	var dev_or_env_skip := _active_config.dev_skip or OS.get_environment(ENV_SKIP) == "1"
+	var session_skip := _active_config.skip_if_already_shown and SplashScreen.shown_this_session
+	_bypass_transition = dev_or_env_skip or session_skip
+	if _bypass_transition:
 		_sequencer.force_skip_sequence()
 
 	_start_threaded_loads()
@@ -125,6 +129,14 @@ func _lookup_ui_texture(key: StringName) -> Texture2D:
 	if String(key).is_empty():
 		return null
 	return Assets.ui_texture(key)
+
+
+func _create_iris_overlay() -> IrisOverlay:
+	return IrisOverlay.new()
+
+
+func get_active_overlay() -> IrisOverlay:
+	return _active_overlay if is_instance_valid(_active_overlay) else null
 
 
 # --- Internal ---------------------------------------------------------------
@@ -288,13 +300,40 @@ func _on_sequencer_finished(did_fail: bool) -> void:
 	if not did_fail:
 		var packed := loader.call(&"get_packed", _next_path) as PackedScene
 		if packed != null:
+			var overlay := _mount_transition_overlay()
 			_change_scene(packed)
+			if overlay != null:
+				overlay.start_after_next_frame()
 			return
 
 	push_warning("SplashScreen: gagal memuat %s, mencoba pindah langsung." % _next_path)
 	var direct_err := _change_scene_direct(_next_path)
 	if direct_err != OK:
 		_show_fatal_error()
+
+
+func _mount_transition_overlay() -> IrisOverlay:
+	if _active_config == null or not _active_config.transition_enabled or _bypass_transition:
+		return null
+	var tree := get_tree()
+	if tree == null or tree.root == null:
+		return null
+	var overlay := _create_iris_overlay()
+	if overlay == null:
+		return null
+	if not overlay.setup(_active_config):
+		overlay.free()
+		return null
+	_active_overlay = overlay
+	tree.root.add_child(overlay)
+	overlay.finished.connect(_on_transition_finished, CONNECT_ONE_SHOT)
+	transition_started.emit()
+	return overlay
+
+
+func _on_transition_finished() -> void:
+	_active_overlay = null
+	transition_finished.emit()
 
 
 func _show_fatal_error() -> void:

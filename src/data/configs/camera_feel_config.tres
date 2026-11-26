@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="CameraFeelConfig" format=3]
+[gd_resource type="Resource" script_class="CameraFeelConfig" format=3 uid="uid://cbsbo6012ommr"]
 
-[ext_resource type="Script" path="res://src/data/resources/camera/camera_feel_config.gd" id="1_d38w2"]
+[ext_resource type="Script" uid="uid://cygxt2iq3rbc7" path="res://src/data/resources/camera/camera_feel_config.gd" id="1_d38w2"]
 
 [resource]
 script = ExtResource("1_d38w2")

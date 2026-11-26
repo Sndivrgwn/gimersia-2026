@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="DailyGoalConfig" format=3 uid="uid://d5pcbgi7jds1"]
+[gd_resource type="Resource" script_class="DailyGoalConfig" format=3 uid="uid://d3ctunokyrfe0"]
 
 [ext_resource type="Script" uid="uid://cnrngaafqbh1j" path="res://src/data/resources/goals/daily_goal.gd" id="1_2nip6"]
 [ext_resource type="Resource" path="res://src/data/items/wood.tres" id="2_at6b1"]

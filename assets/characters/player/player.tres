@@ -8,6 +8,14 @@
 atlas = ExtResource("1_n3yrs")
 region = Rect2(0, 0, 1024, 1024)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_p70oe"]
+atlas = ExtResource("2_htild")
+region = Rect2(0, 0, 1024, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h8hj0"]
+atlas = ExtResource("3_2fuga")
+region = Rect2(0, 0, 1024, 1024)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_r0tvw"]
 atlas = ExtResource("1_n3yrs")
 region = Rect2(1024, 0, 1024, 1024)
@@ -20,10 +28,6 @@ region = Rect2(2048, 0, 1024, 1024)
 atlas = ExtResource("1_n3yrs")
 region = Rect2(3072, 0, 1024, 1024)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_p70oe"]
-atlas = ExtResource("2_htild")
-region = Rect2(0, 0, 1024, 1024)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_ied73"]
 atlas = ExtResource("2_htild")
 region = Rect2(1024, 0, 1024, 1024)
@@ -35,10 +39,6 @@ region = Rect2(2048, 0, 1024, 1024)
 [sub_resource type="AtlasTexture" id="AtlasTexture_31iab"]
 atlas = ExtResource("2_htild")
 region = Rect2(3072, 0, 1024, 1024)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_h8hj0"]
-atlas = ExtResource("3_2fuga")
-region = Rect2(0, 0, 1024, 1024)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_7uigx"]
 atlas = ExtResource("3_2fuga")

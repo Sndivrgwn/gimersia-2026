@@ -1355,6 +1355,13 @@ mengedit file tersebut di Inspector tanpa memindahkan angkanya ke generator.
 | `preload_paths` | lain | [res://src/levels/island/island.tscn] |
 | `skip_if_already_shown` | bool | true |
 | `dev_skip` | bool | false |
+| `transition_enabled` | bool | true |
+| `transition_duration` | float | 0.80 |
+| `transition_softness` | float | 0.03 |
+| `transition_hold_before` | float | 0.15 |
+| `transition_start_radius` | float | 0.00 |
+| `transition_ease` | int | 1 |
+| `transition_block_input` | bool | true |
 
 
 ## src/data/configs/world
