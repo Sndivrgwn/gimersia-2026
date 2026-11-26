@@ -92,6 +92,14 @@ void fragment() {
 	vec3 darkened = ratio.rgb * tint;
 	COLOR = vec4(mix(darkened, vec3(1.0), lit), 1.0);
 }
+
+void light() {
+	// Pulihkan cahaya PointLight2D (api unggun/obor) yang ikut terkalikan
+	// oleh pass blend_mul overlay. Saat overlay putih (1.0), lost = 0
+	// sehingga tidak menggandakan cahaya atau menimbulkan loncatan di batas fase.
+	vec3 lost = max(vec3(0.0), vec3(1.0) - COLOR.rgb);
+	LIGHT = vec4(LIGHT_COLOR.rgb * LIGHT_ENERGY * lost * 0.55, LIGHT_COLOR.a);
+}
 """
 
 	_material = ShaderMaterial.new()

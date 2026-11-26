@@ -1,35 +1,30 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://tsvycuqa5r2n"]
 
-[ext_resource type="Script" path="res://src/entities/camp/campfire/campfire.gd" id="1_campfire"]
-[ext_resource type="Script" path="res://src/entities/camp/campfire/campfire_refuel.gd" id="2_refuel"]
+[ext_resource type="Script" uid="uid://bh14bm32g3sv5" path="res://src/entities/camp/campfire/campfire.gd" id="1_campfire"]
+[ext_resource type="Script" uid="uid://d0bpgx83fgmsu" path="res://src/entities/camp/campfire/campfire_refuel.gd" id="2_refuel"]
 [ext_resource type="Resource" path="res://src/data/configs/campfire_config.tres" id="3_config"]
 
-[sub_resource type="Gradient" id="Gradient_fire"]
-offsets = PackedFloat32Array(0, 1)
-colors = PackedColorArray(1, 0.85, 0.4, 1, 1, 0.35, 0.1, 1)
-
-[node name="Campfire" type="Node2D"]
+[node name="Campfire" type="Node2D" unique_id=1503145147]
 script = ExtResource("1_campfire")
 config = ExtResource("3_config")
 
-[node name="Visual" type="Polygon2D" parent="."]
+[node name="Visual" type="Polygon2D" parent="." unique_id=773407841]
 color = Color(0.85, 0.42, 0.18, 1)
 polygon = PackedVector2Array(-18, 12, 18, 12, 12, 2, -12, 2)
 
-[node name="Flame" type="Polygon2D" parent="."]
+[node name="Flame" type="Polygon2D" parent="." unique_id=12396588]
 color = Color(1, 0.7, 0.25, 1)
 polygon = PackedVector2Array(-8, 2, 0, -22, 8, 2)
 
-[node name="Label" type="Label" parent="."]
+[node name="Label" type="Label" parent="." unique_id=1528403189]
 offset_left = -50.0
 offset_top = -46.0
 offset_right = 50.0
 offset_bottom = -28.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.9, 0.7, 1)
 theme_override_font_sizes/font_size = 11
 text = "Api Unggun"
 horizontal_alignment = 1
 
-[node name="Refuel" type="Node2D" parent="."]
+[node name="Refuel" type="Node2D" parent="." unique_id=1690105588]
 script = ExtResource("2_refuel")

@@ -83,5 +83,6 @@ func _build() -> void:
 
 	var material := CanvasItemMaterial.new()
 	material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	material.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
 	_rect.material = material
 	add_child(_rect)

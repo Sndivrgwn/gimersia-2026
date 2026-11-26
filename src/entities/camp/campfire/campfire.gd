@@ -48,6 +48,8 @@ var _rest_timer: float = 0.0
 var _rest_players: Array[Node] = []
 var _light: PointLight2D
 var _light_texture: Texture2D
+## Faktor fade halus cahaya api (0 = padam, 1 = menyala penuh).
+var _light_fade: float = 0.0
 
 
 func _enter_tree() -> void:
@@ -68,6 +70,7 @@ func _ready() -> void:
 	link.station = self
 	add_child(link)
 	_ensure_light()
+	_light_fade = 1.0 if get_light_radius() > 0.0 else 0.0
 	_refresh_light()
 	VisualSlot.attach(self, &"campfire", [get_node_or_null("Visual"), get_node_or_null("Flame")], null, CampfireVisual.new())
 
@@ -231,11 +234,12 @@ func _day() -> int:
 func tick(delta: float) -> void:
 	if delta <= 0.0:
 		return
+	var time_scale := _time_scale()
 	if is_lit():
-		var time_scale := _time_scale()
 		if time_scale > 0.0:
 			var rate := config.night_drain if _is_night() else config.day_drain
 			_set_fuel(_fuel - rate * time_scale * delta)
+	_tick_light_fade(delta * maxf(time_scale, 0.0))
 	_update_rest(delta)
 
 
@@ -408,17 +412,40 @@ func _ensure_light() -> void:
 	_light.texture = _light_texture
 	_light.color = Color(1.0, 0.72, 0.4, 1.0)
 	_light.energy = 1.0
+	# Jangkau SunSweepOverlay (layer 2) agar blend_mul senja tidak meredupkan cahaya api.
+	_light.range_layer_max = SunSweepOverlay.LAYER
 	add_child(_light)
+
+
+## Energi cahaya target berdasarkan kegelapan dunia 0..1 (0 siang, 0.5 sore, 1 malam).
+func compute_light_energy(darkness: float) -> float:
+	_ensure_config()
+	var d := clampf(darkness, 0.0, 1.0)
+	if d <= 0.5:
+		return lerpf(config.light_energy_day, config.light_energy_dusk, d * 2.0)
+	return lerpf(config.light_energy_dusk, config.light_energy_night, (d - 0.5) * 2.0)
+
+
+func _tick_light_fade(game_delta: float) -> void:
+	_ensure_config()
+	var target := 1.0 if get_light_radius() > 0.0 else 0.0
+	if config.light_fade_seconds <= 0.0:
+		_light_fade = target
+	elif game_delta > 0.0:
+		_light_fade = move_toward(_light_fade, target, game_delta / config.light_fade_seconds)
+	_refresh_light()
 
 
 func _refresh_light() -> void:
 	if _light == null or _light_texture == null:
 		return
 	var radius := get_light_radius()
+	var effective_radius := radius if radius > 0.0 else (config.lit_light_radius if config != null else 240.0)
 	var width := maxf(float(_light_texture.get_width()), 1.0)
-	_light.texture_scale = (radius * 2.0) / width
-	_light.visible = radius > 0.0
-	_light.energy = lerpf(DAY_LIGHT_ENERGY, NIGHT_LIGHT_ENERGY, _world_darkness())
+	_light.texture_scale = (effective_radius * 2.0) / width
+	var active := radius > 0.0 or _light_fade > 0.001
+	_light.visible = active
+	_light.energy = compute_light_energy(_world_darkness()) * _light_fade if active else 0.0
 
 
 ## 0 siang terang, 1 malam; dibaca dari tint CanvasModulate DayNightVisual.

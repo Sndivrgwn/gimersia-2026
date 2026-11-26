@@ -10,10 +10,11 @@ signal dash_ended(hit: bool)
 signal telegraph_started(target: Vector2, seconds: float)
 signal telegraph_ended()
 
-enum State { WANDER, CHASE, BITE, DASH_TELEGRAPH, DASH, RECOVER, FLEE }
+enum State { WANDER, CHASE, BITE, DASH_TELEGRAPH, DASH, RECOVER, FLEE, CIRCLE }
 
 const DEFAULT_RAID_CONFIG: RaidConfig = preload("res://src/data/configs/fauna/raid_config.tres")
 const CAMP_CENTER := Vector2.ZERO
+const COORDINATOR_META := &"_chase_coordinator"
 ## Fase 5: timing gigit/recover dan knockback dash pindah ke BoarConfig
 ## (`bite_hold_time`, `dash_recover_time`, `dash_knockback_distance`).
 ## Fase 3B: garis merah makin tebal/terang menjelang dash, plus cincin zona
@@ -45,12 +46,30 @@ var _telegraph_label: Label
 var _telegraph_ring: Polygon2D
 var _telegraph_active: bool = false
 var _telegraph_duration: float = 1.0
+## Mission 16 (L3): koordinator kelompok (bisa di-inject di tes).
+var coordinator: ChaseCoordinator
+var _reaction_remaining: float = 0.0
+var _last_coord_tick_frame: int = -1
 
 
 func _ready() -> void:
 	super()
 	ensure_ready()
 	temperament = Temperament.HOSTILE if (forced_hostile or _is_night()) else Temperament.NEUTRAL
+
+
+func _exit_tree() -> void:
+	_unregister_coordinator()
+
+
+func despawn() -> void:
+	_unregister_coordinator()
+	super()
+
+
+func _on_health_died(source: Node) -> void:
+	_unregister_coordinator()
+	super(source)
 
 
 func visual_key() -> StringName:
@@ -96,28 +115,37 @@ func _update_behavior(delta: float) -> void:
 		_wander(delta)
 		return
 
-	_bite_cooldown = maxf(_bite_cooldown - delta * get_attack_speed_factor(), 0.0)
-	_dash_cooldown = maxf(_dash_cooldown - delta, 0.0)
+	var time_scale := get_time_scale()
+	if time_scale <= 0.0:
+		move_in_direction(Vector2.ZERO, 0.0, 0.0)
+		return
+	var scaled_delta := delta * time_scale
+
+	_bite_cooldown = maxf(_bite_cooldown - scaled_delta * get_attack_speed_factor(), 0.0)
+	_dash_cooldown = maxf(_dash_cooldown - scaled_delta, 0.0)
+	_reaction_remaining = maxf(_reaction_remaining - scaled_delta, 0.0)
 
 	var target := _find_player()
-	_update_temperament(delta, target)
+	_update_temperament(scaled_delta, target)
 
 	if state == State.DASH_TELEGRAPH:
-		_tick_telegraph(delta, boar)
+		_tick_telegraph(scaled_delta, boar)
 		return
 	if state == State.DASH:
-		_tick_dash(delta, boar)
+		_tick_dash(scaled_delta, boar)
 		return
 	if state == State.BITE:
-		_bite_remaining -= delta
-		move_in_direction(Vector2.ZERO, 0.0, delta)
+		_bite_remaining -= scaled_delta
+		move_in_direction(Vector2.ZERO, 0.0, scaled_delta)
 		if _bite_remaining <= 0.0:
+			_release_attack_token()
 			state = State.CHASE
 		return
 	if state == State.RECOVER:
-		_recover_remaining -= delta
-		move_in_direction(Vector2.ZERO, 0.0, delta)
+		_recover_remaining -= scaled_delta
+		move_in_direction(Vector2.ZERO, 0.0, scaled_delta)
 		if _recover_remaining <= 0.0:
+			_release_attack_token()
 			state = State.CHASE
 		return
 
@@ -125,12 +153,19 @@ func _update_behavior(delta: float) -> void:
 	var chosen := _choose_target(target, boar)
 
 	if chosen == null:
+		_unregister_coordinator()
 		state = State.WANDER
-		_wander(delta)
+		_wander(scaled_delta)
 		return
 
 	var chosen_position := (chosen as Node2D).global_position
 	var distance := global_position.distance_to(chosen_position)
+
+	if boar.smart_chase_enabled and chosen == target and distance > boar.lose_aggro_distance_px:
+		_unregister_coordinator()
+		state = State.WANDER
+		_wander(scaled_delta)
+		return
 
 	# D2: pagar yang utuh menghalangi serangan ke target di belakangnya.
 	var blocker := _blocking_fence(chosen_position)
@@ -140,7 +175,12 @@ func _update_behavior(delta: float) -> void:
 			return
 		state = State.CHASE
 		face(blocker.global_position - global_position)
-		move_in_direction(blocker.global_position - global_position, get_move_speed(), delta)
+		move_in_direction(blocker.global_position - global_position, get_move_speed(), scaled_delta)
+		return
+
+	# Mission 16 (L3): jalur smart chase (flank slot, attack token, circling, separation).
+	if boar.smart_chase_enabled and chosen == target:
+		_tick_smart_chase(scaled_delta, chosen, chosen_position, distance, boar)
 		return
 
 	if distance <= boar.bite_range and _bite_cooldown <= 0.0:
@@ -155,9 +195,9 @@ func _update_behavior(delta: float) -> void:
 	face(chosen_position - global_position)
 	# Mission 9: jangan menekan pemain; berhenti di jarak kontak.
 	if chosen == target and distance <= get_contact_distance_to_player():
-		move_in_direction(Vector2.ZERO, 0.0, delta)
+		move_in_direction(Vector2.ZERO, 0.0, scaled_delta)
 		return
-	move_in_direction(chosen_position - global_position, get_move_speed(), delta)
+	move_in_direction(chosen_position - global_position, get_move_speed(), scaled_delta)
 
 
 # --- Decision ---------------------------------------------------------------
@@ -185,6 +225,7 @@ func _update_temperament(delta: float, target: Node) -> void:
 
 ## Kembali tenang: provoke hilang, tanpa target, state WANDER.
 func _calm_down() -> void:
+	_unregister_coordinator()
 	_clear_telegraph()
 	clear_provoke()
 	reset_provoke_calm()
@@ -261,7 +302,10 @@ func _bite(target: Node, boar: BoarConfig) -> void:
 	state = State.BITE
 	_bite_remaining = boar.bite_hold_time
 	move_in_direction(Vector2.ZERO, 0.0, 0.0)
-	_bite_cooldown = boar.bite_cooldown
+	if boar.smart_chase_enabled and coordinator != null:
+		_bite_cooldown = coordinator.next_cooldown()
+	else:
+		_bite_cooldown = boar.bite_cooldown
 	_deal_damage(target, boar.bite_damage, boar.bite_damage, Vector2.ZERO, 0.0)
 	_lunge_visual(target)
 
@@ -284,12 +328,20 @@ func _begin_telegraph(locked_position: Vector2, boar: BoarConfig) -> void:
 	state = State.DASH_TELEGRAPH
 	_telegraph_remaining = boar.dash_telegraph
 	_telegraph_duration = maxf(boar.dash_telegraph, 0.001)
-	_dash_target = locked_position
+	var target_pos := locked_position
+	if boar.smart_chase_enabled and boar.boar_overshoot_px > 0.0:
+		var raw_offset := locked_position - global_position
+		if raw_offset.length_squared() > 0.0001:
+			var charge_len := raw_offset.length() + boar.boar_overshoot_px
+			if boar.boar_charge_distance_px > 0.0:
+				charge_len = minf(charge_len, boar.boar_charge_distance_px + boar.boar_overshoot_px)
+			target_pos = global_position + raw_offset.normalized() * charge_len
+	_dash_target = target_pos
 	_dash_hit = false
 	move_in_direction(Vector2.ZERO, 0.0, 0.0)
 	if _visual != null:
 		_visual.modulate = Color(1.5, 0.5, 0.5, 1.0)
-	_show_telegraph(locked_position, boar.dash_hit_radius)
+	_show_telegraph(_dash_target, boar.dash_hit_radius)
 	telegraph_started.emit(_dash_target, boar.dash_telegraph)
 
 
@@ -471,8 +523,104 @@ func _blocking_fence(to: Vector2) -> FenceSegment:
 func _finish_dash() -> void:
 	move_in_direction(Vector2.ZERO, 0.0, 0.0)
 	if state == State.DASH:
+		_release_attack_token()
 		state = State.CHASE
 		dash_ended.emit(false)
+
+
+# --- Smart Chase (Mission 16 / L3) ------------------------------------------
+
+func _ensure_coordinator(boar: BoarConfig) -> ChaseCoordinator:
+	if coordinator != null:
+		coordinator.setup(boar)
+		return coordinator
+	var host := get_parent()
+	if host != null:
+		if host.has_meta(COORDINATOR_META):
+			var existing := host.get_meta(COORDINATOR_META) as ChaseCoordinator
+			if existing != null:
+				coordinator = existing
+				coordinator.setup(boar)
+				return coordinator
+		coordinator = ChaseCoordinator.new()
+		coordinator.setup(boar)
+		host.set_meta(COORDINATOR_META, coordinator)
+		return coordinator
+	coordinator = ChaseCoordinator.new()
+	coordinator.setup(boar)
+	return coordinator
+
+
+func _unregister_coordinator() -> void:
+	if coordinator != null:
+		coordinator.unregister(get_instance_id())
+
+
+func _release_attack_token() -> void:
+	if coordinator != null:
+		coordinator.release_attack_token(get_instance_id())
+
+
+func _tick_smart_chase(delta: float, chosen: Node, chosen_position: Vector2, distance: float, boar: BoarConfig) -> void:
+	var coord := _ensure_coordinator(boar)
+	var frame := Engine.get_physics_frames()
+	if frame != _last_coord_tick_frame:
+		_last_coord_tick_frame = frame
+		coord.tick(delta)
+
+	var id := get_instance_id()
+	coord.register(id)
+	var was_circling := state == State.CIRCLE
+	var has_token := coord.request_attack_token(id)
+
+	if not has_token:
+		state = State.CIRCLE
+		var orbit_goal := chosen_position + coord.desired_offset(id, chosen_position, global_position, get_contact_distance_to_player())
+		var steer := _steer_with_separation(orbit_goal - global_position, coord)
+		face(chosen_position - global_position)
+		move_in_direction(steer, get_move_speed() * boar.circle_speed_factor, delta)
+		return
+
+	if was_circling:
+		_reaction_remaining = coord.next_reaction_delay()
+
+	if _reaction_remaining <= 0.0:
+		if distance <= boar.bite_range and _bite_cooldown <= 0.0:
+			_bite(chosen, boar)
+			return
+		if distance >= boar.dash_min_distance and distance <= boar.dash_max_distance and _dash_cooldown <= 0.0:
+			_begin_telegraph(chosen_position, boar)
+			return
+
+	state = State.CHASE
+	face(chosen_position - global_position)
+	if distance <= get_contact_distance_to_player():
+		move_in_direction(Vector2.ZERO, 0.0, delta)
+		return
+	var slot_goal := chosen_position + coord.desired_offset(id, chosen_position, global_position, get_contact_distance_to_player())
+	var move_dir := _steer_with_separation(slot_goal - global_position, coord)
+	move_in_direction(move_dir, get_move_speed(), delta)
+
+
+func _steer_with_separation(desired: Vector2, coord: ChaseCoordinator) -> Vector2:
+	var base := desired.normalized() if desired.length_squared() > 0.0001 else Vector2.ZERO
+	var sep := coord.separation(global_position, _neighbor_boar_positions())
+	var combined := base + sep
+	if combined.length_squared() <= 0.0001:
+		return base
+	return combined.normalized()
+
+
+func _neighbor_boar_positions() -> Array[Vector2]:
+	var positions: Array[Vector2] = []
+	var tree := get_tree()
+	if tree == null:
+		return positions
+	for node in tree.get_nodes_in_group(GROUP):
+		if node == self or not (node is WildBoar) or not is_instance_valid(node):
+			continue
+		positions.append((node as Node2D).global_position)
+	return positions
 
 
 func _deal_damage(target: Node, player_damage: float, structure_damage: float, knockback_dir: Vector2, knockback: float) -> void:

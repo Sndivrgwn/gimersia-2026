@@ -11,7 +11,7 @@ const PLAYER_GROUP := &"player"
 const CRAFTING_NAME := "CraftingComponent"
 const WORKBENCH_TYPE := RecipeDefinition.Station.WORKBENCH
 const CAMPFIRE_TYPE := RecipeDefinition.Station.CAMPFIRE
-const COLD_REASON := "Api dingin - gesek batu dulu"
+const COLD_REASON := "Api belum menyala - gesek batu dulu"
 const FLINT_HINT := "Gesek batu: tekan E saat penanda di zona hijau"
 const FUEL_TEXT := "Bahan bakar: %d/%d dtk"
 const REFUEL_LABEL := "Isi Bahan Bakar (2 Kayu)"
@@ -265,9 +265,11 @@ func _connect_station_signals() -> void:
 	if station == null:
 		return
 	var callback := Callable(self, &"_on_station_state_changed")
-	for signal_name in [&"lit_changed", &"fuel_changed"]:
-		if station.has_signal(signal_name) and not station.is_connected(signal_name, callback):
-			station.connect(signal_name, callback)
+	# Hanya dengarkan lit_changed, bukan fuel_changed (fuel_changed terpancar tiap
+	# frame saat api menyala; rebuild() di sini dulu menghancurkan tombol "Buat"
+	# sebelum klik mouse selesai). Bar bahan bakar diperbarui di _refresh_runtime().
+	if station.has_signal(&"lit_changed") and not station.is_connected(&"lit_changed", callback):
+		station.connect(&"lit_changed", callback)
 
 
 func refresh_rows() -> void:
@@ -333,7 +335,7 @@ func _station_title() -> String:
 
 func _state_text() -> String:
 	if _is_cold():
-		return "Api dingin - gesek batu dulu"
+		return COLD_REASON
 	if _station_type() == CAMPFIRE_TYPE:
 		return "Api menyala"
 	return "Siap dipakai"

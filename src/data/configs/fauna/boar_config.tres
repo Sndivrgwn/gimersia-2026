@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BoarConfig" format=3 uid="uid://dulmeyo8vdwui"]
+[gd_resource type="Resource" script_class="BoarConfig" format=3 uid="uid://djvhlhmx4ayne"]
 
 [ext_resource type="Script" uid="uid://cad8s6h6nu6t" path="res://src/data/resources/fauna/boar_config.gd" id="1_vejoo"]
 
@@ -7,12 +7,3 @@ script = ExtResource("1_vejoo")
 move_speed_night = 150.0
 blocks_player = true
 knockback_resistance = 0.35
-max_hp = 80.0
-move_speed_day = 115.0
-wander_speed_factor = 0.5
-wander_radius = 200.0
-wander_pause_min = 2.0
-wander_pause_max = 5.0
-flee_despawn_distance = 600.0
-flee_despawn_timeout = 8.0
-contact_stop_extra = 2.0

@@ -26,16 +26,24 @@ static func mask(progress: float, side: int, softness: float, x_norm: float) -> 
 	if t <= 0.0:
 		return 0.0
 	var x := clampf(x_norm, 0.0, 1.0)
-	var edge := minf(clampf(softness, 0.0, 1.0), t)
+	var soft := clampf(softness, 0.0, 1.0)
+	var edge := minf(soft, t)
+	var value := 0.0
 	if side == SIDE_LEFT:
 		# Cahaya masuk dari kiri: front bergerak ke kanan.
 		if edge <= 0.0:
 			return 1.0 if x <= t else 0.0
-		return 1.0 - smoothstep(t, t + edge, x)
-	# Cahaya masuk dari kanan: front bergerak ke kiri.
-	if edge <= 0.0:
-		return 1.0 if x >= 1.0 - t else 0.0
-	return smoothstep(1.0 - t - edge, 1.0 - t, x)
+		value = 1.0 - smoothstep(t, t + edge, x)
+	else:
+		# Cahaya masuk dari kanan: front bergerak ke kiri.
+		if edge <= 0.0:
+			return 1.0 if x >= 1.0 - t else 0.0
+		value = smoothstep(1.0 - t - edge, 1.0 - t, x)
+	if soft > 0.0 and t < soft:
+		# Redam awal sapuan agar tepi layar tempat front masuk tidak loncat
+		# dari gelap penuh ke terang penuh pada frame pertama transisi.
+		value *= t / soft
+	return value
 
 
 ## Intensitas pita hangat: 1 tepat di front (di tengah transisi), 0 jauh dari front
@@ -83,15 +91,21 @@ static func plan(config: SunConfig, is_night: bool, remaining: float, duration: 
 	if seconds <= 0.0:
 		return result
 
-	var bright := from_color
+	var bright_endpoint := from_color
 	var darken_swept := true
 	if DayLightCurve.luminance(to_color) > DayLightCurve.luminance(from_color):
-		bright = to_color
+		bright_endpoint = to_color
 		darken_swept = false
+	var sweep_progress := clampf(1.0 - remaining / seconds, 0.0, 1.0)
+	# Envelope 0 -> 1 -> 0: CanvasModulate mulai dan berakhir tepat di `target`,
+	# sehingga rasio blend_mul kembali putih (1.0) di kedua ujung transisi dan
+	# tidak membuat PointLight2D (api unggun/obor) loncat saat overlay mati.
+	var sweep_envelope := 4.0 * sweep_progress * (1.0 - sweep_progress)
+	var bright := target.lerp(bright_endpoint, sweep_envelope)
 	result["sweep"] = true
 	result["color"] = bright
 	result["ratio"] = ratio(bright, target)
-	result["progress"] = clampf(1.0 - remaining / seconds, 0.0, 1.0)
+	result["progress"] = sweep_progress
 	result["side"] = config.side_for(is_night)
 	result["seconds"] = seconds
 	result["darken_swept"] = darken_swept

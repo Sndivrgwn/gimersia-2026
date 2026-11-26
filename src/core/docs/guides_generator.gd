@@ -220,6 +220,41 @@ Field transisi di `res://src/data/configs/ui/splash_config.tres` (bisa diubah la
 | Layar hitam lama sebelum menu | `transition_hold_before` terlalu besar atau `min_total_seconds` menahan layar terlalu lama setelah skip. | Kecilkan `transition_hold_before` (mis. `0.05`–`0.15`) dan `min_total_seconds` di `splash_config.tres`. |
 | Lingkaran tidak kelihatan | `transition_enabled = false`, jalur `dev_skip` / `GIMERSIA_SKIP_SPLASH=1` aktif, `transition_duration` terlalu kecil, atau shader gagal dimuat. | Pastikan `transition_enabled = true`, `dev_skip = false`, `transition_duration >= 0.4`, dan cek konsol untuk peringatan `IrisOverlay: gagal memuat shader`. |
 
+## Api unggun, masak, dan AI kejar/serang (Mission 16)
+
+### Cahaya api unggun (siang, sore, malam)
+
+Energi cahaya `Campfire` dikendalikan oleh status api (`is_lit()`) dan kegelapan dunia kontinu (`DayNightVisual.get_world_darkness()`), bukan enum fase. Field di `src/data/configs/campfire_config.tres`:
+
+- `light_energy_day` (`0.6`), `light_energy_dusk` (`1.0`), `light_energy_night` (`1.4`) — energi `PointLight2D` pada kegelapan 0.0 / 0.5 / 1.0 (naik halus dari sore menuju malam).
+- `light_fade_seconds` (`0.5`) — lama fade halus saat api menyala atau padam (mengikuti `time_scale` & pause).
+
+### Masak di api unggun
+
+- Tekan **E** di dekat `Campfire` untuk membuka `StationPanel`.
+- **Syarat masak:** api harus menyala (`is_lit() == true`; bila baru dibangun atau padam, klik **Gesek Batu** dulu) dan bahan resep lengkap di tas.
+- **Pesan gagal:** `"Api belum menyala - gesek batu dulu"` saat api masih dingin, dan `"Kumpulkan N <nama bahan>"` saat bahan kurang.
+
+### AI kejar & serang kelompok (`WildBoar` + `ChaseCoordinator`)
+
+Saat `smart_chase_enabled = true` di `src/data/configs/fauna/boar_config.tres`, sekelompok babi memakai satu `ChaseCoordinator` (per container `Fauna`, bukan autoload):
+
+- **Separation:** `separation_radius_px` (`48.0`), `separation_weight` (`1.2`) menjaga jarak antar babi agar tidak menumpuk.
+- **Slot pendekatan & circling:** `approach_slot_count` (`5`), `circle_radius_px` (`140.0`), `circle_speed_factor` (`0.7`).
+- **Token serang & ritme:** `max_simultaneous_attackers` (`2`), `windup_seconds` (`0.45`), `recovery_seconds` (`0.6`), `attack_cooldown_min`/`max` (`1.2`–`2.2`), `reaction_delay_max` (`0.35`).
+- **Dash & leash:** `boar_charge_speed_multiplier` (`2.6`), `boar_charge_distance_px` (`220.0`), `boar_overshoot_px` (`40.0`), `lose_aggro_distance_px` (`600.0`).
+- **Mematikan perilaku baru:** set `smart_chase_enabled = false` di `boar_config.tres` untuk kembali ke pengejaran lurus lama persis. HP, damage, dan drop tidak berubah.
+
+### Troubleshooting api unggun, masak, dan AI musuh
+
+| Gejala | Penyebab umum | Solusi |
+| --- | --- | --- |
+| Api masih gelap di sore | `light_energy_dusk` terlalu rendah atau api masih dalam kondisi dingin (`start_lit = false`). | Nyalakan api lewat **Gesek Batu**, lalu naikkan `light_energy_dusk` di `campfire_config.tres`. |
+| Tidak bisa masak | Api belum dinyalakan, bahan kurang, atau tas/stasiun terlalu jauh. | Pastikan status panel `"Api menyala"` dan bahan di baris resep berwarna hijau sebelum klik **Buat**. |
+| Musuh masih berbaris | `smart_chase_enabled = false` atau `separation_weight` / `approach_slot_count` terlalu kecil. | Pastikan `smart_chase_enabled = true`, `separation_weight >= 1.0`, dan `approach_slot_count >= 4` di `boar_config.tres`. |
+| Musuh terlalu agresif / terlalu pasif | `max_simultaneous_attackers` atau rentang `attack_cooldown_min`/`max` terlalu rendah/tinggi. | Turunkan `max_simultaneous_attackers` (mis. `1`) atau perlebar `attack_cooldown_min`/`max` untuk melunakkan; naikkan untuk memperketat. |
+| Musuh bengong mengitari terus | `circle_radius_px` lebih besar dari jangkauan atau token tidak dilepas saat menyerang. | Jaga `circle_radius_px` (`120`–`160 px`) di bawah `detect_radius` (`300 px`); token juga otomatis dilepas lewat timeout di `ChaseCoordinator`. |
+
 """
 
 

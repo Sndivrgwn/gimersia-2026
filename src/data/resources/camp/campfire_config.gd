@@ -44,6 +44,14 @@ extends Resource
 @export var ember_light_radius: float = 80.0
 ## Radius efek Dazzled (getter saja; musuh menyusul).
 @export var dazzle_radius: float = 180.0
+## Energi cahaya saat siang (darkness = 0.0).
+@export_range(0.0, 3.0, 0.05) var light_energy_day: float = 0.6
+## Energi cahaya saat sore/senja (darkness = 0.5).
+@export_range(0.0, 3.0, 0.05) var light_energy_dusk: float = 1.0
+## Energi cahaya saat malam penuh (darkness = 1.0).
+@export_range(0.0, 3.0, 0.05) var light_energy_night: float = 1.4
+## Lama transisi halus nyala/mati cahaya api (detik game).
+@export_range(0.0, 5.0, 0.05, "suffix:s") var light_fade_seconds: float = 0.5
 
 @export_group("Rest Bonus")
 ## Radius pemain dianggap beristirahat di dekat api.
