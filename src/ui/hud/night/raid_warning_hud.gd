@@ -20,7 +20,23 @@ func _ready() -> void:
 	_label = Label.new()
 	_label.name = "RaidWarningLabel"
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_label.add_theme_font_size_override("font_size", 15)
 	_label.add_theme_color_override("font_color", Color(1.0, 0.62, 0.45, 1.0))
+	_label.add_theme_color_override("font_outline_color", Color(0.14, 0.09, 0.05, 0.95))
+	_label.add_theme_constant_override("outline_size", 3)
+	var tex_path := "res://assets/textures/ui/02_panel/panel_walnut_stitched.png"
+	if ResourceLoader.exists(tex_path):
+		var box := StyleBoxTexture.new()
+		box.texture = load(tex_path) as Texture2D
+		box.texture_margin_left = 20.0
+		box.texture_margin_top = 20.0
+		box.texture_margin_right = 20.0
+		box.texture_margin_bottom = 20.0
+		box.content_margin_left = 18.0
+		box.content_margin_top = 10.0
+		box.content_margin_right = 18.0
+		box.content_margin_bottom = 10.0
+		_label.add_theme_stylebox_override("normal", box)
 	add_child(_label)
 	_connect_director()
 

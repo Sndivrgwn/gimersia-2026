@@ -53,12 +53,14 @@ func _build() -> void:
 	add_child(root)
 	_label = Label.new()
 	_label.name = "Effects"
-	_label.position = Vector2(12.0, -80.0)
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_label.add_theme_font_size_override("font_size", 12)
+	_label.add_theme_font_size_override("font_size", 13)
+	_label.add_theme_color_override("font_color", Color(1.0, 0.96, 0.88, 1.0))
+	_label.add_theme_color_override("font_outline_color", Color(0.14, 0.09, 0.05, 0.95))
+	_label.add_theme_constant_override("outline_size", 3)
 	root.add_child(_label)
 	_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
-	_label.position = Vector2(12.0, -72.0)
+	_label.position = Vector2(20.0, -84.0)
 
 
 func _bind() -> void:

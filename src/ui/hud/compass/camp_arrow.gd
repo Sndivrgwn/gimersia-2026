@@ -112,11 +112,26 @@ func _build() -> void:
 	_label.visible = false
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_label.add_theme_font_size_override("font_size", 13)
-	_label.add_theme_color_override("font_color", Color(0.82, 0.9, 1.0, 0.9))
+	_label.add_theme_font_size_override("font_size", 14)
+	_label.add_theme_color_override("font_color", Color(0.96, 0.94, 0.88, 1.0))
+	_label.add_theme_color_override("font_outline_color", Color(0.14, 0.09, 0.05, 0.95))
+	_label.add_theme_constant_override("outline_size", 3)
+	var tex_path := "res://assets/textures/ui/02_panel/panel_walnut_stitched.png"
+	if ResourceLoader.exists(tex_path):
+		var box := StyleBoxTexture.new()
+		box.texture = load(tex_path) as Texture2D
+		box.texture_margin_left = 18.0
+		box.texture_margin_top = 18.0
+		box.texture_margin_right = 18.0
+		box.texture_margin_bottom = 18.0
+		box.content_margin_left = 14.0
+		box.content_margin_top = 8.0
+		box.content_margin_right = 14.0
+		box.content_margin_bottom = 8.0
+		_label.add_theme_stylebox_override("normal", box)
 	_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT, Control.PRESET_MODE_MINSIZE, MARGIN)
-	_label.offset_top = 88.0
-	_label.offset_left = -216.0
+	_label.offset_top = 208.0
+	_label.offset_left = -220.0
 	_label.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	add_child(_label)
 

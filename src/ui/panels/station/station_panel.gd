@@ -69,8 +69,25 @@ func open(p_station: Node, p_interactor: Node = null) -> bool:
 	_connect_crafting()
 	_connect_station_signals()
 	rebuild()
+	_focus_first_action()
 	opened.emit(station)
 	return true
+
+
+func _focus_first_action() -> void:
+	if _flint != null and _flint.visible and not _flint.disabled:
+		_flint.grab_focus()
+		return
+	if _refuel != null and _refuel.visible and not _refuel.disabled:
+		_refuel.grab_focus()
+		return
+	for row in _rows:
+		if row != null and is_instance_valid(row) and row.has_method(&"is_craft_disabled") and not row.is_craft_disabled():
+			for child in (row as Node).find_children("", "Button", true, false):
+				var btn := child as Button
+				if btn != null and not btn.disabled:
+					btn.grab_focus()
+					return
 
 
 func close() -> void:
@@ -414,17 +431,32 @@ func _build_ui() -> void:
 
 	var panel := PanelContainer.new()
 	panel.name = "Panel"
-	panel.custom_minimum_size = Vector2(760.0, 500.0)
+	panel.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	panel.custom_minimum_size = Vector2(780.0, 520.0)
 	panel.set_anchors_preset(Control.PRESET_CENTER)
 	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
-	var style := StyleBoxFlat.new()
-	style.bg_color = PANEL_COLOR
-	style.border_color = Color(0.85, 0.78, 0.5, 0.8)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(8)
-	style.set_content_margin_all(14.0)
-	panel.add_theme_stylebox_override("panel", style)
+	var panel_tex := "res://assets/textures/ui/02_panel/panel_walnut_stitched.png"
+	if ResourceLoader.exists(panel_tex):
+		var box := StyleBoxTexture.new()
+		box.texture = load(panel_tex) as Texture2D
+		box.texture_margin_left = 24.0
+		box.texture_margin_top = 24.0
+		box.texture_margin_right = 24.0
+		box.texture_margin_bottom = 24.0
+		box.content_margin_left = 24.0
+		box.content_margin_top = 20.0
+		box.content_margin_right = 24.0
+		box.content_margin_bottom = 20.0
+		panel.add_theme_stylebox_override("panel", box)
+	else:
+		var style := StyleBoxFlat.new()
+		style.bg_color = PANEL_COLOR
+		style.border_color = Color(0.85, 0.78, 0.5, 0.8)
+		style.set_border_width_all(2)
+		style.set_corner_radius_all(8)
+		style.set_content_margin_all(18.0)
+		panel.add_theme_stylebox_override("panel", style)
 	_root.add_child(panel)
 
 	var box := VBoxContainer.new()
@@ -448,28 +480,32 @@ func _build_ui() -> void:
 
 	_fuel_bar = ProgressBar.new()
 	_fuel_bar.show_percentage = false
-	_fuel_bar.custom_minimum_size = Vector2(0, 8)
+	_fuel_bar.custom_minimum_size = Vector2(0, 14)
+	_apply_bar_textures(_fuel_bar)
 	box.add_child(_fuel_bar)
 
 	var fire_row := HBoxContainer.new()
-	fire_row.add_theme_constant_override("separation", 6)
+	fire_row.add_theme_constant_override("separation", 8)
 	box.add_child(fire_row)
 	_refuel = Button.new()
 	_refuel.text = REFUEL_LABEL
-	_refuel.focus_mode = Control.FOCUS_NONE
+	_refuel.focus_mode = Control.FOCUS_ALL
+	_apply_button_textures(_refuel)
 	_refuel.pressed.connect(refuel_pressed)
 	fire_row.add_child(_refuel)
 	_flint = Button.new()
 	_flint.text = FLINT_LABEL
-	_flint.focus_mode = Control.FOCUS_NONE
+	_flint.focus_mode = Control.FOCUS_ALL
+	_apply_button_textures(_flint)
 	_flint.pressed.connect(flint_pressed)
 	fire_row.add_child(_flint)
 
 	_progress = ProgressBar.new()
 	_progress.max_value = 1.0
 	_progress.show_percentage = false
-	_progress.custom_minimum_size = Vector2(0, 10)
+	_progress.custom_minimum_size = Vector2(0, 14)
 	_progress.visible = false
+	_apply_bar_textures(_progress)
 	box.add_child(_progress)
 
 	_status = Label.new()
@@ -490,6 +526,50 @@ func _build_ui() -> void:
 
 	var hint := Label.new()
 	hint.text = "Esc / E: tutup"
-	hint.add_theme_font_size_override("font_size", 9)
-	hint.add_theme_color_override("font_color", Color(0.7, 0.74, 0.7, 1.0))
+	hint.add_theme_font_size_override("font_size", 10)
+	hint.add_theme_color_override("font_color", Color(0.84, 0.8, 0.72, 1.0))
 	box.add_child(hint)
+
+
+func _apply_bar_textures(bar: ProgressBar) -> void:
+	var bg_path := "res://assets/textures/ui/06_bar/bar_track_empty.png"
+	var fill_path := "res://assets/textures/ui/06_bar/bar_fill_stamina.png"
+	if ResourceLoader.exists(bg_path):
+		var bg := StyleBoxTexture.new()
+		bg.texture = load(bg_path) as Texture2D
+		bg.texture_margin_left = 18.0
+		bg.texture_margin_top = 14.0
+		bg.texture_margin_right = 18.0
+		bg.texture_margin_bottom = 14.0
+		bar.add_theme_stylebox_override("background", bg)
+	if ResourceLoader.exists(fill_path):
+		var fill := StyleBoxTexture.new()
+		fill.texture = load(fill_path) as Texture2D
+		fill.texture_margin_left = 12.0
+		fill.texture_margin_top = 8.0
+		fill.texture_margin_right = 12.0
+		fill.texture_margin_bottom = 8.0
+		fill.expand_margin_left = -3.0
+		fill.expand_margin_top = -3.0
+		fill.expand_margin_right = -3.0
+		fill.expand_margin_bottom = -3.0
+		bar.add_theme_stylebox_override("fill", fill)
+
+
+func _apply_button_textures(btn: Button) -> void:
+	var states := {"normal": "normal", "hover": "hover", "pressed": "pressed", "disabled": "disabled"}
+	for st in states:
+		var path := "res://assets/textures/ui/03_button/button_primary_%s.png" % states[st]
+		if ResourceLoader.exists(path):
+			var box := StyleBoxTexture.new()
+			box.texture = load(path) as Texture2D
+			box.texture_margin_left = 14.0
+			box.texture_margin_top = 12.0
+			box.texture_margin_right = 14.0
+			box.texture_margin_bottom = 12.0
+			box.content_margin_left = 12.0
+			box.content_margin_top = 6.0
+			box.content_margin_right = 12.0
+			box.content_margin_bottom = 6.0
+			btn.add_theme_stylebox_override(st, box)
+	btn.add_theme_color_override("font_color", Color(0.968627, 0.945098, 0.898039, 1.0))

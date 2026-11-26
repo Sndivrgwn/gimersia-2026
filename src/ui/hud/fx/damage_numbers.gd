@@ -4,8 +4,8 @@ extends CanvasLayer
 ## Hanya membaca sinyal CombatComponent; tidak menyentuh damage/hitbox.
 
 const MAX_LABELS := 20
-const LIFE := 0.6
-const RISE := 26.0
+const LIFE := 0.75
+const RISE := 36.0
 const HEAVY_DAMAGE := 8.0
 const COLOR_NORMAL := Color(1.0, 0.95, 0.7, 1.0)
 const COLOR_HEAVY := Color(1.0, 0.62, 0.35, 1.0)
@@ -47,12 +47,15 @@ func show_damage(world_position: Vector2, amount: float, color: Color = COLOR_NO
 		_free_entry(0)
 	var label := Label.new()
 	label.text = text_override if not text_override.is_empty() else "%d" % int(roundf(amount))
-	label.add_theme_font_size_override("font_size", 14)
+	var font_sz := 24 if (amount >= HEAVY_DAMAGE or not text_override.is_empty()) else 20
+	label.add_theme_font_size_override("font_size", font_sz)
 	label.add_theme_color_override("font_color", color)
-	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.85))
+	label.add_theme_color_override("font_outline_color", Color(0.12, 0.06, 0.03, 0.95))
+	label.add_theme_constant_override("outline_size", 4)
+	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.75))
 	label.add_theme_constant_override("shadow_offset_x", 1)
-	label.add_theme_constant_override("shadow_offset_y", 1)
-	label.position = _to_screen(world_position) - Vector2(10.0, 16.0)
+	label.add_theme_constant_override("shadow_offset_y", 2)
+	label.position = _to_screen(world_position) - Vector2(12.0, 20.0) + Vector2(randf_range(-8.0, 8.0), 0.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_canvas.add_child(label)
 	_entries.append({"label": label, "timer": LIFE, "origin": label.position})

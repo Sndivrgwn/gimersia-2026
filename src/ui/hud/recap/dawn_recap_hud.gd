@@ -215,16 +215,28 @@ func _build() -> void:
 	column.add_child(hint)
 
 
-func _panel_style() -> StyleBoxFlat:
+func _panel_style() -> StyleBox:
+	var tex_path := "res://assets/textures/ui/02_panel/panel_walnut_stitched.png"
+	if ResourceLoader.exists(tex_path):
+		var tex := load(tex_path) as Texture2D
+		if tex != null:
+			var box := StyleBoxTexture.new()
+			box.texture = tex
+			box.texture_margin_left = 24.0
+			box.texture_margin_top = 24.0
+			box.texture_margin_right = 24.0
+			box.texture_margin_bottom = 24.0
+			box.content_margin_left = 24.0
+			box.content_margin_top = 18.0
+			box.content_margin_right = 24.0
+			box.content_margin_bottom = 18.0
+			return box
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.05, 0.07, 0.1, 0.86)
+	style.bg_color = Color(0.16, 0.11, 0.08, 0.9)
 	style.border_width_left = 2
 	style.border_width_top = 2
 	style.border_width_right = 2
 	style.border_width_bottom = 2
 	style.border_color = Color(0.85, 0.78, 0.55, 0.5)
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_left = 8
-	style.corner_radius_bottom_right = 8
+	style.set_corner_radius_all(8)
 	return style

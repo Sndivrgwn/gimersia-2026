@@ -1,36 +1,52 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://src/ui/hud/interaction/interaction_hud.gd" id="1_hud"]
+[ext_resource type="Texture2D" path="res://assets/textures/ui/02_panel/panel_walnut_stitched.png" id="2_panel"]
+[ext_resource type="Texture2D" path="res://assets/textures/ui/05_slot/slot_item.png" id="3_keycap"]
+[ext_resource type="Texture2D" path="res://assets/textures/ui/06_bar/bar_track_empty.png" id="4_track"]
+[ext_resource type="Texture2D" path="res://assets/textures/ui/06_bar/bar_fill_stamina.png" id="5_fill"]
+[ext_resource type="FontFile" path="res://assets/fonts/fredoka/fredoka_variable.ttf" id="6_fredoka"]
+[ext_resource type="FontFile" path="res://assets/fonts/nunito/nunito_variable.ttf" id="7_nunito"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-content_margin_left = 12.0
-content_margin_top = 8.0
-content_margin_right = 12.0
-content_margin_bottom = 8.0
-bg_color = Color(0.05, 0.07, 0.1, 0.82)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.85, 0.78, 0.55, 0.45)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_panel"]
+content_margin_left = 24.0
+content_margin_top = 16.0
+content_margin_right = 24.0
+content_margin_bottom = 16.0
+texture = ExtResource("2_panel")
+texture_margin_left = 24.0
+texture_margin_top = 24.0
+texture_margin_right = 24.0
+texture_margin_bottom = 24.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_bg"]
-bg_color = Color(1, 1, 1, 0.12)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_keycap"]
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+texture = ExtResource("3_keycap")
+texture_margin_left = 14.0
+texture_margin_top = 14.0
+texture_margin_right = 14.0
+texture_margin_bottom = 14.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_fill"]
-bg_color = Color(0.95, 0.78, 0.3, 0.9)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_bar_bg"]
+texture = ExtResource("4_track")
+texture_margin_left = 18.0
+texture_margin_top = 14.0
+texture_margin_right = 18.0
+texture_margin_bottom = 14.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_bar_fill"]
+texture = ExtResource("5_fill")
+texture_margin_left = 12.0
+texture_margin_top = 8.0
+texture_margin_right = 12.0
+texture_margin_bottom = 8.0
+expand_margin_left = -4.0
+expand_margin_top = -4.0
+expand_margin_right = -4.0
+expand_margin_bottom = -4.0
 
 [node name="InteractionHUD" type="CanvasLayer"]
 layer = 10
@@ -47,20 +63,21 @@ mouse_filter = 2
 
 [node name="Panel" type="PanelContainer" parent="Root"]
 visible = false
+texture_filter = 2
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -180.0
-offset_top = -186.0
-offset_right = 180.0
-offset_bottom = -112.0
+offset_left = -200.0
+offset_top = -238.0
+offset_right = 200.0
+offset_bottom = -166.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+theme_override_styles/panel = SubResource("StyleBoxTexture_panel")
 
 [node name="Margin" type="MarginContainer" parent="Root/Panel"]
 layout_mode = 2
@@ -69,23 +86,48 @@ mouse_filter = 2
 [node name="VBox" type="VBoxContainer" parent="Root/Panel/Margin"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 8
 
-[node name="Prompt" type="Label" parent="Root/Panel/Margin/VBox"]
+[node name="PromptRow" type="HBoxContainer" parent="Root/Panel/Margin/VBox"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.92, 0.96, 0.9, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="KeyBadge" type="PanelContainer" parent="Root/Panel/Margin/VBox/PromptRow"]
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_keycap")
+
+[node name="KeyText" type="Label" parent="Root/Panel/Margin/VBox/PromptRow/KeyBadge"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.12, 0.07, 1)
+theme_override_fonts/font = ExtResource("6_fredoka")
+theme_override_font_sizes/font_size = 18
+text = "E"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Prompt" type="Label" parent="Root/Panel/Margin/VBox/PromptRow"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.98, 0.92, 1)
+theme_override_colors/font_outline_color = Color(0.14, 0.09, 0.05, 0.95)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("6_fredoka")
+theme_override_font_sizes/font_size = 17
 text = ""
 horizontal_alignment = 1
 
 [node name="Bar" type="ProgressBar" parent="Root/Panel/Margin/VBox"]
 visible = false
-custom_minimum_size = Vector2(0, 10)
+custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 mouse_filter = 2
-theme_override_styles/background = SubResource("StyleBoxFlat_bar_bg")
-theme_override_styles/fill = SubResource("StyleBoxFlat_bar_fill")
+theme_override_styles/background = SubResource("StyleBoxTexture_bar_bg")
+theme_override_styles/fill = SubResource("StyleBoxTexture_bar_fill")
 max_value = 1.0
 show_percentage = false
 
@@ -94,6 +136,7 @@ visible = false
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.62, 0.45, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_fonts/font = ExtResource("7_nunito")
+theme_override_font_sizes/font_size = 13
 text = ""
 horizontal_alignment = 1

@@ -77,6 +77,7 @@ func _ready() -> void:
 	_screen_fade.visible = true
 	_screen_fade.modulate.a = 1.0
 	_fade_screen_to(0.0, FADE_TIME, _hide_screen_fade)
+	_start_button.grab_focus()
 
 
 func _process(delta: float) -> void:
@@ -155,6 +156,13 @@ func _ensure_settings_ui() -> void:
 	var settings_btn := find_child("SettingsButton", true, false) as Button
 	if settings_btn != null and not settings_btn.pressed.is_connected(panel.open):
 		settings_btn.pressed.connect(panel.open)
+	if not panel.closed.is_connected(_on_settings_closed):
+		panel.closed.connect(_on_settings_closed)
+
+
+func _on_settings_closed() -> void:
+	if _start_button != null:
+		_start_button.grab_focus()
 
 
 # --- Internal ---------------------------------------------------------------

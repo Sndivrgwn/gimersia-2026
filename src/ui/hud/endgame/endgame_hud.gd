@@ -80,8 +80,23 @@ func _build() -> void:
 
 	_victory_panel = PanelContainer.new()
 	_victory_panel.name = "Victory"
-	_victory_panel.position = Vector2(370, 220)
-	_victory_panel.custom_minimum_size = Vector2(420, 300)
+	_victory_panel.set_anchors_preset(Control.PRESET_CENTER)
+	_victory_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_victory_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_victory_panel.custom_minimum_size = Vector2(440, 310)
+	var v_tex := "res://assets/textures/ui/02_panel/panel_walnut_stitched.png"
+	if ResourceLoader.exists(v_tex):
+		var vbox_style := StyleBoxTexture.new()
+		vbox_style.texture = load(v_tex) as Texture2D
+		vbox_style.texture_margin_left = 24.0
+		vbox_style.texture_margin_top = 24.0
+		vbox_style.texture_margin_right = 24.0
+		vbox_style.texture_margin_bottom = 24.0
+		vbox_style.content_margin_left = 26.0
+		vbox_style.content_margin_top = 22.0
+		vbox_style.content_margin_right = 26.0
+		vbox_style.content_margin_bottom = 22.0
+		_victory_panel.add_theme_stylebox_override("panel", vbox_style)
 	_victory_panel.visible = false
 	add_child(_victory_panel)
 
@@ -139,6 +154,8 @@ func _on_victory() -> void:
 	if _victory_detail != null:
 		# Fase 5: ringkasan run ikut ditampilkan di panel Victory.
 		_victory_detail.text = VICTORY_DETAIL + _rescue_time_line() + RunSummary.block_for(self)
+	if _restart_button != null:
+		_restart_button.grab_focus()
 
 
 ## Mission 12: "Diselamatkan Hari 7 pukul 06:00" bila jam tersedia.

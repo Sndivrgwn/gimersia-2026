@@ -27,6 +27,9 @@ var _keys: Array[Label] = []
 var _names: Array[Label] = []
 var _counts: Array[Label] = []
 var _icons: Array[TextureRect] = []
+var _slot_panels: Array[PanelContainer] = []
+var _slot_normal_style: StyleBox
+var _slot_selected_style: StyleBoxTexture
 var _held_label: Label
 var _selected_index: int = 0
 
@@ -63,7 +66,18 @@ func _refresh_selection() -> void:
 		_build_held_label()
 	for index in _icons.size():
 		var selected := selection != null and selection.selected_index == index
-		_icons[index].modulate = Color(1, 1, 1, 1) if selected else Color(1, 1, 1, 0.55)
+		_icons[index].modulate = Color(1, 1, 1, 1) if selected else Color(1, 1, 1, 0.72)
+		if index < _keys.size() and _keys[index] != null:
+			_keys[index].add_theme_color_override(
+				"font_color",
+				Color(1.0, 0.86, 0.35, 1.0) if selected else Color(0.88, 0.84, 0.76, 0.85)
+			)
+		if index < _slot_panels.size() and _slot_panels[index] != null:
+			var style := _slot_selected_style if selected and _slot_selected_style != null else _slot_normal_style
+			if style != null:
+				_slot_panels[index].add_theme_stylebox_override(&"panel", style)
+			if selected and selection != null and selection.selected_index != _selected_index:
+				UiMotion.pop(_slot_panels[index])
 	var text := ""
 	if selection != null:
 		var stack := selection.get_held_stack()
@@ -99,22 +113,45 @@ func get_selected_index() -> int:
 func _build_held_label() -> void:
 	_held_label = Label.new()
 	_held_label.name = "HeldLabel"
-	_held_label.add_theme_font_size_override("font_size", 10)
-	_held_label.add_theme_color_override("font_color", Color(0.95, 0.9, 0.7, 1.0))
+	_held_label.add_theme_font_size_override("font_size", 15)
+	_held_label.add_theme_color_override("font_color", Color(1.0, 0.96, 0.82, 1.0))
+	_held_label.add_theme_color_override("font_outline_color", Color(0.14, 0.09, 0.05, 0.95))
+	_held_label.add_theme_constant_override("outline_size", 3)
 	_held_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_held_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	_held_label.offset_top = -16.0
-	_held_label.offset_bottom = -2.0
+	_held_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	_held_label.offset_top = -158.0
+	_held_label.offset_bottom = -136.0
 	_held_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_held_label)
 
 
 func _collect_slots() -> void:
+	var sel_path := "res://assets/textures/ui/05_slot/slot_item_selected.png"
+	if ResourceLoader.exists(sel_path):
+		var tex := load(sel_path) as Texture2D
+		if tex != null:
+			_slot_selected_style = StyleBoxTexture.new()
+			_slot_selected_style.texture = tex
+			_slot_selected_style.texture_margin_left = 14.0
+			_slot_selected_style.texture_margin_top = 14.0
+			_slot_selected_style.texture_margin_right = 14.0
+			_slot_selected_style.texture_margin_bottom = 14.0
+			_slot_selected_style.content_margin_left = 10.0
+			_slot_selected_style.content_margin_top = 10.0
+			_slot_selected_style.content_margin_right = 10.0
+			_slot_selected_style.content_margin_bottom = 10.0
+			_slot_selected_style.expand_margin_left = 4.0
+			_slot_selected_style.expand_margin_top = 4.0
+			_slot_selected_style.expand_margin_right = 4.0
+			_slot_selected_style.expand_margin_bottom = 4.0
 	for path in SLOT_PATHS:
 		var slot := get_node_or_null(path)
 		if slot == null:
 			push_warning("HotbarHUD: slot '%s' tidak ditemukan." % path)
 			continue
+		if _slot_normal_style == null and slot is PanelContainer:
+			_slot_normal_style = (slot as PanelContainer).get_theme_stylebox(&"panel")
+		_slot_panels.append(slot as PanelContainer)
 		_keys.append(slot.get_node_or_null("Key") as Label)
 		_names.append(slot.get_node_or_null("Name") as Label)
 		_counts.append(slot.get_node_or_null("Count") as Label)

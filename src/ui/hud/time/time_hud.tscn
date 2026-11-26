@@ -1,38 +1,42 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://src/ui/hud/time/time_hud.gd" id="1_hud"]
 [ext_resource type="Resource" path="res://src/data/configs/environment/sun_config.tres" id="2_sun_config"]
 [ext_resource type="Script" path="res://src/ui/hud/time/sun_arc.gd" id="3_sunarc"]
+[ext_resource type="Texture2D" path="res://assets/textures/ui/02_panel/panel_walnut_stitched.png" id="4_panel"]
+[ext_resource type="Texture2D" path="res://assets/textures/ui/06_bar/bar_track_empty.png" id="5_track"]
+[ext_resource type="Texture2D" path="res://assets/textures/ui/06_bar/bar_fill_stamina.png" id="8_fill"]
+[ext_resource type="FontFile" path="res://assets/fonts/fredoka/fredoka_variable.ttf" id="6_fredoka"]
+[ext_resource type="FontFile" path="res://assets/fonts/nunito/nunito_variable.ttf" id="7_nunito"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-content_margin_left = 12.0
-content_margin_top = 10.0
-content_margin_right = 12.0
-content_margin_bottom = 10.0
-bg_color = Color(0.05, 0.07, 0.1, 0.82)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.85, 0.78, 0.55, 0.45)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_panel"]
+content_margin_left = 26.0
+content_margin_top = 18.0
+content_margin_right = 26.0
+content_margin_bottom = 18.0
+texture = ExtResource("4_panel")
+texture_margin_left = 24.0
+texture_margin_top = 24.0
+texture_margin_right = 24.0
+texture_margin_bottom = 24.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_progress_bg"]
-bg_color = Color(1, 1, 1, 0.12)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_progress_bg"]
+texture = ExtResource("5_track")
+texture_margin_left = 18.0
+texture_margin_top = 14.0
+texture_margin_right = 18.0
+texture_margin_bottom = 14.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_progress_fill"]
-bg_color = Color(0.93, 0.76, 0.42, 0.9)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_progress_fill"]
+texture = ExtResource("8_fill")
+texture_margin_left = 12.0
+texture_margin_top = 8.0
+texture_margin_right = 12.0
+texture_margin_bottom = 8.0
+expand_margin_left = -4.0
+expand_margin_top = -4.0
+expand_margin_right = -4.0
+expand_margin_bottom = -4.0
 
 [node name="TimeHUD" type="CanvasLayer"]
 layer = 10
@@ -48,24 +52,19 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="SunArc" type="Control" parent="Root"]
-layout_mode = 0
-offset_left = 244.0
-offset_top = 16.0
-offset_right = 304.0
-offset_bottom = 56.0
-mouse_filter = 2
-script = ExtResource("3_sunarc")
-
 [node name="Panel" type="PanelContainer" parent="Root"]
+texture_filter = 2
 layout_mode = 1
-anchors_preset = 0
-offset_left = 16.0
-offset_top = 16.0
-offset_right = 236.0
-offset_bottom = 210.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -164.0
+offset_top = 20.0
+offset_right = 164.0
+offset_bottom = 170.0
+grow_horizontal = 2
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+theme_override_styles/panel = SubResource("StyleBoxTexture_panel")
 
 [node name="Margin" type="MarginContainer" parent="Root/Panel"]
 layout_mode = 2
@@ -74,34 +73,45 @@ mouse_filter = 2
 [node name="VBox" type="VBoxContainer" parent="Root/Panel/Margin"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 2
+theme_override_constants/separation = 6
 
 [node name="ClockLabel" type="Label" parent="Root/Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(0.968627, 0.945098, 0.898039, 1)
+theme_override_fonts/font = ExtResource("6_fredoka")
+theme_override_font_sizes/font_size = 30
 text = "06:00"
+horizontal_alignment = 1
 
 [node name="DayLabel" type="Label" parent="Root/Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.921569, 0.760784, 0.45098, 1)
+theme_override_fonts/font = ExtResource("7_nunito")
+theme_override_font_sizes/font_size = 16
 text = "Hari 1 / 7"
+horizontal_alignment = 1
 
 [node name="PhaseLabel" type="Label" parent="Root/Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_fonts/font = ExtResource("7_nunito")
+theme_override_font_sizes/font_size = 14
 text = "DAY"
+horizontal_alignment = 1
 
 [node name="RemainingLabel" type="Label" parent="Root/Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.84, 0.8, 0.72, 1)
+theme_override_fonts/font = ExtResource("7_nunito")
+theme_override_font_sizes/font_size = 14
 text = "05:00"
+horizontal_alignment = 1
 
 [node name="PhaseProgress" type="ProgressBar" parent="Root/Panel/Margin/VBox"]
-custom_minimum_size = Vector2(0, 8)
+custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 mouse_filter = 2
-theme_override_styles/background = SubResource("StyleBoxFlat_progress_bg")
-theme_override_styles/fill = SubResource("StyleBoxFlat_progress_fill")
+theme_override_styles/background = SubResource("StyleBoxTexture_progress_bg")
+theme_override_styles/fill = SubResource("StyleBoxTexture_progress_fill")
 max_value = 1.0
 step = 0.001
 value = 0.0
@@ -110,5 +120,20 @@ show_percentage = false
 [node name="SurvivalLabel" type="Label" parent="Root/Panel/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.55, 0.5, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_fonts/font = ExtResource("7_nunito")
+theme_override_font_sizes/font_size = 13
 text = "Survival: 05:00"
+horizontal_alignment = 1
+
+[node name="SunArc" type="Control" parent="Root"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 176.0
+offset_top = 24.0
+offset_right = 248.0
+offset_bottom = 72.0
+grow_horizontal = 2
+mouse_filter = 2
+script = ExtResource("3_sunarc")

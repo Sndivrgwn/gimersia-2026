@@ -27,6 +27,7 @@ var _settings_panel: Node
 var _help_panel: Node
 var _esc_hint: Label
 var _esc_button: Button
+var _resume_button: Button
 
 
 func _ready() -> void:
@@ -74,6 +75,7 @@ func _bind_scene_ui() -> void:
 	_esc_hint = ui.get_node_or_null("%EscHint") as Label
 	_esc_button = ui.get_node_or_null("%PauseButton") as Button
 	var resume_btn := ui.get_node_or_null("%ResumeButton") as Button
+	_resume_button = resume_btn
 	var settings_btn := ui.get_node_or_null("%SettingsButton") as Button
 	var help_btn := ui.get_node_or_null("%HelpButton") as Button
 	var menu_btn := ui.get_node_or_null("%MenuButton") as Button
@@ -126,7 +128,7 @@ func _build_ui() -> void:
 	title.add_theme_font_size_override("font_size", 22)
 	box.add_child(title)
 
-	_add_button(box, "Lanjutkan", Callable(self, &"close"))
+	_resume_button = _add_button(box, "Lanjutkan", Callable(self, &"close"))
 	_add_button(box, "Pengaturan", Callable(self, &"_open_settings"))
 	_add_button(box, "Bantuan", Callable(self, &"_open_help"))
 	_add_button(box, "Menu Utama", Callable(self, &"request_main_menu"))
@@ -239,6 +241,7 @@ func _set_main_card_visible(is_shown: bool) -> void:
 func _on_sub_panel_closed() -> void:
 	if is_open():
 		_set_main_card_visible(true)
+		_focus_resume()
 
 
 func _on_help_toggled(help_open: bool) -> void:
@@ -246,6 +249,12 @@ func _on_help_toggled(help_open: bool) -> void:
 		_set_main_card_visible(false)
 	elif is_open():
 		_set_main_card_visible(true)
+		_focus_resume()
+
+
+func _focus_resume() -> void:
+	if _resume_button != null and is_instance_valid(_resume_button) and _resume_button.is_visible_in_tree():
+		_resume_button.grab_focus()
 
 
 func _open_settings() -> void:
@@ -326,6 +335,7 @@ func open() -> bool:
 		if clock != null and clock.has_method(&"set_time_scale"):
 			clock.set_time_scale(0.0)
 	visible = true
+	_focus_resume()
 	return true
 
 

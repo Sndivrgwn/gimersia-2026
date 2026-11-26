@@ -133,53 +133,81 @@ func _build() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
-	# Bawah tengah, persis di atas hotbar dan prompt interaksi (tidak menimpa
-	# StatsHUD di kiri bawah).
+	# Kanan atas: panel quest harian dengan tekstur walnut.
 	_panel = PanelContainer.new()
 	_panel.name = "GoalPanel"
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_panel.anchor_left = 0.5
-	_panel.anchor_right = 0.5
-	_panel.anchor_top = 1.0
-	_panel.anchor_bottom = 1.0
-	_panel.offset_left = -310.0
-	_panel.offset_right = 310.0
-	_panel.offset_top = -226.0
-	_panel.offset_bottom = -198.0
-	_panel.clip_contents = true
+	_panel.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_panel.anchor_left = 1.0
+	_panel.anchor_right = 1.0
+	_panel.anchor_top = 0.0
+	_panel.anchor_bottom = 0.0
+	_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_panel.offset_left = -372.0
+	_panel.offset_right = -20.0
+	_panel.offset_top = 20.0
+	_panel.offset_bottom = 122.0
 	_panel.add_theme_stylebox_override("panel", _panel_style())
 	root.add_child(_panel)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_top", 3)
-	margin.add_theme_constant_override("margin_bottom", 3)
+	margin.add_theme_constant_override("margin_left", 6)
+	margin.add_theme_constant_override("margin_right", 6)
+	margin.add_theme_constant_override("margin_top", 4)
+	margin.add_theme_constant_override("margin_bottom", 4)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(vbox)
+
+	var header := Label.new()
+	header.text = "QUEST HARIAN"
+	header.add_theme_font_size_override("font_size", 13)
+	header.add_theme_color_override("font_color", Color(0.922, 0.761, 0.451, 1.0))
+	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(header)
 
 	_label = RichTextLabel.new()
 	_label.name = "GoalLabel"
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_label.bbcode_enabled = true
 	_label.scroll_active = false
-	_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-	_label.custom_minimum_size = Vector2(0.0, 20.0)
+	_label.fit_content = true
+	_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_label.custom_minimum_size = Vector2(300.0, 24.0)
 	_label.add_theme_font_size_override("normal_font_size", 15)
-	_label.add_theme_color_override("default_color", Color(0.94, 0.89, 0.72, 1.0))
-	margin.add_child(_label)
+	_label.add_theme_color_override("default_color", Color(0.968627, 0.945098, 0.898039, 1.0))
+	vbox.add_child(_label)
 
 
-func _panel_style() -> StyleBoxFlat:
+func _panel_style() -> StyleBox:
+	var tex_path := "res://assets/textures/ui/02_panel/panel_walnut_stitched.png"
+	if ResourceLoader.exists(tex_path):
+		var tex := load(tex_path) as Texture2D
+		if tex != null:
+			var box := StyleBoxTexture.new()
+			box.texture = tex
+			box.texture_margin_left = 24.0
+			box.texture_margin_top = 24.0
+			box.texture_margin_right = 24.0
+			box.texture_margin_bottom = 24.0
+			box.content_margin_left = 24.0
+			box.content_margin_top = 20.0
+			box.content_margin_right = 24.0
+			box.content_margin_bottom = 20.0
+			return box
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.05, 0.07, 0.1, 0.78)
+	style.bg_color = Color(0.16, 0.11, 0.08, 0.88)
 	style.border_width_left = 2
 	style.border_width_top = 2
 	style.border_width_right = 2
 	style.border_width_bottom = 2
-	style.border_color = Color(0.85, 0.78, 0.55, 0.4)
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_left = 6
-	style.corner_radius_bottom_right = 6
+	style.border_color = Color(0.85, 0.78, 0.55, 0.5)
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_left = 8
+	style.corner_radius_bottom_right = 8
 	return style
