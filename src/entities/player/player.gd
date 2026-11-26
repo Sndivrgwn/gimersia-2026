@@ -39,8 +39,11 @@ var _input_locked: bool = false
 
 func _ready() -> void:
 	InputSetup.ensure_actions()
-	# Top-down: tanpa gravitasi.
+	# Top-down: tanpa gravitasi dan tanpa moving platform.
 	motion_mode = MOTION_MODE_FLOATING
+	platform_on_leave = PLATFORM_ON_LEAVE_DO_NOTHING
+	platform_floor_layers = 0
+	platform_wall_layers = 0
 	if stats == null:
 		push_error("Player: StatsComponent tidak ditemukan.")
 	BodyProfileApplier.apply(self, load("res://src/data/configs/physics/body_player.tres") as BodyProfile)

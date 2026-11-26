@@ -132,6 +132,10 @@ func ensure_ready() -> void:
 	if player == null:
 		player = _find_player()
 	_home = global_position
+	motion_mode = MOTION_MODE_FLOATING
+	platform_on_leave = PLATFORM_ON_LEAVE_DO_NOTHING
+	platform_floor_layers = 0
+	platform_wall_layers = 0
 	collision_layer = PhysicsLayers.FAUNA_BODY if config.blocks_player else 0
 	var mask := PhysicsLayers.WORLD | PhysicsLayers.FENCE_LAYER | PhysicsLayers.FAUNA_BODY
 	if config.blocks_player:
@@ -568,7 +572,6 @@ func despawn() -> void:
 func move_in_direction(direction: Vector2, speed: float, _delta: float) -> void:
 	if direction.length_squared() <= 0.0001 or speed <= 0.0:
 		velocity = Vector2.ZERO
-		move_and_slide()
 		return
 	velocity = direction.normalized() * speed
 	move_and_slide()

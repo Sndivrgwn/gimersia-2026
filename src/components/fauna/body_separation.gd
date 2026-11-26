@@ -85,17 +85,20 @@ static func _nearby_bodies(body: CharacterBody2D) -> Array[Node]:
 	var tree := body.get_tree()
 	if tree == null:
 		return result
-	for group in [FAUNA_GROUP, PLAYER_GROUP]:
-		for node in tree.get_nodes_in_group(group):
-			if node == body or not (node is CharacterBody2D):
-				continue
-			if not result.has(node):
-				result.append(node)
-	# Badan tanpa grup (tes/stub) tetap dihitung bila bersaudara.
+	for node in tree.get_nodes_in_group(FAUNA_GROUP):
+		if node == body or not (node is CharacterBody2D):
+			continue
+		if node is Player or node.is_in_group(PLAYER_GROUP):
+			continue
+		if not result.has(node):
+			result.append(node)
+	# Badan tanpa grup (tes/stub) tetap dihitung bila bersaudara, kecuali Player.
 	var parent := body.get_parent()
 	if parent != null:
 		for child in parent.get_children():
 			if child == body or not (child is CharacterBody2D):
+				continue
+			if child is Player or child.is_in_group(PLAYER_GROUP):
 				continue
 			if not result.has(child):
 				result.append(child)

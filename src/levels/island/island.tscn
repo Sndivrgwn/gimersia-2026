@@ -207,7 +207,6 @@ position = Vector2(-950, 1400)
 
 [node name="Player" parent="." unique_id=1532244133 groups=["player"] instance=ExtResource("2_player")]
 position = Vector2(0, 64)
-scale = Vector2(0.1, 0.1)
 
 [node name="InventoryComponent" type="Node" parent="Player" unique_id=902603045]
 script = ExtResource("3_inventory")
