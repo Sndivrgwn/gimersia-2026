@@ -6,17 +6,19 @@
 [sub_resource type="Resource" id="Resource_7avp8"]
 script = ExtResource("1_17itk")
 asset_key = &"ui_splash_studio"
-fallback_text = "NAMA STUDIO"
+fallback_text = "RTRW STUDIO"
 
 [sub_resource type="Resource" id="Resource_avl5o"]
 script = ExtResource("1_17itk")
 asset_key = &"ui_logo"
-fallback_text = "NAMA GAME"
+fallback_text = "THE 7TH"
 fallback_font_size = 64
 hold_seconds = 1.8
 
 [resource]
 script = ExtResource("2_g5qf7")
 entries = Array[ExtResource("1_17itk")]([SubResource("Resource_7avp8"), SubResource("Resource_avl5o")])
+background_color = Color(0.122, 0.082, 0.063, 1)
+show_loading_bar = true
 next_scene_path = "res://src/ui/menus/main_menu_animated.tscn"
 preload_paths = PackedStringArray("res://src/levels/island/island.tscn")

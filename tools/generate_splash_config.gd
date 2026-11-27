@@ -10,7 +10,7 @@ const OUTPUT_PATH := "res://src/data/configs/ui/splash_config.tres"
 func _init() -> void:
 	var config := SplashConfig.new()
 	config.enabled = true
-	config.background_color = Color(0.0, 0.0, 0.0, 1.0)
+	config.background_color = Color(0.122, 0.082, 0.063, 1.0)
 	config.logo_max_size_ratio = 0.5
 	config.skip_enabled = true
 	config.skip_min_seconds = 0.4
@@ -33,7 +33,7 @@ func _init() -> void:
 
 	var studio := SplashEntry.new()
 	studio.asset_key = &"ui_splash_studio"
-	studio.fallback_text = "NAMA STUDIO"
+	studio.fallback_text = "RTRW STUDIO"
 	studio.fallback_font_size = 48
 	studio.hold_seconds = 1.6
 	studio.fade_in = 0.6
@@ -41,7 +41,7 @@ func _init() -> void:
 
 	var game := SplashEntry.new()
 	game.asset_key = &"ui_logo"
-	game.fallback_text = "NAMA GAME"
+	game.fallback_text = "THE 7TH"
 	game.fallback_font_size = 64
 	game.hold_seconds = 1.8
 	game.fade_in = 0.6

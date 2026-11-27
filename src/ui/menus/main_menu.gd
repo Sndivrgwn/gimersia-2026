@@ -25,9 +25,9 @@ const DIM_ALPHA := 0.55
 const OVERLAY_TIME := 0.18
 const OVERLAY_SCALE := 0.94
 const FADE_TIME := 0.22
-## Mulai game: cukup gelap sesaat. Transisinya dilanjutkan zoom kamera di pulau,
-## jadi layar tidak perlu menahan hitam lama.
-const START_FADE_TIME := 0.16
+## Mulai game: transisi ke warna espresso hangat lalu dibuka iris wipe di pulau.
+const START_FADE_TIME := 0.30
+const ENTER_BG_COLOR := Color(0.122, 0.082, 0.063, 1.0)
 
 @onready var _start_button: Button = %StartButton
 @onready var _controls_button: Button = %ControlsButton
@@ -204,7 +204,7 @@ func _ensure_continue_button() -> void:
 	var day := int(summary.get("day", 1))
 	_continue_button = Button.new()
 	_continue_button.name = "ContinueButton"
-	_continue_button.text = "LANJUTKAN (Hari %d)" % day
+	_continue_button.text = "Lanjutkan (Hari %d)" % day
 	_continue_button.custom_minimum_size = _start_button.custom_minimum_size
 	_continue_button.pressed.connect(_continue_game)
 	parent.add_child(_continue_button)
@@ -235,7 +235,40 @@ func _begin_enter_game() -> void:
 	if _loading_box != null:
 		_loading_box.visible = not is_game_preloaded()
 		_loading_bar.value = 100.0 if is_game_preloaded() else 5.0
+	_screen_fade.color = ENTER_BG_COLOR
+	_animate_exit_ui()
 	_fade_screen_to(1.0, START_FADE_TIME, func() -> void: _fade_done = true)
+
+
+func _animate_exit_ui() -> void:
+	var title_block := get_node_or_null("TitleBlock") as Control
+	var menu_card := get_node_or_null("MenuCard") as Control
+	var ui_tween := create_tween().set_parallel(true)
+	if title_block != null:
+		ui_tween.tween_property(title_block, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_SINE)
+	if menu_card != null:
+		ui_tween.tween_property(menu_card, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_SINE)
+		ui_tween.tween_property(menu_card, "position:y", menu_card.position.y + 18.0, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+
+
+func _mount_enter_iris() -> IrisOverlay:
+	var tree := get_tree()
+	if tree == null or tree.root == null:
+		return null
+	var cfg := SplashConfig.new()
+	cfg.background_color = ENTER_BG_COLOR
+	cfg.transition_duration = 0.85
+	cfg.transition_softness = 0.04
+	cfg.transition_hold_before = 0.12
+	cfg.transition_start_radius = 0.0
+	cfg.transition_ease = SplashConfig.TransitionEase.EASE_OUT
+	cfg.transition_block_input = true
+	var overlay := IrisOverlay.new()
+	if not overlay.setup(cfg):
+		overlay.free()
+		return null
+	tree.root.add_child(overlay)
+	return overlay
 
 
 func _finish_enter_game(scene: PackedScene) -> void:
@@ -245,11 +278,14 @@ func _finish_enter_game(scene: PackedScene) -> void:
 	var tree := get_tree()
 	if tree == null:
 		return
+	var overlay := _mount_enter_iris()
 	if scene != null:
 		_game_preloading = false
 		tree.change_scene_to_packed(scene)
 	else:
 		tree.change_scene_to_file(GAME_SCENE)
+	if overlay != null:
+		overlay.start_after_next_frame()
 
 
 # --- Preload pulau ----------------------------------------------------------
@@ -287,6 +323,10 @@ func _build_loading_ui() -> void:
 	_loading_label.text = "Memuat pulau..."
 	_loading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_loading_label.add_theme_font_size_override("font_size", 12)
+	var nunito_med := FontVariation.new()
+	nunito_med.base_font = preload("res://assets/fonts/nunito/nunito_variable.ttf")
+	nunito_med.variation_opentype = { &"wght": 500 }
+	_loading_label.add_theme_font_override("font", nunito_med)
 	_loading_label.add_theme_color_override("font_color", Color(0.968627, 0.945098, 0.898039, 0.9))
 	_loading_box.add_child(_loading_label)
 

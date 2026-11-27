@@ -1,6 +1,32 @@
 [gd_scene format=3 uid="uid://bvalthe07rs4a"]
 
 [ext_resource type="Script" uid="uid://wucnmg2lanrh" path="res://src/ui/menus/splash_screen.gd" id="1_splash"]
+[ext_resource type="FontFile" uid="uid://dyxg1g7n1nbsc" path="res://assets/fonts/nunito/nunito_variable.ttf" id="2_nunito"]
+
+[sub_resource type="FontVariation" id="FontVariation_nunito_medium"]
+base_font = ExtResource("2_nunito")
+variation_opentype = {
+&"wght": 500
+}
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_bg"]
+bg_color = Color(0.2, 0.133, 0.098, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.243, 0.153, 0.102, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_fill"]
+bg_color = Color(0.922, 0.761, 0.451, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="SplashScreen" type="Control" unique_id=1094614872]
 layout_mode = 3
@@ -18,7 +44,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 1)
+color = Color(0.122, 0.082, 0.063, 1)
 
 [node name="BackgroundTexture" type="TextureRect" parent="." unique_id=676987417]
 visible = false
@@ -48,36 +74,53 @@ stretch_mode = 5
 [node name="FallbackLabel" type="Label" parent="Center" unique_id=106713124]
 visible = false
 layout_mode = 2
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_colors/font_shadow_color = Color(0.06, 0.04, 0.02, 0.65)
+theme_override_colors/font_outline_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 10
+theme_override_constants/shadow_outline_size = 6
+theme_override_fonts/font = SubResource("FontVariation_nunito_medium")
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="LoadingBar" type="ProgressBar" parent="." unique_id=1513550201]
 layout_mode = 1
-anchors_preset = 12
+anchors_preset = 3
+anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 240.0
-offset_top = -56.0
-offset_right = -240.0
-offset_bottom = -36.0
-grow_horizontal = 2
+offset_left = -252.0
+offset_top = -38.0
+offset_right = -32.0
+offset_bottom = -28.0
+grow_horizontal = 0
 grow_vertical = 0
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_bar_fill")
 max_value = 1.0
 show_percentage = false
 
 [node name="LoadingLabel" type="Label" parent="." unique_id=1096331320]
 layout_mode = 1
-anchors_preset = 12
+anchors_preset = 3
+anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 240.0
-offset_top = -84.0
-offset_right = -240.0
-offset_bottom = -60.0
-grow_horizontal = 2
+offset_left = -252.0
+offset_top = -62.0
+offset_right = -32.0
+offset_bottom = -42.0
+grow_horizontal = 0
 grow_vertical = 0
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 0.92)
+theme_override_colors/font_outline_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = SubResource("FontVariation_nunito_medium")
+theme_override_font_sizes/font_size = 13
 text = "Memuat..."
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1

@@ -137,7 +137,21 @@ func _ready() -> void:
 	if SaveService.consume_pending_load():
 		SaveService.load_island(self)
 	UiSkin.apply_all(self)
-	ScreenFade.fade_in(self, Color.BLACK, INTRO_FADE_TIME)
+	_play_intro_transition()
+
+
+func _play_intro_transition() -> void:
+	var tree := get_tree()
+	var has_iris := tree != null and tree.root != null and tree.root.get_node_or_null("IrisOverlay") != null
+	if not has_iris:
+		ScreenFade.fade_in(self, Color(0.122, 0.082, 0.063, 1.0), INTRO_FADE_TIME)
+	var viewport := get_viewport()
+	var cam := viewport.get_camera_2d() if viewport != null else null
+	if cam != null:
+		var target_zoom := cam.zoom
+		cam.zoom = target_zoom * 0.86
+		var tween := create_tween()
+		tween.tween_property(cam, "zoom", target_zoom, 0.95).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 func _wire_save_hooks() -> void:

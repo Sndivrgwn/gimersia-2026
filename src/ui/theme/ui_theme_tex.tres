@@ -254,6 +254,12 @@ texture_margin_top = 26.0
 texture_margin_right = 32.0
 texture_margin_bottom = 26.0
 
+[sub_resource type="FontVariation" id="fv_nunito_medium"]
+base_font = ExtResource("font_nunito")
+variation_opentype = {
+&"wght": 500
+}
+
 [sub_resource type="StyleBoxTexture" id="sb_slot"]
 content_margin_left = 10.0
 content_margin_top = 10.0
@@ -299,6 +305,7 @@ Button/colors/font_disabled_color = Color(0.522, 0.427, 0.357, 1)
 Button/colors/font_focus_color = Color(0.243, 0.153, 0.102, 1)
 Button/colors/font_hover_color = Color(0.243, 0.153, 0.102, 1)
 Button/colors/font_pressed_color = Color(0.243, 0.153, 0.102, 1)
+Button/fonts/font = SubResource("fv_nunito_medium")
 Button/styles/disabled = SubResource("sb_btn_secondary_disabled")
 Button/styles/focus = SubResource("sb_btn_secondary_hover")
 Button/styles/hover = SubResource("sb_btn_secondary_hover")
