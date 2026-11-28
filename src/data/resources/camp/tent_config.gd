@@ -16,3 +16,5 @@ extends Resource
 @export var min_day_remaining: float = 60.0
 ## Lama hold-E untuk menyalakan Jaga Malam (0 = langsung, toggle).
 @export var night_watch_hold_time: float = 0.0
+## Izinkan tidur semalaman sampai fajar pagi bila api unggun menyala.
+@export var allow_sleep_until_morning: bool = true

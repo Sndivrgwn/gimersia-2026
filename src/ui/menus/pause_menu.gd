@@ -3,6 +3,7 @@ extends CanvasLayer
 
 ## Mission 7: pause dengan guard. Panel sendiri boleh _unhandled_input untuk toggle.
 
+signal paused
 signal resumed
 signal settings_requested
 signal help_requested
@@ -336,6 +337,7 @@ func open() -> bool:
 			clock.set_time_scale(0.0)
 	visible = true
 	_focus_resume()
+	paused.emit()
 	return true
 
 

@@ -46,6 +46,10 @@ const TOOL_ITEMS: Array[ItemDefinition] = [
 ## Buka panel saat scene mulai (default: tersembunyi).
 @export var open_on_start: bool = false
 var _sort_button: Button
+var _preserve_hotbar_check: CheckBox
+var _note_overlay: Control
+var _note_title: Label
+var _note_body: Label
 
 @onready var _root: Control = $Root
 @onready var _tabs: TabContainer = $Root/Frame/Margin/VBox/Tabs
@@ -270,14 +274,26 @@ func _build_bag_tools() -> void:
 	_sort_button.pressed.connect(_on_sort_pressed)
 	tools.add_child(_sort_button)
 
+	_preserve_hotbar_check = CheckBox.new()
+	_preserve_hotbar_check.name = "PreserveHotbarCheck"
+	_preserve_hotbar_check.text = "Jaga Hotbar"
+	_preserve_hotbar_check.tooltip_text = "Jangan acak slot hotbar 1-5 saat mengurutkan tas"
+	_preserve_hotbar_check.button_pressed = false
+	tools.add_child(_preserve_hotbar_check)
+
 
 func get_sort_button() -> Button:
 	return _sort_button
 
 
+func get_preserve_hotbar_checkbox() -> CheckBox:
+	return _preserve_hotbar_check
+
+
 func _on_sort_pressed() -> void:
 	if inventory != null:
-		inventory.sort()
+		var keep_hotbar := _preserve_hotbar_check != null and _preserve_hotbar_check.button_pressed
+		inventory.sort(keep_hotbar)
 
 
 func _build_weapon_and_proficiency() -> void:
@@ -431,6 +447,81 @@ func _connect_inventory() -> void:
 		inventory.equipment_changed.connect(_on_equipment_changed)
 	if not inventory.inventory_changed.is_connected(_on_inventory_changed):
 		inventory.inventory_changed.connect(_on_inventory_changed)
+	if not inventory.item_inspected.is_connected(_on_item_inspected):
+		inventory.item_inspected.connect(_on_item_inspected)
+
+
+const COCKPIT_NOTES_TEXT := (
+	"LOG PENERBANGAN 07-G:\n\n"
+	+ "Mesin kehilangan daya di atas gugusan pulau selatan. Kami mendarat darurat di dekat pantai.\n\n"
+	+ "Catatan bertahan hidup:\n"
+	+ "- Nyalakan Api Unggun sebelum gelap (gesek batu dengan Batu di tas).\n"
+	+ "- Bangun Meja Kerja untuk merakit kapak, tombak, dan Suar Darurat.\n"
+	+ "- Bertahan hingga fajar Hari ke-7, lalu nyalakan Suar di Beacon untuk penyelamatan."
+)
+
+
+func _on_item_inspected(item: ItemDefinition, _slot_index: int) -> void:
+	if item == null:
+		return
+	open_note_modal(item)
+
+
+func open_note_modal(item: ItemDefinition) -> void:
+	_ensure_note_modal()
+	_note_title.text = item.display_name
+	_note_body.text = COCKPIT_NOTES_TEXT if item.id == &"cockpit_notes" else item.description
+	_note_overlay.visible = true
+
+
+func close_note_modal() -> void:
+	if _note_overlay != null:
+		_note_overlay.visible = false
+
+
+func is_note_modal_open() -> bool:
+	return _note_overlay != null and _note_overlay.visible
+
+
+func _ensure_note_modal() -> void:
+	if _note_overlay != null:
+		return
+	_note_overlay = Control.new()
+	_note_overlay.name = "NoteModal"
+	_note_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_note_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	_note_overlay.visible = false
+	add_child(_note_overlay)
+
+	var dim := ColorRect.new()
+	dim.color = Color(0.0, 0.0, 0.0, 0.55)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_note_overlay.add_child(dim)
+
+	var card := PanelContainer.new()
+	card.custom_minimum_size = Vector2(460.0, 280.0)
+	card.set_anchors_preset(Control.PRESET_CENTER)
+	card.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	card.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_note_overlay.add_child(card)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	card.add_child(vbox)
+
+	_note_title = Label.new()
+	_note_title.add_theme_font_size_override("font_size", 18)
+	vbox.add_child(_note_title)
+
+	_note_body = Label.new()
+	_note_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_note_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_child(_note_body)
+
+	var close_btn := Button.new()
+	close_btn.text = "Tutup"
+	close_btn.pressed.connect(close_note_modal)
+	vbox.add_child(close_btn)
 
 
 func refresh() -> void:

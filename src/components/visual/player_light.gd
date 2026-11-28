@@ -70,7 +70,14 @@ func is_torch_active() -> bool:
 	if config == null or config.torch_item == null:
 		return false
 	var held := get_held_item()
-	return held != null and held.id == config.torch_item.id
+	if held != null and held.id == config.torch_item.id:
+		return true
+	var parent := get_parent()
+	if parent != null:
+		var status := parent.get_node_or_null("StatusEffectsComponent") as StatusEffectsComponent
+		if status != null and status.is_active(StatusEffectsComponent.TORCH_EFFECT_ID):
+			return true
+	return false
 
 
 func get_held_item() -> ItemDefinition:

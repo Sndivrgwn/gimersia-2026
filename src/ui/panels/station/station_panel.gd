@@ -36,6 +36,7 @@ var _fuel_label: Label
 var _fuel_bar: ProgressBar
 var _refuel: Button
 var _flint: Button
+var _night_watch_btn: Button
 var _is_open: bool = false
 var _last_cold: bool = false
 var _connected_crafting: CraftingComponent
@@ -188,6 +189,21 @@ func get_refuel_button() -> Button:
 
 func get_flint_button() -> Button:
 	return _flint
+
+
+func get_night_watch_button() -> Button:
+	return _night_watch_btn
+
+
+func night_watch_pressed() -> void:
+	if station == null or not station.has_method(&"toggle_night_watch"):
+		return
+	var ok := bool(station.call(&"toggle_night_watch"))
+	if ok:
+		close()
+	else:
+		_status.text = "Jaga Malam tidak tersedia"
+		_refresh_campfire_ui()
 
 
 func refuel_pressed() -> void:
@@ -379,6 +395,12 @@ func _refresh_campfire_ui() -> void:
 	var flint_reason := _flint_reason()
 	_flint.disabled = not flint_reason.is_empty()
 	_flint.tooltip_text = flint_reason
+	if _night_watch_btn != null:
+		var show_watch := station != null and station.has_method(&"can_night_watch") and bool(station.call(&"can_night_watch"))
+		_night_watch_btn.visible = is_fire and show_watch
+		if show_watch:
+			var watch_on := station.has_method(&"is_night_watch_active") and bool(station.call(&"is_night_watch_active"))
+			_night_watch_btn.text = "Berhenti Jaga Malam" if watch_on else "Jaga Malam"
 
 
 func _refresh_runtime() -> void:
@@ -501,6 +523,13 @@ func _build_ui() -> void:
 	_apply_button_textures(_flint)
 	_flint.pressed.connect(flint_pressed)
 	fire_row.add_child(_flint)
+	_night_watch_btn = Button.new()
+	_night_watch_btn.text = "Jaga Malam"
+	_night_watch_btn.focus_mode = Control.FOCUS_ALL
+	_night_watch_btn.visible = false
+	_apply_button_textures(_night_watch_btn)
+	_night_watch_btn.pressed.connect(night_watch_pressed)
+	fire_row.add_child(_night_watch_btn)
 
 	_progress = ProgressBar.new()
 	_progress.max_value = 1.0

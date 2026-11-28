@@ -114,6 +114,38 @@ func sleep(_interactor: Node = null) -> bool:
 	return true
 
 
+## Pilihan "tidur sampai pagi": melewati sisa malam sekaligus bila api unggun
+## menyala (NeedsComponent menangani clamp aman lewat sinyal `time_skipped`).
+func can_sleep_until_morning() -> bool:
+	if config == null or not config.allow_sleep_until_morning:
+		return false
+	if clock == null or not _is_night():
+		return false
+	if clock.get_remaining_seconds() <= 0.0:
+		return false
+	if night_watch != null and night_watch.has_method(&"can_start"):
+		return bool(night_watch.call(&"can_start"))
+	return true
+
+
+func sleep_until_morning(_interactor: Node = null) -> bool:
+	if not can_sleep_until_morning():
+		return false
+	var remaining := float(clock.get_remaining_seconds())
+	if remaining <= 0.0:
+		return false
+	_last_sleep_time = clock.get_total_elapsed_seconds()
+	_has_slept = true
+	var before_hour := -1.0
+	if clock.has_method(&"get_clock_hour"):
+		before_hour = clock.get_clock_hour()
+	clock.skip_time(remaining)
+	if before_hour >= 0.0:
+		_show_sleep_toast(before_hour)
+	sleep_completed.emit()
+	return true
+
+
 func _show_sleep_toast(before_hour: float) -> void:
 	if not clock.has_method(&"get_clock_format") or not clock.has_method(&"get_clock_text"):
 		return

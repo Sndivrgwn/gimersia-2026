@@ -31,13 +31,23 @@ func test_waterskin_data_matches_design_a() -> void:
 func test_drinking_turns_full_waterskin_into_empty_one() -> void:
 	var harness := _make_harness()
 
+	# 3/3 tegukan: 2 tegukan pertama tetap WATERSKIN (charges 3 -> 2 -> 1), tegukan ke-3 jadi kosong.
+	assert_eq(harness["inventory"].get_slot(0).charges, 3, "mulai dengan 3 tegukan")
 	assert_true(harness["inventory"].use_slot(0))
 	assert_almost_eq(harness["needs"].get_value(NeedsComponent.Need.THIRST), 65.0, 0.001, "+25 Thirst")
 	assert_almost_eq(harness["needs"].get_value(NeedsComponent.Need.HUNGER), 45.0, 0.001, "-5 Hunger")
+	assert_same(harness["inventory"].get_slot_item(0), ItemCatalog.WATERSKIN, "masih ada 2 tegukan")
+	assert_eq(harness["inventory"].get_slot(0).charges, 2)
+
+	assert_true(harness["inventory"].use_slot(0))
+	assert_same(harness["inventory"].get_slot_item(0), ItemCatalog.WATERSKIN, "masih ada 1 tegukan")
+	assert_eq(harness["inventory"].get_slot(0).charges, 1)
+
+	assert_true(harness["inventory"].use_slot(0))
 	assert_same(
 		harness["inventory"].get_slot_item(0),
 		ItemCatalog.WATERSKIN_EMPTY,
-		"slot jadi kantung kosong, bukan hilang"
+		"setelah 3x minum slot jadi kantung kosong, bukan hilang"
 	)
 	assert_eq(harness["inventory"].get_slot_count(0), 1)
 

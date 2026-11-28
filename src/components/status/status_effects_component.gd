@@ -15,6 +15,8 @@ signal effect_ended(effect_id: StringName)
 
 const INVENTORY_NAME := "InventoryComponent"
 const PLAYER_GROUP := &"player"
+const TORCH_EFFECT_ID := &"torch_light"
+const TORCH_DURATION := 300.0
 
 ## Opsional; bila kosong dicari di parent.
 @export var stats: StatsComponent
@@ -109,12 +111,16 @@ func clear_all() -> void:
 		_end(id)
 
 
-## Teks satu baris untuk HUD: "Kaldu +1 HP/s 12s".
+## Teks satu baris untuk HUD: "Kaldu +1 HP/s 12s" atau "Obor 295s".
 func format_effect(effect: Dictionary) -> String:
+	var rate := float(effect["rate"])
+	var secs := int(ceilf(float(effect["remaining"])))
+	if rate <= 0.0:
+		return "%s %ds" % [String(effect["name"]), secs]
 	return "%s +%.0f HP/s %ds" % [
 		String(effect["name"]),
-		float(effect["rate"]),
-		int(ceilf(float(effect["remaining"]))),
+		rate,
+		secs,
 	]
 
 
@@ -153,7 +159,12 @@ func _time_scale() -> float:
 
 
 func _on_item_used(item: ItemDefinition, _slot_index: int) -> void:
-	if item == null or item.consume_effect == null:
+	if item == null:
+		return
+	if item.id == &"torch":
+		apply(TORCH_EFFECT_ID, item.display_name, 0.0, TORCH_DURATION)
+		return
+	if item.consume_effect == null:
 		return
 	var effect := item.consume_effect
 	if effect.regen_hp_per_second <= 0.0 or effect.regen_duration <= 0.0:

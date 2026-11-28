@@ -134,6 +134,7 @@ func _ready() -> void:
 	_wire_hud()
 	_wire_feedback_hud(player)
 	_wire_save_hooks()
+	_wire_audio(player as Node2D)
 	if SaveService.consume_pending_load():
 		SaveService.load_island(self)
 	UiSkin.apply_all(self)
@@ -152,6 +153,15 @@ func _play_intro_transition() -> void:
 		cam.zoom = target_zoom * 0.86
 		var tween := create_tween()
 		tween.tween_property(cam, "zoom", target_zoom, 0.95).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+
+func _wire_audio(player: Node2D) -> void:
+	if get_node_or_null("IslandAudioBridge") != null:
+		return
+	var bridge := IslandAudioBridge.new()
+	bridge.name = "IslandAudioBridge"
+	bridge.setup(self, player)
+	add_child(bridge)
 
 
 func _wire_save_hooks() -> void:

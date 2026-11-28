@@ -33,6 +33,8 @@ enum EquipmentSlot { NONE, WEAPON, TOOL, ARMOR }
 ## penuh -> `waterskin_empty.tres`). Null berarti item habis seperti biasa.
 ## Berlaku untuk stack berisi satu item (max_stack 1).
 @export var use_result: ItemDefinition
+## Jumlah pemakaian per item sebelum habis/berubah ke `use_result` (mis. Waterskin = 3).
+@export var use_charges: int = 1
 ## Slot peralatan bila item ini bisa dipasang.
 @export var equipment_slot: EquipmentSlot = EquipmentSlot.NONE
 ## Damage senjata (dipakai combat nanti; belum di-wire).

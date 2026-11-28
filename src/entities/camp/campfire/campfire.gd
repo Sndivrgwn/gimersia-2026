@@ -37,6 +37,8 @@ const NIGHT_LIGHT_ENERGY := 1.0
 @export var ember_snuff_config: EmberSnuffConfig = preload("res://src/data/configs/fauna/ember_snuff_config.tres")
 ## Opsional; default autoload DayNightManager.
 @export var clock: Node
+## Diisi NightWatchController saat Campfire dibangun (fallback Jaga Malam bila Tenda belum ada).
+@export var night_watch: Node
 
 var _fuel: float = 0.0
 ## D3: api mati (fuel 0) tetap COLD setelah diisi bahan bakar sampai
@@ -103,6 +105,40 @@ func request_station_panel(interactor: Node) -> void:
 
 func is_station_active() -> bool:
 	return is_lit()
+
+
+## Fallback Jaga Malam dari Api Unggun (V8 §1C): aktif saat malam bila api
+## menyala dan Tenda belum terbangun (atau Jaga Malam sedang berjalan).
+func can_night_watch() -> bool:
+	if night_watch == null or not night_watch.has_method(&"toggle"):
+		return false
+	if is_night_watch_active():
+		return true
+	if not is_lit() or not _is_night():
+		return false
+	var camp := _resolve_camp()
+	if camp != null and camp.has_built(&"tent"):
+		return false
+	return night_watch.has_method(&"can_start") and bool(night_watch.call(&"can_start"))
+
+
+func is_night_watch_active() -> bool:
+	return night_watch != null and night_watch.has_method(&"is_active") and bool(night_watch.call(&"is_active"))
+
+
+func toggle_night_watch() -> bool:
+	if not can_night_watch():
+		return false
+	return bool(night_watch.call(&"toggle"))
+
+
+func _resolve_camp() -> CampController:
+	var node := get_parent()
+	while node != null:
+		if node is CampController:
+			return node as CampController
+		node = node.get_parent()
+	return null
 
 
 # --- State ------------------------------------------------------------------

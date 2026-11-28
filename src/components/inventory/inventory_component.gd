@@ -205,6 +205,7 @@ func replace_item(from_item: Variant, to_item: ItemDefinition) -> bool:
 		if stack == null or stack.item == null or stack.item.id != from_id:
 			continue
 		stack.item = to_item
+		stack.charges = to_item.use_charges if to_item.use_charges > 1 else 0
 		slot_changed.emit(index)
 		inventory_changed.emit()
 		return true
@@ -241,13 +242,19 @@ func split_slot(index: int) -> bool:
 
 
 ## Urutkan tas: gabung stack item yang sama, lalu urut kategori -> id.
-## Slot kosong selalu di belakang; equipment tidak disentuh. True bila ada
-## slot yang benar-benar berubah.
-func sort() -> bool:
+## Slot kosong selalu di belakang; equipment tidak disentuh. Bila `preserve_hotbar`
+## true, slot hotbar (0..hotbar_size-1) tidak ikut diacak.
+func sort(preserve_hotbar: bool = false) -> bool:
 	_ensure_slots()
+	var start_idx := get_hotbar_size() if preserve_hotbar else 0
 	var totals: Dictionary = {}
-	for stack in _slots:
+	var single_stacks: Array[ItemStack] = []
+	for index in range(start_idx, _slots.size()):
+		var stack := _slots[index]
 		if stack == null or stack.item == null or stack.count <= 0:
+			continue
+		if stack.item.use_charges > 1:
+			single_stacks.append(stack)
 			continue
 		totals[stack.item] = int(totals.get(stack.item, 0)) + stack.count
 
@@ -264,11 +271,14 @@ func sort() -> bool:
 			var take := mini(remaining, stack_max)
 			rebuilt.append(ItemStack.new(item, take))
 			remaining -= take
+	for s in single_stacks:
+		rebuilt.append(s)
 
 	var changed := false
-	for index in _slots.size():
+	for index in range(start_idx, _slots.size()):
+		var rel := index - start_idx
 		var before := _slots[index]
-		var after: ItemStack = rebuilt[index] if index < rebuilt.size() else null
+		var after: ItemStack = rebuilt[rel] if rel < rebuilt.size() else null
 		if _same_stack(before, after):
 			continue
 		_slots[index] = after
@@ -378,6 +388,8 @@ func move_slot(from: int, to: int) -> bool:
 ## Waterskin) berubah menjadi varian itu di slot yang sama.
 ## Mission 7: hook additive setelah item berhasil dipakai.
 signal item_used(item: ItemDefinition, slot_index: int)
+## Dipancarkan saat item catatan khusus (mis. Catatan Kokpit) dibuka/dibaca.
+signal item_inspected(item: ItemDefinition, slot_index: int)
 
 
 func use_slot(index: int) -> bool:
@@ -385,14 +397,30 @@ func use_slot(index: int) -> bool:
 		return false
 	var stack := _slots[index]
 	var item := stack.item
-	if item == null or not item.is_consumable():
+	if item == null:
+		return false
+	# Catatan Kokpit: buka popup baca tanpa mengonsumsi item.
+	if item.id == &"cockpit_notes":
+		item_inspected.emit(item, index)
+		return true
+	# Obor: konsumsi 1 untuk mengaktifkan buff cahaya 300 dtk di StatusEffectsComponent.
+	if item.id == &"torch":
+		_consume_one(index, null)
+		item_used.emit(item, index)
+		return true
+	if not item.is_consumable():
 		return false
 	if needs_component == null and stats == null:
 		push_warning("InventoryComponent: NeedsComponent/StatsComponent tidak ada; item tidak dipakai.")
 		return false
 
 	_apply_effect(item.consume_effect)
-	_consume_one(index, item.use_result)
+	if stack.charges > 1:
+		stack.charges -= 1
+		slot_changed.emit(index)
+		inventory_changed.emit()
+	else:
+		_consume_one(index, item.use_result)
 	item_used.emit(item, index)
 	return true
 

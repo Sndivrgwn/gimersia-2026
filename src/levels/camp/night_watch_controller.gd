@@ -169,6 +169,7 @@ func _bind_built_structures() -> void:
 		if structure is Tent:
 			(structure as Tent).night_watch = self
 		elif structure is Campfire:
+			(structure as Campfire).night_watch = self
 			_bind_fire(structure as Campfire)
 
 
@@ -182,6 +183,7 @@ func _on_camp_structure_built(id: StringName) -> void:
 	if structure is Tent:
 		(structure as Tent).night_watch = self
 	elif structure is Campfire:
+		(structure as Campfire).night_watch = self
 		_bind_fire(structure as Campfire)
 
 

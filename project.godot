@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 
 PhantomCameraManager="*uid://duq6jhf6unyis"
 DayNightManager="*res://src/core/managers/day_night_manager.tscn"
+AudioManager="*res://src/core/managers/audio_manager.gd"
 
 [display]
 
