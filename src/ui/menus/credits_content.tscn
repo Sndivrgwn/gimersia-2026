@@ -1,0 +1,129 @@
+[gd_scene format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/nunito/Nunito-ExtraBold.ttf" id="1_extrabold"]
+[ext_resource type="FontFile" path="res://assets/fonts/nunito/Nunito-Bold.ttf" id="2_bold"]
+[ext_resource type="FontFile" path="res://assets/fonts/nunito/Nunito-Regular.ttf" id="3_regular"]
+
+[node name="CreditsContent" type="VBoxContainer"]
+custom_minimum_size = Vector2(460, 0)
+theme_override_constants/separation = 16
+
+[node name="StudioBlock" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="Label" parent="StudioBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("1_extrabold")
+theme_override_font_sizes/font_size = 16
+text = "RTRW STUDIO"
+
+[node name="BodyPad" type="MarginContainer" parent="StudioBlock"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+
+[node name="StudioDesc" type="Label" parent="StudioBlock/BodyPad"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Dirancang dan dikembangkan oleh RTRW Studio."
+autowrap_mode = 3
+
+[node name="EngineBlock" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="Label" parent="EngineBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("1_extrabold")
+theme_override_font_sizes/font_size = 16
+text = "ENGINE"
+
+[node name="BodyPad" type="MarginContainer" parent="EngineBlock"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+
+[node name="Value" type="Label" parent="EngineBlock/BodyPad"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Dibuat dengan Godot Engine 4"
+autowrap_mode = 3
+
+[node name="FontBlock" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="Label" parent="FontBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("1_extrabold")
+theme_override_font_sizes/font_size = 16
+text = "REFERENSI FONT"
+
+[node name="BodyPad" type="MarginContainer" parent="FontBlock"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+
+[node name="Rows" type="VBoxContainer" parent="FontBlock/BodyPad"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RowNunito" type="HBoxContainer" parent="FontBlock/BodyPad/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Name" type="Label" parent="FontBlock/BodyPad/Rows/RowNunito"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Nunito — Vernon Adams dkk."
+autowrap_mode = 3
+
+[node name="License" type="Label" parent="FontBlock/BodyPad/Rows/RowNunito"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_regular")
+theme_override_font_sizes/font_size = 17
+text = "SIL OFL 1.1"
+horizontal_alignment = 2
+
+[node name="RowFredoka" type="HBoxContainer" parent="FontBlock/BodyPad/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Name" type="Label" parent="FontBlock/BodyPad/Rows/RowFredoka"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Fredoka — Milena Brandao"
+autowrap_mode = 3
+
+[node name="License" type="Label" parent="FontBlock/BodyPad/Rows/RowFredoka"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_regular")
+theme_override_font_sizes/font_size = 17
+text = "SIL OFL 1.1"
+horizontal_alignment = 2
+
+[node name="ThanksPad" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_top = 4
+
+[node name="ThanksLabel" type="Label" parent="ThanksPad"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Terima kasih sudah bermain."

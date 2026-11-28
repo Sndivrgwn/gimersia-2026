@@ -10,6 +10,9 @@
 [ext_resource type="Texture2D" uid="uid://dvm3sspufkk3u" path="res://assets/textures/ui/main_menu_animated/water_wave.png" id="8_wave"]
 [ext_resource type="Shader" uid="uid://1a2x7gipjsoa" path="res://src/ui/menus/aurora_flow.gdshader" id="9_aurora_shader"]
 [ext_resource type="Texture2D" path="res://assets/textures/ui/09_extra/logo_main_menu.png" id="10_logo"]
+[ext_resource type="Texture2D" uid="uid://c2mn2pl7cwo74" path="res://assets/textures/ui/02_panel/panel_cream_stitched.png" id="11_panel"]
+[ext_resource type="PackedScene" path="res://src/ui/menus/controls_content.tscn" id="12_controls"]
+[ext_resource type="PackedScene" path="res://src/ui/menus/credits_content.tscn" id="13_credits"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_aurora_back"]
 shader = ExtResource("9_aurora_shader")
@@ -322,48 +325,56 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="Card" type="PanelContainer" parent="InfoOverlay/Center" unique_id=882639065]
-custom_minimum_size = Vector2(520, 300)
 layout_mode = 2
-theme_type_variation = &"PanelCard"
+theme_type_variation = &"PanelKontrol"
 
-[node name="Padding" type="MarginContainer" parent="InfoOverlay/Center/Card" unique_id=873726713]
+[node name="Content" type="VBoxContainer" parent="InfoOverlay/Center/Card" unique_id=1639751251]
 layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 14
-
-[node name="Content" type="VBoxContainer" parent="InfoOverlay/Center/Card/Padding" unique_id=1639751251]
-layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 18
 alignment = 1
 
-[node name="InfoTitleLabel" type="Label" parent="InfoOverlay/Center/Card/Padding/Content" unique_id=16748860]
-unique_name_in_owner = true
+[node name="HeaderRow" type="HBoxContainer" parent="InfoOverlay/Center/Card/Content" unique_id=1510928341]
 layout_mode = 2
-theme_type_variation = &"CardTitleLabel"
-text = "Kontrol"
+theme_override_constants/separation = 12
 
-[node name="InfoScroll" type="ScrollContainer" parent="InfoOverlay/Center/Card/Padding/Content" unique_id=905366183]
-custom_minimum_size = Vector2(0, 320)
+[node name="HeaderSpacer" type="Control" parent="InfoOverlay/Center/Card/Content/HeaderRow" unique_id=1510928342]
+custom_minimum_size = Vector2(44, 44)
 layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
+mouse_filter = 2
 
-[node name="InfoTextLabel" type="Label" parent="InfoOverlay/Center/Card/Padding/Content/InfoScroll" unique_id=2075391556]
+[node name="InfoTitleLabel" type="Label" parent="InfoOverlay/Center/Card/Content/HeaderRow" unique_id=16748860]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_type_variation = &"BodyLabel"
-autowrap_mode = 3
+theme_type_variation = &"KontrolTitleLabel"
+text = "Kontrol"
+horizontal_alignment = 1
 
-[node name="InfoBackButton" type="Button" parent="InfoOverlay/Center/Card/Padding/Content" unique_id=519813490]
+[node name="InfoBackButton" type="Button" parent="InfoOverlay/Center/Card/Content/HeaderRow" unique_id=519813490]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 72)
+custom_minimum_size = Vector2(44, 44)
 layout_mode = 2
-size_flags_horizontal = 4
-theme_type_variation = &"SecondaryButton"
-text = "KEMBALI"
+size_flags_vertical = 4
+theme_type_variation = &"CloseXButton"
+text = ""
+
+[node name="InfoControlsList" parent="InfoOverlay/Center/Card/Content" unique_id=1492837105 instance=ExtResource("12_controls")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="InfoCreditsList" parent="InfoOverlay/Center/Card/Content" unique_id=1492837107 instance=ExtResource("13_credits")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="InfoTextLabel" type="Label" parent="InfoOverlay/Center/Card/Content" unique_id=2075391556]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="ScreenFade" type="ColorRect" parent="." unique_id=251509215]
 unique_name_in_owner = true

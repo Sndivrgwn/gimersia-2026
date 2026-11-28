@@ -1,9 +1,12 @@
 class_name HelpPanel
 extends Control
 
-## Mission 7: daftar kontrol statis. Tidak mem-pause.
+## Daftar kontrol statis. Seluruh node UI didefinisikan di help_panel_ui.tscn + controls_content.tscn;
+## skrip ini hanya menangani logika buka/tutup, input, dan fokus.
 
 signal toggled_open(is_open: bool)
+
+const UI_SCENE := preload("res://src/ui/menus/help_panel_ui.tscn")
 
 const HELP_LINES: Array[String] = [
 	"PEMAIN",
@@ -20,13 +23,6 @@ const HELP_LINES: Array[String] = [
 	"Tab / I - panel tas: Tas | Crafting",
 	"P - pause (Lanjutkan, Pengaturan, Bantuan, Menu Utama)",
 	"Esc - tutup panel yang terbuka",
-	"",
-	"DEBUG PULAU (island)",
-	"F2 - mode debug on/off",
-	"F3 - zona berikutnya, F4 - pagi, F5 - kit bahan",
-	"F6 - babi, F7 - rusa, F8 - malam, F9 - heal",
-	"F10 - siklus senjata, F11 - mati, F12 - rescue",
-	"J - raid sekarang, Insert - label fauna",
 ]
 
 var _label: Label
@@ -38,10 +34,11 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	visible = false
 	InputSetup.ensure_actions()
-	if has_node("Ui"):
-		_bind_scene_ui()
-	else:
-		_build_ui()
+	if not has_node("Ui"):
+		var ui := UI_SCENE.instantiate()
+		ui.name = "Ui"
+		add_child(ui)
+	_bind_scene_ui()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -80,7 +77,7 @@ func is_open() -> bool:
 
 
 func get_text() -> String:
-	return "" if _label == null else _label.text
+	return "\n".join(HELP_LINES) if _label == null else _label.text
 
 
 func _bind_scene_ui() -> void:
@@ -90,45 +87,5 @@ func _bind_scene_ui() -> void:
 		_label.text = "\n".join(HELP_LINES)
 	var back := ui.get_node_or_null("%BackButton") as Button
 	_back_button = back
-	if back != null:
+	if back != null and not back.pressed.is_connected(close):
 		back.pressed.connect(close)
-
-
-func _build_ui() -> void:
-	var panel := PanelContainer.new()
-	panel.name = "Card"
-	panel.custom_minimum_size = Vector2(460.0, 0.0)
-	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.10, 0.12, 0.10, 0.96)
-	style.border_color = Color(0.85, 0.78, 0.5, 1.0)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(6)
-	style.set_content_margin_all(16.0)
-	panel.add_theme_stylebox_override("panel", style)
-	add_child(panel)
-
-	var box := VBoxContainer.new()
-	box.name = "Box"
-	box.add_theme_constant_override("separation", 10)
-	panel.add_child(box)
-
-	var title := Label.new()
-	title.text = "Kontrol & Bantuan"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 20)
-	box.add_child(title)
-
-	_label = Label.new()
-	_label.name = "HelpText"
-	_label.text = "\n".join(HELP_LINES)
-	_label.add_theme_font_size_override("font_size", 13)
-	box.add_child(_label)
-
-	var back := Button.new()
-	back.text = "Kembali"
-	back.pressed.connect(close)
-	box.add_child(back)
-	_back_button = back

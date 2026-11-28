@@ -15,9 +15,10 @@ const SETTINGS_SCENE := preload("res://src/ui/menus/settings_panel.tscn")
 const GAME_SCENE := "res://src/levels/island/island.tscn"
 
 const CREDIT_LINES: Array[String] = [
-	"Dirancang dan dikembangkan oleh tim Gimersia.",
+	"Dirancang dan dikembangkan oleh RTRW Studio.",
 	"Dibuat dengan Godot Engine 4.",
 	"Font Nunito oleh Vernon Adams dkk. — SIL Open Font License 1.1.",
+	"Font Fredoka oleh Milena Brandao — SIL Open Font License 1.1.",
 	"Terima kasih sudah bermain.",
 ]
 
@@ -36,7 +37,7 @@ const ENTER_BG_COLOR := Color(0.122, 0.082, 0.063, 1.0)
 @onready var _version_label: Label = %VersionLabel
 @onready var _info_overlay: Control = %InfoOverlay
 @onready var _info_dim: ColorRect = _info_overlay.get_node("Dim")
-@onready var _info_card: PanelContainer = _info_overlay.get_node("Center/Card")
+@onready var _info_card: Control = _info_overlay.get_node("Center/Card")
 @onready var _info_title: Label = %InfoTitleLabel
 @onready var _info_text: Label = %InfoTextLabel
 @onready var _info_back: Button = %InfoBackButton
@@ -113,7 +114,18 @@ func _process(delta: float) -> void:
 ## Overlay informasi dipakai bersama oleh "Kontrol" dan "Kredit".
 func open_info(title: String, lines: Array[String]) -> void:
 	_info_title.text = title
-	_info_text.text = "\n".join(PackedStringArray(lines))
+	var controls_list := _info_overlay.find_child("InfoControlsList", true, false) as Control
+	var credits_list := _info_overlay.find_child("InfoCreditsList", true, false) as Control
+	var is_controls := title == "Kontrol" and controls_list != null
+	var is_credits := title == "Kredit" and credits_list != null
+	_info_title.theme_type_variation = &"KontrolTitleLabel"
+	if controls_list != null:
+		controls_list.visible = is_controls
+	if credits_list != null:
+		credits_list.visible = is_credits
+	_info_text.visible = not is_controls and not is_credits
+	if _info_text.visible:
+		_info_text.text = "\n".join(PackedStringArray(lines))
 	_info_overlay.visible = true
 
 	_kill(_overlay_tween)
@@ -323,10 +335,7 @@ func _build_loading_ui() -> void:
 	_loading_label.text = "Memuat pulau..."
 	_loading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_loading_label.add_theme_font_size_override("font_size", 12)
-	var nunito_med := FontVariation.new()
-	nunito_med.base_font = preload("res://assets/fonts/nunito/nunito_variable.ttf")
-	nunito_med.variation_opentype = { &"wght": 500 }
-	_loading_label.add_theme_font_override("font", nunito_med)
+	_loading_label.add_theme_font_override("font", preload("res://assets/fonts/nunito/Nunito-Medium.ttf"))
 	_loading_label.add_theme_color_override("font_color", Color(0.968627, 0.945098, 0.898039, 0.9))
 	_loading_box.add_child(_loading_label)
 

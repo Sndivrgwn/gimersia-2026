@@ -1,0 +1,276 @@
+[gd_scene format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/nunito/Nunito-ExtraBold.ttf" id="1_extrabold"]
+[ext_resource type="FontFile" path="res://assets/fonts/nunito/Nunito-Bold.ttf" id="2_bold"]
+[ext_resource type="FontFile" path="res://assets/fonts/nunito/Nunito-Regular.ttf" id="3_regular"]
+
+[node name="ControlsContent" type="HBoxContainer"]
+theme_override_constants/separation = 32
+
+[node name="SegmenPemain" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(310, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Header" type="Label" parent="SegmenPemain"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("1_extrabold")
+theme_override_font_sizes/font_size = 16
+text = "PEMAIN"
+
+[node name="RowBergerak" type="HBoxContainer" parent="SegmenPemain"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Desc" type="Label" parent="SegmenPemain/RowBergerak"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Bergerak"
+autowrap_mode = 3
+
+[node name="Key" type="Label" parent="SegmenPemain/RowBergerak"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_regular")
+theme_override_font_sizes/font_size = 17
+text = "WASD"
+horizontal_alignment = 2
+
+[node name="RowSprint" type="HBoxContainer" parent="SegmenPemain"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Desc" type="Label" parent="SegmenPemain/RowSprint"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Sprint"
+autowrap_mode = 3
+
+[node name="Key" type="Label" parent="SegmenPemain/RowSprint"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_regular")
+theme_override_font_sizes/font_size = 17
+text = "SHIFT"
+horizontal_alignment = 2
+
+[node name="RowJongkok" type="HBoxContainer" parent="SegmenPemain"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Desc" type="Label" parent="SegmenPemain/RowJongkok"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Jongkok"
+autowrap_mode = 3
+
+[node name="Key" type="Label" parent="SegmenPemain/RowJongkok"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_regular")
+theme_override_font_sizes/font_size = 17
+text = "CTRL"
+horizontal_alignment = 2
+
+[node name="RowGunakan" type="HBoxContainer" parent="SegmenPemain"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Desc" type="Label" parent="SegmenPemain/RowGunakan"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Kumpulkan / gunakan"
+autowrap_mode = 3
+
+[node name="Key" type="Label" parent="SegmenPemain/RowGunakan"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_regular")
+theme_override_font_sizes/font_size = 17
+text = "E (TAHAN)"
+horizontal_alignment = 2
+
+[node name="RowPerbaiki" type="HBoxContainer" parent="SegmenPemain"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Desc" type="Label" parent="SegmenPemain/RowPerbaiki"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Perbaiki struktur"
+autowrap_mode = 3
+
+[node name="Key" type="Label" parent="SegmenPemain/RowPerbaiki"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_regular")
+theme_override_font_sizes/font_size = 17
+text = "R (TAHAN)"
+horizontal_alignment = 2
+
+[node name="RowBase" type="HBoxContainer" parent="SegmenPemain"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Desc" type="Label" parent="SegmenPemain/RowBase"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Tentukan lokasi base"
+autowrap_mode = 3
+
+[node name="Key" type="Label" parent="SegmenPemain/RowBase"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_regular")
+theme_override_font_sizes/font_size = 17
+text = "B"
+horizontal_alignment = 2
+
+[node name="RowHotbar" type="HBoxContainer" parent="SegmenPemain"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Desc" type="Label" parent="SegmenPemain/RowHotbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Hotbar"
+autowrap_mode = 3
+
+[node name="Key" type="Label" parent="SegmenPemain/RowHotbar"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_regular")
+theme_override_font_sizes/font_size = 17
+text = "1-5"
+horizontal_alignment = 2
+
+[node name="RowSerang" type="HBoxContainer" parent="SegmenPemain"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Desc" type="Label" parent="SegmenPemain/RowSerang"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Serang"
+autowrap_mode = 3
+
+[node name="Key" type="Label" parent="SegmenPemain/RowSerang"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_regular")
+theme_override_font_sizes/font_size = 17
+text = "SPACE / KLIK KIRI"
+horizontal_alignment = 2
+
+[node name="SegmenPanelMenu" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(310, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Header" type="Label" parent="SegmenPanelMenu"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("1_extrabold")
+theme_override_font_sizes/font_size = 16
+text = "PANEL & MENU"
+
+[node name="RowTas" type="HBoxContainer" parent="SegmenPanelMenu"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Desc" type="Label" parent="SegmenPanelMenu/RowTas"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Panel tas: Tas | Crafting"
+autowrap_mode = 3
+
+[node name="Key" type="Label" parent="SegmenPanelMenu/RowTas"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_regular")
+theme_override_font_sizes/font_size = 17
+text = "TAB / I"
+horizontal_alignment = 2
+
+[node name="RowPause" type="HBoxContainer" parent="SegmenPanelMenu"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Desc" type="Label" parent="SegmenPanelMenu/RowPause"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Pause (Lanjutkan, Pengaturan, Bantuan, Menu Utama)"
+autowrap_mode = 3
+
+[node name="Key" type="Label" parent="SegmenPanelMenu/RowPause"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_regular")
+theme_override_font_sizes/font_size = 17
+text = "P"
+horizontal_alignment = 2
+
+[node name="RowTutup" type="HBoxContainer" parent="SegmenPanelMenu"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Desc" type="Label" parent="SegmenPanelMenu/RowTutup"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("2_bold")
+theme_override_font_sizes/font_size = 17
+text = "Tutup panel yang terbuka"
+autowrap_mode = 3
+
+[node name="Key" type="Label" parent="SegmenPanelMenu/RowTutup"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_regular")
+theme_override_font_sizes/font_size = 17
+text = "ESC"
+horizontal_alignment = 2

@@ -145,7 +145,7 @@ func _setup_buttons() -> void:
 	var root := get_parent()
 	if root == null:
 		return
-	var candidates: Array[String] = ["StartButton", "ControlsButton", "CreditsButton", "QuitButton"]
+	var candidates: Array[String] = ["ContinueButton", "StartButton", "ControlsButton", "CreditsButton", "QuitButton"]
 	for index in candidates.size():
 		var btn := root.find_child(candidates[index], true, false) as Button
 		if btn == null:
@@ -155,7 +155,7 @@ func _setup_buttons() -> void:
 		_button_active[btn] = btn.has_focus()
 		_recenter_button_pivot(btn)
 		btn.resized.connect(_recenter_button_pivot.bind(btn))
-		btn.mouse_entered.connect(_on_button_state_changed.bind(btn))
+		btn.mouse_entered.connect(_on_button_mouse_entered.bind(btn))
 		btn.mouse_exited.connect(_on_button_state_changed.bind(btn))
 		btn.focus_entered.connect(_on_button_state_changed.bind(btn))
 		btn.focus_exited.connect(_on_button_state_changed.bind(btn))
@@ -165,6 +165,12 @@ func _setup_buttons() -> void:
 
 func _recenter_button_pivot(btn: Button) -> void:
 	btn.pivot_offset = btn.size * 0.5
+
+
+func _on_button_mouse_entered(btn: Button) -> void:
+	if not btn.has_focus():
+		btn.grab_focus()
+	_on_button_state_changed(btn)
 
 
 func _on_button_state_changed(btn: Button) -> void:

@@ -3,6 +3,9 @@
 [ext_resource type="Script" uid="uid://cwlncuu6bxuxj" path="res://src/ui/menus/main_menu.gd" id="1_menu"]
 [ext_resource type="Theme" uid="uid://yeud614vxjso" path="res://src/ui/theme/ui_theme_tex.tres" id="3_theme"]
 [ext_resource type="Texture2D" path="res://assets/textures/ui/09_extra/logo_main_menu.png" id="4_logo"]
+[ext_resource type="Texture2D" uid="uid://c2mn2pl7cwo74" path="res://assets/textures/ui/02_panel/panel_cream_stitched.png" id="5_panel"]
+[ext_resource type="PackedScene" path="res://src/ui/menus/controls_content.tscn" id="6_controls"]
+[ext_resource type="PackedScene" path="res://src/ui/menus/credits_content.tscn" id="7_credits"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_wuc7m"]
 load_path = "res://.godot/imported/background_main_menu.png-0551d86a040557a117d688704b53fa5b.ctex"
@@ -140,48 +143,56 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="Card" type="PanelContainer" parent="InfoOverlay/Center" unique_id=1776584315]
-custom_minimum_size = Vector2(520, 300)
 layout_mode = 2
-theme_type_variation = &"PanelCard"
+theme_type_variation = &"PanelKontrol"
 
-[node name="Padding" type="MarginContainer" parent="InfoOverlay/Center/Card" unique_id=174336825]
+[node name="Content" type="VBoxContainer" parent="InfoOverlay/Center/Card" unique_id=1078497537]
 layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 14
-
-[node name="Content" type="VBoxContainer" parent="InfoOverlay/Center/Card/Padding" unique_id=1078497537]
-layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 18
 alignment = 1
 
-[node name="InfoTitleLabel" type="Label" parent="InfoOverlay/Center/Card/Padding/Content" unique_id=93244623]
-unique_name_in_owner = true
+[node name="HeaderRow" type="HBoxContainer" parent="InfoOverlay/Center/Card/Content" unique_id=1510928343]
 layout_mode = 2
-theme_type_variation = &"CardTitleLabel"
-text = "Kontrol"
+theme_override_constants/separation = 12
 
-[node name="InfoScroll" type="ScrollContainer" parent="InfoOverlay/Center/Card/Padding/Content" unique_id=1551691219]
-custom_minimum_size = Vector2(0, 320)
+[node name="HeaderSpacer" type="Control" parent="InfoOverlay/Center/Card/Content/HeaderRow" unique_id=1510928344]
+custom_minimum_size = Vector2(44, 44)
 layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
+mouse_filter = 2
 
-[node name="InfoTextLabel" type="Label" parent="InfoOverlay/Center/Card/Padding/Content/InfoScroll" unique_id=2059790378]
+[node name="InfoTitleLabel" type="Label" parent="InfoOverlay/Center/Card/Content/HeaderRow" unique_id=93244623]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_type_variation = &"BodyLabel"
-autowrap_mode = 3
+theme_type_variation = &"KontrolTitleLabel"
+text = "Kontrol"
+horizontal_alignment = 1
 
-[node name="InfoBackButton" type="Button" parent="InfoOverlay/Center/Card/Padding/Content" unique_id=1234714096]
+[node name="InfoBackButton" type="Button" parent="InfoOverlay/Center/Card/Content/HeaderRow" unique_id=1234714096]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 72)
+custom_minimum_size = Vector2(44, 44)
 layout_mode = 2
-size_flags_horizontal = 4
-theme_type_variation = &"SecondaryButton"
-text = "KEMBALI"
+size_flags_vertical = 4
+theme_type_variation = &"CloseXButton"
+text = ""
+
+[node name="InfoControlsList" parent="InfoOverlay/Center/Card/Content" unique_id=1492837106 instance=ExtResource("6_controls")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="InfoCreditsList" parent="InfoOverlay/Center/Card/Content" unique_id=1492837108 instance=ExtResource("7_credits")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="InfoTextLabel" type="Label" parent="InfoOverlay/Center/Card/Content" unique_id=2059790378]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="ScreenFade" type="ColorRect" parent="." unique_id=1911436810]
 unique_name_in_owner = true

@@ -1,19 +1,20 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://rxxuxybr8mo7"]
 
-[ext_resource type="Theme" path="res://src/ui/theme/ui_theme_tex.tres" id="2_theme"]
+[ext_resource type="Theme" uid="uid://yeud614vxjso" path="res://src/ui/theme/ui_theme_tex.tres" id="2_theme"]
+[ext_resource type="PackedScene" path="res://src/ui/menus/controls_content.tscn" id="3_controls"]
 
-[node name="HelpUi" type="Control"]
-mouse_filter = 2
+[node name="HelpUi" type="Control" unique_id=1828263630]
+texture_filter = 2
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 theme = ExtResource("2_theme")
-texture_filter = 2
 
-[node name="Dim" type="ColorRect" parent="."]
+[node name="Dim" type="ColorRect" parent="." unique_id=1321851061]
 modulate = Color(1, 1, 1, 0.45)
 layout_mode = 1
 anchors_preset = 15
@@ -21,10 +22,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 color = Color(0.122, 0.078, 0.055, 1)
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Center" type="CenterContainer" parent="." unique_id=1258655992]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -33,44 +33,47 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Card" type="PanelContainer" parent="./Center"]
-custom_minimum_size = Vector2(520, 0)
+[node name="Card" type="PanelContainer" parent="Center" unique_id=274836003]
 layout_mode = 2
-theme_type_variation = &"PanelCard"
+theme_type_variation = &"PanelKontrol"
 
-[node name="Column" type="VBoxContainer" parent="./Center/Card"]
+[node name="Column" type="VBoxContainer" parent="Center/Card" unique_id=562047485]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 24
 alignment = 1
 
-[node name="Title" type="Label" parent="./Center/Card/Column"]
+[node name="HeaderRow" type="HBoxContainer" parent="Center/Card/Column" unique_id=483859152]
 layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HeaderSpacer" type="Control" parent="Center/Card/Column/HeaderRow" unique_id=1568006429]
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="Center/Card/Column/HeaderRow" unique_id=895301398]
 unique_name_in_owner = true
-theme_type_variation = &"CardTitleLabel"
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"KontrolTitleLabel"
 text = "Kontrol"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="HelpScroll" type="ScrollContainer" parent="./Center/Card/Column"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 360)
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-
-[node name="HelpText" type="Label" parent="./Center/Card/Column/HelpScroll"]
-layout_mode = 2
-size_flags_horizontal = 3
+[node name="BackButton" type="Button" parent="Center/Card/Column/HeaderRow" unique_id=991644354]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"CloseXButton"
+
+[node name="HelpList" parent="Center/Card/Column" unique_id=975414217 instance=ExtResource("3_controls")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HelpText" type="Label" parent="Center/Card/Column" unique_id=666798937]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
 theme_type_variation = &"BodyLabel"
-text = ""
-horizontal_alignment = 0
 autowrap_mode = 3
-
-[node name="BackButton" type="Button" parent="./Center/Card/Column"]
-layout_mode = 2
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
-size_flags_horizontal = 3
-theme_type_variation = &"BackButton"
-text = "KEMBALI"
-
