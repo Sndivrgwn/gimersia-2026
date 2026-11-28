@@ -8,5 +8,5 @@ id = &"stone_pickaxe"
 display_name = "Beliung Batu"
 description = "Alat untuk menambang batu. Hanya kepemilikan; tidak mengubah stat."
 category = 3
-max_stack = 20
+max_stack = 99
 equipment_slot = 2

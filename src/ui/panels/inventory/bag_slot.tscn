@@ -1,28 +1,54 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://src/ui/panels/inventory/bag_slot.gd" id="1_slot"]
-[ext_resource type="Texture2D" path="res://assets/textures/ui/inventory/inventory_slot.png" id="2_slot_tex"]
+[ext_resource type="Texture2D" uid="uid://cyr6y463nuxqk" path="res://assets/textures/ui/05_slot/slot_item.png" id="2_slot_tex"]
+[ext_resource type="Texture2D" uid="uid://dti3wl8roy43b" path="res://assets/textures/ui/05_slot/slot_item_selected.png" id="3_slot_hover"]
+[ext_resource type="Texture2D" path="res://assets/textures/ui/09_extra/badge_count_lavender.svg" id="4_badge"]
+[ext_resource type="FontFile" path="res://assets/fonts/nunito/Nunito-Bold.ttf" id="5_bold"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_slot"]
-content_margin_left = 13.0
-content_margin_top = 14.0
-content_margin_right = 14.0
-content_margin_bottom = 18.0
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
 texture = ExtResource("2_slot_tex")
-texture_margin_left = 18.0
-texture_margin_top = 18.0
-texture_margin_right = 18.0
-texture_margin_bottom = 18.0
+texture_margin_left = 26.0
+texture_margin_top = 26.0
+texture_margin_right = 26.0
+texture_margin_bottom = 26.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_slot_hover"]
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+texture = ExtResource("3_slot_hover")
+texture_margin_left = 26.0
+texture_margin_top = 26.0
+texture_margin_right = 26.0
+texture_margin_bottom = 26.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_badge"]
+content_margin_left = 8.0
+content_margin_top = 2.0
+content_margin_right = 8.0
+content_margin_bottom = 3.0
+texture = ExtResource("4_badge")
+texture_margin_left = 8.0
+texture_margin_top = 6.0
+texture_margin_right = 8.0
+texture_margin_bottom = 8.0
 
 [node name="BagSlot" type="PanelContainer"]
-custom_minimum_size = Vector2(104, 104)
+custom_minimum_size = Vector2(96, 96)
 texture_filter = 2
-offset_right = 104.0
-offset_bottom = 104.0
+offset_right = 96.0
+offset_bottom = 96.0
 mouse_filter = 0
 focus_mode = 0
 theme_override_styles/panel = SubResource("StyleBoxTexture_slot")
 script = ExtResource("1_slot")
+hover_style = SubResource("StyleBoxTexture_slot_hover")
 
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2
@@ -30,28 +56,23 @@ mouse_filter = 2
 theme_override_constants/separation = 2
 
 [node name="Top" type="HBoxContainer" parent="VBox"]
+visible = false
 layout_mode = 2
 mouse_filter = 2
 
 [node name="Key" type="Label" parent="VBox/Top"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.45098, 0.301961, 0.121569, 1)
-theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("5_bold")
+theme_override_font_sizes/font_size = 11
 text = ""
-
-[node name="Count" type="Label" parent="VBox/Top"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.360784, 0.270588, 0.188235, 1)
-theme_override_font_sizes/font_size = 10
-text = ""
-horizontal_alignment = 2
 
 [node name="Icon" type="TextureRect" parent="VBox"]
 visible = false
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
@@ -60,11 +81,42 @@ stretch_mode = 5
 
 [node name="DummyIcon" type="Label" parent="VBox"]
 visible = false
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.243137, 0.152941, 0.101961, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = ExtResource("5_bold")
+theme_override_font_sizes/font_size = 24
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="BadgeLayer" type="Control" parent="."]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="CountBadge" type="PanelContainer" parent="BadgeLayer"]
+visible = false
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -46.0
+offset_top = -22.0
+offset_right = 2.0
+offset_bottom = 2.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_badge")
+
+[node name="Count" type="Label" parent="BadgeLayer/CountBadge"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("5_bold")
+theme_override_font_sizes/font_size = 11
+text = ""
+horizontal_alignment = 1

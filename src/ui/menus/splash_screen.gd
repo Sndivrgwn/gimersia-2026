@@ -20,22 +20,30 @@ const ERROR_TEXT := "Gagal memuat game"
 static var shown_this_session: bool = false
 
 
-## Pembungkus tipis ResourceLoader threaded agar bisa di-stub di unit test.
+## Pembungkus ResourceLoader agar aman di Godot 4.7.2 (hindari race condition
+## load_threaded_request pada .tres/.gd saat boot awal).
 class DefaultLoader extends RefCounted:
+	var _loaded: Dictionary = {}
+
 	func exists(path: String) -> bool:
 		return not path.is_empty() and ResourceLoader.exists(path)
 
 	func request(path: String) -> int:
-		return ResourceLoader.load_threaded_request(path)
+		if not exists(path):
+			return ERR_FILE_NOT_FOUND
+		var res := ResourceLoader.load(path)
+		if res == null:
+			return ERR_CANT_OPEN
+		_loaded[path] = res
+		return OK
 
 	func status(path: String) -> Dictionary:
-		var progress: Array = []
-		var state := ResourceLoader.load_threaded_get_status(path, progress)
-		var value := float(progress[0]) if not progress.is_empty() else 0.0
-		return {"state": state, "progress": value}
+		if _loaded.has(path):
+			return {"state": ResourceLoader.THREAD_LOAD_LOADED, "progress": 1.0}
+		return {"state": ResourceLoader.THREAD_LOAD_INVALID_RESOURCE, "progress": 0.0}
 
 	func get_packed(path: String) -> PackedScene:
-		return ResourceLoader.load_threaded_get(path) as PackedScene
+		return _loaded.get(path) as PackedScene
 
 
 @export var config: SplashConfig

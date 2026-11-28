@@ -12,7 +12,7 @@ const ScreenFade := preload("res://src/ui/fx/screen_fade.gd")
 signal main_menu_requested
 signal restart_requested
 
-const MENU_SCENE := "res://src/ui/menus/main_menu.tscn"
+const MENU_SCENE := "res://src/ui/menus/main_menu_animated.tscn"
 const GAME_SCENE := "res://src/levels/island/island.tscn"
 
 @export var clock: Node

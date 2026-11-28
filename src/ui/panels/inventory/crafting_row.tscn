@@ -6,6 +6,7 @@
 [ext_resource type="StyleBox" path="res://src/ui/panels/inventory/styles/button_hover.tres" id="4_bh"]
 [ext_resource type="StyleBox" path="res://src/ui/panels/inventory/styles/button_pressed.tres" id="5_bp"]
 [ext_resource type="StyleBox" path="res://src/ui/panels/inventory/styles/button_disabled.tres" id="6_bd"]
+[ext_resource type="FontFile" path="res://assets/fonts/nunito/Nunito-Bold.ttf" id="7_bold"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
 
@@ -70,13 +71,15 @@ size_flags_vertical = 4
 theme_override_constants/separation = 6
 
 [node name="CraftButton" type="Button" parent="Row/Action"]
-custom_minimum_size = Vector2(150, 52)
+custom_minimum_size = Vector2(124, 44)
 layout_mode = 2
 theme_type_variation = &"CraftPill"
-theme_override_colors/font_color = Color(0.9686, 0.9451, 0.898, 1)
-theme_override_colors/font_disabled_color = Color(0.9686, 0.9451, 0.898, 1)
-theme_override_colors/font_hover_color = Color(0.9686, 0.9451, 0.898, 1)
-theme_override_colors/font_pressed_color = Color(0.9686, 0.9451, 0.898, 1)
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_colors/font_disabled_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_colors/font_hover_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_colors/font_pressed_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("7_bold")
+theme_override_font_sizes/font_size = 16
 theme_override_styles/focus = SubResource("StyleBoxEmpty_focus")
 theme_override_styles/disabled = ExtResource("6_bd")
 theme_override_styles/hover = ExtResource("4_bh")

@@ -234,11 +234,12 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="MenuCard" type="PanelContainer" parent="." unique_id=1904823155]
+custom_minimum_size = Vector2(425, 0)
 layout_mode = 1
 offset_left = 84.0
-offset_top = 224.0
-offset_right = 376.0
-offset_bottom = 562.0
+offset_top = 204.0
+offset_right = 509.0
+offset_bottom = 480.0
 theme_type_variation = &"PanelCard"
 
 [node name="MenuButtons" type="VBoxContainer" parent="MenuCard" unique_id=1449945449]
@@ -247,23 +248,27 @@ theme_override_constants/separation = 10
 
 [node name="StartButton" type="Button" parent="MenuCard/MenuButtons" unique_id=1392507033]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
+custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"PrimaryButton"
 text = "Mulai"
 
-[node name="ControlsButton" type="Button" parent="MenuCard/MenuButtons" unique_id=1801925531]
+[node name="MidRow" type="HBoxContainer" parent="MenuCard/MenuButtons" unique_id=1894321045]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ControlsButton" type="Button" parent="MenuCard/MenuButtons/MidRow" unique_id=1801925531]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
+custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"SecondaryButton"
 text = "Kontrol"
 
-[node name="CreditsButton" type="Button" parent="MenuCard/MenuButtons" unique_id=1286374583]
+[node name="CreditsButton" type="Button" parent="MenuCard/MenuButtons/MidRow" unique_id=1286374583]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
+custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"SecondaryButton"
@@ -271,10 +276,10 @@ text = "Kredit"
 
 [node name="QuitButton" type="Button" parent="MenuCard/MenuButtons" unique_id=1067595566]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
+custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_type_variation = &"SecondaryButton"
+theme_type_variation = &"DangerButton"
 text = "Keluar"
 
 [node name="VersionLabel" type="Label" parent="." unique_id=1973337113]

@@ -1,9 +1,11 @@
 [gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://src/ui/panels/inventory/ingredient_chip.gd" id="1_chip"]
+[ext_resource type="Theme" uid="uid://yeud614vxjso" path="res://src/ui/theme/ui_theme_tex.tres" id="2_theme"]
 
 [node name="IngredientChip" type="VBoxContainer"]
 mouse_filter = 2
+theme = ExtResource("2_theme")
 theme_override_constants/separation = 2
 alignment = 2
 script = ExtResource("1_chip")

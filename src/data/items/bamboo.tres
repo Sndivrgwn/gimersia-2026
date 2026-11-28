@@ -8,4 +8,4 @@ id = &"bamboo"
 display_name = "Bambu"
 description = "Bambu ringan dari tepi sungai."
 category = 0
-max_stack = 20
+max_stack = 99

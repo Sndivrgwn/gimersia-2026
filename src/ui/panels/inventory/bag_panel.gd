@@ -15,14 +15,8 @@ const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
 const PLAYER_GROUP := &"player"
 const INVENTORY_NAME := "InventoryComponent"
 const CRAFTING_NAME := "CraftingComponent"
-const CRAFTING_TAB_PATH := "Root/Frame/Margin/VBox/Tabs/Crafting"
-const VBOX_PATH := "Root/Frame/Margin/VBox"
-## Kolom Peralatan sudah 210 px; alat tas ditaruh di sana supaya grid 6 kolom
-## tidak melebar keluar frame.
-const BAG_TOOLS_PATH := "Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"
-const BAG_HINT := "Klik kanan: pakai\nShift+klik: bagi"
 ## Petunjuk singkat tab panel di bawah judul.
-const TABS_HINT := "Tab / I: buka-tutup · Tas · Rakit · Stat · Esc: tutup"
+const TABS_HINT := "Tas 1   Rakit 2   Stat 3   Mahir 4"
 const STAT_NORMAL_COLOR := Color(0.88, 0.93, 0.88, 1.0)
 const STAT_WARNING_COLOR := Color(1.0, 0.66, 0.52, 1.0)
 const NEED_LABELS: Array[String] = ["LAPAR", "HAUS", "LELAH"]
@@ -30,6 +24,7 @@ const TOGGLE_ACTION := &"inventory_toggle"
 ## Esc hanya menutup panel; tidak membukanya.
 const CLOSE_ACTION := &"ui_cancel"
 const SLOT_SCENE: PackedScene = preload("res://src/ui/panels/inventory/bag_slot.tscn")
+const NOTE_MODAL_SCENE: PackedScene = preload("res://src/ui/panels/inventory/note_modal.tscn")
 const DEFAULT_BAG_SIZE := 12
 const DEFAULT_HOTBAR_SIZE := 5
 const EMPTY_TEXT := "-"
@@ -47,16 +42,15 @@ const TOOL_ITEMS: Array[ItemDefinition] = [
 @export var open_on_start: bool = false
 var _sort_button: Button
 var _preserve_hotbar_check: CheckBox
-var _note_overlay: Control
-var _note_title: Label
-var _note_body: Label
+var _note_modal: Control
 
 @onready var _root: Control = $Root
 @onready var _tabs: TabContainer = $Root/Frame/Margin/VBox/Tabs
-@onready var _grid: GridContainer = $Root/Frame/Margin/VBox/Tabs/Tas/HBox/Grid
-@onready var _weapon_value: Label = $Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Weapon/Value
-@onready var _tool_value: Label = $Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Tool/Value
-@onready var _armor_value: Label = $Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Armor/Value
+@onready var _grid: GridContainer = %Grid
+var _weapon_value: Label
+var _tool_value: Label
+var _armor_value: Label
+var _weight_value: Label
 
 var _slots: Array[BagSlot] = []
 var _locked: bool = false
@@ -67,6 +61,7 @@ var _crafting_status: Label
 var _crafting_cancel: Button
 var _crafting_rows: Array[CraftingRow] = []
 var _tabs_hint: Label
+var _action_hint: Label
 var _hp_value: Label
 var _stamina_value: Label
 var _move_value: Label
@@ -83,6 +78,7 @@ var _player_needs: NeedsComponent
 var _player_prof: ProficiencyComponent
 var _weapon_icon: TextureRect
 var _weapon_cycle_btn: Button
+var _tab_buttons: Array[Button] = []
 var _prof_levels: Array[Label] = []
 var _prof_bars: Array[ProgressBar] = []
 
@@ -91,26 +87,11 @@ func _ready() -> void:
 	InputSetup.ensure_actions()
 	# Tab harus dipakai untuk toggle, bukan navigasi fokus UI.
 	_tabs.get_tab_bar().focus_mode = Control.FOCUS_NONE
-	if _tabs.get_tab_count() >= 2:
-		_tabs.set_tab_title(1, "Rakit")
-	_hp_value = get_node_or_null("%HpValue") as Label
-	_stamina_value = get_node_or_null("%StaminaValue") as Label
-	_move_value = get_node_or_null("%MoveValue") as Label
-	_sprint_value = get_node_or_null("%SprintValue") as Label
-	_atk_value = get_node_or_null("%AtkValue") as Label
-	_atk_speed_value = get_node_or_null("%AtkSpeedValue") as Label
-	_gather_value = get_node_or_null("%GatherValue") as Label
-	_drain_value = get_node_or_null("%DrainValue") as Label
-	_hunger_value = get_node_or_null("%HungerValue") as Label
-	_thirst_value = get_node_or_null("%ThirstValue") as Label
-	_fatigue_value = get_node_or_null("%FatigueValue") as Label
+	_bind_scene_nodes()
 	_connect_player_stats()
 
 	if inventory == null:
 		inventory = _find_inventory()
-	_build_tabs_hint()
-	_build_bag_tools()
-	_build_weapon_and_proficiency()
 	_build_slots()
 
 	if inventory == null:
@@ -122,11 +103,73 @@ func _ready() -> void:
 
 	if crafting_component == null:
 		crafting_component = _find_crafting_component()
-	_build_crafting_tab()
 	_connect_crafting()
 	refresh_crafting()
 
 	_apply_visible(open_on_start)
+
+
+func _bind_scene_nodes() -> void:
+	_hp_value = get_node_or_null("%HpValue") as Label
+	_stamina_value = get_node_or_null("%StaminaValue") as Label
+	_move_value = get_node_or_null("%MoveValue") as Label
+	_sprint_value = get_node_or_null("%SprintValue") as Label
+	_atk_value = get_node_or_null("%AtkValue") as Label
+	_atk_speed_value = get_node_or_null("%AtkSpeedValue") as Label
+	_gather_value = get_node_or_null("%GatherValue") as Label
+	_drain_value = get_node_or_null("%DrainValue") as Label
+	_hunger_value = get_node_or_null("%HungerValue") as Label
+	_thirst_value = get_node_or_null("%ThirstValue") as Label
+	_fatigue_value = get_node_or_null("%FatigueValue") as Label
+
+	_weapon_value = get_node_or_null("%WeaponValue") as Label
+	_tool_value = get_node_or_null("%ToolValue") as Label
+	_armor_value = get_node_or_null("%ArmorValue") as Label
+	_weapon_icon = get_node_or_null("%WeaponIcon") as TextureRect
+	_weapon_cycle_btn = get_node_or_null("%WeaponCycleButton") as Button
+	if _weapon_cycle_btn != null and not _weapon_cycle_btn.pressed.is_connected(_on_weapon_cycle_pressed):
+		_weapon_cycle_btn.pressed.connect(_on_weapon_cycle_pressed)
+
+	_sort_button = get_node_or_null("%SortButton") as Button
+	if _sort_button != null and not _sort_button.pressed.is_connected(_on_sort_pressed):
+		_sort_button.pressed.connect(_on_sort_pressed)
+	_preserve_hotbar_check = get_node_or_null("%PreserveHotbarCheck") as CheckBox
+
+	_crafting_tab = get_node_or_null("Root/Frame/Margin/VBox/Tabs/RAKIT") as Control
+	_crafting_list = get_node_or_null("%CraftingList") as VBoxContainer
+	_crafting_progress = get_node_or_null("%CraftingProgress") as ProgressBar
+	_crafting_status = get_node_or_null("%CraftingStatus") as Label
+	_crafting_cancel = get_node_or_null("%CraftingCancel") as Button
+	if _crafting_cancel != null and not _crafting_cancel.pressed.is_connected(_on_crafting_cancel_pressed):
+		_crafting_cancel.pressed.connect(_on_crafting_cancel_pressed)
+
+	_weight_value = get_node_or_null("%WeightValue") as Label
+	_tabs_hint = get_node_or_null("%TabsHint") as Label
+	_action_hint = get_node_or_null("%ActionHint") as Label
+
+	_tab_buttons.clear()
+	var tab_bar_box := get_node_or_null("%TabButtons") as HBoxContainer
+	if tab_bar_box != null:
+		for child in tab_bar_box.get_children():
+			var btn := child as Button
+			if btn == null:
+				continue
+			var idx := _tab_buttons.size()
+			_tab_buttons.append(btn)
+			if not btn.pressed.is_connected(_on_tab_button_pressed):
+				btn.pressed.connect(_on_tab_button_pressed.bind(idx))
+	if _tabs != null and not _tabs.tab_changed.is_connected(_on_tabs_changed):
+		_tabs.tab_changed.connect(_on_tabs_changed)
+	_sync_tab_buttons()
+
+	_prof_levels.clear()
+	_prof_bars.clear()
+	for idx in 4:
+		var lv := get_node_or_null("%%ProfLevel%d" % idx) as Label
+		var bar := get_node_or_null("%%ProfBar%d" % idx) as ProgressBar
+		if lv != null and bar != null:
+			_prof_levels.append(lv)
+			_prof_bars.append(bar)
 
 
 ## Mission 7: dikunci saat ChestPanel terbuka.
@@ -141,19 +184,34 @@ func is_locked() -> bool:
 func _unhandled_input(event: InputEvent) -> void:
 	if _locked:
 		return
+	if is_note_modal_open() and event.is_action_pressed(CLOSE_ACTION):
+		close_note_modal()
+		get_viewport().set_input_as_handled()
+		return
 	if is_open() and event.is_action_pressed(CLOSE_ACTION):
 		_apply_visible(false)
 		get_viewport().set_input_as_handled()
 		return
 	if is_open() and event is InputEventKey and event.pressed and not event.echo:
 		var key := (event as InputEventKey).keycode
+		var count := _tabs.get_tab_count()
 		if key == KEY_Q or key == KEY_E:
-			var delta := -1 if key == KEY_Q else 1
-			var count := _tabs.get_tab_count()
 			if count > 0:
+				var delta := -1 if key == KEY_Q else 1
 				_tabs.current_tab = posmod(_tabs.current_tab + delta, count)
 				_focus_current_tab()
 				get_viewport().set_input_as_handled()
+			return
+		var tab_idx := -1
+		match key:
+			KEY_1, KEY_KP_1: tab_idx = 0
+			KEY_2, KEY_KP_2: tab_idx = 1
+			KEY_3, KEY_KP_3: tab_idx = 2
+			KEY_4, KEY_KP_4: tab_idx = 3
+		if tab_idx >= 0 and tab_idx < count:
+			_tabs.current_tab = tab_idx
+			_focus_current_tab()
+			get_viewport().set_input_as_handled()
 			return
 
 	if not event.is_action_pressed(TOGGLE_ACTION):
@@ -164,8 +222,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 # --- API panel --------------------------------------------------------------
 
+var _is_open: bool = false
+
 func is_open() -> bool:
-	return _root.visible
+	return _is_open
 
 
 func toggle_panel() -> void:
@@ -202,8 +262,9 @@ func get_armor_text() -> String:
 # --- Internal ---------------------------------------------------------------
 
 func _apply_visible(value: bool) -> void:
-	_root.visible = value
+	_is_open = value
 	if value:
+		_root.visible = true
 		UiBackStack.register(self)
 		UiMotion.pop_in(_root)
 		refresh()
@@ -213,11 +274,13 @@ func _apply_visible(value: bool) -> void:
 		_focus_current_tab()
 	else:
 		UiBackStack.unregister(self)
+		UiMotion.pop_out(_root)
 
 
 func _focus_current_tab() -> void:
 	if _tabs == null:
 		return
+	_sync_tab_buttons()
 	if _tabs.current_tab == 0 and not _slots.is_empty():
 		_slots[0].grab_focus()
 	elif _tabs.current_tab == 1:
@@ -229,57 +292,27 @@ func _focus_current_tab() -> void:
 				break
 
 
-## Satu baris petunjuk tab di bawah panel.
-func _build_tabs_hint() -> void:
-	var vbox := get_node_or_null(VBOX_PATH) as VBoxContainer
-	if vbox == null:
+func _on_tab_button_pressed(index: int) -> void:
+	if _tabs == null or index < 0 or index >= _tabs.get_tab_count():
 		return
-	_tabs_hint = Label.new()
-	_tabs_hint.name = "TabsHint"
-	_tabs_hint.text = TABS_HINT
-	_tabs_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_tabs_hint.add_theme_font_size_override("font_size", 10)
-	_tabs_hint.add_theme_color_override("font_color", Color(0.36, 0.27, 0.19, 1.0))
-	vbox.add_child(_tabs_hint)
-	vbox.move_child(_tabs_hint, 1)
+	_tabs.current_tab = index
+	_focus_current_tab()
 
 
-## Fase 4A: tombol urutkan + petunjuk pecah tumpukan di tab Tas (disembunyikan agar bersih).
-func _build_bag_tools() -> void:
-	var column := get_node_or_null(BAG_TOOLS_PATH) as VBoxContainer
-	if column == null:
+func _on_tabs_changed(_tab: int) -> void:
+	_sync_tab_buttons()
+
+
+func _sync_tab_buttons() -> void:
+	if _tabs == null:
 		return
-
-	var tools := VBoxContainer.new()
-	tools.name = "BagTools"
-	tools.visible = false
-	tools.add_theme_constant_override("separation", 6)
-	column.add_child(tools)
-
-	var hint := Label.new()
-	hint.name = "Hint"
-	hint.text = BAG_HINT
-	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hint.custom_minimum_size = Vector2(96.0, 0.0)
-	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hint.add_theme_font_size_override("font_size", 9)
-	hint.add_theme_color_override("font_color", Color(0.72, 0.78, 0.72, 1.0))
-	tools.add_child(hint)
-
-	_sort_button = Button.new()
-	_sort_button.name = "SortButton"
-	_sort_button.text = "Urutkan"
-	_sort_button.tooltip_text = "Gabung dan urutkan isi tas"
-	_sort_button.custom_minimum_size = Vector2(96.0, 26.0)
-	_sort_button.pressed.connect(_on_sort_pressed)
-	tools.add_child(_sort_button)
-
-	_preserve_hotbar_check = CheckBox.new()
-	_preserve_hotbar_check.name = "PreserveHotbarCheck"
-	_preserve_hotbar_check.text = "Jaga Hotbar"
-	_preserve_hotbar_check.tooltip_text = "Jangan acak slot hotbar 1-5 saat mengurutkan tas"
-	_preserve_hotbar_check.button_pressed = false
-	tools.add_child(_preserve_hotbar_check)
+	var current := _tabs.current_tab
+	for idx in _tab_buttons.size():
+		var btn := _tab_buttons[idx]
+		if btn != null:
+			btn.set_pressed_no_signal(idx == current)
+	if _action_hint != null:
+		_action_hint.visible = (current == 0)
 
 
 func get_sort_button() -> Button:
@@ -294,102 +327,6 @@ func _on_sort_pressed() -> void:
 	if inventory != null:
 		var keep_hotbar := _preserve_hotbar_check != null and _preserve_hotbar_check.button_pressed
 		inventory.sort(keep_hotbar)
-
-
-func _build_weapon_and_proficiency() -> void:
-	var weapon_box := get_node_or_null("Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Weapon") as VBoxContainer
-	var column := get_node_or_null(BAG_TOOLS_PATH) as VBoxContainer
-	if weapon_box != null:
-		var row := HBoxContainer.new()
-		row.name = "WeaponCard"
-		row.add_theme_constant_override("separation", 10)
-		weapon_box.add_child(row)
-
-		var icon_frame := PanelContainer.new()
-		icon_frame.custom_minimum_size = Vector2(44.0, 44.0)
-		var slot_tex_path := "res://assets/textures/ui/05_slot/slot_item_selected.png"
-		if ResourceLoader.exists(slot_tex_path):
-			var box := StyleBoxTexture.new()
-			box.texture = load(slot_tex_path) as Texture2D
-			box.texture_margin_left = 12.0
-			box.texture_margin_top = 12.0
-			box.texture_margin_right = 12.0
-			box.texture_margin_bottom = 12.0
-			box.content_margin_left = 6.0
-			box.content_margin_top = 6.0
-			box.content_margin_right = 6.0
-			box.content_margin_bottom = 6.0
-			icon_frame.add_theme_stylebox_override("panel", box)
-		row.add_child(icon_frame)
-
-		_weapon_icon = TextureRect.new()
-		_weapon_icon.custom_minimum_size = Vector2(28.0, 28.0)
-		_weapon_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		_weapon_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		_weapon_icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		_weapon_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		icon_frame.add_child(_weapon_icon)
-
-		_weapon_cycle_btn = Button.new()
-		_weapon_cycle_btn.name = "WeaponCycleButton"
-		_weapon_cycle_btn.text = "Ganti"
-		_weapon_cycle_btn.custom_minimum_size = Vector2(72.0, 32.0)
-		_weapon_cycle_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		_weapon_cycle_btn.pressed.connect(_on_weapon_cycle_pressed)
-		row.add_child(_weapon_cycle_btn)
-
-	if column == null:
-		return
-
-	var prof_box := VBoxContainer.new()
-	prof_box.name = "ProficiencyBox"
-	prof_box.add_theme_constant_override("separation", 6)
-	column.add_child(prof_box)
-
-	var prof_title := Label.new()
-	prof_title.text = "PROFESIENSI"
-	prof_title.add_theme_font_size_override("font_size", 14)
-	prof_title.add_theme_color_override("font_color", Color(0.922, 0.761, 0.451, 1.0))
-	prof_box.add_child(prof_title)
-
-	var prof_names := ["Kekuatan", "Kecepatan", "Penguasaan", "Kelincahan"]
-	for idx in prof_names.size():
-		var item_box := VBoxContainer.new()
-		item_box.add_theme_constant_override("separation", 2)
-		prof_box.add_child(item_box)
-
-		var top_row := HBoxContainer.new()
-		item_box.add_child(top_row)
-
-		var name_lbl := Label.new()
-		name_lbl.text = prof_names[idx]
-		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		name_lbl.add_theme_font_size_override("font_size", 12)
-		name_lbl.add_theme_color_override("font_color", Color(0.88, 0.84, 0.76, 1.0))
-		top_row.add_child(name_lbl)
-
-		var lv_lbl := Label.new()
-		lv_lbl.text = "Lv. 1"
-		lv_lbl.add_theme_font_size_override("font_size", 12)
-		lv_lbl.add_theme_color_override("font_color", Color(0.968627, 0.945098, 0.898039, 1.0))
-		top_row.add_child(lv_lbl)
-		_prof_levels.append(lv_lbl)
-
-		var bar := ProgressBar.new()
-		bar.custom_minimum_size = Vector2(0.0, 8.0)
-		bar.max_value = 100.0
-		bar.value = 0.0
-		bar.show_percentage = false
-		var bg := StyleBoxFlat.new()
-		bg.bg_color = Color(0.14, 0.1, 0.08, 0.85)
-		bg.set_corner_radius_all(3)
-		bar.add_theme_stylebox_override("background", bg)
-		var fill := StyleBoxFlat.new()
-		fill.bg_color = Color(0.922, 0.761, 0.451, 0.95)
-		fill.set_corner_radius_all(3)
-		bar.add_theme_stylebox_override("fill", fill)
-		item_box.add_child(bar)
-		_prof_bars.append(bar)
 
 
 func _on_weapon_cycle_pressed() -> void:
@@ -469,66 +406,43 @@ func _on_item_inspected(item: ItemDefinition, _slot_index: int) -> void:
 
 func open_note_modal(item: ItemDefinition) -> void:
 	_ensure_note_modal()
-	_note_title.text = item.display_name
-	_note_body.text = COCKPIT_NOTES_TEXT if item.id == &"cockpit_notes" else item.description
-	_note_overlay.visible = true
+	var body_text := COCKPIT_NOTES_TEXT if item.id == &"cockpit_notes" else item.description
+	_note_modal.open_item(item, body_text)
 
 
 func close_note_modal() -> void:
-	if _note_overlay != null:
-		_note_overlay.visible = false
+	if _note_modal != null:
+		_note_modal.close_modal()
 
 
 func is_note_modal_open() -> bool:
-	return _note_overlay != null and _note_overlay.visible
+	return _note_modal != null and _note_modal.visible
 
 
 func _ensure_note_modal() -> void:
-	if _note_overlay != null:
+	if _note_modal != null:
 		return
-	_note_overlay = Control.new()
-	_note_overlay.name = "NoteModal"
-	_note_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_note_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	_note_overlay.visible = false
-	add_child(_note_overlay)
-
-	var dim := ColorRect.new()
-	dim.color = Color(0.0, 0.0, 0.0, 0.55)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_note_overlay.add_child(dim)
-
-	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(460.0, 280.0)
-	card.set_anchors_preset(Control.PRESET_CENTER)
-	card.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	card.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_note_overlay.add_child(card)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 10)
-	card.add_child(vbox)
-
-	_note_title = Label.new()
-	_note_title.add_theme_font_size_override("font_size", 18)
-	vbox.add_child(_note_title)
-
-	_note_body = Label.new()
-	_note_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_note_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_child(_note_body)
-
-	var close_btn := Button.new()
-	close_btn.text = "Tutup"
-	close_btn.pressed.connect(close_note_modal)
-	vbox.add_child(close_btn)
+	_note_modal = NOTE_MODAL_SCENE.instantiate() as Control
+	add_child(_note_modal)
 
 
 func refresh() -> void:
 	for slot in _slots:
 		slot.refresh()
+	_refresh_weight()
 	_refresh_equipment()
 	_refresh_stats()
+
+
+func _refresh_weight() -> void:
+	if _weight_value == null:
+		return
+	var total_w := 0.0
+	var max_w := InventoryComponent.MAX_WEIGHT_KG
+	if inventory != null:
+		total_w = inventory.get_total_weight()
+		max_w = inventory.get_max_weight()
+	_weight_value.text = "%.1f / %.0f kg" % [total_w, max_w]
 
 
 func _connect_player_stats() -> void:
@@ -657,11 +571,12 @@ func _need_tier_text(tier: int) -> String:
 
 
 func _refresh_equipment() -> void:
-	if _weapon_value == null:
-		return
-	_weapon_value.text = _equipped_text(ItemDefinition.EquipmentSlot.WEAPON)
-	_armor_value.text = _equipped_text(ItemDefinition.EquipmentSlot.ARMOR)
-	_tool_value.text = _owned_tools_text()
+	if _weapon_value != null:
+		_weapon_value.text = _equipped_text(ItemDefinition.EquipmentSlot.WEAPON)
+	if _armor_value != null:
+		_armor_value.text = _equipped_text(ItemDefinition.EquipmentSlot.ARMOR)
+	if _tool_value != null:
+		_tool_value.text = _owned_tools_text()
 	if _weapon_icon != null:
 		var equipped := inventory.get_equipped(ItemDefinition.EquipmentSlot.WEAPON) if inventory != null else null
 		var tex := equipped.get_icon() if equipped != null else null
@@ -749,54 +664,6 @@ func _find_crafting_component() -> CraftingComponent:
 	if candidate == null:
 		return null
 	return candidate.get_node_or_null(CRAFTING_NAME) as CraftingComponent
-
-
-func _build_crafting_tab() -> void:
-	if _crafting_tab != null:
-		return
-	_crafting_tab = get_node_or_null(CRAFTING_TAB_PATH) as Control
-	if _crafting_tab == null:
-		return
-
-	var vbox := VBoxContainer.new()
-	vbox.name = "CraftingBox"
-	vbox.add_theme_constant_override("separation", 8)
-	_crafting_tab.add_child(vbox)
-
-	_crafting_status = Label.new()
-	_crafting_status.name = "Status"
-	_crafting_status.add_theme_font_size_override("font_size", 12)
-	_crafting_status.add_theme_color_override("font_color", Color(0.9, 0.86, 0.66, 1.0))
-	vbox.add_child(_crafting_status)
-
-	_crafting_progress = ProgressBar.new()
-	_crafting_progress.name = "Progress"
-	_crafting_progress.max_value = 1.0
-	_crafting_progress.value = 0.0
-	_crafting_progress.show_percentage = false
-	_crafting_progress.custom_minimum_size = Vector2(0, 10)
-	_crafting_progress.visible = false
-	vbox.add_child(_crafting_progress)
-
-	_crafting_cancel = Button.new()
-	_crafting_cancel.name = "Cancel"
-	_crafting_cancel.text = "Batalkan"
-	_crafting_cancel.visible = false
-	_crafting_cancel.custom_minimum_size = Vector2(90, 24)
-	_crafting_cancel.pressed.connect(_on_crafting_cancel_pressed)
-	vbox.add_child(_crafting_cancel)
-
-	var scroll := ScrollContainer.new()
-	scroll.name = "Scroll"
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.custom_minimum_size = Vector2(0, 250)
-	vbox.add_child(scroll)
-
-	_crafting_list = VBoxContainer.new()
-	_crafting_list.name = "Rows"
-	_crafting_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_crafting_list.add_theme_constant_override("separation", 4)
-	scroll.add_child(_crafting_list)
 
 
 func _connect_crafting() -> void:

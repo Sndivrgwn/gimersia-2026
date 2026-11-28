@@ -182,6 +182,7 @@ func _on_save_day_started(day: int) -> void:
 
 func _on_pause_main_menu() -> void:
 	SaveService.save_island(self)
+	_on_main_menu_requested()
 
 
 func _on_run_victory() -> void:

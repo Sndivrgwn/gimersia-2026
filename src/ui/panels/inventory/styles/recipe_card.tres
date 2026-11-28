@@ -1,11 +1,11 @@
-[gd_resource type="StyleBoxTexture" format=3 uid="uid://dxtw4q6obxf83"]
+[gd_resource type="StyleBoxTexture" load_steps=2 format=3]
 
 [ext_resource type="Texture2D" uid="uid://c2mn2pl7cwo74" path="res://assets/textures/ui/02_panel/panel_cream_stitched.png" id="1_tex"]
 
 [resource]
-content_margin_left = 28.0
+content_margin_left = 22.0
 content_margin_top = 14.0
-content_margin_right = 28.0
+content_margin_right = 22.0
 content_margin_bottom = 14.0
 texture = ExtResource("1_tex")
 texture_margin_left = 34.0

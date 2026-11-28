@@ -8,4 +8,4 @@ id = &"bone"
 display_name = "Tulang"
 description = "Tulang hewan; bahan senjata dan kaldu."
 category = 0
-max_stack = 20
+max_stack = 99

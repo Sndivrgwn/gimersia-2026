@@ -1,80 +1,93 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene format=3 uid="uid://cmel80u23l7pa"]
 
-[ext_resource type="Script" path="res://src/ui/panels/inventory/bag_panel.gd" id="1_panel"]
-[ext_resource type="Texture2D" path="res://assets/textures/ui/inventory/inventory_panel.png" id="2_panel_tex"]
-[ext_resource type="Texture2D" path="res://assets/textures/ui/inventory/inventory_panel_inner.png" id="3_inner_tex"]
-[ext_resource type="Texture2D" path="res://assets/textures/ui/inventory/inventory_tab_selected.png" id="4_tab_selected_tex"]
-[ext_resource type="Texture2D" path="res://assets/textures/ui/inventory/inventory_tab_normal.png" id="5_tab_normal_tex"]
-[ext_resource type="FontFile" path="res://assets/fonts/nunito/nunito_variable.ttf" id="6_nunito"]
-[ext_resource type="FontFile" path="res://assets/fonts/fredoka/fredoka_variable.ttf" id="7_fredoka"]
+[ext_resource type="Script" uid="uid://bbfqlnrt5wirj" path="res://src/ui/panels/inventory/bag_panel.gd" id="1_panel"]
+[ext_resource type="Theme" uid="uid://yeud614vxjso" path="res://src/ui/theme/ui_theme_tex.tres" id="2_theme"]
+[ext_resource type="Texture2D" uid="uid://c2mn2pl7cwo74" path="res://assets/textures/ui/02_panel/panel_cream_stitched.png" id="3_cream"]
+[ext_resource type="Texture2D" uid="uid://cqm2wjxw7mns" path="res://assets/textures/ui/02_panel/panel_walnut_stitched.png" id="4_walnut"]
+[ext_resource type="Texture2D" uid="uid://wabn6mlix6hf" path="res://assets/textures/ui/04_tab/tab_normal.png" id="5_tab_selected"]
+[ext_resource type="Texture2D" uid="uid://befmue52bxg42" path="res://assets/textures/ui/04_tab/tab_active.png" id="6_tab_normal"]
+[ext_resource type="Texture2D" uid="uid://dyrglxxelp0fp" path="res://assets/textures/ui/06_bar/bar_track_mahir.svg" id="7_mahir_track"]
+[ext_resource type="Texture2D" uid="uid://c5hgrxlonfut4" path="res://assets/textures/ui/06_bar/bar_fill_mahir.svg" id="8_mahir_fill"]
+[ext_resource type="FontFile" uid="uid://2ftdhp53tugk" path="res://assets/fonts/nunito/Nunito-ExtraBold.ttf" id="9_extrabold"]
+[ext_resource type="FontFile" uid="uid://7xutna77hmh5" path="res://assets/fonts/nunito/Nunito-Bold.ttf" id="10_bold"]
+[ext_resource type="FontFile" uid="uid://dbwk2s1m8jq3u" path="res://assets/fonts/nunito/Nunito-Medium.ttf" id="11_medium"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_panel"]
 content_margin_left = 0.0
 content_margin_top = 0.0
 content_margin_right = 0.0
 content_margin_bottom = 0.0
-texture = ExtResource("2_panel_tex")
-texture_margin_left = 40.0
-texture_margin_top = 40.0
-texture_margin_right = 40.0
-texture_margin_bottom = 40.0
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_inner"]
-content_margin_left = 0.0
-content_margin_top = 0.0
-content_margin_right = 0.0
-content_margin_bottom = 0.0
-texture = ExtResource("3_inner_tex")
-texture_margin_left = 30.0
-texture_margin_top = 30.0
-texture_margin_right = 30.0
-texture_margin_bottom = 30.0
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tab_selected"]
-content_margin_left = 74.5
-content_margin_top = 22.0
-content_margin_right = 70.5
-content_margin_bottom = 42.0
-texture = ExtResource("4_tab_selected_tex")
-texture_margin_left = 46.0
-texture_margin_top = 24.0
-texture_margin_right = 46.0
-texture_margin_bottom = 38.0
+texture = ExtResource("3_cream")
+texture_margin_left = 44.0
+texture_margin_top = 44.0
+texture_margin_right = 44.0
+texture_margin_bottom = 44.0
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tab_normal"]
-content_margin_left = 50.0
-content_margin_top = 22.0
-content_margin_right = 46.0
-content_margin_bottom = 42.0
-texture = ExtResource("5_tab_normal_tex")
-texture_margin_left = 46.0
-texture_margin_top = 24.0
-texture_margin_right = 46.0
-texture_margin_bottom = 38.0
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 14.0
+texture = ExtResource("6_tab_normal")
+texture_margin_left = 28.0
+texture_margin_top = 20.0
+texture_margin_right = 28.0
+texture_margin_bottom = 22.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tab_selected"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 14.0
+texture = ExtResource("5_tab_selected")
+texture_margin_left = 28.0
+texture_margin_top = 20.0
+texture_margin_right = 28.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tabbar"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stat_card"]
-content_margin_left = 14.0
-content_margin_top = 8.0
-content_margin_right = 14.0
-content_margin_bottom = 8.0
-bg_color = Color(0.16, 0.11, 0.08, 0.78)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.788, 0.722, 0.612, 0.35)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_inner"]
+content_margin_left = 18.0
+content_margin_top = 16.0
+content_margin_right = 18.0
+content_margin_bottom = 16.0
+texture = ExtResource("4_walnut")
+texture_margin_left = 34.0
+texture_margin_top = 34.0
+texture_margin_right = 34.0
+texture_margin_bottom = 34.0
 
-[node name="BagPanel" type="CanvasLayer"]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mahir_track"]
+texture = ExtResource("7_mahir_track")
+texture_margin_left = 8.0
+texture_margin_top = 4.0
+texture_margin_right = 8.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mahir_fill"]
+texture = ExtResource("8_mahir_fill")
+texture_margin_left = 8.0
+texture_margin_top = 4.0
+texture_margin_right = 8.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_card"]
+content_margin_left = 22.0
+content_margin_top = 20.0
+content_margin_right = 22.0
+content_margin_bottom = 22.0
+texture = ExtResource("3_cream")
+texture_margin_left = 34.0
+texture_margin_top = 34.0
+texture_margin_right = 34.0
+texture_margin_bottom = 34.0
+
+[node name="BagPanel" type="CanvasLayer" unique_id=1143112565]
 layer = 20
 script = ExtResource("1_panel")
 
-[node name="Root" type="Control" parent="."]
+[node name="Root" type="Control" parent="." unique_id=1172438544]
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -82,488 +95,699 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
+theme = ExtResource("2_theme")
 
-[node name="Dim" type="ColorRect" parent="Root"]
+[node name="Dim" type="ColorRect" parent="Root" unique_id=2085222693]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
-color = Color(0, 0, 0, 0.45)
+color = Color(0.122, 0.082, 0.063, 0.5)
 
-[node name="Frame" type="PanelContainer" parent="Root"]
-custom_minimum_size = Vector2(887, 693)
+[node name="Frame" type="PanelContainer" parent="Root" unique_id=1648562877]
 texture_filter = 2
+custom_minimum_size = Vector2(820, 460)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -443.0
-offset_top = -346.0
-offset_right = 444.0
-offset_bottom = 347.0
+offset_left = -410.0
+offset_top = -230.0
+offset_right = 410.0
+offset_bottom = 230.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 theme_override_styles/panel = SubResource("StyleBoxTexture_panel")
 
-[node name="Margin" type="MarginContainer" parent="Root/Frame"]
+[node name="Margin" type="MarginContainer" parent="Root/Frame" unique_id=1311757094]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 28
+theme_override_constants/margin_left = 36
 theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 32
+theme_override_constants/margin_right = 36
 theme_override_constants/margin_bottom = 20
 
-[node name="VBox" type="VBoxContainer" parent="Root/Frame/Margin"]
+[node name="VBox" type="VBoxContainer" parent="Root/Frame/Margin" unique_id=1855139126]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 16
 
-[node name="Tabs" type="TabContainer" parent="Root/Frame/Margin/VBox"]
-custom_minimum_size = Vector2(800, 531)
+[node name="TabButtons" type="HBoxContainer" parent="Root/Frame/Margin/VBox" unique_id=27726175]
+unique_name_in_owner = true
 layout_mode = 2
-mouse_filter = 0
+mouse_filter = 2
+theme_override_constants/separation = 24
+
+[node name="TasButton" type="Button" parent="Root/Frame/Margin/VBox/TabButtons" unique_id=727921713]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+size_flags_horizontal = 3
 focus_mode = 0
-theme_override_colors/font_hovered_color = Color(0.243137, 0.152941, 0.101961, 1)
-theme_override_colors/font_selected_color = Color(0.968627, 0.945098, 0.898039, 1)
-theme_override_colors/font_unselected_color = Color(0.243137, 0.152941, 0.101961, 1)
-theme_override_constants/side_margin = 0
-theme_override_constants/tab_separation = 0
-theme_override_font_sizes/font_size = 16
-theme_override_styles/panel = SubResource("StyleBoxTexture_inner")
-theme_override_styles/tab_hovered = SubResource("StyleBoxTexture_tab_normal")
-theme_override_styles/tab_selected = SubResource("StyleBoxTexture_tab_selected")
-theme_override_styles/tab_unselected = SubResource("StyleBoxTexture_tab_normal")
-theme_override_styles/tabbar_background = SubResource("StyleBoxEmpty_tabbar")
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_colors/font_pressed_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_colors/font_hover_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("9_extrabold")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tab_selected")
+theme_override_styles/hover = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/hover_pressed = SubResource("StyleBoxTexture_tab_selected")
+theme_override_styles/disabled = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_tabbar")
+toggle_mode = true
+button_pressed = true
+text = "TAS"
 
-[node name="Tas" type="MarginContainer" parent="Root/Frame/Margin/VBox/Tabs"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 25
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 15
-
-[node name="HBox" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Tas"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 18
-alignment = 1
-
-[node name="Grid" type="GridContainer" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox"]
-columns = 4
-layout_mode = 2
-size_flags_vertical = 4
-mouse_filter = 2
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 6
-
-[node name="Equipment" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox"]
-custom_minimum_size = Vector2(220, 0)
-layout_mode = 2
-size_flags_vertical = 4
-mouse_filter = 2
-theme_override_constants/separation = 12
-
-[node name="EquipmentTitle" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"]
-visible = false
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.968627, 0.945098, 0.898039, 1)
-theme_override_font_sizes/font_size = 13
-text = "ALAT"
-
-[node name="Weapon" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 4
-
-[node name="Title" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Weapon"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.922, 0.761, 0.451, 1)
-theme_override_fonts/font = ExtResource("7_fredoka")
-theme_override_font_sizes/font_size = 14
-text = "SENJATA"
-
-[node name="Value" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Weapon"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.968627, 0.945098, 0.898039, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
-text = "-"
-
-[node name="Tool" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"]
-visible = false
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 2
-
-[node name="Title" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Tool"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.788235, 0.721569, 0.611765, 1)
-theme_override_font_sizes/font_size = 11
-text = "Alat"
-
-[node name="Value" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Tool"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.968627, 0.945098, 0.898039, 1)
-theme_override_font_sizes/font_size = 13
-text = "-"
-
-[node name="Armor" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment"]
-visible = false
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 2
-
-[node name="Title" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Armor"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.788235, 0.721569, 0.611765, 1)
-theme_override_font_sizes/font_size = 11
-text = "Zirah"
-
-[node name="Value" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Tas/HBox/Equipment/Armor"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.968627, 0.945098, 0.898039, 1)
-theme_override_font_sizes/font_size = 13
-text = "-"
-
-[node name="Crafting" type="MarginContainer" parent="Root/Frame/Margin/VBox/Tabs"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="Stat" type="MarginContainer" parent="Root/Frame/Margin/VBox/Tabs"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 14
-
-[node name="VBox" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 10
-
-[node name="StatusTitle" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.922, 0.761, 0.451, 1)
-theme_override_fonts/font = ExtResource("7_fredoka")
-theme_override_font_sizes/font_size = 16
-text = "KONDISI"
-
-[node name="NeedsRow" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 10
-
-[node name="HungerCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow"]
+[node name="RakitButton" type="Button" parent="Root/Frame/Margin/VBox/TabButtons" unique_id=772979115]
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+focus_mode = 0
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_colors/font_pressed_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_colors/font_hover_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("9_extrabold")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tab_selected")
+theme_override_styles/hover = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/hover_pressed = SubResource("StyleBoxTexture_tab_selected")
+theme_override_styles/disabled = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_tabbar")
+toggle_mode = true
+text = "RAKIT"
 
-[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/HungerCard"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/HungerCard/Row"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 13
-text = "Lapar"
-
-[node name="HungerValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/HungerCard/Row"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.88, 0.93, 0.88, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 13
-text = "NORMAL"
-
-[node name="ThirstCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow"]
+[node name="StatButton" type="Button" parent="Root/Frame/Margin/VBox/TabButtons" unique_id=1663974661]
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+focus_mode = 0
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_colors/font_pressed_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_colors/font_hover_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("9_extrabold")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tab_selected")
+theme_override_styles/hover = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/hover_pressed = SubResource("StyleBoxTexture_tab_selected")
+theme_override_styles/disabled = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_tabbar")
+toggle_mode = true
+text = "STAT"
 
-[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/ThirstCard"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/ThirstCard/Row"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 13
-text = "Haus"
-
-[node name="ThirstValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/ThirstCard/Row"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.88, 0.93, 0.88, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 13
-text = "NORMAL"
-
-[node name="FatigueCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow"]
+[node name="MahirButton" type="Button" parent="Root/Frame/Margin/VBox/TabButtons" unique_id=1401671382]
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+focus_mode = 0
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_colors/font_pressed_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_colors/font_hover_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("9_extrabold")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tab_selected")
+theme_override_styles/hover = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/hover_pressed = SubResource("StyleBoxTexture_tab_selected")
+theme_override_styles/disabled = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_tabbar")
+toggle_mode = true
+text = "MAHIR"
 
-[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/FatigueCard"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/FatigueCard/Row"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 13
-text = "Lelah"
-
-[node name="FatigueValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/NeedsRow/FatigueCard/Row"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.88, 0.93, 0.88, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 13
-text = "NORMAL"
-
-[node name="Title" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.922, 0.761, 0.451, 1)
-theme_override_fonts/font = ExtResource("7_fredoka")
-theme_override_font_sizes/font_size = 16
-text = "ATRIBUT"
-
-[node name="StatGrid" type="GridContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox"]
+[node name="Tabs" type="TabContainer" parent="Root/Frame/Margin/VBox" unique_id=177554020]
 layout_mode = 2
 size_flags_vertical = 3
-mouse_filter = 2
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 8
-columns = 2
+mouse_filter = 0
+theme_override_colors/font_selected_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_colors/font_hovered_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_colors/font_unselected_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_constants/side_margin = 0
+theme_override_constants/tab_separation = 16
+theme_override_fonts/font = ExtResource("9_extrabold")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/panel = SubResource("StyleBoxTexture_inner")
+theme_override_styles/tabbar_background = SubResource("StyleBoxEmpty_tabbar")
+theme_override_styles/tab_unselected = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/tab_hovered = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/tab_selected = SubResource("StyleBoxTexture_tab_selected")
+theme_override_styles/tab_disabled = SubResource("StyleBoxTexture_tab_normal")
+theme_override_styles/tab_focus = SubResource("StyleBoxEmpty_tabbar")
+tab_alignment = 1
+current_tab = 0
+tabs_visible = false
 
-[node name="HpCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
+[node name="TAS" type="MarginContainer" parent="Root/Frame/Margin/VBox/Tabs" unique_id=1072083013]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+metadata/_tab_index = 0
+
+[node name="VBox" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/TAS" unique_id=1703583464]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Grid" type="GridContainer" parent="Root/Frame/Margin/VBox/Tabs/TAS/VBox" unique_id=1015375887]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+mouse_filter = 2
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 16
+columns = 6
+
+[node name="ToolsBar" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/TAS/VBox" unique_id=59648020]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="WeaponIcon" type="TextureRect" parent="Root/Frame/Margin/VBox/Tabs/TAS/VBox/ToolsBar" unique_id=1842749818]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WeaponValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/TAS/VBox/ToolsBar" unique_id=1367873334]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("11_medium")
+theme_override_font_sizes/font_size = 13
+text = "Senjata: -"
+
+[node name="WeaponCycleButton" type="Button" parent="Root/Frame/Margin/VBox/Tabs/TAS/VBox/ToolsBar" unique_id=1837331924]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(88, 34)
+layout_mode = 2
+theme_type_variation = &"SecondaryButton"
+theme_override_font_sizes/font_size = 13
+text = "Ganti"
+
+[node name="Spacer" type="Control" parent="Root/Frame/Margin/VBox/Tabs/TAS/VBox/ToolsBar" unique_id=1585846987]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
 
-[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/HpCard"]
+[node name="PreserveHotbarCheck" type="CheckBox" parent="Root/Frame/Margin/VBox/Tabs/TAS/VBox/ToolsBar" unique_id=1636034729]
+unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("11_medium")
+theme_override_font_sizes/font_size = 13
+text = "Jaga Hotbar"
 
-[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/HpCard/Row"]
+[node name="SortButton" type="Button" parent="Root/Frame/Margin/VBox/Tabs/TAS/VBox/ToolsBar" unique_id=1496508641]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(92, 34)
+layout_mode = 2
+theme_type_variation = &"SecondaryButton"
+theme_override_font_sizes/font_size = 13
+text = "Urutkan"
+
+[node name="RAKIT" type="MarginContainer" parent="Root/Frame/Margin/VBox/Tabs" unique_id=477975178]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+metadata/_tab_index = 1
+
+[node name="VBox" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/RAKIT" unique_id=1548310604]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="CraftingScroll" type="ScrollContainer" parent="Root/Frame/Margin/VBox/Tabs/RAKIT/VBox" unique_id=1282414380]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ScrollPad" type="MarginContainer" parent="Root/Frame/Margin/VBox/Tabs/RAKIT/VBox/CraftingScroll" unique_id=2122473675]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_constants/margin_right = 8
+
+[node name="CraftingList" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/RAKIT/VBox/CraftingScroll/ScrollPad" unique_id=2134948772]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="CraftBarRow" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/RAKIT/VBox" unique_id=995545459]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CraftingStatus" type="Label" parent="Root/Frame/Margin/VBox/Tabs/RAKIT/VBox/CraftBarRow" unique_id=576112954]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
+theme_override_fonts/font = ExtResource("10_bold")
 theme_override_font_sizes/font_size = 14
+
+[node name="CraftingProgress" type="ProgressBar" parent="Root/Frame/Margin/VBox/Tabs/RAKIT/VBox/CraftBarRow" unique_id=1785597082]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_styles/background = SubResource("StyleBoxTexture_mahir_track")
+theme_override_styles/fill = SubResource("StyleBoxTexture_mahir_fill")
+max_value = 1.0
+show_percentage = false
+
+[node name="CraftingCancel" type="Button" parent="Root/Frame/Margin/VBox/Tabs/RAKIT/VBox/CraftBarRow" unique_id=362530331]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(90, 34)
+layout_mode = 2
+theme_type_variation = &"DangerButton"
+theme_override_font_sizes/font_size = 13
+text = "Batal"
+
+[node name="STAT" type="MarginContainer" parent="Root/Frame/Margin/VBox/Tabs" unique_id=402455285]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+metadata/_tab_index = 2
+
+[node name="CardsRow" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/STAT" unique_id=2027495504]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="AttrCard1" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow" unique_id=1399322701]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_card")
+
+[node name="VBox" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1" unique_id=1396619448]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Header" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1/VBox" unique_id=690892791]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("9_extrabold")
+theme_override_font_sizes/font_size = 20
+text = "Atribut 1"
+
+[node name="RowHP" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1/VBox" unique_id=524506107]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1/VBox/RowHP" unique_id=1803334537]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
 text = "HP"
 
-[node name="HpValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/HpCard/Row"]
+[node name="HpValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1/VBox/RowHP" unique_id=660182871]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
-text = "100 / 100"
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "200 / 200"
+horizontal_alignment = 2
 
-[node name="StaminaCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
+[node name="RowMove" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1/VBox" unique_id=412333328]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1/VBox/RowMove" unique_id=517819573]
 layout_mode = 2
 size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
-
-[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/StaminaCard"]
-layout_mode = 2
-
-[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/StaminaCard/Row"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
-text = "Stamina"
-
-[node name="StaminaValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/StaminaCard/Row"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
-text = "100 / 100"
-
-[node name="MoveCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
-
-[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/MoveCard"]
-layout_mode = 2
-
-[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/MoveCard/Row"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
 text = "Gerak"
 
-[node name="MoveValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/MoveCard/Row"]
+[node name="MoveValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1/VBox/RowMove" unique_id=1828966137]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
 text = "160"
+horizontal_alignment = 2
 
-[node name="SprintCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
+[node name="RowAtk" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1/VBox" unique_id=1160808827]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1/VBox/RowAtk" unique_id=1507820234]
 layout_mode = 2
 size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
-
-[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/SprintCard"]
-layout_mode = 2
-
-[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/SprintCard/Row"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
-text = "Lari"
-
-[node name="SprintValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/SprintCard/Row"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
-text = "240"
-
-[node name="AtkCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
-
-[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/AtkCard"]
-layout_mode = 2
-
-[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/AtkCard/Row"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
 text = "Serang"
 
-[node name="AtkValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/AtkCard/Row"]
+[node name="AtkValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1/VBox/RowAtk" unique_id=868553688]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
 text = "8.0"
+horizontal_alignment = 2
 
-[node name="AtkSpeedCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
+[node name="RowGather" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1/VBox" unique_id=432918645]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1/VBox/RowGather" unique_id=1609033984]
 layout_mode = 2
 size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
-
-[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/AtkSpeedCard"]
-layout_mode = 2
-
-[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/AtkSpeedCard/Row"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
-text = "Cepat"
-
-[node name="AtkSpeedValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/AtkSpeedCard/Row"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
-text = "1.20/s"
-
-[node name="GatherCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
-
-[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/GatherCard"]
-layout_mode = 2
-
-[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/GatherCard/Row"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
 text = "Kumpul"
 
-[node name="GatherValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/GatherCard/Row"]
+[node name="GatherValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard1/VBox/RowGather" unique_id=946409347]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
-text = "x1.00"
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "x 1.00"
+horizontal_alignment = 2
 
-[node name="DrainCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid"]
+[node name="AttrCard2" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow" unique_id=1721573416]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_stat_card")
+theme_override_styles/panel = SubResource("StyleBoxTexture_card")
 
-[node name="Row" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/DrainCard"]
+[node name="VBox" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2" unique_id=492314048]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Header" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2/VBox" unique_id=2115106815]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("9_extrabold")
+theme_override_font_sizes/font_size = 20
+text = "Atribut 2"
+
+[node name="RowStamina" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2/VBox" unique_id=1977826054]
 layout_mode = 2
 
-[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/DrainCard/Row"]
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2/VBox/RowStamina" unique_id=668443974]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.788, 0.722, 0.612, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
-theme_override_font_sizes/font_size = 14
-text = "Lelah lari"
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "Stamina"
 
-[node name="DrainValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/Stat/VBox/StatGrid/DrainCard/Row"]
+[node name="StaminaValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2/VBox/RowStamina" unique_id=2143708777]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
-theme_override_fonts/font = ExtResource("6_nunito")
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "200 / 200"
+horizontal_alignment = 2
+
+[node name="RowSprint" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2/VBox" unique_id=1648482366]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2/VBox/RowSprint" unique_id=1291640141]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "Lari"
+
+[node name="SprintValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2/VBox/RowSprint" unique_id=768328493]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "240"
+horizontal_alignment = 2
+
+[node name="RowAtkSpeed" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2/VBox" unique_id=1047086616]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2/VBox/RowAtkSpeed" unique_id=258621897]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "Cepat"
+
+[node name="AtkSpeedValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2/VBox/RowAtkSpeed" unique_id=952369401]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "1.20 / s"
+horizontal_alignment = 2
+
+[node name="RowDrain" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2/VBox" unique_id=1045895839]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2/VBox/RowDrain" unique_id=196393855]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "Lelah lari"
+
+[node name="DrainValue" type="Label" parent="Root/Frame/Margin/VBox/Tabs/STAT/CardsRow/AttrCard2/VBox/RowDrain" unique_id=122759852]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "x 1.00"
+horizontal_alignment = 2
+
+[node name="MAHIR" type="MarginContainer" parent="Root/Frame/Margin/VBox/Tabs" unique_id=1305248201]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+metadata/_tab_index = 3
+
+[node name="MahirCard" type="PanelContainer" parent="Root/Frame/Margin/VBox/Tabs/MAHIR" unique_id=672791604]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_card")
+
+[node name="VBox" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard" unique_id=296598020]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Prof0" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox" unique_id=268238093]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Top" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof0" unique_id=141847806]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof0/Top" unique_id=1473793340]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "Kekuatan"
+
+[node name="ProfLevel0" type="Label" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof0/Top" unique_id=1821199300]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "Lv. 1"
+
+[node name="ProfBar0" type="ProgressBar" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof0" unique_id=2053936881]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxTexture_mahir_track")
+theme_override_styles/fill = SubResource("StyleBoxTexture_mahir_fill")
+show_percentage = false
+
+[node name="Prof1" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox" unique_id=612975425]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Top" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof1" unique_id=760731769]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof1/Top" unique_id=1802803837]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "Kecepatan"
+
+[node name="ProfLevel1" type="Label" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof1/Top" unique_id=1524297296]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "Lv. 1"
+
+[node name="ProfBar1" type="ProgressBar" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof1" unique_id=2143513355]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxTexture_mahir_track")
+theme_override_styles/fill = SubResource("StyleBoxTexture_mahir_fill")
+show_percentage = false
+
+[node name="Prof2" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox" unique_id=1420768289]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Top" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof2" unique_id=841559516]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof2/Top" unique_id=1803069406]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "Penguasaan"
+
+[node name="ProfLevel2" type="Label" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof2/Top" unique_id=1557440041]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "Lv. 1"
+
+[node name="ProfBar2" type="ProgressBar" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof2" unique_id=1044935133]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxTexture_mahir_track")
+theme_override_styles/fill = SubResource("StyleBoxTexture_mahir_fill")
+show_percentage = false
+
+[node name="Prof3" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox" unique_id=224106296]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Top" type="HBoxContainer" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof3" unique_id=1628538264]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof3/Top" unique_id=106069612]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "Kelincahan"
+
+[node name="ProfLevel3" type="Label" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof3/Top" unique_id=1059449477]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 16
+text = "Lv. 1"
+
+[node name="ProfBar3" type="ProgressBar" parent="Root/Frame/Margin/VBox/Tabs/MAHIR/MahirCard/VBox/Prof3" unique_id=1591489909]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxTexture_mahir_track")
+theme_override_styles/fill = SubResource("StyleBoxTexture_mahir_fill")
+show_percentage = false
+
+[node name="Footer" type="HBoxContainer" parent="Root/Frame/Margin/VBox" unique_id=633664173]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="WeightBox" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Footer" unique_id=1327198843]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="WeightTitle" type="Label" parent="Root/Frame/Margin/VBox/Footer/WeightBox" unique_id=70846916]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("10_bold")
+theme_override_font_sizes/font_size = 13
+text = "Berat tas"
+
+[node name="WeightValue" type="Label" parent="Root/Frame/Margin/VBox/Footer/WeightBox" unique_id=102356434]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("9_extrabold")
+theme_override_font_sizes/font_size = 20
+text = "0.0 / 30 kg"
+
+[node name="RightHints" type="VBoxContainer" parent="Root/Frame/Margin/VBox/Footer" unique_id=1160244286]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="ActionHint" type="Label" parent="Root/Frame/Margin/VBox/Footer/RightHints" unique_id=401398659]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.522, 0.427, 0.357, 1)
+theme_override_fonts/font = ExtResource("11_medium")
+theme_override_font_sizes/font_size = 13
+text = "Klik kanan / U: Pakai   •   Shift+Klik: Bagi"
+horizontal_alignment = 2
+
+[node name="TabsHint" type="Label" parent="Root/Frame/Margin/VBox/Footer/RightHints" unique_id=363460401]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.243, 0.153, 0.102, 1)
+theme_override_fonts/font = ExtResource("10_bold")
 theme_override_font_sizes/font_size = 14
-text = "x1.00"
+text = "Tas 1   Rakit 2   Stat 3   Mahir 4"
+horizontal_alignment = 2
+vertical_alignment = 2

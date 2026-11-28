@@ -8,6 +8,7 @@ signal opened(station: Node)
 signal closed(station: Node)
 
 const PLAYER_GROUP := &"player"
+const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
 const CRAFTING_NAME := "CraftingComponent"
 const WORKBENCH_TYPE := RecipeDefinition.Station.WORKBENCH
 const CAMPFIRE_TYPE := RecipeDefinition.Station.CAMPFIRE
@@ -63,7 +64,7 @@ func open(p_station: Node, p_interactor: Node = null) -> bool:
 		player = _find_player()
 	_is_open = true
 	visible = true
-	_root.visible = true
+	UiMotion.pop_in(_root)
 	_status.text = ""
 	_set_player_locked(true)
 	UiBackStack.register(self)
@@ -96,14 +97,16 @@ func close() -> void:
 		visible = false
 		return
 	_is_open = false
-	visible = false
-	_root.visible = false
 	_set_player_locked(false)
 	UiBackStack.unregister(self)
 	if crafting != null and crafting.get_active_station() == station:
 		crafting.cancel_craft("Panel ditutup")
 	_progress.visible = false
 	closed.emit(station)
+	UiMotion.pop_out(_root, func() -> void:
+		if not _is_open:
+			visible = false
+	)
 
 
 func is_open() -> bool:

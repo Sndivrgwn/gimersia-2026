@@ -8,4 +8,4 @@ id = &"wood"
 display_name = "Kayu"
 description = "Batang kayu untuk membangun dan membuat alat."
 category = 0
-max_stack = 20
+max_stack = 99

@@ -7,6 +7,7 @@ extends Control
 signal toggled_open(is_open: bool)
 
 const UI_SCENE := preload("res://src/ui/menus/help_panel_ui.tscn")
+const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
 
 const HELP_LINES: Array[String] = [
 	"PEMAIN",
@@ -27,6 +28,7 @@ const HELP_LINES: Array[String] = [
 
 var _label: Label
 var _back_button: Button
+var _is_open: bool = false
 
 
 func _ready() -> void:
@@ -55,9 +57,10 @@ func toggle() -> void:
 
 
 func open() -> void:
-	if visible:
+	if _is_open:
 		return
-	visible = true
+	_is_open = true
+	UiMotion.pop_in(self)
 	UiBackStack.register(self)
 	toggled_open.emit(true)
 	if _back_button != null:
@@ -65,15 +68,16 @@ func open() -> void:
 
 
 func close() -> void:
-	if not visible:
+	if not _is_open:
 		return
-	visible = false
+	_is_open = false
 	UiBackStack.unregister(self)
 	toggled_open.emit(false)
+	UiMotion.pop_out(self)
 
 
 func is_open() -> bool:
-	return visible
+	return _is_open
 
 
 func get_text() -> String:

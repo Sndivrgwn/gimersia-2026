@@ -24,8 +24,9 @@ var inventory: InventoryComponent
 
 var _normal_style: StyleBox
 
-@onready var _key: Label = $VBox/Top/Key
-@onready var _count: Label = $VBox/Top/Count
+@onready var _key: Label = get_node_or_null("VBox/Top/Key") as Label
+@onready var _count_badge: PanelContainer = find_child("CountBadge", true, false) as PanelContainer
+@onready var _count: Label = find_child("Count", true, false) as Label
 @onready var _icon: TextureRect = $VBox/Icon
 @onready var _dummy: Label = $VBox/DummyIcon
 
@@ -34,12 +35,20 @@ func _ready() -> void:
 	# Gaya slot (9-slice normal/hover) diatur di bag_slot.tscn.
 	focus_mode = Control.FOCUS_ALL
 	_normal_style = get_theme_stylebox(&"panel")
-	mouse_entered.connect(_set_hover.bind(true))
+	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_set_hover.bind(false))
 	focus_entered.connect(_set_hover.bind(true))
 	focus_exited.connect(_set_hover.bind(false))
-	_key.text = str(hotbar_number) if hotbar_number > 0 else ""
+	if _key != null:
+		_key.text = ""
+		_key.visible = false
 	refresh()
+
+
+func _on_mouse_entered() -> void:
+	_set_hover(true)
+	if is_visible_in_tree() and focus_mode != Control.FOCUS_NONE:
+		grab_focus()
 
 
 func _set_hover(hovered: bool) -> void:
@@ -54,7 +63,10 @@ func refresh() -> void:
 	var count := get_count()
 	var empty := item == null or count <= 0
 
-	_count.text = "" if empty else "x%d" % count
+	if _count_badge != null:
+		_count_badge.visible = not empty
+	if _count != null:
+		_count.text = "" if empty else "x %d" % count
 	var icon: Texture2D = null if empty else item.get_icon()
 	_icon.texture = icon
 	_icon.visible = icon != null
@@ -199,6 +211,11 @@ func _show_drag_preview(item: ItemDefinition, count: int) -> void:
 
 func _gui_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"ui_accept"):
+		accept_event()
+		_activate_slot()
+		return
+	var key := event as InputEventKey
+	if key != null and key.pressed and not key.echo and key.keycode == KEY_U:
 		accept_event()
 		_activate_slot()
 		return

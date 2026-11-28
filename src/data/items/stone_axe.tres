@@ -8,5 +8,5 @@ id = &"stone_axe"
 display_name = "Kapak Batu"
 description = "Alat untuk menebang pohon. Hanya kepemilikan; tidak mengubah stat."
 category = 3
-max_stack = 20
+max_stack = 99
 equipment_slot = 2

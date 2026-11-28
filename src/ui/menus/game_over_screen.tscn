@@ -40,9 +40,8 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="Card" type="PanelContainer" parent="Panel/Center"]
-custom_minimum_size = Vector2(440, 0)
 layout_mode = 2
-theme_type_variation = &"PanelWalnut"
+theme_type_variation = &"PanelJeda"
 
 [node name="Column" type="VBoxContainer" parent="Panel/Center/Card"]
 layout_mode = 2
@@ -52,33 +51,35 @@ alignment = 1
 [node name="Title" type="Label" parent="Panel/Center/Card/Column"]
 layout_mode = 2
 unique_name_in_owner = true
-theme_type_variation = &"DangerTitleLabel"
-text = "KALAH"
+theme_type_variation = &"KontrolTitleLabel"
+text = "Kalah"
 horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="Detail" type="Label" parent="Panel/Center/Card/Column"]
 layout_mode = 2
 unique_name_in_owner = true
-theme_type_variation = &"BodyLabel"
-text = "Respawn habis."
+theme_type_variation = &"EndgameBodyLabel"
+text = "Tidak ada kesempatan lagi"
 horizontal_alignment = 1
 autowrap_mode = 3
-theme_override_colors/font_color = Color(0.969, 0.945, 0.898, 1)
 
-[node name="RestartButton" type="Button" parent="Panel/Center/Card/Column"]
+[node name="ButtonRow" type="HBoxContainer" parent="Panel/Center/Card/Column"]
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="MenuButton" type="Button" parent="Panel/Center/Card/Column/ButtonRow"]
 layout_mode = 2
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(240, 72)
+theme_type_variation = &"DangerButton"
+text = "Kembali"
+
+[node name="RestartButton" type="Button" parent="Panel/Center/Card/Column/ButtonRow"]
+layout_mode = 2
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 72)
 theme_type_variation = &"PrimaryButton"
-text = "MULAI BARU"
-
-[node name="MenuButton" type="Button" parent="Panel/Center/Card/Column"]
-layout_mode = 2
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
-size_flags_horizontal = 3
-theme_type_variation = &"BackButton"
-text = "MENU"
+text = "Coba lagi"
 

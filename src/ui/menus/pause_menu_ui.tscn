@@ -1,8 +1,9 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://chow6gv2vouib"]
 
-[ext_resource type="Theme" path="res://src/ui/theme/ui_theme_tex.tres" id="2_theme"]
+[ext_resource type="Theme" uid="uid://yeud614vxjso" path="res://src/ui/theme/ui_theme_tex.tres" id="2_theme"]
 
-[node name="PauseUi" type="Control"]
+[node name="PauseUi" type="Control" unique_id=150190359]
+texture_filter = 2
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,9 +12,8 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme = ExtResource("2_theme")
-texture_filter = 2
 
-[node name="Dim" type="ColorRect" parent="."]
+[node name="Dim" type="ColorRect" parent="." unique_id=1806847355]
 modulate = Color(1, 1, 1, 0.55)
 layout_mode = 1
 anchors_preset = 15
@@ -21,10 +21,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 color = Color(0.122, 0.078, 0.055, 1)
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Center" type="CenterContainer" parent="." unique_id=2034606548]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -33,64 +32,48 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Card" type="PanelContainer" parent="Center"]
-custom_minimum_size = Vector2(420, 0)
+[node name="Card" type="PanelContainer" parent="Center" unique_id=387628845]
 layout_mode = 2
-theme_type_variation = &"PanelCard"
+theme_type_variation = &"PanelJeda"
 
-[node name="Column" type="VBoxContainer" parent="Center/Card"]
+[node name="Column" type="VBoxContainer" parent="Center/Card" unique_id=1838393132]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 10
 alignment = 1
 
-[node name="Title" type="Label" parent="Center/Card/Column"]
-layout_mode = 2
+[node name="Title" type="Label" parent="Center/Card/Column" unique_id=2146463379]
 unique_name_in_owner = true
-theme_type_variation = &"CardTitleLabel"
-text = "Jeda"
+layout_mode = 2
+theme_type_variation = &"KontrolTitleLabel"
+text = "JEDA"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="ResumeButton" type="Button" parent="Center/Card/Column"]
-layout_mode = 2
+[node name="ResumeButton" type="Button" parent="Center/Card/Column" unique_id=195996069]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(240, 72)
+layout_mode = 2
+size_flags_horizontal = 4
 theme_type_variation = &"PrimaryButton"
-text = "LANJUT"
+text = "Lanjut"
 
-[node name="SettingsButton" type="Button" parent="Center/Card/Column"]
-layout_mode = 2
+[node name="HelpButton" type="Button" parent="Center/Card/Column" unique_id=1703131897]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(240, 72)
+layout_mode = 2
+size_flags_horizontal = 4
 theme_type_variation = &"SecondaryButton"
-text = "PENGATURAN"
+text = "Kontrol"
 
-[node name="HelpButton" type="Button" parent="Center/Card/Column"]
-layout_mode = 2
+[node name="MenuButton" type="Button" parent="Center/Card/Column" unique_id=1290053332]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(240, 72)
+layout_mode = 2
+size_flags_horizontal = 4
 theme_type_variation = &"SecondaryButton"
-text = "BANTUAN"
+text = "Keluar"
 
-[node name="MenuButton" type="Button" parent="Center/Card/Column"]
-layout_mode = 2
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
-size_flags_horizontal = 3
-theme_type_variation = &"BackButton"
-text = "MENU"
-
-[node name="HintLabel" type="Label" parent="Center/Card/Column"]
-layout_mode = 2
-unique_name_in_owner = true
-theme_type_variation = &"MutedLabel"
-text = "Esc atau P untuk lanjut"
-horizontal_alignment = 1
-
-[node name="EscHint" type="Label" parent="."]
+[node name="EscHint" type="Label" parent="." unique_id=2049002905]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 3
@@ -104,12 +87,11 @@ offset_right = -8.0
 offset_bottom = -8.0
 grow_horizontal = 0
 grow_vertical = 0
-mouse_filter = 2
 theme_type_variation = &"MutedLabel"
 text = "Esc: Jeda"
 horizontal_alignment = 2
 
-[node name="PauseButton" type="Button" parent="."]
+[node name="PauseButton" type="Button" parent="." unique_id=1293179017]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
@@ -122,4 +104,3 @@ offset_bottom = 40.0
 grow_horizontal = 0
 focus_mode = 0
 text = "II"
-

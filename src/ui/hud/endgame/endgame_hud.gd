@@ -8,8 +8,9 @@ signal restart_requested
 signal main_menu_requested
 
 const ARROW_FORMAT := "%s  Beacon %d px"
-const VICTORY_TITLE := "SELAMAT!"
+const VICTORY_TITLE := "Kapal penyelamat menemukanmu"
 const VICTORY_DETAIL := "Suar darurat menyala. Kapal penyelamat menemukanmu."
+const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
 
 var _banner: Label
 var _arrow: Label
@@ -20,12 +21,15 @@ var _restart_button: Button
 var _menu_button: Button
 var _controller: EndgameController
 var _banner_timer: float = 0.0
+var _banner_text: String = ""
+var _victory_visible: bool = false
+var _victory_text: String = ""
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 25
-	_build()
+	_bind_scene_ui()
 	UiSkin.apply_all(self)
 	UiSkin.add_canvas_background(self, &"ui_bg_victory")
 	_controller = get_tree().get_first_node_in_group(&"endgame_controller") as EndgameController
@@ -33,6 +37,19 @@ func _ready() -> void:
 		_controller.banner_shown.connect(_on_banner_shown)
 		_controller.rescue_ready.connect(_on_rescue_ready)
 		_controller.victory.connect(_on_victory)
+
+
+func _bind_scene_ui() -> void:
+	_banner = get_node_or_null("%Banner") as Label
+	_arrow = get_node_or_null("%Arrow") as Label
+	_victory_panel = get_node_or_null("%Victory") as PanelContainer
+	_victory_detail = get_node_or_null("%VictoryDetail") as Label
+	_restart_button = get_node_or_null("%RestartButton") as Button
+	_menu_button = get_node_or_null("%MenuButton") as Button
+	if _restart_button != null and not _restart_button.pressed.is_connected(_on_restart_pressed):
+		_restart_button.pressed.connect(_on_restart_pressed)
+	if _menu_button != null and not _menu_button.pressed.is_connected(_on_menu_pressed):
+		_menu_button.pressed.connect(_on_menu_pressed)
 
 
 func _process(delta: float) -> void:
@@ -43,92 +60,19 @@ func _process(delta: float) -> void:
 # --- API --------------------------------------------------------------------
 
 func get_banner_text() -> String:
-	return _banner.text if _banner != null else ""
+	return _banner.text if _banner != null else _banner_text
 
 
 func is_victory_visible() -> bool:
-	return _victory_panel != null and _victory_panel.visible
+	return _victory_panel.visible if _victory_panel != null else _victory_visible
 
 
 ## Teks panel Victory lengkap (dipakai tes).
 func get_victory_text() -> String:
-	return "" if _victory_detail == null else _victory_detail.text
+	return _victory_text if _victory_detail == null else _victory_detail.text
 
 
 # --- Internal ---------------------------------------------------------------
-
-func _build() -> void:
-	_banner = Label.new()
-	_banner.name = "Banner"
-	_banner.position = Vector2(0, 44)
-	_banner.size = Vector2(1152, 40)
-	_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_banner.add_theme_font_size_override("font_size", 16)
-	_banner.add_theme_color_override("font_color", Color(1.0, 0.9, 0.55, 1.0))
-	_banner.visible = false
-	add_child(_banner)
-
-	_arrow = Label.new()
-	_arrow.name = "Arrow"
-	_arrow.position = Vector2(0, 620)
-	_arrow.size = Vector2(1152, 24)
-	_arrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_arrow.add_theme_font_size_override("font_size", 15)
-	_arrow.add_theme_color_override("font_color", Color(0.7, 0.95, 1.0, 1.0))
-	_arrow.visible = false
-	add_child(_arrow)
-
-	_victory_panel = PanelContainer.new()
-	_victory_panel.name = "Victory"
-	_victory_panel.set_anchors_preset(Control.PRESET_CENTER)
-	_victory_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_victory_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_victory_panel.custom_minimum_size = Vector2(440, 310)
-	var v_tex := "res://assets/textures/ui/02_panel/panel_walnut_stitched.png"
-	if ResourceLoader.exists(v_tex):
-		var vbox_style := StyleBoxTexture.new()
-		vbox_style.texture = load(v_tex) as Texture2D
-		vbox_style.texture_margin_left = 24.0
-		vbox_style.texture_margin_top = 24.0
-		vbox_style.texture_margin_right = 24.0
-		vbox_style.texture_margin_bottom = 24.0
-		vbox_style.content_margin_left = 26.0
-		vbox_style.content_margin_top = 22.0
-		vbox_style.content_margin_right = 26.0
-		vbox_style.content_margin_bottom = 22.0
-		_victory_panel.add_theme_stylebox_override("panel", vbox_style)
-	_victory_panel.visible = false
-	add_child(_victory_panel)
-
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 10)
-	_victory_panel.add_child(column)
-
-	var title := Label.new()
-	title.text = VICTORY_TITLE
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 26)
-	column.add_child(title)
-
-	var detail := Label.new()
-	detail.text = VICTORY_DETAIL
-	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	detail.custom_minimum_size = Vector2(320, 40)
-	column.add_child(detail)
-	_victory_detail = detail
-
-	_restart_button = Button.new()
-	_restart_button.name = "RestartButton"
-	_restart_button.text = "Mulai Baru"
-	_restart_button.pressed.connect(_on_restart_pressed)
-	column.add_child(_restart_button)
-
-	_menu_button = Button.new()
-	_menu_button.name = "MenuButton"
-	_menu_button.text = "Menu Utama"
-	_menu_button.pressed.connect(_on_menu_pressed)
-	column.add_child(_menu_button)
 
 
 func _on_restart_pressed() -> void:
@@ -140,20 +84,28 @@ func _on_menu_pressed() -> void:
 
 
 func _on_banner_shown(text: String) -> void:
-	_banner.text = text
-	_banner.visible = true
+	_banner_text = text
+	if _banner != null:
+		_banner.text = text
+		_banner.visible = true
 	_banner_timer = 12.0
 
 
 func _on_rescue_ready() -> void:
-	_arrow.visible = true
+	if _arrow != null:
+		_arrow.visible = true
 
 
 func _on_victory() -> void:
-	_victory_panel.visible = true
+	_victory_visible = true
+	UiMotion.pop_in(_victory_panel)
+	var summary := RunSummary.block_for(self)
+	var rescue_line := _rescue_time_line()
+	_victory_text = VICTORY_DETAIL + rescue_line + summary
 	if _victory_detail != null:
 		# Fase 5: ringkasan run ikut ditampilkan di panel Victory.
-		_victory_detail.text = VICTORY_DETAIL + _rescue_time_line() + RunSummary.block_for(self)
+		_victory_detail.text = _victory_text
+		_victory_detail.visible = not rescue_line.is_empty() or not summary.is_empty()
 	if _restart_button != null:
 		_restart_button.grab_focus()
 
@@ -167,7 +119,7 @@ func _rescue_time_line() -> String:
 
 
 func _tick_banner(delta: float) -> void:
-	if not _banner.visible:
+	if _banner == null or not _banner.visible:
 		return
 	_banner_timer -= delta
 	if _banner_timer <= 0.0:
@@ -175,6 +127,8 @@ func _tick_banner(delta: float) -> void:
 
 
 func _tick_arrow() -> void:
+	if _arrow == null:
+		return
 	if _controller == null or not _controller.is_rescue_active():
 		_arrow.visible = false
 		return

@@ -8,4 +8,4 @@ id = &"stone"
 display_name = "Batu"
 description = "Batu keras untuk alat dan struktur."
 category = 0
-max_stack = 20
+max_stack = 99

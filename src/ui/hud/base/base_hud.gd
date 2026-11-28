@@ -15,7 +15,7 @@ var _text: String = ""
 
 
 func _ready() -> void:
-	layer = 22
+	layer = 10
 	_build()
 	refresh()
 

@@ -8,6 +8,7 @@ signal closed
 
 const CLOSE_DISTANCE := 120.0
 const CHEST_GROUP := &"camp_structure"
+const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
 
 @export var chest: Node
 @export var inventory: InventoryComponent
@@ -58,12 +59,17 @@ func setup(p_chest: Node, p_inventory: InventoryComponent, p_player: Node2D, p_b
 	_connect_chest(p_chest)
 
 
+func _ui_root() -> Control:
+	return get_child(0) as Control if get_child_count() > 0 else null
+
+
 func open_for(p_chest: Node, p_inventory: InventoryComponent, p_player: Node2D) -> bool:
 	if p_chest == null:
 		return false
 	setup(p_chest, p_inventory, p_player, bag_panel)
 	_open = true
 	visible = true
+	UiMotion.pop_in(_ui_root())
 	UiBackStack.register(self)
 	if bag_panel != null and bag_panel.has_method(&"set_locked"):
 		bag_panel.set_locked(true)
@@ -78,11 +84,14 @@ func close() -> void:
 		visible = false
 		return
 	_open = false
-	visible = false
 	UiBackStack.unregister(self)
 	if bag_panel != null and bag_panel.has_method(&"set_locked"):
 		bag_panel.set_locked(false)
 	closed.emit()
+	UiMotion.pop_out(_ui_root(), func() -> void:
+		if not _open:
+			visible = false
+	)
 
 
 func is_open() -> bool:

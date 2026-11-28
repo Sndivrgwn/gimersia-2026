@@ -29,6 +29,10 @@ var _help_panel: Node
 var _esc_hint: Label
 var _esc_button: Button
 var _resume_button: Button
+var _menu_buttons: Array[Button] = []
+var _button_tweens: Dictionary = {}
+var _panel_tween: Tween
+var _exiting_to_menu: bool = false
 
 
 func _ready() -> void:
@@ -87,9 +91,59 @@ func _bind_scene_ui() -> void:
 	if help_btn != null:
 		help_btn.pressed.connect(_open_help)
 	if menu_btn != null:
-		menu_btn.pressed.connect(request_main_menu)
+		menu_btn.pressed.connect(_on_exit_to_main_menu_pressed)
+	_menu_buttons.clear()
+	for btn in [resume_btn, settings_btn, help_btn, menu_btn]:
+		if btn == null:
+			continue
+		_menu_buttons.append(btn)
+		btn.pivot_offset = btn.size * 0.5
+		btn.resized.connect(func() -> void: btn.pivot_offset = btn.size * 0.5)
+		btn.mouse_entered.connect(_on_menu_button_hovered.bind(btn))
+		btn.gui_input.connect(_on_menu_button_gui_input.bind(btn))
+		btn.focus_entered.connect(_on_menu_button_focus_changed.bind(btn, true))
+		btn.focus_exited.connect(_on_menu_button_focus_changed.bind(btn, false))
 	if _esc_button != null:
 		_esc_button.pressed.connect(toggle)
+
+
+func _on_menu_button_hovered(btn: Button) -> void:
+	if btn == null:
+		return
+	btn.remove_theme_stylebox_override("hover")
+	if not btn.has_focus():
+		btn.grab_focus()
+
+
+func _on_menu_button_gui_input(event: InputEvent, btn: Button) -> void:
+	if event is InputEventMouseMotion and btn != null:
+		btn.remove_theme_stylebox_override("hover")
+		if not btn.has_focus():
+			btn.grab_focus()
+
+
+func _on_menu_button_focus_changed(btn: Button, active: bool) -> void:
+	if active:
+		for other in _menu_buttons:
+			if other != null and other != btn:
+				other.add_theme_stylebox_override("hover", other.get_theme_stylebox("normal"))
+		btn.remove_theme_stylebox_override("hover")
+	_tween_menu_button(btn, active)
+
+
+func _tween_menu_button(btn: Button, active: bool) -> void:
+	if btn == null or not is_instance_valid(btn):
+		return
+	btn.pivot_offset = btn.size * 0.5
+	var old_tween := _button_tweens.get(btn) as Tween
+	if old_tween != null and old_tween.is_valid():
+		old_tween.kill()
+	var target_scale := Vector2(1.05, 1.05) if active else Vector2.ONE
+	var target_tint := Color(1.1, 1.06, 1.0, 1.0) if active else Color.WHITE
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(btn, "scale", target_scale, 0.14).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(btn, "modulate", target_tint, 0.14).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_button_tweens[btn] = tween
 
 
 ## Dibangun runtime sebagai fallback bila PauseMenu di-instantiate lewat kode (.new()).
@@ -254,6 +308,12 @@ func _on_help_toggled(help_open: bool) -> void:
 
 
 func _focus_resume() -> void:
+	for btn in _menu_buttons:
+		if btn != null and is_instance_valid(btn) and btn.is_visible_in_tree():
+			if Rect2(Vector2.ZERO, btn.size).has_point(btn.get_local_mouse_position()):
+				btn.remove_theme_stylebox_override("hover")
+				btn.grab_focus()
+				return
 	if _resume_button != null and is_instance_valid(_resume_button) and _resume_button.is_visible_in_tree():
 		_resume_button.grab_focus()
 
@@ -336,9 +396,47 @@ func open() -> bool:
 		if clock != null and clock.has_method(&"set_time_scale"):
 			clock.set_time_scale(0.0)
 	visible = true
+	_play_open_anim()
 	_focus_resume()
 	paused.emit()
 	return true
+
+
+func _play_open_anim() -> void:
+	if _panel_tween != null and _panel_tween.is_valid():
+		_panel_tween.kill()
+	if _panel != null:
+		_panel.pivot_offset = _panel.size * 0.5
+		_panel.scale = Vector2(0.94, 0.94)
+		_panel.modulate.a = 0.0
+	if _dim != null:
+		_dim.modulate.a = 0.0
+	_panel_tween = create_tween().set_parallel(true)
+	_panel_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	if _dim != null:
+		_panel_tween.tween_property(_dim, "modulate:a", 0.55, 0.18).set_trans(Tween.TRANS_SINE)
+	if _panel != null:
+		_panel_tween.tween_property(_panel, "modulate:a", 1.0, 0.18).set_trans(Tween.TRANS_SINE)
+		_panel_tween.tween_property(_panel, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func _on_exit_to_main_menu_pressed() -> void:
+	if _exiting_to_menu:
+		return
+	_exiting_to_menu = true
+	if _panel_tween != null and _panel_tween.is_valid():
+		_panel_tween.kill()
+	_panel_tween = create_tween().set_parallel(true)
+	_panel_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	if _panel != null:
+		_panel.pivot_offset = _panel.size * 0.5
+		_panel_tween.tween_property(_panel, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_SINE)
+		_panel_tween.tween_property(_panel, "scale", Vector2(0.94, 0.94), 0.24).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	if _dim != null:
+		if _dim is ColorRect:
+			(_dim as ColorRect).color = Color(0.122, 0.082, 0.063, 1.0)
+		_panel_tween.tween_property(_dim, "modulate:a", 1.0, 0.26).set_trans(Tween.TRANS_SINE)
+	_panel_tween.chain().tween_callback(request_main_menu)
 
 
 func close() -> void:
@@ -354,7 +452,37 @@ func close() -> void:
 		if clock != null and clock.has_method(&"set_time_scale"):
 			clock.set_time_scale(_previous_scale)
 	_close_sub_panels()
-	visible = false
+	if _panel_tween != null and _panel_tween.is_valid():
+		_panel_tween.kill()
+	if _exiting_to_menu:
+		if _panel != null:
+			_panel.visible = false
+		resumed.emit()
+		return
+	if _panel != null and DisplayServer.get_name() != "headless":
+		_panel.pivot_offset = _panel.size * 0.5
+		_panel_tween = create_tween().set_parallel(true)
+		_panel_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		_panel_tween.tween_property(_panel, "scale", Vector2(0.94, 0.94), 0.14).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		_panel_tween.tween_property(_panel, "modulate:a", 0.0, 0.14).set_trans(Tween.TRANS_SINE)
+		if _dim != null:
+			_panel_tween.tween_property(_dim, "modulate:a", 0.0, 0.14).set_trans(Tween.TRANS_SINE)
+		_panel_tween.chain().tween_callback(func() -> void:
+			if not _paused_by_menu:
+				visible = false
+			if _panel != null:
+				_panel.scale = Vector2.ONE
+				_panel.modulate.a = 1.0
+			if _dim != null:
+				_dim.modulate.a = 0.55
+		)
+	else:
+		if _panel != null:
+			_panel.scale = Vector2.ONE
+			_panel.modulate.a = 1.0
+		if _dim != null:
+			_dim.modulate.a = 0.55
+		visible = false
 	resumed.emit()
 
 

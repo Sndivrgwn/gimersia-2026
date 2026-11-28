@@ -8,4 +8,4 @@ id = &"fiber"
 display_name = "Serat"
 description = "Serat tumbuhan untuk ikatan dan kain."
 category = 0
-max_stack = 20
+max_stack = 99

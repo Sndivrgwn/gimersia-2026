@@ -36,7 +36,7 @@ static func add(
 		return maxi(count, 0)
 
 	var remaining := count
-	var stack_max := maxi(item.max_stack, 1)
+	var stack_max := clampi(item.max_stack, 1, 99)
 
 	for index in slots.size():
 		if remaining <= 0:

@@ -28,6 +28,7 @@ signal inventory_changed()
 signal add_blocked(item: ItemDefinition, remaining: int)
 
 const DEFAULT_CONFIG: InventoryConfig = preload("res://src/data/configs/inventory_config.tres")
+const MAX_WEIGHT_KG: float = 30.0
 const ARMOR_SOURCE_ID := &"equip_armor"
 const PICKUP_SCENE_PATH := "res://src/entities/props/item_pickup.tscn"
 const PLAYER_GROUP := &"player"
@@ -139,6 +140,22 @@ func is_full() -> bool:
 	return ItemSlotStore.is_full(_slots)
 
 
+func get_max_weight() -> float:
+	return MAX_WEIGHT_KG
+
+
+func get_total_weight() -> float:
+	var total := 0.0
+	for stack in _slots:
+		if stack != null and not stack.is_empty() and stack.item != null:
+			total += float(stack.count) * stack.item.get_weight()
+	return total
+
+
+func get_remaining_weight() -> float:
+	return maxf(get_max_weight() - get_total_weight(), 0.0)
+
+
 func get_equipped(slot: int) -> ItemDefinition:
 	return _equipment.get(slot, null) as ItemDefinition
 
@@ -159,8 +176,19 @@ func add_item(item: ItemDefinition, count: int = 1) -> int:
 		return maxi(count, 0)
 	_ensure_slots()
 
+	var unit_weight := item.get_weight()
+	var allowed := count
+	var blocked_by_weight := 0
+	if unit_weight > 0.0:
+		var can_fit := floori((get_remaining_weight() + 0.0001) / unit_weight)
+		allowed = mini(count, maxi(can_fit, 0))
+		blocked_by_weight = count - allowed
+		if allowed <= 0:
+			add_blocked.emit(item, count)
+			return count
+
 	var touched: Array[int] = []
-	var remaining := ItemSlotStore.add(_slots, item, count, touched)
+	var remaining := ItemSlotStore.add(_slots, item, allowed, touched) + blocked_by_weight
 
 	if touched.is_empty():
 		if remaining > 0:

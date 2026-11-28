@@ -34,27 +34,34 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+const UiMotion := preload("res://src/ui/fx/ui_motion.gd")
+
+var _is_open: bool = false
+
+
 func setup(p_service: SettingsService) -> void:
 	service = p_service
 	refresh()
 
 
 func open() -> void:
-	visible = true
+	_is_open = true
+	UiMotion.pop_in(self)
 	refresh()
 	if _slider != null:
 		_slider.grab_focus()
 
 
 func close() -> void:
-	if not visible:
+	if not _is_open:
 		return
-	visible = false
+	_is_open = false
 	closed.emit()
+	UiMotion.pop_out(self)
 
 
 func is_open() -> bool:
-	return visible
+	return _is_open
 
 
 func refresh() -> void:

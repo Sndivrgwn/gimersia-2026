@@ -40,9 +40,8 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="Card" type="PanelContainer" parent="Panel/Center"]
-custom_minimum_size = Vector2(440, 0)
 layout_mode = 2
-theme_type_variation = &"PanelCard"
+theme_type_variation = &"PanelJeda"
 
 [node name="Column" type="VBoxContainer" parent="Panel/Center/Card"]
 layout_mode = 2
@@ -52,32 +51,35 @@ alignment = 1
 [node name="Title" type="Label" parent="Panel/Center/Card/Column"]
 layout_mode = 2
 unique_name_in_owner = true
-theme_type_variation = &"DangerTitleLabel"
-text = "TEWAS"
+theme_type_variation = &"KontrolTitleLabel"
+text = "Tewas"
 horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="Detail" type="Label" parent="Panel/Center/Card/Column"]
 layout_mode = 2
 unique_name_in_owner = true
-theme_type_variation = &"BodyLabel"
-text = ""
+theme_type_variation = &"EndgameBodyLabel"
+text = "Sisa kesempatan 1/3"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="RespawnButton" type="Button" parent="Panel/Center/Card/Column"]
+[node name="ButtonRow" type="HBoxContainer" parent="Panel/Center/Card/Column"]
 layout_mode = 2
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
-size_flags_horizontal = 3
-theme_type_variation = &"PrimaryButton"
-text = "BANGKIT"
+theme_override_constants/separation = 18
+alignment = 1
 
-[node name="MenuButton" type="Button" parent="Panel/Center/Card/Column"]
+[node name="MenuButton" type="Button" parent="Panel/Center/Card/Column/ButtonRow"]
 layout_mode = 2
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
-size_flags_horizontal = 3
-theme_type_variation = &"BackButton"
-text = "MENU"
+custom_minimum_size = Vector2(240, 72)
+theme_type_variation = &"DangerButton"
+text = "Kembali"
+
+[node name="RespawnButton" type="Button" parent="Panel/Center/Card/Column/ButtonRow"]
+layout_mode = 2
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 72)
+theme_type_variation = &"PrimaryButton"
+text = "Bangkit"
 

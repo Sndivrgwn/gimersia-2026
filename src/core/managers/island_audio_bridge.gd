@@ -373,9 +373,9 @@ func _on_combat_feedback(kind: StringName, _pos: Vector2) -> void:
 
 func _on_item_used(item: ItemDefinition, _slot_index: int) -> void:
 	var audio := _audio()
-	if audio == null or item == null or item.effect == null:
+	if audio == null or item == null or item.consume_effect == null:
 		return
-	var fx: ItemEffect = item.effect as ItemEffect
+	var fx: ItemEffect = item.consume_effect as ItemEffect
 	if fx == null:
 		return
 	if fx.regen_hp_per_second > 0.0 or (fx.hp > 0.0 and fx.hunger <= 0.0 and fx.thirst <= 0.0):

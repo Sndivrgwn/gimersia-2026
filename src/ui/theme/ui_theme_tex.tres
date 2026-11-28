@@ -2,6 +2,7 @@
 
 [ext_resource type="FontFile" uid="uid://clfm6hxj0m40e" path="res://assets/fonts/fredoka/fredoka_variable.ttf" id="font_fredoka"]
 [ext_resource type="FontFile" uid="uid://dyxg1g7n1nbsc" path="res://assets/fonts/nunito/nunito_variable.ttf" id="font_nunito"]
+[ext_resource type="FontFile" uid="uid://7xutna77hmh5" path="res://assets/fonts/nunito/Nunito-Bold.ttf" id="font_nunito_bold"]
 [ext_resource type="FontFile" uid="uid://2ftdhp53tugk" path="res://assets/fonts/nunito/Nunito-ExtraBold.ttf" id="font_nunito_extrabold"]
 [ext_resource type="FontFile" uid="uid://dbwk2s1m8jq3u" path="res://assets/fonts/nunito/Nunito-Medium.ttf" id="font_nunito_medium"]
 [ext_resource type="Texture2D" uid="uid://r1cgafwop6ww" path="res://assets/textures/ui/02_panel/panel_cream_plain.png" id="t_02_panel_panel_cream_plain"]
@@ -33,98 +34,122 @@
 [ext_resource type="Texture2D" uid="uid://dlelap8slrxb1" path="res://assets/textures/ui/09_extra/check_off.png" id="t_09_extra_check_off"]
 [ext_resource type="Texture2D" uid="uid://cwepwkc52xidi" path="res://assets/textures/ui/09_extra/check_on.png" id="t_09_extra_check_on"]
 [ext_resource type="Texture2D" uid="uid://cy5groulqnaof" path="res://assets/textures/ui/09_extra/slider_grabber.png" id="t_09_extra_slider_grabber"]
+[ext_resource type="Texture2D" uid="uid://byrjo0ym56l53" path="res://assets/textures/ui/09_extra/pill_bad.svg" id="t_09_pill_bad"]
+[ext_resource type="Texture2D" uid="uid://d2splbqw6tjrh" path="res://assets/textures/ui/09_extra/pill_good.svg" id="t_09_pill_good"]
 [ext_resource type="Texture2D" uid="uid://ct8lphxqqk6us" path="res://assets/textures/ui/09_extra/scrollbar_grabber.svg" id="t_09_scrollbar_grabber"]
 [ext_resource type="Texture2D" uid="uid://cfr3vsjvcfj7n" path="res://assets/textures/ui/09_extra/scrollbar_track.svg" id="t_09_scrollbar_track"]
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_back_disabled"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_back_disabled")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_back_hover"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_back_hover")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_back_normal"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_back_normal")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_back_pressed"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_back_pressed")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_secondary_disabled"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_secondary_disabled")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_secondary_hover"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_secondary_hover")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_secondary_normal"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_secondary_normal")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_secondary_pressed"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_secondary_pressed")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxEmpty" id="sb_empty"]
+
+[sub_resource type="StyleBoxTexture" id="sb_chip_bad"]
+content_margin_left = 10.0
+content_margin_top = 3.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+texture = ExtResource("t_09_pill_bad")
+texture_margin_left = 10.0
+texture_margin_top = 6.0
+texture_margin_right = 10.0
+texture_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxTexture" id="sb_chip_good"]
+content_margin_left = 10.0
+content_margin_top = 3.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+texture = ExtResource("t_09_pill_good")
+texture_margin_left = 10.0
+texture_margin_top = 6.0
+texture_margin_right = 10.0
+texture_margin_bottom = 8.0
 
 [sub_resource type="StyleBoxTexture" id="sb_close_x_normal"]
 texture = ExtResource("t_03_close_normal")
@@ -136,48 +161,48 @@ texture = ExtResource("t_03_close_hover")
 texture = ExtResource("t_03_close_pressed")
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_danger_disabled"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_danger_disabled")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_danger_hover"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_danger_hover")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_danger_normal"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_danger_normal")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_danger_pressed"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_danger_pressed")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_fill_green"]
 texture = ExtResource("t_06_bar_bar_fill_stamina")
@@ -196,6 +221,17 @@ texture_margin_bottom = 22.0
 [sub_resource type="StyleBoxTexture" id="sb_panel_cream"]
 content_margin_left = 30.0
 content_margin_top = 26.0
+content_margin_right = 30.0
+content_margin_bottom = 26.0
+texture = ExtResource("t_02_panel_panel_cream_stitched")
+texture_margin_left = 44.0
+texture_margin_top = 44.0
+texture_margin_right = 44.0
+texture_margin_bottom = 44.0
+
+[sub_resource type="StyleBoxTexture" id="sb_panel_jeda"]
+content_margin_left = 30.0
+content_margin_top = 24.0
 content_margin_right = 30.0
 content_margin_bottom = 26.0
 texture = ExtResource("t_02_panel_panel_cream_stitched")
@@ -238,48 +274,48 @@ texture_margin_right = 44.0
 texture_margin_bottom = 44.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_primary_disabled"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_primary_disabled")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_primary_hover"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_primary_hover")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_primary_normal"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_primary_normal")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_btn_primary_pressed"]
-content_margin_left = 28.0
-content_margin_top = 12.0
-content_margin_right = 28.0
-content_margin_bottom = 12.0
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
 texture = ExtResource("t_03_button_button_primary_pressed")
-texture_margin_left = 32.0
-texture_margin_top = 26.0
-texture_margin_right = 32.0
-texture_margin_bottom = 26.0
+texture_margin_left = 24.0
+texture_margin_top = 22.0
+texture_margin_right = 24.0
+texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="sb_slot"]
 content_margin_left = 10.0
@@ -302,6 +338,8 @@ texture_margin_left = 40.0
 texture_margin_top = 40.0
 texture_margin_right = 40.0
 texture_margin_bottom = 40.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_tooltip_panel"]
 
 [sub_resource type="StyleBoxTexture" id="sb_vscroll_grabber"]
 texture = ExtResource("t_09_scrollbar_grabber")
@@ -386,6 +424,14 @@ CheckBox/styles/hover = SubResource("sb_empty")
 CheckBox/styles/hover_pressed = SubResource("sb_empty")
 CheckBox/styles/normal = SubResource("sb_empty")
 CheckBox/styles/pressed = SubResource("sb_empty")
+ChipBad/base_type = &"PanelContainer"
+ChipBad/styles/panel = SubResource("sb_chip_bad")
+ChipGood/base_type = &"PanelContainer"
+ChipGood/styles/panel = SubResource("sb_chip_good")
+ChipLabel/base_type = &"Label"
+ChipLabel/colors/font_color = Color(0.243, 0.153, 0.102, 1)
+ChipLabel/font_sizes/font_size = 13
+ChipLabel/fonts/font = ExtResource("font_nunito_bold")
 CloseXButton/base_type = &"Button"
 CloseXButton/styles/disabled = SubResource("sb_close_x_normal")
 CloseXButton/styles/focus = SubResource("sb_close_x_hover")
@@ -408,6 +454,10 @@ DangerTitleLabel/base_type = &"Label"
 DangerTitleLabel/colors/font_color = Color(0.898, 0.541, 0.451, 1)
 DangerTitleLabel/font_sizes/font_size = 40
 DangerTitleLabel/fonts/font = ExtResource("font_fredoka")
+EndgameBodyLabel/base_type = &"Label"
+EndgameBodyLabel/colors/font_color = Color(0.522, 0.427, 0.357, 1)
+EndgameBodyLabel/font_sizes/font_size = 20
+EndgameBodyLabel/fonts/font = ExtResource("font_nunito_medium")
 EyebrowLabel/base_type = &"Label"
 EyebrowLabel/colors/font_color = Color(0.922, 0.761, 0.451, 1)
 EyebrowLabel/colors/font_outline_color = Color(0.243, 0.153, 0.102, 1)
@@ -439,6 +489,8 @@ Panel/styles/panel = SubResource("sb_panel_cream")
 PanelCard/base_type = &"PanelContainer"
 PanelCard/styles/panel = SubResource("sb_panel_cream")
 PanelContainer/styles/panel = SubResource("sb_panel_cream")
+PanelJeda/base_type = &"PanelContainer"
+PanelJeda/styles/panel = SubResource("sb_panel_jeda")
 PanelKontrol/base_type = &"PanelContainer"
 PanelKontrol/styles/panel = SubResource("sb_panel_kontrol")
 PanelPlain/base_type = &"PanelContainer"
@@ -473,6 +525,7 @@ SlotPanel/base_type = &"PanelContainer"
 SlotPanel/styles/panel = SubResource("sb_slot")
 SlotPanelSelected/base_type = &"PanelContainer"
 SlotPanelSelected/styles/panel = SubResource("sb_slot_sel")
+TooltipPanel/styles/panel = SubResource("sb_tooltip_panel")
 VScrollBar/styles/grabber = SubResource("sb_vscroll_grabber")
 VScrollBar/styles/grabber_highlight = SubResource("sb_vscroll_grabber_hover")
 VScrollBar/styles/grabber_pressed = SubResource("sb_vscroll_grabber_pressed")

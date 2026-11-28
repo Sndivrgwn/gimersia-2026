@@ -2,7 +2,7 @@ extends Control
 
 ## Menu utama memakai latar dan tombol dari assets/textures/ui lewat
 ## src/ui/theme/ui_theme.tres (StyleBoxTexture 9-slice + font Nunito).
-const SETTINGS_SCENE := preload("res://src/ui/menus/settings_panel.tscn")
+const SETTINGS_SCENE_PATH := "res://src/ui/menus/settings_panel.tscn"
 
 ## Menu utama: scene ini ADALAH `run/main_scene`; juga dibuka dari DeathScreen /
 ## RunController. Pulau dipreload di latar belakang sejak `_ready`.
@@ -79,10 +79,14 @@ func _ready() -> void:
 	# Layar sempat gelap lalu memudar masuk saat menu dibuka.
 	# Preload pulau dimulai setelah fade masuk selesai agar quit cepat atau
 	# smoke test tidak memotong worker thread ResourceLoader di tengah jalan.
+	_screen_fade.color = ENTER_BG_COLOR
 	_screen_fade.visible = true
 	_screen_fade.modulate.a = 1.0
 	_fade_screen_to(0.0, FADE_TIME, _on_intro_fade_done)
-	_start_button.grab_focus()
+	if _continue_button != null:
+		_continue_button.grab_focus()
+	else:
+		_start_button.grab_focus()
 
 
 func _process(delta: float) -> void:
@@ -165,7 +169,8 @@ func _ensure_settings_ui() -> void:
 		add_child(service)
 	var panel := get_node_or_null("SettingsPanel") as SettingsPanel
 	if panel == null:
-		panel = SETTINGS_SCENE.instantiate() as SettingsPanel
+		var settings_scene := load(SETTINGS_SCENE_PATH) as PackedScene
+		panel = settings_scene.instantiate() as SettingsPanel
 		panel.name = "SettingsPanel"
 		add_child(panel)
 	panel.setup(service)
@@ -217,7 +222,10 @@ func _ensure_continue_button() -> void:
 	_continue_button = Button.new()
 	_continue_button.name = "ContinueButton"
 	_continue_button.text = "Lanjutkan (Hari %d)" % day
+	_continue_button.theme_type_variation = &"PrimaryButton"
 	_continue_button.custom_minimum_size = _start_button.custom_minimum_size
+	_continue_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_start_button.theme_type_variation = &"SecondaryButton"
 	_continue_button.pressed.connect(_continue_game)
 	parent.add_child(_continue_button)
 	parent.move_child(_continue_button, _start_button.get_index())
@@ -245,8 +253,9 @@ func _begin_enter_game() -> void:
 	_loading_scene = true
 	_start_game_preload()
 	if _loading_box != null:
-		_loading_box.visible = not is_game_preloaded()
-		_loading_bar.value = 100.0 if is_game_preloaded() else 5.0
+		_loading_box.visible = true
+		_loading_box.z_index = 10
+		_loading_bar.value = 10.0
 	_screen_fade.color = ENTER_BG_COLOR
 	_animate_exit_ui()
 	_fade_screen_to(1.0, START_FADE_TIME, func() -> void: _fade_done = true)
@@ -257,10 +266,13 @@ func _animate_exit_ui() -> void:
 	var menu_card := get_node_or_null("MenuCard") as Control
 	var ui_tween := create_tween().set_parallel(true)
 	if title_block != null:
-		ui_tween.tween_property(title_block, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_SINE)
+		ui_tween.tween_property(title_block, "modulate:a", 0.0, 0.24).set_trans(Tween.TRANS_SINE)
+		ui_tween.tween_property(title_block, "position:y", title_block.position.y - 12.0, 0.26).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	if menu_card != null:
-		ui_tween.tween_property(menu_card, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_SINE)
-		ui_tween.tween_property(menu_card, "position:y", menu_card.position.y + 18.0, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+		ui_tween.tween_property(menu_card, "modulate:a", 0.0, 0.24).set_trans(Tween.TRANS_SINE)
+		ui_tween.tween_property(menu_card, "position:y", menu_card.position.y + 18.0, 0.26).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	if _version_label != null:
+		ui_tween.tween_property(_version_label, "modulate:a", 0.0, 0.20).set_trans(Tween.TRANS_SINE)
 
 
 func _mount_enter_iris() -> IrisOverlay:
@@ -335,7 +347,7 @@ func _build_loading_ui() -> void:
 	_loading_label.text = "Memuat pulau..."
 	_loading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_loading_label.add_theme_font_size_override("font_size", 12)
-	_loading_label.add_theme_font_override("font", preload("res://assets/fonts/nunito/Nunito-Medium.ttf"))
+	_loading_label.add_theme_font_override("font", load("res://assets/fonts/nunito/Nunito-Medium.ttf"))
 	_loading_label.add_theme_color_override("font_color", Color(0.968627, 0.945098, 0.898039, 0.9))
 	_loading_box.add_child(_loading_label)
 
@@ -364,7 +376,9 @@ func _quit() -> void:
 	if _starting:
 		return
 	_starting = true
-	_fade_screen_to(1.0, FADE_TIME * 0.7, func() -> void: get_tree().quit())
+	_screen_fade.color = ENTER_BG_COLOR
+	_animate_exit_ui()
+	_fade_screen_to(1.0, START_FADE_TIME, func() -> void: get_tree().quit())
 
 
 # --- Animasi ----------------------------------------------------------------

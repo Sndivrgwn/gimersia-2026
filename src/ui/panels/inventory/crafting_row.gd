@@ -19,21 +19,29 @@ const READY_BORDER := Color(0.45, 0.85, 0.5, 0.8)
 const IDLE_BG := Color(0.1, 0.12, 0.14, 0.55)
 const IDLE_BORDER := Color(0.35, 0.4, 0.35, 0.25)
 const DEFAULT_BATCH_MAX := 5
-const CARD_TEXTURE := "res://assets/textures/ui/inventory/inventory_slot.png"
+const CARD_TEXTURE := "res://assets/textures/ui/02_panel/panel_cream_stitched.png"
+const PILL_GOOD_TEXTURE := "res://assets/textures/ui/09_extra/pill_good.svg"
+const PILL_BAD_TEXTURE := "res://assets/textures/ui/09_extra/pill_bad.svg"
+const BTN_NORMAL_STYLE := preload("res://src/ui/panels/inventory/styles/button_normal.tres")
+const BTN_HOVER_STYLE := preload("res://src/ui/panels/inventory/styles/button_hover.tres")
+const BTN_PRESSED_STYLE := preload("res://src/ui/panels/inventory/styles/button_pressed.tres")
+const BTN_DISABLED_STYLE := preload("res://src/ui/panels/inventory/styles/button_disabled.tres")
+const FONT_BOLD := preload("res://assets/fonts/nunito/Nunito-Bold.ttf")
+const FONT_MEDIUM := preload("res://assets/fonts/nunito/Nunito-Medium.ttf")
 const TOOLTIP_SCENE: PackedScene = preload("res://src/ui/panels/inventory/item_tooltip.tscn")
 
-const TITLE_COLOR := Color(0.22, 0.14, 0.09, 1.0)
-const DESC_COLOR := Color(0.43, 0.34, 0.25, 1.0)
-const META_COLOR := Color(0.48, 0.38, 0.28, 1.0)
-const STATUS_COLOR := Color(0.45, 0.32, 0.2, 1.0)
-const BADGE_TEXT := Color(0.2, 0.14, 0.1, 1.0)
+const TITLE_COLOR := Color(0.243137, 0.152941, 0.101961, 1.0)
+const DESC_COLOR := Color(0.42, 0.30, 0.21, 1.0)
+const META_COLOR := Color(0.42, 0.30, 0.21, 1.0)
+const STATUS_COLOR := Color(0.45, 0.30, 0.20, 1.0)
+const BADGE_TEXT := Color(0.243137, 0.152941, 0.101961, 1.0)
 const BADGE_OK := Color(0.55, 0.73, 0.45, 1.0)
 const BADGE_MISSING := Color(0.88, 0.52, 0.43, 1.0)
 const BADGE_BORDER := Color(0.28, 0.2, 0.13, 1.0)
-const RESULT_ICON_BG := Color(0.9, 0.82, 0.68, 1.0)
-const INGREDIENT_ICON_BG := Color(0.82, 0.86, 0.68, 1.0)
-const ICON_BORDER := Color(0.3, 0.21, 0.14, 1.0)
-const ICON_TEXT := Color(0.25, 0.17, 0.11, 1.0)
+const RESULT_ICON_BG := Color(0.95, 0.89, 0.79, 1.0)
+const INGREDIENT_ICON_BG := Color(0.95, 0.89, 0.79, 1.0)
+const ICON_BORDER := Color(0.243137, 0.152941, 0.101961, 1.0)
+const ICON_TEXT := Color(0.243137, 0.152941, 0.101961, 1.0)
 
 const BUTTON_BG := Color(0.36, 0.23, 0.16, 1.0)
 const BUTTON_HOVER := Color(0.45, 0.3, 0.21, 1.0)
@@ -41,8 +49,8 @@ const BUTTON_PRESSED := Color(0.28, 0.17, 0.11, 1.0)
 const BUTTON_DISABLED := Color(0.72, 0.66, 0.58, 1.0)
 const BUTTON_BORDER := Color(0.2, 0.12, 0.08, 1.0)
 const BUTTON_DISABLED_BORDER := Color(0.45, 0.37, 0.29, 1.0)
-const BUTTON_TEXT := Color(0.97, 0.93, 0.86, 1.0)
-const BUTTON_DISABLED_TEXT := Color(0.48, 0.4, 0.33, 1.0)
+const BUTTON_TEXT := Color(0.243137, 0.152941, 0.101961, 1.0)
+const BUTTON_DISABLED_TEXT := Color(0.243137, 0.152941, 0.101961, 0.85)
 
 var recipe: RecipeDefinition
 var crafting: CraftingComponent
@@ -62,8 +70,8 @@ var _ingredient_labels: Array[Label] = []
 var _ingredient_badges: Array[PanelContainer] = []
 var _missing_flags: Array[bool] = []
 var _block_reason: String = ""
-var _badge_ok: StyleBoxFlat
-var _badge_missing: StyleBoxFlat
+var _badge_ok: StyleBox
+var _badge_missing: StyleBox
 
 
 func setup(
@@ -174,19 +182,28 @@ func refresh() -> void:
 	_craft_button.disabled = locked or not _block_reason.is_empty() or busy
 	_craft_button.tooltip_text = _block_reason
 
-	var status := _status_text()
+	var status := _status_text(busy)
 	_reason_label.text = status
-	_reason_label.visible = not status.is_empty()
+	_reason_label.visible = true
+	var ready := not locked and _block_reason.is_empty() and not busy
+	_reason_label.add_theme_color_override(
+		"font_color",
+		Color(0.28, 0.45, 0.22, 1.0) if ready else Color(0.62, 0.24, 0.18, 1.0)
+	)
 	modulate = Color(1.0, 1.0, 1.0, LOCKED_ALPHA) if locked else Color(1.0, 1.0, 1.0, 1.0)
-	_apply_highlight(not locked and _block_reason.is_empty() and not busy)
+	_apply_highlight(ready)
 
 
-func _status_text() -> String:
+func _status_text(busy: bool = false) -> String:
 	if locked:
 		return locked_reason if not locked_reason.is_empty() else "Harus di meja untuk dibuat"
 	if _block_reason == CraftingComponent.REASON_NO_INGREDIENTS:
 		return _missing_status_text()
-	return _block_reason
+	if not _block_reason.is_empty():
+		return _block_reason
+	if busy:
+		return "Sedang membuat..."
+	return "Bisa dibuat"
 
 
 func _missing_status_text() -> String:
@@ -232,16 +249,16 @@ func _update_ingredients() -> void:
 func _build() -> void:
 	var card := StyleBoxTexture.new()
 	card.texture = load(CARD_TEXTURE)
-	card.texture_margin_left = 18.0
-	card.texture_margin_top = 18.0
-	card.texture_margin_right = 18.0
-	card.texture_margin_bottom = 18.0
-	card.content_margin_left = 18.0
+	card.texture_margin_left = 34.0
+	card.texture_margin_top = 34.0
+	card.texture_margin_right = 34.0
+	card.texture_margin_bottom = 34.0
+	card.content_margin_left = 22.0
 	card.content_margin_top = 14.0
-	card.content_margin_right = 18.0
+	card.content_margin_right = 22.0
 	card.content_margin_bottom = 14.0
 	add_theme_stylebox_override("panel", card)
-	custom_minimum_size = Vector2(0.0, 128.0)
+	custom_minimum_size = Vector2(0.0, 108.0)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -268,13 +285,15 @@ func _build() -> void:
 
 	_name_label = _make_label("", 16, TITLE_COLOR)
 	_name_label.name = "Name"
+	_name_label.add_theme_font_override("font", FONT_BOLD)
 	_name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_name_label.clip_text = true
 	info.add_child(_name_label)
 
-	_time_label = _make_label("", 9, META_COLOR)
+	_time_label = _make_label("", 11, META_COLOR)
 	_time_label.name = "Meta"
+	_time_label.add_theme_font_override("font", FONT_MEDIUM)
 	info.add_child(_time_label)
 
 	var ingredients := HBoxContainer.new()
@@ -286,8 +305,8 @@ func _build() -> void:
 
 	_ingredient_labels.clear()
 	_ingredient_badges.clear()
-	_badge_ok = _badge_style(BADGE_OK)
-	_badge_missing = _badge_style(BADGE_MISSING)
+	_badge_ok = _pill_style(PILL_GOOD_TEXTURE)
+	_badge_missing = _pill_style(PILL_BAD_TEXTURE)
 	for amount in recipe.ingredients:
 		var col := VBoxContainer.new()
 		col.add_theme_constant_override("separation", 2)
@@ -299,11 +318,12 @@ func _build() -> void:
 		col.add_child(icon)
 
 		var badge := PanelContainer.new()
-		badge.custom_minimum_size = Vector2(38.0, 17.0)
+		badge.custom_minimum_size = Vector2(46.0, 22.0)
 		badge.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		badge.mouse_filter = Control.MOUSE_FILTER_PASS
 		badge.add_theme_stylebox_override("panel", _badge_ok)
-		var label := _make_label("", 9, BADGE_TEXT)
+		var label := _make_label("", 12, BADGE_TEXT)
+		label.add_theme_font_override("font", FONT_BOLD)
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		badge.add_child(label)
@@ -319,29 +339,20 @@ func _build() -> void:
 	action.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(action)
 
-	_count_input = SpinBox.new()
-	_count_input.name = "Count"
-	_count_input.min_value = 1
-	_count_input.max_value = DEFAULT_BATCH_MAX
-	_count_input.step = 1
-	_count_input.value = 1
-	_count_input.tooltip_text = "Jumlah craft"
-	_count_input.custom_minimum_size = Vector2(62.0, 26.0)
-	if crafting != null:
-		_count_input.max_value = maxi(crafting.get_station_config().craft_batch_max, 1)
-	action.add_child(_count_input)
-
 	_craft_button = Button.new()
+	_craft_button.name = "Button"
 	_craft_button.text = "Buat"
-	_craft_button.custom_minimum_size = Vector2(130.0, 30.0)
+	_craft_button.custom_minimum_size = Vector2(118.0, 38.0)
 	_craft_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_craft_button.focus_mode = Control.FOCUS_ALL
 	_craft_button.mouse_filter = Control.MOUSE_FILTER_STOP
-	_craft_button.add_theme_font_size_override("font_size", 10)
-	_craft_button.add_theme_stylebox_override("normal", _button_style(BUTTON_BG, BUTTON_BORDER))
-	_craft_button.add_theme_stylebox_override("hover", _button_style(BUTTON_HOVER, BUTTON_BORDER))
-	_craft_button.add_theme_stylebox_override("pressed", _button_style(BUTTON_PRESSED, BUTTON_BORDER))
-	_craft_button.add_theme_stylebox_override("disabled", _button_style(BUTTON_DISABLED, BUTTON_DISABLED_BORDER))
+	_craft_button.add_theme_font_override("font", FONT_BOLD)
+	_craft_button.add_theme_font_size_override("font_size", 15)
+	_craft_button.add_theme_stylebox_override("normal", BTN_NORMAL_STYLE)
+	_craft_button.add_theme_stylebox_override("hover", BTN_HOVER_STYLE)
+	_craft_button.add_theme_stylebox_override("pressed", BTN_PRESSED_STYLE)
+	_craft_button.add_theme_stylebox_override("disabled", BTN_DISABLED_STYLE)
+	_craft_button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	_craft_button.add_theme_color_override("font_color", BUTTON_TEXT)
 	_craft_button.add_theme_color_override("font_hover_color", BUTTON_TEXT)
 	_craft_button.add_theme_color_override("font_pressed_color", BUTTON_TEXT)
@@ -409,29 +420,17 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 	return tip
 
 
-func _badge_style(bg: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.border_color = BADGE_BORDER
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(5)
-	style.content_margin_left = 4.0
-	style.content_margin_top = 1.0
-	style.content_margin_right = 4.0
-	style.content_margin_bottom = 1.0
-	return style
-
-
-func _button_style(bg: Color, border: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.border_color = border
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(8)
-	style.content_margin_left = 10.0
-	style.content_margin_top = 4.0
-	style.content_margin_right = 10.0
-	style.content_margin_bottom = 4.0
+func _pill_style(tex_path: String) -> StyleBoxTexture:
+	var style := StyleBoxTexture.new()
+	style.texture = load(tex_path)
+	style.texture_margin_left = 10.0
+	style.texture_margin_top = 8.0
+	style.texture_margin_right = 10.0
+	style.texture_margin_bottom = 10.0
+	style.content_margin_left = 8.0
+	style.content_margin_top = 2.0
+	style.content_margin_right = 8.0
+	style.content_margin_bottom = 3.0
 	return style
 
 
@@ -441,14 +440,5 @@ func _on_craft_pressed() -> void:
 	crafting.start_craft(recipe, station, get_batch_quantity())
 
 
-func _apply_highlight(is_ready: bool) -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = READY_BG if is_ready else IDLE_BG
-	style.border_color = READY_BORDER if is_ready else IDLE_BORDER
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(4)
-	style.content_margin_left = 8.0
-	style.content_margin_right = 8.0
-	style.content_margin_top = 4.0
-	style.content_margin_bottom = 4.0
-	add_theme_stylebox_override(&"panel", style)
+func _apply_highlight(_is_ready: bool) -> void:
+	pass

@@ -8,4 +8,4 @@ id = &"hide"
 display_name = "Kulit"
 description = "Kulit hewan; bahan armor dan wadah air."
 category = 0
-max_stack = 20
+max_stack = 99

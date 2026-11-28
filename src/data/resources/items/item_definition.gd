@@ -23,8 +23,10 @@ enum EquipmentSlot { NONE, WEAPON, TOOL, ARMOR }
 @export_multiline var description: String = ""
 ## Kategori item.
 @export var category: Category = Category.RESOURCE
-## Maksimum tumpukan per slot. Spesifikasi: 20 (Waterskin/Flare = 1).
-@export var max_stack: int = 20
+## Maksimum tumpukan per slot (maks 99; Waterskin/Flare = 1).
+@export var max_stack: int = 99
+## Berat per 1 item dalam kg (batas tas 30 kg).
+@export var weight: float = 0.5
 ## Ikon opsional; HUD jatuh ke display_name bila null.
 @export var icon: Texture2D
 ## Efek saat dipakai. Null berarti item tidak berefek.
@@ -45,6 +47,10 @@ enum EquipmentSlot { NONE, WEAPON, TOOL, ARMOR }
 @export var armor_damage_reduction: float = 0.0
 ## Bonus max HP armor.
 @export var armor_max_hp_bonus: float = 0.0
+
+
+func get_weight() -> float:
+	return maxf(weight, 0.0)
 
 
 func is_consumable() -> bool:
